@@ -109,6 +109,40 @@ python3 coderail/scripts/doctor.py --target /path/to/your/repo
 
 Reach for `/coderail:handoff` only when a handoff trigger fires (H1/H2/H3), and `/coderail:drift-check` periodically or before a PR.
 
+### Install by telling your agent (no plugin support required)
+
+If your agent has shell access but no plugin marketplace, paste this prompt into a fresh session. It bootstraps CodeRail into the current repo and runs the health check. Works with Cursor, Gemini CLI, Aider, or any agent that can run shell commands.
+
+```text
+Install the CodeRail governance kit into this repository, then initialize it.
+
+1. If coderail is not yet on disk, clone it:
+   git clone https://github.com/HaipingShi/coderail.git /tmp/coderail
+
+2. Copy the project template into the current repo (do not overwrite existing files):
+   python3 /tmp/coderail/scripts/init_project.py --target . --mode standard
+
+3. Fill docs/NORTH_STAR.md with this project's Outcome, Current Bet,
+   Invariants, Non-Goals, and Current Slice. Keep it under 100 lines.
+   If any field is unknown, mark it and ask me.
+
+4. Run the health check and report the result:
+   python3 /tmp/coderail/scripts/doctor.py --target .
+
+From now on, follow AGENTS.md in this repo: output a North-Star Check
+before coding, write a task contract before implementation, and do not
+mark work done until the harness passes or manual acceptance is recorded.
+```
+
+What this does, step by step:
+
+1. **Clone** — gets the kit to `/tmp/coderail` (adjust the path for your OS).
+2. **Install** — `init_project.py` copies `AGENTS.md`, `CLAUDE.md`, and the `docs/` set into your repo. It refuses to overwrite non-empty files, so existing docs are safe.
+3. **Author** — the agent drafts `NORTH_STAR.md` from your project context and asks you about anything unclear. This is the file every later skill reads from.
+4. **Verify** — `doctor.py` confirms the install is healthy before any coding starts.
+
+After this, your repo is self-sufficient: it carries `AGENTS.md` as the runtime entry point, so future sessions stay governed even without the plugin loaded — the agent just reads `AGENTS.md` and follows it.
+
 ## How it differs from related work
 
 CodeRail is **not** a competing methodology — it operates at a different layer than most. The honest positioning:
