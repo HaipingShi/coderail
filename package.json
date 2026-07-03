@@ -1,0 +1,12 @@
+{
+  "name": "coderail",
+  "version": "0.2.0",
+  "description": "North-Star Kernel and governance skills for AI coding agents",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "python3 -m pytest tests || python3 tests/test_structure.py",
+    "doctor": "python3 scripts/doctor.py --target .",
+    "drift-check": "python3 scripts/drift_check.py --target ."
+  }
+}

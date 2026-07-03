@@ -1,0 +1,35 @@
+{
+  "name": "coderail",
+  "version": "0.2.0",
+  "description": "North-Star Kernel and task/handoff/harness skills for AI coding agents.",
+  "author": {
+    "name": "AI Coding Governance Kit"
+  },
+  "homepage": "https://example.local/coderail",
+  "repository": "https://example.local/coderail",
+  "license": "MIT",
+  "keywords": [
+    "ai-coding",
+    "agents",
+    "governance",
+    "handoff",
+    "harness"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "CodeRail",
+    "shortDescription": "Keep AI coding aligned, test-gated, and handoff-ready.",
+    "longDescription": "A workflow kit for AI coding agents. It adds a North-Star Kernel, task contracts, execution batches, harness gates, handoff discipline, asset boundaries, and drift checks without loading a long governance manual every turn.",
+    "developerName": "AI Coding Governance Kit",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Shell"
+    ],
+    "defaultPrompt": [
+      "Use CodeRail to align this feature before coding.",
+      "Use CodeRail to create a task contract and run the done gate."
+    ]
+  }
+}

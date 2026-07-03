@@ -1,0 +1,17 @@
+{
+  "name": "local-repo",
+  "plugins": [
+    {
+      "name": "coderail",
+      "source": {
+        "source": "local",
+        "path": "./plugins/coderail"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "NONE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

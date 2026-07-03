@@ -1,0 +1,16 @@
+{
+  "note": "Example only. Not enabled by default.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Review changed files and run the relevant harness before marking done.'"
+          }
+        ]
+      }
+    ]
+  }
+}
