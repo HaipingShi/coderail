@@ -6,9 +6,26 @@
 
 A lightweight, plugin-style governance kit for AI coding agents. North-Star Kernel · Task Contracts · Harness Gates · Drift Checks · Short Handoffs.
 
-`v0.2.0` · MIT · No runtime hooks by default
+<a href="https://github.com/HaipingShi/coderail/releases/tag/v0.2.0"><img alt="version" src="https://img.shields.io/badge/version-v0.2.0-2EA44F?logo=semver&logoColor=white"></a>
+<a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-blue.svg?logo=opensourceinitiative&logoColor=white"></a>
+<img alt="python" src="https://img.shields.io/badge/python-3.7%2B-3776AB?logo=python&logoColor=white">
+<img alt="tests" src="https://img.shields.io/badge/tests-passing-brightgreen">
+<a href="https://github.com/HaipingShi/coderail/releases"><img alt="release" src="https://img.shields.io/badge/release-v0.2.0-6E40C9?logo=github&logoColor=white"></a>
+
+<br>
+
+<img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-compatible-D97757?logo=anthropic&logoColor=white">
+<img alt="Codex" src="https://img.shields.io/badge/Codex-compatible-412991?logo=openai&logoColor=white">
+<img alt="Cursor" src="https://img.shields.io/badge/Cursor-compatible-555?logo=data:image/svg%2Bxml;base64,&logoColor=white">
+<img alt="No hooks" src="https://img.shields.io/badge/runtime_hooks-off_by_default-888">
 
 </div>
+
+---
+
+> **TL;DR** — CodeRail keeps AI coding agents from drifting. Before coding, the agent checks the task against a persistent *North Star*. Before declaring done, it must pass a harness gate. Before handoff, it writes a snapshot, not a log.
+
+
 
 ---
 
