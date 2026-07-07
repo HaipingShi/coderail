@@ -5,6 +5,10 @@ Coordinate (K1), and the Trace Graph (K7): before coding, confirm the task
 serves `docs/NORTH_STAR.md`, fill a CodeRail Coordinate (G/T/S/V/X/P), and make
 every meaningful action linkable in `docs/TRACELOG.jsonl`.
 
+**Do not edit CodeRail's own governance files** (`AGENTS.md` rule sections,
+`references/`, `skills/`, `scripts/`, manifests) unless the user explicitly asks
+to upgrade CodeRail. See the Governance Layering section of `AGENTS.md`.
+
 ## Default flow
 
 Use these plugin skills when available:

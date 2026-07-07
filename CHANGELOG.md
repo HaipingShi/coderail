@@ -5,6 +5,80 @@ All notable changes to CodeRail are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2026-07-07
+
+The governance protection + hooks release. Adds an explicit layering rule so
+agents do not rewrite CodeRail's own governance files, and ships an opt-in hooks
+example set for periodic drift correction.
+
+### Added — Governance Layering
+- **Governance Layering section** in `AGENTS.md`: L1 governance core (do not
+  modify), L2 project assets (controlled edits via governance flow), L3 business
+  code (free within Coordinate scope). Tells agents which files they may edit.
+- **Claude Code `permissions.deny` example** expanded in
+  `examples/claude/settings.example.json` to block edits to L1 paths
+  (`references/`, `skills/`, `scripts/`, manifests, `AGENTS.md`,
+  `docs/TRACELOG.jsonl`). Opt-in; not enabled by default.
+- **`references/HOOKS.md`** — guide on what to protect with deny rules, what to
+  wire as hooks vs pre-commit, and what must NOT be wired as a gate.
+
+### Added — Periodic correction hooks (all opt-in)
+- **`examples/hooks.example.json`** rewritten as a multi-scenario set:
+  - `PostToolUse` (Write\|Edit): soft reminder to write a trace event.
+  - `Stop`: short `doctor.py` summary at turn end so drift does not accumulate.
+  - `pre_commit_examples`: hard gates for `coordinate_check.py` and
+    `drift_check.py` (block commits missing G/V/P or with detected drift).
+
+### Design rules enforced
+- **`blueprint_check.py` is explicitly excluded** from all blocking hooks. It is
+  an educational reminder layer; blocking on missing diagrams would misfire on
+  every new project and violate its non-judgmental design.
+- **CodeRail ships no active hooks by default.** All hook/deny examples are
+  opt-in, user-reviewed. This stance is unchanged from v0.2.0.
+
+### Changed
+- `CLAUDE.md` runtime entry adds a one-line pointer to the Governance Layering
+  rule (kept short).
+
+## [0.4.1] - 2026-07-07
+
+The Blueprint Awareness release. Adds a non-blocking educational layer that
+surfaces the technical diagrams a project usually benefits from — turning
+"unknown unknowns" into "at least heard of".
+
+### Added — Blueprint Awareness
+- **`references/BLUEPRINT_STANDARD.md`** — concise encyclopedia of the 11
+  standard technical diagrams across 4 layers (interaction / architecture /
+  data / deployment). Each entry: what pain it solves, the symptom of its
+  absence, a minimal mermaid example, and when it's not needed.
+- **`scripts/blueprint_check.py`** — scans project signals (UI? DB? multiple
+  modules? HTTP API? stateful entities? Dockerfile? CI?), infers which diagrams
+  are relevant for this project type, and surfaces them with inline
+  explanations. Adaptive: a TTS model is not told it needs an ER diagram; a
+  single-page gradio app is not told it needs User Flow.
+- **`/blueprint` skill** — surfaces the relevant diagrams; never blocks,
+  never judges compliance, only teaches that the diagrams exist.
+- **`tests/test_blueprint.py`** — 17 tests covering signal detection,
+  relevance mapping, and false-positive guards (transformer "transition" must
+  not trigger a business state machine; "Link to" in a gradio file must not
+  trigger multi-page UI).
+
+### Changed
+- **`scripts/doctor.py`** — adds a `## Blueprint Awareness` section to the
+  report. Educational and non-blocking: never reports severe, never changes
+  the exit code, never affects the health status.
+
+### Notes
+- This layer is **not** a kernel row (K0–K7 unchanged). It is a doctor section
+  + a reference + an optional skill.
+- It does **not** check whether diagrams were drawn. It only surfaces which
+  diagrams the project type typically benefits from — so developers learn the
+  names of structural concepts before the project rots in the middle stage.
+- BIM analogy: vibe coding is like building by hand; a complex project without
+  blueprints accumulates structural debt that becomes unfixable and un-auditable.
+  This layer tells you "this kind of building usually has these diagrams —
+  have you heard of them?"
+
 ## [0.4.0] - 2026-07-06
 
 The Coordinate + Trace release. CodeRail gains a task coordinate compression layer
@@ -127,6 +201,8 @@ Initial document package.
   tool-native enforcement (K4), handoff / continuation (K5), and asset
   boundary (K6).
 
+[0.4.2]: https://github.com/HaipingShi/coderail/releases/tag/v0.4.2
+[0.4.1]: https://github.com/HaipingShi/coderail/releases/tag/v0.4.1
 [0.4.0]: https://github.com/HaipingShi/coderail/releases/tag/v0.4.0
 [0.2.0]: https://github.com/HaipingShi/coderail/releases/tag/v0.2.0
 [0.1.0]: https://github.com/HaipingShi/coderail/releases/tag/v0.1.0

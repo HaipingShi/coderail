@@ -36,6 +36,10 @@ if str(SCRIPTS_DIR) not in sys.path:
 import coordinate_check  # noqa: E402
 import trace_doctor  # noqa: E402
 
+# blueprint_check is optional in spirit (non-blocking), but we import it
+# unconditionally to surface the awareness section in every doctor run.
+import blueprint_check  # noqa: E402
+
 
 def read(path: Path) -> str:
     try:
@@ -169,6 +173,12 @@ def main(argv=None) -> int:
     section("Asset Boundary", [], asset_warnings)
     section("Trace Graph", trace_severe, trace_warnings)
     section("Entry file (AGENTS.md)", [], agents_warnings)
+
+    # Blueprint Awareness is educational, non-blocking, and multi-line — it does
+    # NOT go through section() (which is severe/warning二元) and never affects
+    # exit code or status. It only surfaces diagrams the project might benefit from.
+    print("\n## Blueprint Awareness")
+    print(blueprint_check.run_check(root))
 
     print("\n## Optional files present")
     for item in OPTIONAL:

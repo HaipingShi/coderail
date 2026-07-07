@@ -1,16 +1,51 @@
 {
-  "note": "Example only. Not enabled by default.",
+  "note": "Examples only. Not enabled by default. CodeRail ships no active hooks. Review these, then copy the ones you want into your Claude Code settings or your git hooks. See references/HOOKS.md for what each does and when to use it.",
+  "_design_rule": "Never wire blueprint_check into a blocking hook. It is an educational reminder layer (non-blocking by design). Only coordinate_check and drift_check are hard enough to gate commits.",
   "hooks": {
     "PostToolUse": [
       {
+        "_when": "After any Write/Edit. Soft reminder to trace the change.",
         "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Review changed files and run the relevant harness before marking done.'"
+            "command": "echo 'CodeRail: if this was a non-trivial change, write a trace event. Run: python3 scripts/trace_event.py --target . --type change --summary \"...\" --files \"$CLAUDE_FILE_PATHS\" --task T-XXX'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_when": "At the end of an agent turn. Surfaces a short doctor summary so drift does not accumulate silently.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 scripts/doctor.py --target . 2>/dev/null | head -30 || echo '(doctor skipped: not a CodeRail project)'"
           }
         ]
       }
     ]
-  }
+  },
+  "pre_commit_examples": {
+    "_note": "These are NOT Claude Code hooks. They go in .git/hooks/pre-commit (or your pre-commit framework) and gate commits. Copy the ones matching your risk tolerance.",
+    "coordinate_gate": {
+      "_what": "Block commit if any active/doing/done task is missing G/V/P fields.",
+      "_severity": "hard (exit 1 on failure)",
+      "command": "python3 scripts/coordinate_check.py --target . || (echo 'BLOCKED: coordinate_check failed — a task is missing G/V/P. Run /task-contract.' && exit 1)"
+    },
+    "drift_gate": {
+      "_what": "Block commit if drift is detected (orphan tasks, done without verify trace, etc.).",
+      "_severity": "hard (exit 1 on failure)",
+      "command": "python3 scripts/drift_check.py --target . || (echo 'BLOCKED: drift detected — resolve before commit. Run /drift-check.' && exit 1)"
+    },
+    "trace_index_refresh": {
+      "_what": "Regenerate the trace index so it stays fresh (soft, never blocks).",
+      "_severity": "soft (always exit 0)",
+      "command": "python3 scripts/trace_index.py --target . >/dev/null 2>&1; exit 0"
+    }
+  },
+  "do_not_wire": [
+    "blueprint_check.py — educational only; blocking on missing diagrams would misfire on every new project and violates its non-judgmental design.",
+    "doctor.py as a commit gate — it is a read-only health report, not a gate. Its findings are warnings, not failures."
+  ]
 }

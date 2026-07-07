@@ -15,11 +15,12 @@ def test_codex_manifest_points_to_skills():
     assert (ROOT / 'skills').exists()
 
 
-def test_version_is_0_4_0():
-    assert (ROOT / 'VERSION').read_text().strip() == '0.4.0'
+def test_versions_consistent():
+    expected = (ROOT / 'VERSION').read_text().strip()
+    assert expected, 'VERSION file is empty'
     for manifest in ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json', 'package.json']:
         data = json.loads((ROOT / manifest).read_text())
-        assert data['version'] == '0.4.0', f"{manifest} version is {data['version']}"
+        assert data['version'] == expected, f"{manifest} version {data['version']} != VERSION {expected}"
 
 
 def test_all_skills_have_frontmatter_name_description():
@@ -34,11 +35,13 @@ def test_all_skills_have_frontmatter_name_description():
 def test_trace_and_link_skills_exist():
     assert (ROOT / 'skills/trace/SKILL.md').exists()
     assert (ROOT / 'skills/link/SKILL.md').exists()
+    assert (ROOT / 'skills/blueprint/SKILL.md').exists()
 
 
 def test_coordinate_and_trace_references_exist():
     assert (ROOT / 'references/CODERAIL_COORDINATE.md').exists()
     assert (ROOT / 'references/TRACE_GRAPH.md').exists()
+    assert (ROOT / 'references/BLUEPRINT_STANDARD.md').exists()
 
 
 def test_project_template_has_trace_files():
@@ -62,7 +65,7 @@ def test_entry_files_stay_short():
 
 
 def test_trace_scripts_exist():
-    for script in ['trace_event.py', 'trace_index.py', 'trace_doctor.py', 'coordinate_check.py']:
+    for script in ['trace_event.py', 'trace_index.py', 'trace_doctor.py', 'coordinate_check.py', 'blueprint_check.py']:
         assert (ROOT / 'scripts' / script).exists(), f'missing scripts/{script}'
 
 

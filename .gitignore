@@ -14,3 +14,7 @@ Thumbs.db
 # Local environment
 .env
 .env.*
+
+# E2E test artifacts (run_e2e.py uses a temp dir, but guard against stray demo-app)
+demo-app/
+coderail-e2e-*/

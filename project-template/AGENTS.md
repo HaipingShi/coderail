@@ -2,6 +2,16 @@
 
 This repository uses CodeRail.
 
+## Governance Layering（治理分层）
+
+Before editing any file, recognize which layer it belongs to. Do not modify, rewrite, or "optimize" files in a higher layer without explicit user authorization.
+
+- **L1 治理内核（不可动）**: The K0–K7 rule sections of this file, `references/`, `skills/`, `scripts/`, `.claude-plugin/`, `.codex-plugin/`. Unless the user explicitly says "upgrade CodeRail", do not modify these. Treat drift in these files as a stop condition.
+- **L2 项目资产（受控改）**: `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/DECISIONS.md`, `docs/HANDOFF.md`, `docs/TRACELOG.jsonl`, `docs/HARNESS_SPEC.md`. Editing these requires the governance flow — go through `/align` or `/task-contract`, and write a trace event. `TRACELOG.jsonl` is append-only; never edit past lines.
+- **L3 业务代码（自由改）**: `src/`, `tests/`, business logic. Edit freely within the `S` (Scope) field of the current CodeRail Coordinate.
+
+If you are unsure which layer a file belongs to, ask the user. Do not assume.
+
 ## K0 North-Star Kernel
 
 Before any implementation, read or create `docs/NORTH_STAR.md`.
