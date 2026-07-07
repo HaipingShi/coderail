@@ -1,11 +1,13 @@
 ---
 name: handoff
-description: Generate an H0-H3 handoff decision and update docs/HANDOFF.md only when needed. Use when switching agents, ending a batch, blocked, failing, or resuming long work.
+description: Generate an H0-H3 handoff decision, write a Coordinate Summary, and update docs/HANDOFF.md only when needed. Use when switching agents, ending a batch, blocked, failing, or resuming long work.
 ---
 
 # Handoff
 
-Handoff is a current-state snapshot, not an execution log.
+Handoff is a current-state snapshot, not an execution log. It carries a
+Coordinate Summary so the next agent can resume from the smallest possible
+state.
 
 ## Handoff levels
 
@@ -31,6 +33,7 @@ Handoff is a current-state snapshot, not an execution log.
 - rejected candidates
 - durable architecture decisions
 - reusable failure lessons
+- the full TRACELOG
 
 Use:
 
@@ -38,6 +41,7 @@ Use:
 - `docs/DECISIONS.md` for durable decisions.
 - `docs/LESSONS.md` for reusable lessons.
 - `docs/ASSETS.md` for asset state.
+- `docs/TRACELOG.jsonl` / `docs/TRACE_INDEX.md` for the action chain.
 
 ## Output
 
@@ -50,6 +54,30 @@ Level: H0 | H1 | H2 | H3
 Reason:
 HANDOFF.md update required: yes | no
 
+## Coordinate Summary
+
+Current G:
+- 
+
+Current T:
+- 
+
+Current S:
+- Allowed:
+- Forbidden:
+
+Current V:
+- 
+
+Current X:
+- 
+
+Current P:
+- 
+
+Trace:
+- (most recent task/verify trace ids)
+
 ## Handoff Snapshot
 
 Current task:
@@ -58,6 +86,18 @@ Done:
 Blocked:
 Tests:
 Important files:
+Orphan / drift notes:
 Next action:
 Resume prompt:
 ```
+
+## Flags
+
+- If the current task's G is unclear, mark the handoff `needs-align`.
+- If the handoff introduces a new direction but `NORTH_STAR.md` is not updated, mark it `drift`.
+- Keep the handoff short. Do not copy the whole task document — only the Coordinate Summary above.
+
+## Trace
+
+Writing an H1/H2/H3 handoff also writes a `handoff` trace event referencing the
+current task. Use `/trace --type handoff` or `scripts/trace_event.py`.

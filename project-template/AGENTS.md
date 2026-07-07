@@ -19,6 +19,38 @@ If `docs/NORTH_STAR.md` does not exist, create a provisional one before coding.
 If the user request is L0-L3, do not implement directly. First produce an engineering judgment and a task contract.
 If a task cannot be mapped to the North Star, stop and run alignment before editing code.
 
+## K1 CodeRail Coordinate
+
+Before implementation, every non-trivial task must have a CodeRail Coordinate:
+
+- **G — Goal**: which North Star outcome this serves.
+- **T — Task**: the exact task to complete.
+- **S — Scope**: allowed and forbidden files/assets.
+- **V — Verify**: harness, test, build, or manual acceptance.
+- **X — Stop**: conditions that require stopping or escalating.
+- **P — Persist**: project assets to update after the action.
+
+If any field is missing, stop and run `/align` or `/task-contract`. Do not code
+from vague intent. Do not mark done without V. Do not modify outside S. Do not
+continue after X is triggered. Do not leave P unsynced.
+
+## K7 Trace Graph
+
+Before implementation, every non-trivial action must be linkable:
+
+1. What North Star outcome does it serve?
+2. What task or intent does it implement?
+3. What files or assets does it modify?
+4. What validates it?
+5. What state should persist after it?
+6. What trace event records this action?
+
+If an action cannot be linked to a North Star, task, validation, or persistent
+asset, stop and run `/align` or `/trace`.
+
+Full coordinate and trace schemas live in
+`references/CODERAIL_COORDINATE.md` and `references/TRACE_GRAPH.md`.
+
 ## Load order
 
 Always read:
@@ -34,6 +66,7 @@ Read when needed:
 - `docs/DECISIONS.md`: dependency, architecture, API, data model, security, build system changes.
 - `docs/LESSONS.md`: repeated error, failed harness, related module failure.
 - `docs/ASSETS.md`: raw material, generated documents, exported files, intermediate analysis.
+- `docs/TRACELOG.jsonl` / `docs/TRACE_INDEX.md`: why the project looks the way it does.
 - `docs/RUNLOG.md`: only when detailed execution history is needed.
 
 ## Intent levels
@@ -42,7 +75,7 @@ Read when needed:
 - L1 Product / Domain: user flows, domain objects, behavior boundaries.
 - L2 Architecture: modules, state ownership, runtime boundaries, dependency direction.
 - L3 Technical Design: API, schema, error model, directory structure, technical choices.
-- L4 Task Plan: task ID, acceptance, allowed files, forbidden files, harness.
+- L4 Task Plan: task ID, acceptance, and the CodeRail Coordinate (G/T/S/V/X/P).
 - L5 Implementation: code, tests, scripts, config, migrations.
 
 Do not collapse L0-L3 requests into L5 patches before framing the engineering judgment.
@@ -80,5 +113,7 @@ Pause only when:
 6. Update `docs/DECISIONS.md` only for durable engineering decisions.
 7. Update `docs/LESSONS.md` only for reusable failure lessons.
 8. Update `docs/ASSETS.md` when asset state changes.
-9. Run Handoff Trigger Check.
-10. Update `docs/HANDOFF.md` only for H1/H2/H3.
+9. Write trace events for change / verify (and handoff if H1/H2/H3).
+10. Regenerate `docs/TRACE_INDEX.md`.
+11. Run Handoff Trigger Check.
+12. Update `docs/HANDOFF.md` only for H1/H2/H3.

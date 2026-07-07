@@ -17,26 +17,48 @@ Priority: P1 | P2 | P3
 Owner:
 Branch:
 
-### North-Star Link
+### CodeRail Coordinate
 
-Outcome served:
+> The coordinate compresses Goal, Task, Scope, Verify, Stop, and Persist into
+> one block. It replaces the old separate North-Star Link / Allowed Files /
+> Forbidden Files / Harness / Stop Triggers / Persisted Assets fields. See
+> `references/CODERAIL_COORDINATE.md`.
+
+G — Goal:
+- North Star:
+- Outcome served:
+
+T — Task:
 - 
 
-Current Bet served:
+S — Scope:
+- Allowed:
+  - 
+- Forbidden:
+  - 
+
+V — Verify:
+- Harness:
+  - 
+- Manual acceptance:
+  - 
+
+X — Stop:
+- 
 - 
 
-Invariant preserved:
-- 
-
-Why now:
-- 
-
-What this task must not become:
-- 
-
-Drift risk: low | medium | high
+P — Persist:
+- TASKS:
+- HANDOFF:
+- DECISIONS:
+- LESSONS:
+- ASSETS:
+- TRACE:
 
 ### Task Contract
+
+> Dependency, acceptance, and completion only. Scope/verify/stop live above in
+> the CodeRail Coordinate so they are not duplicated.
 
 Depends on:
 - 
@@ -44,27 +66,19 @@ Depends on:
 Blocks:
 - 
 
-Allowed Files:
-- 
-
-Forbidden Files:
-- 
-
 Acceptance:
 - [ ] 
 - [ ] 
 
-Harness:
-- [ ] 
-
 ### Critical Check
 
-- [ ] The task maps to `docs/NORTH_STAR.md`.
+- [ ] The task maps to `docs/NORTH_STAR.md` through its G field.
 - [ ] The request level was not collapsed incorrectly into implementation.
-- [ ] Changes stayed inside Allowed Files.
+- [ ] Changes stayed inside S (Allowed) and respected S (Forbidden).
 - [ ] No raw material or working note was treated as a permanent asset.
 - [ ] New dependency, API, schema, or persistent state was recorded.
-- [ ] Harness can verify the change or manual acceptance is explicit.
+- [ ] V can verify the change, or manual acceptance is explicit.
+- [ ] P was synced (at least TASKS and TRACE).
 
 ### Completion
 
@@ -72,4 +86,5 @@ Completed at:
 Commit:
 Harness result:
 Handoff level: H0 | H1 | H2 | H3
+Trace:
 Notes:

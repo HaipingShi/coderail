@@ -34,6 +34,37 @@ Drift risk: none | low | medium | high
 Do not continue before resolving:
 - 
 
+## Coordinate Summary
+
+> A minimal snapshot of the current task's CodeRail Coordinate. Do not copy the
+> whole task document; copy only what the next agent needs to resume.
+
+Current G:
+- 
+
+Current T:
+- 
+
+Current S:
+- Allowed:
+- Forbidden:
+
+Current V:
+- 
+
+Current X:
+- 
+
+Current P:
+- 
+
+Trace:
+- 
+
+## Orphan / Drift Notes
+
+- (orphan tasks, orphan changes, verification gaps — leave empty if none)
+
 ## Tests
 
 Passed:

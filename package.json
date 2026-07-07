@@ -1,7 +1,7 @@
 {
   "name": "coderail",
-  "version": "0.2.0",
-  "description": "North-Star Kernel and governance skills for AI coding agents",
+  "version": "0.4.0",
+  "description": "North-Star Kernel, CodeRail Coordinate, and governance skills for AI coding agents",
   "license": "MIT",
   "private": false,
   "author": "HaipingShi",
@@ -20,7 +20,9 @@
     "handoff",
     "harness",
     "north-star",
-    "task-contract"
+    "task-contract",
+    "coordinate",
+    "trace-graph"
   ],
   "scripts": {
     "test": "python3 -m pytest tests || python3 tests/test_structure.py",

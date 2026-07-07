@@ -30,6 +30,8 @@ STANDARD_FILES = LITE_FILES + [
     "docs/RUNLOG.md",
     "docs/TASK_GRAPH.md",
     "docs/METRICS.md",
+    "docs/TRACELOG.jsonl",
+    "docs/TRACE_INDEX.md",
 ]
 
 
@@ -58,6 +60,8 @@ def main() -> int:
     for rel in files:
         print(copy_file(rel, target, args.force))
     print("\nNext: open docs/NORTH_STAR.md and fill Outcome, Current Bet, Invariants, and Current Slice.")
+    print("Then: each task in docs/TASKS.md should carry a CodeRail Coordinate (G/T/S/V/X/P).")
+    print("Trace: append events to docs/TRACELOG.jsonl via scripts/trace_event.py and regenerate docs/TRACE_INDEX.md.")
     return 0
 
 if __name__ == "__main__":
