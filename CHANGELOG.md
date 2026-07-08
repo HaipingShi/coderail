@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.6.1
+
+GitHub polish, install docs, and done gate hardening.
+
+- Hardened `scripts/done_gate.py`: `skipped` harness results now require explicit manual acceptance, and scope matching is path-segment aware.
+- Added `scripts/run_python.js` so npm scripts find a real Python interpreter instead of accepting broken `python3` shims.
+- Fixed Windows UTF-8 test reads and added regression coverage for done gate scope matching and skipped verification.
+- Reworked `README.md` with bilingual English/Chinese docs, richer icons, 5W2H, user/agent guidance, clone-first install prompts, and npm Git URL clarification.
+- Added GitHub project hygiene: CI workflow, issue templates, PR template, release notes config, and release checklist.
+- Expanded `CONTRIBUTING.md` and `SECURITY.md`; completed the MIT license text for better GitHub license detection.
+
 ## v0.6.0
 
 Productization spine.

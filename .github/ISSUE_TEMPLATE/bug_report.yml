@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible CodeRail problem.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Commands, files, or steps needed to reproduce.
+      placeholder: |
+        1. Run ...
+        2. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v0.6.0 or commit SHA
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: OS, Python version, Node version, agent/tool if relevant
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed secrets and private repository data from this report.
+          required: true
