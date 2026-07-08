@@ -12,14 +12,7 @@ This repository uses CodeRail. Keep this file short; full schemas live in `refer
 
 Before implementation, read or create `docs/NORTH_STAR.md`.
 
-Every task must answer:
-
-1. What outcome does this serve?
-2. What user intent level is this request?
-3. What current slice does this belong to?
-4. Which invariant must remain true?
-5. What should this task not become?
-6. What would indicate drift?
+Every task must name the outcome, intent level, current slice, invariant, non-goal, and drift signal.
 
 If the request is L0-L3, do not jump to code. Produce an engineering judgment and a contract draft first.
 
@@ -113,17 +106,17 @@ Do not collapse L0-L3 requests into L5 patches before framing the judgment.
 
 ## Execution rhythm
 
-Plan finely. Execute authorized batches until done, blocked, failed, or drift is detected. Do not ask for confirmation at every low-risk internal step.
+Plan finely. Execute authorized batches until done, stage-complete, blocked, failed, or drift is detected. Fine-grained tasks are for traceability, not permission to stop after every low-risk internal step.
 
-Pause when the task cannot map to North Star, needs forbidden scope, changes product/security/payment/privacy/API/schema/persistence, harness fails twice without root cause, or docs and code disagree.
+Pause only for decision-grade blockers: missing goal, forbidden scope, product/security/payment/privacy/API/schema/persistence changes, unclear repeated harness failure, or docs/code contradiction. Run non-decision gates yourself.
 
-## Completion
+## Closeout
 
-1. Run V.
-2. Inspect `git diff`.
-3. Run done gate.
-4. Update TASKS and required P assets.
-5. Write change/verify trace events.
-6. Regenerate TRACE_INDEX.
-7. Inspect state if resuming or handing off.
-8. Update HANDOFF only for H1/H2/H3.
+Before any substantial final response or stop:
+
+1. State task result: done, stage-complete, blocked, failed, or deferred.
+2. Run V, CI Gate when available, and done gate only when marking done.
+3. Inspect `git diff/status`; classify safe-to-stage, do-not-stage, ignored/generated.
+4. Auto-commit safe task-scoped files when possible; never use `git add .` when unsafe.
+5. Run Handoff Trigger Check: H0/H1/H2/H3; update HANDOFF only for H1/H2/H3.
+6. State one Next Executable Step: a command or the next task card.

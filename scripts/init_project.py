@@ -63,6 +63,7 @@ def main(argv=None) -> int:
     print("4. Use docs/BLUEPRINTS.md when architecture, data, deployment, or lifecycle complexity appears.")
     print("5. Run scripts/inspect_state.py --target <repo> to refresh docs/CODERAIL_STATUS.md.")
     print("6. Run scripts/done_gate.py before marking work done.")
+    print("7. Run scripts/ci_gate.py and scripts/closeout_check.py --auto-commit before stopping after substantial work.")
     return 0
 
 

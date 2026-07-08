@@ -1,19 +1,19 @@
 # CodeRail
 
-![version](https://img.shields.io/badge/version-v0.7.0-2f80ed)
+![version](https://img.shields.io/badge/version-v0.7.2-2f80ed)
 ![license](https://img.shields.io/badge/license-MIT-27ae60)
 ![python](https://img.shields.io/badge/python-3.x-ffd43b)
 ![agent](https://img.shields.io/badge/agent--ready-Codex%20%7C%20Claude-8e44ad)
 ![scope](https://img.shields.io/badge/scope-repo--local-16a085)
 
-🛤️ **Draft before coding. Verify before done. Inspect before handoff.**
-🛤️ **先对齐再编码，先验证再完成，先检查再交接。**
+🛤️ **Draft before coding. Verify before done. Close out before stopping.**
+🛤️ **先对齐再编码，先验证再完成，停止前先收口。**
 
-CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, CodeRail Coordinate, Coordinate Contract Drafts, task contracts, verification-before-complete, runtime state inspect, short handoffs, asset boundaries, and trace links.
+CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, CodeRail Coordinate, Coordinate Contract Drafts, task contracts, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, short handoffs, asset boundaries, and trace links.
 
-CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是 CI、任务系统或工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、CodeRail Coordinate、契约草案、任务契约、完成前验证、运行态检查、交接摘要、资产边界和可追踪链接。
+CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是任务系统或重型工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、CodeRail Coordinate、契约草案、任务契约、完成前验证、自动任务级提交、CI Gate、运行态检查、交接摘要、资产边界和可追踪链接。
 
-Version: **v0.7.0**
+Version: **v0.7.2**
 
 ## ✨ What It Does / 它解决什么
 
@@ -23,6 +23,8 @@ Version: **v0.7.0**
 | 🧭 | Compresses work into G/T/S/V/X/P before implementation. | 开始实现前，把任务压缩成 G/T/S/V/X/P。 |
 | 🧾 | Drafts a contract for vague, risky, or cross-module requests. | 对模糊、高风险、跨模块需求先生成契约草案。 |
 | ✅ | Blocks "done" until verification, scope, persistence, and trace are present. | 没有验证、范围约束、持久化和 trace，不允许标记完成。 |
+| 🧹 | Auto-commits safe task-scoped work and leaves one executable next step before stopping. | 停止前自动提交安全的任务级变更，并留下一个可执行下一步。 |
+| 🧱 | Runs CI Gate so non-decision checks do not become user interruptions. | 运行 CI Gate，让非决策性检查不再打断用户。 |
 | 🔍 | Produces a compact repo-local state surface for resume/debug/handoff. | 生成可检查的仓库状态，方便恢复、调试和交接。 |
 | 🔗 | Records trace events so decisions, changes, and validation stay connected. | 记录 trace 事件，让决策、修改和验证保持连接。 |
 | 🏗️ | Checks blueprint coverage for architecture, data, deployment, UI flow, and lifecycle complexity. | 检测架构、数据、部署、用户流和生命周期复杂度是否有必要图纸覆盖。 |
@@ -40,11 +42,15 @@ Good fit / 适合场景：
 - 🧩 Cross-module refactors where scope creep is easy.
 - 🧪 Work that must prove tests, build, lint, or manual acceptance.
 - 🤝 Human-to-agent or agent-to-agent handoff.
+- 🧹 Dirty worktrees where safe task-scoped work should be committed automatically.
+- 🧱 Repos that need CI/CD checks folded into the agent loop.
 - 🗂️ Repos that need lightweight governance without adopting a full workflow platform.
 - 🚀 多阶段、多文件的功能开发。
 - 🧩 容易范围蔓延的跨模块重构。
 - 🧪 需要证明测试、构建、lint 或人工验收的任务。
 - 🤝 人与 Agent、Agent 与 Agent 之间的交接。
+- 🧹 需要自动提交安全任务级变更、避免 `git add .` 误伤的脏工作区。
+- 🧱 需要把 CI/CD 检查纳入 Agent 执行闭环的仓库。
 - 🗂️ 想要轻量治理但不想引入完整工作流平台的仓库。
 
 ## 🤖 For Agents / 面向 Agent
@@ -70,6 +76,7 @@ Work only inside S.
 Stop when X fires.
 Do not mark done until V passes and P is synced.
 Leave trace evidence.
+Auto-commit safe task-scoped work before stopping.
 ```
 
 ```text
@@ -78,6 +85,7 @@ Leave trace evidence.
 触发 X 就停。
 V 未通过、P 未同步，不要标记完成。
 留下 trace 证据。
+停止前自动提交安全的任务级变更。
 ```
 
 ## 🧠 Best Practice: CodeRail + Docs + Skills / 最佳实践：CodeRail + 文档 + 技能
@@ -92,7 +100,7 @@ Use this split:
 
 | Layer | Responsibility | Examples |
 |---|---|---|
-| 🛤️ CodeRail | Project governance: why, scope, verification, persistence, trace, handoff. | `NORTH_STAR.md`, `TASKS.md`, `BLUEPRINTS.md`, done gate, trace |
+| 🛤️ CodeRail | Project governance: why, scope, verification, persistence, trace, auto-commit, closeout, handoff. | `NORTH_STAR.md`, `TASKS.md`, `BLUEPRINTS.md`, done gate, auto-commit, CI gate, trace |
 | 📚 Project docs | Long-lived facts and engineering memory. | PRD, ADR, API contract, ERD, deployment notes |
 | 🧠 Superpowers-style skills | Execution craft for a specific task. | TDD, debugging, refactoring, API design, UI implementation |
 | 🪝 Hooks / CI | Automatic correction and periodic checks. | `doctor.py`, `blueprint_check.py`, tests, lint, branch protection |
@@ -127,7 +135,7 @@ Create or confirm a CodeRail Coordinate: G/T/S/V/X/P.
 If this is architecture, API, data, deployment, UI flow, or lifecycle work, run blueprint_check.py and update docs/BLUEPRINTS.md first.
 
 Then use the relevant skill for implementation quality, but do not expand scope beyond S.
-Before done, run V, done_gate.py, trace_event.py, trace_index.py, and inspect_state.py.
+Before done, run V, done_gate.py, trace_event.py, trace_index.py, and inspect_state.py. Before stopping, run closeout_check.py with auto-commit when safe.
 ```
 
 ```text
@@ -138,7 +146,7 @@ Before done, run V, done_gate.py, trace_event.py, trace_index.py, and inspect_st
 如果任务涉及架构、接口、数据、部署、用户流或生命周期，先运行 blueprint_check.py，并更新 docs/BLUEPRINTS.md。
 
 然后使用合适的 skill 提升实现质量，但不能超出 S 范围。
-完成前必须运行 V、done_gate.py、trace_event.py、trace_index.py、inspect_state.py。
+完成前必须运行 V、done_gate.py、trace_event.py、trace_index.py、inspect_state.py。停止前在安全时运行 closeout_check.py 自动提交。
 ```
 
 ## 🌏 5W2H
@@ -146,11 +154,11 @@ Before done, run V, done_gate.py, trace_event.py, trace_index.py, and inspect_st
 | Question | English | 中文 |
 |---|---|---|
 | 🧑 Who | AI coding agents, agent operators, maintainers, and teams that hand work between sessions. | AI 编码 Agent、Agent 使用者、维护者，以及需要跨会话交接的团队。 |
-| ❓ What | A repo-local governance rail made of templates, skills, validators, done gate, inspect state, and trace logs. | 一套仓库本地治理轨道：模板、技能、校验器、完成门禁、状态检查和 trace 日志。 |
-| 🕰️ When | Before coding starts, before marking done, when resuming, when drift appears, and before handoff. | 编码前、标记完成前、恢复会话时、发现跑偏时、交接前。 |
+| ❓ What | A repo-local governance rail made of templates, skills, validators, done gate, auto-commit gate, CI gate, inspect state, and trace logs. | 一套仓库本地治理轨道：模板、技能、校验器、完成门禁、自动提交门禁、CI 门禁、状态检查和 trace 日志。 |
+| 🕰️ When | Before coding starts, before marking done, before stopping, when resuming, when drift appears, and before handoff. | 编码前、标记完成前、停止前、恢复会话时、发现跑偏时、交接前。 |
 | 📍 Where | Inside the target repository, mostly under `docs/`, plus `AGENTS.md` and optional plugin manifests. | 在目标仓库内部，主要位于 `docs/`，并包含 `AGENTS.md` 和可选插件 manifest。 |
 | 💡 Why | Agents need small, explicit rails: intent, scope, verification, persistence, and traceability. | Agent 需要小而明确的轨道：意图、范围、验证、持久化和可追踪性。 |
-| 🛠️ How | Initialize templates, draft/accept a coordinate, execute inside scope, run done gate, record trace, inspect state. | 初始化模板，起草并接受 coordinate，在范围内执行，运行 done gate，记录 trace，检查状态。 |
+| 🛠️ How | Initialize templates, draft/accept a coordinate, execute inside scope, run CI/done gates, record trace, inspect state, and auto-commit safe task-scoped work. | 初始化模板，起草并接受 coordinate，在范围内执行，运行 CI/done gate，记录 trace，检查状态，并自动提交安全任务级变更。 |
 | 📏 How much | Lightweight: no server, no database, no runtime loop. Standard-library Python scripts and Markdown files. | 很轻：不需要服务端、数据库或循环运行时。主要是标准库 Python 脚本和 Markdown 文件。 |
 
 ## 🆕 What v0.7 Adds / v0.7 新增
@@ -168,6 +176,36 @@ v0.7 增加 Architecture Blueprint Layer，但不把 CodeRail 变成重型架构
 3. 🔁 **Lifecycle status / 生命周期状态**
    Each diagram is tracked as `planned`, `current`, `stale`, `missing`, or `not-applicable`.
 
+## 🆕 What v0.7.1 Adds / v0.7.1 新增
+
+v0.7.1 hardens the end of the loop without adding a workflow server:
+
+v0.7.1 加固执行结束时的收口，不引入重型工作流服务：
+
+1. 🧹 **Closeout Gate / 收口门禁**
+   Substantial stops must state task result, handoff trigger check, resume anchor, and one next executable step.
+
+2. 🧱 **Commit boundary / 提交边界**
+   Final output must classify safe-to-stage, do-not-stage, ignored/generated artifacts, and whether `git add .` is unsafe.
+
+3. 🔁 **Stage-complete state / 阶段完成状态**
+   Useful partial progress can stop as `stage-complete` without being mislabeled as `done`.
+
+## 🆕 What v0.7.2 Adds / v0.7.2 新增
+
+v0.7.2 turns commit and CI checks into agent-executed actions instead of user-facing suggestions:
+
+v0.7.2 把提交和 CI 检查变成 Agent 自动执行动作，而不是抛给用户的建议：
+
+1. 🧹 **Auto Commit Gate / 自动提交门禁**
+   `closeout_check.py --auto-commit` commits safe task-scoped files and leaves unrelated or generated files unstaged.
+
+2. 🧱 **CI Gate / CI 门禁**
+   `scripts/ci_gate.py` runs npm tests, doctor, Blueprint Gate, contract check, and whitespace diff checks where available.
+
+3. 🛤️ **Fewer non-decision stops / 减少非决策停顿**
+   Agents should run validation, CI, trace, inspect, and safe auto-commit directly; stop only for decision-grade blockers.
+
 ## 🔁 Closed Loop / 闭环
 
 ```text
@@ -177,8 +215,10 @@ v0.7 增加 Architecture Blueprint Layer，但不把 CodeRail 变成重型架构
 → 🧭 Task Contract
 → 🛠️ Execute Batch
 → ✅ Done Gate
+→ 🧱 CI Gate
 → 🔗 Trace
 → 🔍 Inspect
+→ 🧹 Auto Commit / Closeout
 → 🤝 Handoff
 ```
 
@@ -189,8 +229,10 @@ v0.7 增加 Architecture Blueprint Layer，但不把 CodeRail 变成重型架构
 → 🧭 任务契约
 → 🛠️ 执行批次
 → ✅ 完成门禁
+→ 🧱 CI 门禁
 → 🔗 Trace 记录
 → 🔍 状态检查
+→ 🧹 自动提交 / 收口
 → 🤝 交接
 ```
 
@@ -207,6 +249,8 @@ v0.7 增加 Architecture Blueprint Layer，但不把 CodeRail 变成重型架构
 | 🗂️ K6 | Asset Boundary | Raw material, notes, candidates, permanent assets, generated artifacts, and releases are different. | 区分原料、笔记、候选物、永久资产、生成物和发布物。 |
 | 🔗 K7 | Trace Graph | No meaningful action without source, target, modification, validation, and persistence links. | 有意义的动作都应有来源、目标、修改、验证和持久化链接。 |
 | 🏗️ K8 | Blueprint Gate | Complex systems need current architecture, data, deployment, UI flow, and lifecycle diagrams. | 复杂系统需要当前有效的架构、数据、部署、用户流和生命周期图纸。 |
+| 🧹 K9 | Auto Commit / Closeout Gate | No substantial stop without task result, auto-commit action, resume anchor, and next executable step. | 没有任务结果、自动提交动作、恢复入口和可执行下一步，不应停止。 |
+| 🧱 K10 | CI Gate | Run available non-decision CI checks before stopping or handing off. | 停止或交接前运行可用的非决策性 CI 检查。 |
 
 ## ⚡ Quick Start / 快速开始
 
@@ -231,8 +275,10 @@ Npm-style local usage after cloning:
 
 ```bash
 npm test
+npm run ci
 npm run doctor
 npm run inspect
+npm run closeout-check
 ```
 
 For Claude Code:
@@ -269,6 +315,7 @@ Then read AGENTS.md, docs/NORTH_STAR.md, docs/TASKS.md, and docs/HARNESS_SPEC.md
 For every non-trivial coding task, draft G/T/S/V/X/P before implementation.
 When architecture, data, deployment, UI flow, or lifecycle complexity appears, run blueprint_check.py and update docs/BLUEPRINTS.md.
 Before saying done, run the done gate and update trace/status files.
+Before stopping, run available CI checks, auto-commit safe task-scoped work, and produce Closeout State, Auto Commit action, Handoff Trigger Check, and one Next Executable Step.
 ```
 
 ```text
@@ -286,6 +333,7 @@ git clone https://github.com/HaipingShi/coderail.git <path-to-coderail>
 每个非平凡编码任务，在实现前先起草 G/T/S/V/X/P。
 当出现架构、数据、部署、用户流或生命周期复杂度时，运行 blueprint_check.py 并更新 docs/BLUEPRINTS.md。
 在宣布完成前，运行 done gate，并同步 trace/status 文件。
+停止前运行可用 CI 检查，自动提交安全任务级变更，并输出收口状态、自动提交动作、交接触发检查和一个可执行下一步。
 ```
 
 ## 📥 Install Options / 安装方式
@@ -330,6 +378,7 @@ P — Persist
 
 Work only inside S. Stop if X triggers.
 Before marking done, run verification, record trace evidence, run done_gate.py, and refresh inspect state.
+Before stopping after substantial work, run ci_gate.py where available, then closeout_check.py --auto-commit.
 If the task touches architecture, data, deployment, UI flow, or lifecycle state, run blueprint_check.py and keep required diagrams current.
 ```
 
@@ -351,6 +400,7 @@ P — Persist，需要同步的记录
 
 只在 S 范围内工作。触发 X 就停止。
 标记完成前，先运行验证，记录 trace 证据，运行 done_gate.py，并刷新 inspect state。
+完成实质性工作后停止前，先运行可用 ci_gate.py，再运行 closeout_check.py --auto-commit。
 如果任务触及架构、数据、部署、用户流或生命周期状态，运行 blueprint_check.py，并保持必要图纸为 current。
 ```
 
@@ -363,7 +413,9 @@ P — Persist，需要同步的记录
 /coderail:task-contract   # accept/finalize task contract / 确认任务契约
 /coderail:execute-batch   # work inside S until done/blocked/failed/X / 在 S 内执行
 /coderail:done-gate       # verification-before-complete / 完成前验证
+/coderail:ci-gate         # run non-decision CI/CD checks / CI/CD 门禁
 /coderail:done            # sync P, trace, status, optional handoff / 同步记录
+/coderail:closeout        # auto-commit and next executable step / 自动提交收口
 /coderail:inspect         # refresh CODERAIL_STATUS.md / 刷新状态
 /coderail:handoff         # create event-triggered handoff / 生成交接摘要
 ```
@@ -395,6 +447,8 @@ python scripts/coordinate_check.py --target .
 python scripts/blueprint_check.py --target .
 python scripts/hook_guard.py --stage stop --target . --soft
 python scripts/done_gate.py --target . --task T-001 --harness-result passed
+python scripts/ci_gate.py --target .
+python scripts/closeout_check.py --target . --task T-001 --task-result stage-complete --auto-commit
 python scripts/trace_event.py --target . --type verify --task T-001 --harness-result passed --summary "tests passed"
 python scripts/trace_index.py --target .
 python scripts/inspect_state.py --target . --write
@@ -407,27 +461,31 @@ With npm wrappers:
 
 ```bash
 npm test
+npm run ci
 npm run doctor
 npm run inspect
 npm run blueprint-check
 npm run done-gate
+npm run closeout-check
+npm run ci
 npm run contract-check
 ```
 
 ## 🚦 Boundary / 边界
 
-CodeRail is **not** a CI system, issue tracker, graph database, multi-agent orchestrator, web preview, or workflow runtime. It is a repo-local governance rail for AI coding execution.
+CodeRail is **not** a hosted CI system, issue tracker, graph database, multi-agent orchestrator, web preview, or workflow runtime. It is a repo-local governance rail for AI coding execution with a CI Gate that calls checks already available in the repository.
 
-CodeRail **不是** CI 系统、issue tracker、图数据库、多 Agent 调度器、Web 预览工具或工作流运行时。它是一条仓库本地的 AI 编码执行治理轨道。
+CodeRail **不是** 托管 CI 系统、issue tracker、图数据库、多 Agent 调度器、Web 预览工具或工作流运行时。它是一条仓库本地的 AI 编码执行治理轨道，CI Gate 只调用仓库里已有的检查。
 
-It borrows four productization patterns without copying a loop engine:
+It borrows productization patterns without copying a loop engine:
 
-它借用了四个产品化模式，但不复制循环引擎：
+它借用了产品化模式，但不复制循环引擎：
 
 - 🏗️ Blueprint coverage for complex architecture / 复杂架构的图纸覆盖
 - 🧾 Formal draft before implementation / 实现前正式草案
 - 🔍 Inspectable runtime state from repo-local files / 来自仓库本地文件的可检查运行态
 - ✅ Verification-before-complete / 完成前验证
+- 🧱 CI Gate and safe auto-commit / CI 门禁与安全自动提交
 
 ## 🗺️ Layout / 仓库结构
 
@@ -436,7 +494,7 @@ It borrows four productization patterns without copying a loop engine:
 .codex-plugin/       Codex manifest
 skills/              self-contained SKILL.md files
 project-template/    files copied into target repositories
-scripts/             local validators, done gate, inspect, trace tools
+scripts/             local validators, CI gate, done gate, closeout, inspect, trace tools
 references/          full schemas and design notes
 examples/            optional hooks and marketplace examples
 tests/               structure and script smoke tests

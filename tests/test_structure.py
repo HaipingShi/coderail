@@ -51,6 +51,8 @@ def test_required_v06_files_exist():
         'references/CONTRACT_DRAFT.md',
         'references/RUNTIME_STATE_INSPECT.md',
         'references/DONE_GATE.md',
+        'references/CLOSEOUT_GATE.md',
+        'references/LOOP_ENGINEERING.md',
         'scripts/coordinate_check.py',
         'scripts/trace_event.py',
         'scripts/trace_index.py',
@@ -58,6 +60,8 @@ def test_required_v06_files_exist():
         'scripts/contract_check.py',
         'scripts/inspect_state.py',
         'scripts/done_gate.py',
+        'scripts/closeout_check.py',
+        'scripts/ci_gate.py',
         'scripts/blueprint_check.py',
         'scripts/hook_guard.py',
         'skills/trace/SKILL.md',
@@ -65,6 +69,8 @@ def test_required_v06_files_exist():
         'skills/contract-draft/SKILL.md',
         'skills/inspect/SKILL.md',
         'skills/done-gate/SKILL.md',
+        'skills/closeout/SKILL.md',
+        'skills/ci-gate/SKILL.md',
         'skills/blueprint/SKILL.md',
         'project-template/docs/CONTRACTS.md',
         'project-template/docs/CODERAIL_STATUS.md',
@@ -149,6 +155,54 @@ def test_done_gate_skipped_requires_manual_acceptance():
             '--changed-files', 'docs/TASKS.md'
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
         check(passed.returncode == 0, 'skipped harness with manual acceptance should pass')
+
+
+def test_closeout_check_reports_commit_boundaries():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        run(['git', '-C', td, 'init'])
+        (target/'docs').mkdir()
+        (target/'src').mkdir()
+        (target/'build').mkdir()
+        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## T-001 Closeout docs\n\nStatus: [~]\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Improve closeout docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual docs check\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        (target/'docs'/'HANDOFF.md').write_text('''# Handoff\n\n## Coordinate Summary\n\nG:\n\n## Auto Commit\n\n## Next Executable Step\n\n- run closeout\n''', encoding='utf-8')
+        (target/'docs'/'note.md').write_text('note\n', encoding='utf-8')
+        (target/'src'/'app.py').write_text('print("x")\n', encoding='utf-8')
+        (target/'.gitignore').write_text('build/\n', encoding='utf-8')
+        (target/'build'/'out.txt').write_text('generated\n', encoding='utf-8')
+
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/closeout_check.py'), '--target', td,
+            '--task', 'T-001', '--task-result', 'stage-complete'
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 1, 'forbidden changed files should block clean closeout')
+        check('src/app.py' in result.stdout, 'forbidden file should be listed as do-not-stage')
+        check('build/' in result.stdout or 'build/out.txt' in result.stdout, 'ignored artifact should be reported')
+        check('Avoid git add .: yes' in result.stdout, 'unsafe broad staging should be explicit')
+
+
+def test_closeout_check_auto_commits_safe_scope_only():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        run(['git', '-C', td, 'init'])
+        run(['git', '-C', td, 'config', 'user.email', 'coderail@example.invalid'])
+        run(['git', '-C', td, 'config', 'user.name', 'CodeRail Test'])
+        (target/'docs').mkdir()
+        (target/'src').mkdir()
+        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## T-002 Auto commit docs\n\nStatus: [~]\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Improve docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - none\n\nV — Verify:\n- Harness:\n  - manual docs check\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        (target/'docs'/'HANDOFF.md').write_text('''# Handoff\n\n## Coordinate Summary\n\nG:\n\n## Auto Commit\n\n## Next Executable Step\n\n- continue\n''', encoding='utf-8')
+        (target/'docs'/'note.md').write_text('note\n', encoding='utf-8')
+        (target/'src'/'outside.py').write_text('print("outside")\n', encoding='utf-8')
+
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/closeout_check.py'), '--target', td,
+            '--task', 'T-002', '--task-result', 'stage-complete', '--auto-commit'
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout)
+        check('Action: committed' in result.stdout, 'safe task-scoped files should be auto-committed')
+        committed = subprocess.check_output(['git', '-C', td, 'show', '--name-only', '--format='], text=True, encoding='utf-8')
+        check('docs/note.md' in committed.replace('\\', '/'), 'docs file should be committed')
+        check('src/outside.py' not in committed.replace('\\', '/'), 'outside file must not be committed')
 
 
 def test_blueprint_gate_blocks_complex_project_without_index():

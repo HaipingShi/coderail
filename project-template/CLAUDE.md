@@ -12,4 +12,6 @@ Before marking done, run the done gate. V must pass, S must be respected, P must
 
 Use `/coderail:inspect` before resuming or handing off. Use `/coderail:handoff` only on H1/H2/H3 triggers.
 
+Before stopping after substantial work, produce a closeout packet: task result, auto-commit action, Handoff Trigger Check, resume anchor, and one next executable step. If safe task-scoped files can be committed, commit them instead of asking. If the task is stage-complete but not done, keep it active.
+
 When architecture, data, deployment, UI flow, or lifecycle complexity appears, run Blueprint Gate and keep `docs/BLUEPRINTS.md` current.

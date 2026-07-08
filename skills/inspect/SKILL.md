@@ -35,6 +35,7 @@ or, if scripts are not available, manually produce the same sections:
 - Trace Gaps
 - Handoff State
 - Recommended Next Action
+- Auto Commit
 
 ## Rules
 

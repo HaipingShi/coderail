@@ -1,11 +1,11 @@
 ---
 name: done
-description: Finish a task only after running the done gate, syncing P, writing trace, and deciding handoff level.
+description: Finish or close out a task only after done gate, P sync, trace, auto-commit action, and deterministic next step.
 ---
 
 # done
 
-Run the completion workflow. This skill wraps verification-before-complete.
+Run the completion workflow. This skill wraps verification-before-complete and closeout state.
 
 ## Required order
 
@@ -17,9 +17,24 @@ Run the completion workflow. This skill wraps verification-before-complete.
 6. Regenerate `docs/TRACE_INDEX.md`.
 7. Refresh `docs/CODERAIL_STATUS.md` with `/coderail:inspect` when resuming or handing off.
 8. Run Handoff Trigger Check; update `docs/HANDOFF.md` only for H1/H2/H3.
+9. Run CI Gate when available.
+10. Inspect `git status`/`git diff` and auto-commit safe task-scoped files when possible.
+11. End with one Next Executable Step.
+
+## Closeout packet
+
+Every substantial final response must include:
+
+- Task result: done, stage-complete, blocked, failed, or deferred.
+- Verification and persistence state.
+- Auto Commit action: committed, skipped, blocked, or failed; include safe-to-stage, do-not-stage, ignored/generated artifacts, and whether `git add .` is unsafe.
+- Handoff Trigger Check and whether HANDOFF was updated.
+- Resume anchor.
+- Next Executable Step: one command or one task card.
 
 ## Rules
 
 - Do not hide failed verification.
 - Do not mark done when P is unsynced.
 - Do not turn a failed gate into a narrative success.
+- Do not stop after stage-complete work without a resume anchor and next executable step.

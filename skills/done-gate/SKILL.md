@@ -34,3 +34,4 @@ Use `--manual-acceptance` only when automatic harness is impossible and acceptan
 - Missing P blocks done.
 - Scope violation blocks done.
 - Handoff is not always required, but Handoff Trigger Check is always required.
+- Passing Done Gate is not enough to stop; final closeout must still state auto-commit action and a next executable step.

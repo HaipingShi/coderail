@@ -9,6 +9,8 @@
 - `[f]` failed
 - `[r]` reopened
 
+Task result at closeout may be `done`, `stage-complete`, `blocked`, `failed`, or `deferred`. `stage-complete` usually keeps Status as `[~]`.
+
 ## Task Template
 
 Copy this block and rename the heading to `\## T-001 Short task title` when creating a real task.
@@ -76,13 +78,25 @@ Acceptance:
 
 ### Completion
 
+Task result: done | stage-complete | blocked | failed | deferred
 Done gate: pass | blocked | warning
 Completed at:
 Commit:
 Harness result:
 Manual acceptance:
 Handoff level: H0 | H1 | H2 | H3
+Handoff updated: yes | no
 Trace:
 Inspect status:
+Resume anchor:
+Next executable step:
+Auto commit:
+- Eligible: yes | no
+- Action: committed | skipped | blocked | failed
+- Commit:
+- Safe to stage:
+- Do not stage:
+- Ignored/generated artifacts:
+- Avoid git add .: yes | no
 Notes:
 ```

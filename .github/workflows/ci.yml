@@ -5,6 +5,14 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -15,6 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.11", "3.13"]
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -30,8 +39,5 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Run tests
-        run: npm test
-
-      - name: Check project template
-        run: python scripts/doctor.py --target project-template
+      - name: Run CI gate
+        run: npm run ci

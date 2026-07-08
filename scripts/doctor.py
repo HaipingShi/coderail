@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -42,6 +43,13 @@ def read(path: Path) -> str:
         return path.read_text(encoding="utf-8", errors="ignore")
     except FileNotFoundError:
         return ""
+
+
+def read_json(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8", errors="ignore"))
+    except Exception:
+        return {}
 
 
 def line_count(path: Path) -> int:
@@ -111,10 +119,15 @@ def main(argv=None) -> int:
 
     handoff_warn = []
     if (docs / "HANDOFF.md").exists():
+        handoff_text = read(docs / "HANDOFF.md")
         if line_count(docs / "HANDOFF.md") > 120:
             handoff_warn.append("docs/HANDOFF.md is too long; target <= 120 lines")
-        if "Coordinate Summary" not in read(docs / "HANDOFF.md"):
+        if "Coordinate Summary" not in handoff_text:
             handoff_warn.append("HANDOFF.md has no Coordinate Summary")
+        if "Next Executable Step" not in handoff_text:
+            handoff_warn.append("HANDOFF.md has no Next Executable Step")
+        if "Auto Commit" not in handoff_text:
+            handoff_warn.append("HANDOFF.md has no Auto Commit section")
 
     asset_warn = []
     if not (docs / "ASSETS.md").exists():
@@ -144,7 +157,7 @@ def main(argv=None) -> int:
     if not agents:
         entry_warn.append("AGENTS.md missing")
     else:
-        for phrase in ["CodeRail Coordinate", "done gate", "Coordinate Contract Draft", "Runtime State Inspect"]:
+        for phrase in ["CodeRail Coordinate", "done gate", "Coordinate Contract Draft", "Runtime State Inspect", "Closeout"]:
             if phrase not in agents:
                 entry_warn.append(f"AGENTS.md does not mention {phrase}")
 
@@ -153,8 +166,17 @@ def main(argv=None) -> int:
     blueprint_warn = blueprint["warnings"]
     blueprint_info = blueprint["info"]
 
+    ci_warn = []
+    package = read_json(root / "package.json")
+    scripts = package.get("scripts", {}) if isinstance(package.get("scripts", {}), dict) else {}
+    if scripts and any(name in scripts for name in ["test", "build", "lint", "typecheck"]) and "ci" not in scripts:
+        ci_warn.append("package.json has check scripts but no ci script")
+    workflows = root / ".github" / "workflows"
+    if workflows.exists() and not list(workflows.glob("*.yml")) and not list(workflows.glob("*.yaml")):
+        ci_warn.append(".github/workflows exists but has no workflow files")
+
     severe = contract_severe + coord_severe + trace_severe + blueprint_severe
-    warnings = ns_warn + contract_warn + coord_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn + blueprint_warn
+    warnings = ns_warn + contract_warn + coord_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn + blueprint_warn + ci_warn
     status = "unhealthy" if (missing or severe) else ("usable with warnings" if warnings else "healthy")
 
     print("# Governance Doctor Report\n")
@@ -188,6 +210,7 @@ def main(argv=None) -> int:
     section("Entry file", [], entry_warn)
 
     section("Blueprint Gate", blueprint_severe, blueprint_warn, blueprint_info)
+    section("CI Gate", [], ci_warn)
 
     print("\n## Optional files present")
     for item in OPTIONAL:
@@ -212,6 +235,8 @@ def main(argv=None) -> int:
         fixes.append("/handoff — refresh Coordinate Summary")
     if blueprint_severe or blueprint_warn:
         fixes.append("/blueprint — update docs/BLUEPRINTS.md and required architecture diagrams")
+    if ci_warn:
+        fixes.append("/ci-gate — add or run a repo-local CI script for non-decision checks")
     if not fixes:
         fixes.append("none — project is healthy")
     for item in fixes:

@@ -27,6 +27,7 @@ It deliberately avoids MCP runtime, web preview, graph database, or background e
 - Trace Gaps
 - Handoff State
 - Recommended Next Action
+- Auto Commit
 
 ## Relationship to doctor
 

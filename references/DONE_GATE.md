@@ -4,6 +4,8 @@ Done Gate is CodeRail's verification-before-complete rule.
 
 A task cannot be marked done merely because the agent believes the implementation is finished. It must pass the done gate.
 
+Done Gate is not Closeout Gate. Passing Done Gate allows `done`; it does not by itself justify stopping without auto-commit action, handoff trigger check, and a next executable step.
+
 ## Gate checks
 
 A task may be completed only when:
@@ -30,3 +32,5 @@ A task may be completed only when:
 ## Non-goals
 
 Done Gate does not replace CI, code review, security review, or human product judgment. It is a repo-local completion gate for AI coding workflows.
+
+Done Gate also does not replace closeout. Use `references/CLOSEOUT_GATE.md` or `scripts/closeout_check.py` before stopping after substantial work.

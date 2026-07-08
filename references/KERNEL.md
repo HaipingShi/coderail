@@ -34,6 +34,14 @@ Raw material, working notes, candidates, permanent project assets, generated art
 
 No meaningful action without source, target, modified files/assets, validation evidence, and persistence link.
 
+## K8 Blueprint Gate
+
+Complex systems need current architecture, data, deployment, UI flow, and lifecycle diagrams.
+
+## K9 Auto Commit / Closeout Gate
+
+An agent may stop only after naming task result, auto-commit action, handoff trigger check, resume anchor, and one next executable step.
+
 ## Productization spine
 
 v0.6 adds three runtime surfaces:
@@ -41,3 +49,5 @@ v0.6 adds three runtime surfaces:
 1. Coordinate Contract Draft — formal pre-implementation gate.
 2. Runtime State Inspect — inspectable status from repo-local files.
 3. Done Gate — verification-before-complete.
+
+v0.7 adds Blueprint Gate. v0.7.1 adds Closeout Gate for deterministic resume state. v0.7.2 makes safe task-scoped commits automatic and adds CI Gate.

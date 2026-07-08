@@ -180,9 +180,22 @@ def render(root: Path) -> tuple[str, str]:
     else:
         lines.append("- Run `/coderail:align` or `/coderail:contract-draft` for the next request.")
     lines.append("")
-    lines.append("## Git Status")
+    lines.append("## Auto Commit")
     lines.append("")
     gs = git_status(root)
+    if gs == "git status unavailable":
+        lines.append("- Worktree: unknown")
+        lines.append("- Git status unavailable; inspect the worktree before auto-commit.")
+    elif gs:
+        lines.append("- Worktree: dirty")
+        lines.append("- Avoid `git add .` until changed files are matched to the active task S.")
+        lines.append("- Run `scripts/closeout_check.py --target . --auto-commit` before stopping.")
+    else:
+        lines.append("- Worktree: clean")
+        lines.append("- No commit boundary needed unless new work is started.")
+    lines.append("")
+    lines.append("## Git Status")
+    lines.append("")
     lines.append("```text")
     lines.append(gs or "clean")
     lines.append("```")

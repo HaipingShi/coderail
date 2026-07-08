@@ -14,4 +14,4 @@
 | ERD | ER Diagram / Database Model | not-applicable | | | | No database layer. |
 | DFD | Data Flow Diagram | not-applicable | | | | No persistent data pipeline. |
 | DD | Deployment Diagram | not-applicable | | | | No hosted runtime. |
-| CICD | CI/CD Pipeline Flow | current | .github/workflows/ci.yml | CodeRail | 2026-07-08 | GitHub Actions runs tests and project-template doctor checks. |
+| CICD | CI/CD Pipeline Flow | current | .github/workflows/ci.yml | CodeRail | 2026-07-08 | GitHub Actions runs `npm run ci`: tests, doctor, Blueprint Gate, contract check, and whitespace diff check. |

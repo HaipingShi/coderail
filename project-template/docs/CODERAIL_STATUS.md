@@ -42,3 +42,9 @@ P:
 ## Recommended Next Action
 
 - Run `/coderail:align` or `/coderail:task-contract` before implementation.
+
+## Auto Commit
+
+- Worktree:
+- Avoid `git add .`:
+- Closeout check:

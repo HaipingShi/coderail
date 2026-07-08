@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.7.2
+
+Auto-commit and CI Gate hardening.
+
+- Changed closeout from commit recommendation to automatic task-scoped commit action when safe.
+- Added `--auto-commit` support to `scripts/closeout_check.py`, staging only safe files derived from the task scope and never relying on broad staging.
+- Added `scripts/ci_gate.py` and `npm run ci` to run non-decision checks without asking the user first.
+- Hardened GitHub Actions with `workflow_dispatch`, read-only permissions, concurrency, timeout, and the shared CI Gate.
+- Updated runtime entries, templates, skills, and docs to stop only for decision-grade blockers while executing CI, validation, inspect, trace, and safe auto-commit directly.
+- Verified with `npm test` and `npm run ci`.
+
+## v0.7.1
+
+Closeout, loop continuity, and commit-boundary hardening.
+
+- Added Closeout Gate reference and `/closeout` skill to prevent substantial work from ending with only a narrative summary.
+- Added `scripts/closeout_check.py` to classify safe-to-stage files, do-not-stage files, ignored/generated artifacts, and `git add .` risk.
+- Updated runtime entries, task and handoff templates, done/execute-batch/handoff skills, inspect state, and doctor checks to require Next Executable Step and Commit Readiness.
+- Documented `stage-complete` as a first-class task result so partial progress can remain resumable without being mislabeled done.
+
 ## v0.7.0
 
 Architecture Blueprint Layer.

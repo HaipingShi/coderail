@@ -22,7 +22,8 @@ Keep it short:
 - Coordinate Summary
 - Current task and next task
 - Verification state
+- Auto-commit action
 - Trace gaps / blockers
-- Next recommended action
+- Next executable step
 
 Do not paste full logs, full diffs, or TRACELOG contents.
