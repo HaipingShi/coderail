@@ -1,15 +1,57 @@
 ---
 name: blueprint
-description: Optional diagram awareness reminder.
+description: Check and maintain Architecture Blueprint Layer coverage: 4 classes, 11 core diagrams, lifecycle status, and docs/BLUEPRINTS.md.
 ---
 
-# blueprint
+# Blueprint Gate
 
-Non-blocking. Suggest relevant diagrams only when the project signals benefit. Do not make this a compliance gate.
+Use this skill when architecture, lifecycle, data, deployment, UI flow, or cross-layer complexity appears.
+
+## Action
+
+Run:
+
+```bash
+python scripts/blueprint_check.py --target .
+```
+
+Then update `docs/BLUEPRINTS.md` or the linked diagrams when the gate reports missing, stale, planned, or invalid coverage.
+
+## Diagram Classes
+
+1. User & Interaction Layer
+2. System & Application Architecture Layer
+3. Data & Model Layer
+4. Deployment & Operations Layer
+
+## Core Diagrams
+
+- `UJM` User Journey Map
+- `UF` User Flow
+- `PF` Page Flow / Wireframe Flow
+- `SA` System Architecture
+- `CD` Component Diagram
+- `SEQ` Sequence Diagram
+- `SM` State Machine Diagram
+- `ERD` ER Diagram / Database Model
+- `DFD` Data Flow Diagram
+- `DD` Deployment Diagram
+- `CICD` CI/CD Pipeline Flow
+
+## Lifecycle
+
+Use one status per diagram:
+
+- `planned`
+- `current`
+- `stale`
+- `missing`
+- `not-applicable`
 
 ## Rules
 
-- Keep output concise.
-- Prefer G/T/S/V/X/P over duplicated fields.
-- Do not write business code unless this skill explicitly covers execution.
-- Do not hide failed verification.
+- Do not create diagrams as ceremony. Create the smallest useful diagram that reduces structural uncertainty.
+- Mark `not-applicable` deliberately; do not use it to hide unknown architecture.
+- Mark diagrams `stale` when code, schema, deployment, or user flow changes invalidate them.
+- Prefer PlantUML, Mermaid, draw.io, or linked design tools that can be reviewed and versioned.
+- When `doctor.py` reports Blueprint Gate severe items, resolve them before treating high-complexity work as done.

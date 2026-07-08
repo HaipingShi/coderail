@@ -2,6 +2,12 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .DS_Store
+*.zip
+*.bak
+*.tmp
+*.log
+MEMORY.md
+memory.md
 node_modules/
 dist/
 build/

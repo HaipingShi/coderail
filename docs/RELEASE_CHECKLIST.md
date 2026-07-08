@@ -22,6 +22,7 @@ Use this checklist before publishing a CodeRail release.
 ```bash
 npm test
 python scripts/doctor.py --target project-template
+python scripts/blueprint_check.py --target project-template
 python scripts/contract_check.py --target project-template
 python scripts/coordinate_check.py --target project-template
 ```

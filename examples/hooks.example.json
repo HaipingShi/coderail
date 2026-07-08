@@ -1,12 +1,35 @@
 {
+  "description": "Example agent hooks for a repository that uses CodeRail. Replace <path-to-coderail> with the local CodeRail package path.",
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage prompt --target ."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage pre-edit --target ."
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[CodeRail] Run /coderail:done before marking work complete.'"
+            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage stop --target . --soft"
           }
         ]
       }

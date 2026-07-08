@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.7.0
+
+Architecture Blueprint Layer.
+
+- Upgraded Blueprint Awareness into Blueprint Gate with `scripts/blueprint_check.py`.
+- Added `docs/BLUEPRINTS.md` and `project-template/docs/BLUEPRINTS.md` to track 4 classes and 11 core technical drawings.
+- Expanded `references/BLUEPRINT_STANDARD.md` with diagram classes, lifecycle statuses, detection policy, and tooling guidance.
+- Upgraded `skills/blueprint` from a non-blocking reminder into a blueprint coverage skill.
+- Integrated Blueprint Gate into `doctor.py` so high-complexity projects can produce warnings or severe findings.
+- Updated project initialization to copy `docs/BLUEPRINTS.md` in standard mode.
+- Added `scripts/hook_guard.py` plus example hooks for prompt reminders, protected governance-file edits, and periodic doctor/blueprint checks.
+- Added regression coverage for blueprint detection, lifecycle validation, and project-template install flow.
+
 ## v0.6.1
 
 GitHub polish, install docs, and done gate hardening.

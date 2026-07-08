@@ -4,8 +4,8 @@ This repository uses CodeRail. Keep this file short; full schemas live in `refer
 
 ## Governance layers
 
-- **L1 kernel**: CodeRail package files, plugin manifests, skills, scripts, references. Do not modify unless the user explicitly asks to upgrade CodeRail.
-- **L2 project state**: `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/CONTRACTS.md`, `docs/HANDOFF.md`, `docs/TRACELOG.jsonl`, `docs/HARNESS_SPEC.md`. Edit through CodeRail flow. `TRACELOG.jsonl` is append-only.
+- **L1 kernel**: CodeRail rules and entry files (`AGENTS.md`, `CLAUDE.md`), package files, plugin manifests, skills, scripts, references. Long-lived rails; do not modify unless the user explicitly asks to upgrade CodeRail.
+- **L2 project state**: `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/CONTRACTS.md`, `docs/BLUEPRINTS.md`, `docs/HANDOFF.md`, `docs/TRACELOG.jsonl`, `docs/HARNESS_SPEC.md`. Edit through CodeRail flow. `TRACELOG.jsonl` is append-only.
 - **L3 implementation**: business code and tests. Edit only inside the current S field.
 
 ## K0 North-Star Kernel
@@ -58,6 +58,10 @@ No done without:
 
 Use `/coderail:inspect` or `scripts/inspect_state.py` before resuming, before handoff, after task jumps, or when the project feels hard to understand. It writes `docs/CODERAIL_STATUS.md`.
 
+## Blueprint Gate
+
+Use `docs/BLUEPRINTS.md` and `scripts/blueprint_check.py` when architecture, data, deployment, UI flow, or lifecycle complexity appears. Required diagrams must be current before high-complexity work is treated as done.
+
 ## K7 Trace Graph
 
 Every meaningful action must be linkable:
@@ -83,6 +87,7 @@ Read when needed:
 
 - `docs/CONTRACTS.md`: draft-gated or high-risk work.
 - `docs/CODERAIL_STATUS.md`: resuming, inspecting, or handing off.
+- `docs/BLUEPRINTS.md`: architecture, data, deployment, UI flow, or lifecycle complexity.
 - `docs/HANDOFF.md`: new session, H2/H3 handoff, blocked task.
 - `docs/TRACELOG.jsonl` / `docs/TRACE_INDEX.md`: history, trace gaps, why code exists.
 - `docs/DECISIONS.md`, `docs/LESSONS.md`, `docs/ASSETS.md`: durable decisions, repeated failures, asset changes.

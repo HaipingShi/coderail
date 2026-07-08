@@ -28,6 +28,7 @@ STANDARD = LITE + [
     "docs/TASK_GRAPH.md",
     "docs/METRICS.md",
     "docs/CONTRACTS.md",
+    "docs/BLUEPRINTS.md",
     "docs/TRACELOG.jsonl",
     "docs/TRACE_INDEX.md",
 ]
@@ -59,8 +60,9 @@ def main(argv=None) -> int:
     print("1. Fill docs/NORTH_STAR.md.")
     print("2. Use docs/CONTRACTS.md for high-risk Coordinate Contract Drafts.")
     print("3. Create a task coordinate in docs/TASKS.md.")
-    print("4. Run scripts/inspect_state.py --target <repo> to refresh docs/CODERAIL_STATUS.md.")
-    print("5. Run scripts/done_gate.py before marking work done.")
+    print("4. Use docs/BLUEPRINTS.md when architecture, data, deployment, or lifecycle complexity appears.")
+    print("5. Run scripts/inspect_state.py --target <repo> to refresh docs/CODERAIL_STATUS.md.")
+    print("6. Run scripts/done_gate.py before marking work done.")
     return 0
 
 

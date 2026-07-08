@@ -1,7 +1,7 @@
 {
   "name": "coderail",
-  "version": "0.6.1",
-  "description": "North-Star, Coordinate Contract Draft, Done Gate, Inspect, and traceable governance for AI coding agents",
+  "version": "0.7.0",
+  "description": "Blueprint Gate, North-Star, Coordinate Contract Draft, Done Gate, Inspect, and traceable governance for AI coding agents",
   "license": "MIT",
   "private": false,
   "author": "HaipingShi",
@@ -22,12 +22,15 @@
     "north-star",
     "task-contract",
     "coordinate",
-    "trace-graph"
+    "trace-graph",
+    "blueprint",
+    "architecture"
   ],
   "scripts": {
     "test": "node scripts/run_python.js tests/test_structure.py",
     "doctor": "node scripts/run_python.js scripts/doctor.py --target .",
     "drift-check": "node scripts/run_python.js scripts/drift_check.py --target .",
+    "blueprint-check": "node scripts/run_python.js scripts/blueprint_check.py --target .",
     "inspect": "node scripts/run_python.js scripts/inspect_state.py --target .",
     "done-gate": "node scripts/run_python.js scripts/done_gate.py --target .",
     "contract-check": "node scripts/run_python.js scripts/contract_check.py --target ."

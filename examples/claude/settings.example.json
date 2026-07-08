@@ -3,5 +3,40 @@
     "deny": [
       "Write(docs/TRACELOG.jsonl) unless appending via trace_event.py"
     ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage prompt --target ."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage pre-edit --target ."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage stop --target . --soft"
+          }
+        ]
+      }
+    ]
   }
 }

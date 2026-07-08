@@ -27,6 +27,7 @@ REQUIRED = [
 OPTIONAL = [
     "docs/CONTRACTS.md",
     "docs/CODERAIL_STATUS.md",
+    "docs/BLUEPRINTS.md",
     "docs/ASSETS.md",
     "docs/DECISIONS.md",
     "docs/LESSONS.md",
@@ -147,8 +148,13 @@ def main(argv=None) -> int:
             if phrase not in agents:
                 entry_warn.append(f"AGENTS.md does not mention {phrase}")
 
-    severe = contract_severe + coord_severe + trace_severe
-    warnings = ns_warn + contract_warn + coord_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn
+    blueprint = blueprint_check.check_project(root)
+    blueprint_severe = blueprint["severe"]
+    blueprint_warn = blueprint["warnings"]
+    blueprint_info = blueprint["info"]
+
+    severe = contract_severe + coord_severe + trace_severe + blueprint_severe
+    warnings = ns_warn + contract_warn + coord_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn + blueprint_warn
     status = "unhealthy" if (missing or severe) else ("usable with warnings" if warnings else "healthy")
 
     print("# Governance Doctor Report\n")
@@ -181,8 +187,7 @@ def main(argv=None) -> int:
     section("Runtime State Inspect", [], inspect_warn)
     section("Entry file", [], entry_warn)
 
-    print("\n## Blueprint Awareness")
-    print(blueprint_check.run_check(root))
+    section("Blueprint Gate", blueprint_severe, blueprint_warn, blueprint_info)
 
     print("\n## Optional files present")
     for item in OPTIONAL:
@@ -205,6 +210,8 @@ def main(argv=None) -> int:
         fixes.append("/inspect — refresh CODERAIL_STATUS.md")
     if handoff_warn:
         fixes.append("/handoff — refresh Coordinate Summary")
+    if blueprint_severe or blueprint_warn:
+        fixes.append("/blueprint — update docs/BLUEPRINTS.md and required architecture diagrams")
     if not fixes:
         fixes.append("none — project is healthy")
     for item in fixes:

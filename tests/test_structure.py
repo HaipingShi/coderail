@@ -58,13 +58,20 @@ def test_required_v06_files_exist():
         'scripts/contract_check.py',
         'scripts/inspect_state.py',
         'scripts/done_gate.py',
+        'scripts/blueprint_check.py',
+        'scripts/hook_guard.py',
         'skills/trace/SKILL.md',
         'skills/link/SKILL.md',
         'skills/contract-draft/SKILL.md',
         'skills/inspect/SKILL.md',
         'skills/done-gate/SKILL.md',
+        'skills/blueprint/SKILL.md',
         'project-template/docs/CONTRACTS.md',
         'project-template/docs/CODERAIL_STATUS.md',
+        'project-template/docs/BLUEPRINTS.md',
+        'docs/BLUEPRINTS.md',
+        'examples/hooks.example.json',
+        'examples/claude/settings.example.json',
     ]
     for p in required:
         check((ROOT/p).exists(), f'missing {p}')
@@ -102,6 +109,7 @@ def test_init_contract_inspect_done_gate_flow():
         run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td, '--mode', 'standard'])
         check((target/'docs/CONTRACTS.md').exists(), 'CONTRACTS missing')
         check((target/'docs/CODERAIL_STATUS.md').exists(), 'STATUS missing')
+        check((target/'docs/BLUEPRINTS.md').exists(), 'BLUEPRINTS missing')
         run([sys.executable, str(ROOT/'scripts/contract_check.py'), '--target', td])
         run([sys.executable, str(ROOT/'scripts/inspect_state.py'), '--target', td, '--write'])
         check('CodeRail Status' in (target/'docs/CODERAIL_STATUS.md').read_text(encoding='utf-8'), 'inspect did not write status')
@@ -141,6 +149,67 @@ def test_done_gate_skipped_requires_manual_acceptance():
             '--changed-files', 'docs/TASKS.md'
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
         check(passed.returncode == 0, 'skipped harness with manual acceptance should pass')
+
+
+def test_blueprint_gate_blocks_complex_project_without_index():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        (target/'src'/'components').mkdir(parents=True)
+        (target/'api').mkdir()
+        (target/'prisma').mkdir()
+        (target/'.github'/'workflows').mkdir(parents=True)
+        (target/'src'/'components'/'App.tsx').write_text('export function App() { return null }\n', encoding='utf-8')
+        (target/'api'/'server.py').write_text('from fastapi import FastAPI\napp = FastAPI()\n', encoding='utf-8')
+        (target/'prisma'/'schema.prisma').write_text('model User { id Int @id }\n', encoding='utf-8')
+        (target/'Dockerfile').write_text('FROM python:3.13\n', encoding='utf-8')
+        (target/'.github'/'workflows'/'ci.yml').write_text('name: CI\n', encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/blueprint_check.py'), '--target', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 1, 'high-complexity project without BLUEPRINTS should fail')
+        check('docs/BLUEPRINTS.md missing for high-complexity project' in result.stdout, 'missing blueprint diagnostic')
+
+
+def test_blueprint_gate_accepts_current_required_diagrams():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        (target/'src'/'components').mkdir(parents=True)
+        (target/'api').mkdir()
+        (target/'prisma').mkdir()
+        (target/'.github'/'workflows').mkdir(parents=True)
+        (target/'docs').mkdir()
+        (target/'docs'/'diagrams').mkdir()
+        (target/'src'/'components'/'App.tsx').write_text('export function App() { return null }\n', encoding='utf-8')
+        (target/'api'/'server.py').write_text('from fastapi import FastAPI\napp = FastAPI()\n', encoding='utf-8')
+        (target/'prisma'/'schema.prisma').write_text('model User { id Int @id }\n', encoding='utf-8')
+        (target/'Dockerfile').write_text('FROM python:3.13\n', encoding='utf-8')
+        (target/'.github'/'workflows'/'ci.yml').write_text('name: CI\n', encoding='utf-8')
+        for name in ['sa.md', 'cd.md', 'seq.md', 'erd.md', 'dd.md', 'cicd.md']:
+            (target/'docs'/'diagrams'/name).write_text('# diagram\n', encoding='utf-8')
+        (target/'docs'/'BLUEPRINTS.md').write_text('''# Blueprints\n\n| ID | Diagram | Status | Path / URL | Owner | Updated | Notes |\n|---|---|---|---|---|---|---|\n| SA | System Architecture | current | docs/diagrams/sa.md | team | 2026-07-08 | ok |\n| CD | Component Diagram | current | docs/diagrams/cd.md | team | 2026-07-08 | ok |\n| SEQ | Sequence Diagram | current | docs/diagrams/seq.md | team | 2026-07-08 | ok |\n| ERD | ER Diagram / Database Model | current | docs/diagrams/erd.md | team | 2026-07-08 | ok |\n| DD | Deployment Diagram | current | docs/diagrams/dd.md | team | 2026-07-08 | ok |\n| CICD | CI/CD Pipeline Flow | current | docs/diagrams/cicd.md | team | 2026-07-08 | ok |\n''', encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/blueprint_check.py'), '--target', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout)
+        check('Status: healthy' in result.stdout, 'complete blueprint index should be healthy')
+
+
+def test_hook_guard_blocks_casual_governance_edits():
+    payload = json.dumps({'tool_input': {'file_path': 'AGENTS.md'}})
+    result = subprocess.run([
+        sys.executable, str(ROOT/'scripts/hook_guard.py'), '--stage', 'pre-edit', '--target', str(ROOT)
+    ], input=payload, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+    check(result.returncode == 1, 'hook guard should block casual AGENTS.md edits')
+    check('Protected governance/kernel files' in result.stdout, 'missing protected file diagnostic')
+
+
+def test_hook_guard_allows_explicit_governance_upgrade():
+    payload = json.dumps({'tool_input': {'file_path': 'AGENTS.md'}})
+    env = dict(**__import__('os').environ, CODERAIL_ALLOW_GOVERNANCE_EDIT='1')
+    result = subprocess.run([
+        sys.executable, str(ROOT/'scripts/hook_guard.py'), '--stage', 'pre-edit', '--target', str(ROOT)
+    ], input=payload, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', env=env)
+    check(result.returncode == 0, 'explicit governance upgrade should bypass hook guard')
 
 
 def run_all():
