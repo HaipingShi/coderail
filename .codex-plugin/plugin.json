@@ -1,7 +1,7 @@
 {
   "name": "coderail",
-  "version": "0.7.2",
-  "description": "Blueprint Gate, North-Star, Coordinate Contract Draft, Done Gate, Auto Commit Gate, CI Gate, Inspect, and traceable governance for AI coding agents.",
+  "version": "0.7.3",
+  "description": "Blueprint Gate, North-Star, Coordinate Contract Draft, TDD Gate, Done Gate, Auto Commit Gate, CI Gate, Inspect, and traceable governance for AI coding agents.",
   "author": {
     "name": "CodeRail"
   },
@@ -14,6 +14,7 @@
     "governance",
     "handoff",
     "harness",
+    "tdd",
     "coordinate",
     "auto-commit",
     "trace",
@@ -26,7 +27,7 @@
   "interface": {
     "displayName": "CodeRail",
     "shortDescription": "Draft before coding. Verify before done. Close out before stopping.",
-    "longDescription": "CodeRail is a repo-local governance rail for AI coding agents. It adds a North-Star Kernel, Architecture Blueprint Layer, Coordinate Contract Draft, CodeRail Coordinate (Goal/Task/Scope/Verify/Stop/Persist), task contracts, execution batches, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, handoff discipline, asset boundaries, and a lightweight trace graph without turning your repo into a workflow engine.",
+    "longDescription": "CodeRail is a repo-local governance rail for AI coding agents. It adds a North-Star Kernel, Architecture Blueprint Layer, Coordinate Contract Draft, CodeRail Coordinate (Goal/Task/Scope/Verify/Stop/Persist), TDD Gate, task contracts, execution batches, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, handoff discipline, asset boundaries, and a lightweight trace graph without turning your repo into a workflow engine.",
     "developerName": "CodeRail",
     "category": "Productivity",
     "capabilities": [

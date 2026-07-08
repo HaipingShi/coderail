@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.7.3
+
+TDD Gate.
+
+- Added `references/TDD_GATE.md`, `skills/tdd-gate`, and `scripts/tdd_check.py`.
+- Added TDD mode, Red check, Green check, Refactor check, Regression check, CI check, and Waiver reason fields to task and contract templates.
+- Integrated TDD Gate into Doctor and CI Gate so correctness-sensitive tasks surface missing Red-Green-Refactor evidence.
+- Documented default TDD policy for bugs, regressions, parsers, validators, domain logic, APIs, shared utilities, and risky refactors.
+- Verified with `npm run ci`.
+
 ## v0.7.2
 
 Auto-commit and CI Gate hardening.

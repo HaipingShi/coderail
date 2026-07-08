@@ -1,6 +1,6 @@
 # CodeRail
 
-![version](https://img.shields.io/badge/version-v0.7.2-2f80ed)
+![version](https://img.shields.io/badge/version-v0.7.3-2f80ed)
 ![license](https://img.shields.io/badge/license-MIT-27ae60)
 ![python](https://img.shields.io/badge/python-3.x-ffd43b)
 ![agent](https://img.shields.io/badge/agent--ready-Codex%20%7C%20Claude-8e44ad)
@@ -9,11 +9,11 @@
 🛤️ **Draft before coding. Verify before done. Close out before stopping.**
 🛤️ **先对齐再编码，先验证再完成，停止前先收口。**
 
-CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, CodeRail Coordinate, Coordinate Contract Drafts, task contracts, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, short handoffs, asset boundaries, and trace links.
+CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, CodeRail Coordinate, Coordinate Contract Drafts, TDD Gate, task contracts, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, short handoffs, asset boundaries, and trace links.
 
-CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是任务系统或重型工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、CodeRail Coordinate、契约草案、任务契约、完成前验证、自动任务级提交、CI Gate、运行态检查、交接摘要、资产边界和可追踪链接。
+CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是任务系统或重型工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、CodeRail Coordinate、契约草案、TDD Gate、任务契约、完成前验证、自动任务级提交、CI Gate、运行态检查、交接摘要、资产边界和可追踪链接。
 
-Version: **v0.7.2**
+Version: **v0.7.3**
 
 ## ✨ What It Does / 它解决什么
 
@@ -22,6 +22,7 @@ Version: **v0.7.2**
 | 🎯 | Keeps every coding action tied to a North Star outcome. | 让每个编码动作都能回到明确的目标。 |
 | 🧭 | Compresses work into G/T/S/V/X/P before implementation. | 开始实现前，把任务压缩成 G/T/S/V/X/P。 |
 | 🧾 | Drafts a contract for vague, risky, or cross-module requests. | 对模糊、高风险、跨模块需求先生成契约草案。 |
+| 🔴 | Adds Red-Green-Refactor evidence for correctness-sensitive work. | 对正确性敏感任务加入红绿重构证据。 |
 | ✅ | Blocks "done" until verification, scope, persistence, and trace are present. | 没有验证、范围约束、持久化和 trace，不允许标记完成。 |
 | 🧹 | Auto-commits safe task-scoped work and leaves one executable next step before stopping. | 停止前自动提交安全的任务级变更，并留下一个可执行下一步。 |
 | 🧱 | Runs CI Gate so non-decision checks do not become user interruptions. | 运行 CI Gate，让非决策性检查不再打断用户。 |
@@ -41,6 +42,7 @@ Good fit / 适合场景：
 - 🚀 Long-running feature work with multiple files or phases.
 - 🧩 Cross-module refactors where scope creep is easy.
 - 🧪 Work that must prove tests, build, lint, or manual acceptance.
+- 🔴 Bug fixes, regressions, parsers, APIs, domain logic, and shared utilities that benefit from TDD.
 - 🤝 Human-to-agent or agent-to-agent handoff.
 - 🧹 Dirty worktrees where safe task-scoped work should be committed automatically.
 - 🧱 Repos that need CI/CD checks folded into the agent loop.
@@ -48,6 +50,7 @@ Good fit / 适合场景：
 - 🚀 多阶段、多文件的功能开发。
 - 🧩 容易范围蔓延的跨模块重构。
 - 🧪 需要证明测试、构建、lint 或人工验收的任务。
+- 🔴 适合 TDD 的 bug、回归、parser、API、领域逻辑和共享工具。
 - 🤝 人与 Agent、Agent 与 Agent 之间的交接。
 - 🧹 需要自动提交安全任务级变更、避免 `git add .` 误伤的脏工作区。
 - 🧱 需要把 CI/CD 检查纳入 Agent 执行闭环的仓库。
@@ -68,6 +71,10 @@ CodeRail 给 Agent 一个本地执行契约：
 | 🛑 X — Stop | List stop/escalation conditions. | 写清需要停止或升级的条件。 |
 | 📌 P — Persist | Name the project files that must be updated. | 写明必须同步的项目记录文件。 |
 
+For correctness-sensitive work, `V — Verify` should include TDD mode and Red-Green-Refactor evidence.
+
+对正确性敏感任务，`V — Verify` 应包含 TDD 模式和红绿重构证据。
+
 Agent rule of thumb / Agent 执行口诀：
 
 ```text
@@ -76,6 +83,7 @@ Work only inside S.
 Stop when X fires.
 Do not mark done until V passes and P is synced.
 Leave trace evidence.
+Use TDD Gate when required.
 Auto-commit safe task-scoped work before stopping.
 ```
 
@@ -85,6 +93,7 @@ Auto-commit safe task-scoped work before stopping.
 触发 X 就停。
 V 未通过、P 未同步，不要标记完成。
 留下 trace 证据。
+需要时使用 TDD Gate。
 停止前自动提交安全的任务级变更。
 ```
 
@@ -100,7 +109,7 @@ Use this split:
 
 | Layer | Responsibility | Examples |
 |---|---|---|
-| 🛤️ CodeRail | Project governance: why, scope, verification, persistence, trace, auto-commit, closeout, handoff. | `NORTH_STAR.md`, `TASKS.md`, `BLUEPRINTS.md`, done gate, auto-commit, CI gate, trace |
+| 🛤️ CodeRail | Project governance: why, scope, TDD evidence, verification, persistence, trace, auto-commit, closeout, handoff. | `NORTH_STAR.md`, `TASKS.md`, `BLUEPRINTS.md`, TDD gate, done gate, auto-commit, CI gate, trace |
 | 📚 Project docs | Long-lived facts and engineering memory. | PRD, ADR, API contract, ERD, deployment notes |
 | 🧠 Superpowers-style skills | Execution craft for a specific task. | TDD, debugging, refactoring, API design, UI implementation |
 | 🪝 Hooks / CI | Automatic correction and periodic checks. | `doctor.py`, `blueprint_check.py`, tests, lint, branch protection |
@@ -132,6 +141,7 @@ Use CodeRail as the project governance layer and use the selected skill as the i
 
 First read AGENTS.md, docs/NORTH_STAR.md, docs/TASKS.md, docs/BLUEPRINTS.md, and docs/HARNESS_SPEC.md.
 Create or confirm a CodeRail Coordinate: G/T/S/V/X/P.
+For correctness-sensitive work, set TDD mode and record Red-Green-Refactor evidence.
 If this is architecture, API, data, deployment, UI flow, or lifecycle work, run blueprint_check.py and update docs/BLUEPRINTS.md first.
 
 Then use the relevant skill for implementation quality, but do not expand scope beyond S.
@@ -143,6 +153,7 @@ Before done, run V, done_gate.py, trace_event.py, trace_index.py, and inspect_st
 
 先读取 AGENTS.md、docs/NORTH_STAR.md、docs/TASKS.md、docs/BLUEPRINTS.md、docs/HARNESS_SPEC.md。
 先确认 CodeRail Coordinate：G/T/S/V/X/P。
+对正确性敏感任务，设置 TDD 模式并记录红绿重构证据。
 如果任务涉及架构、接口、数据、部署、用户流或生命周期，先运行 blueprint_check.py，并更新 docs/BLUEPRINTS.md。
 
 然后使用合适的 skill 提升实现质量，但不能超出 S 范围。
@@ -206,6 +217,21 @@ v0.7.2 把提交和 CI 检查变成 Agent 自动执行动作，而不是抛给�
 3. 🛤️ **Fewer non-decision stops / 减少非决策停顿**
    Agents should run validation, CI, trace, inspect, and safe auto-commit directly; stop only for decision-grade blockers.
 
+## 🆕 What v0.7.3 Adds / v0.7.3 新增
+
+v0.7.3 makes TDD a first-class gate where it matters:
+
+v0.7.3 让 TDD 在关键任务中成为一等门禁：
+
+1. 🔴 **TDD Gate / TDD 门禁**
+   `scripts/tdd_check.py` checks TDD mode and Red-Green-Refactor evidence in task coordinates.
+
+2. 🧪 **Default policy / 默认策略**
+   TDD is required by default for bugs, regressions, parsers, validators, domain logic, APIs, shared utilities, and risky refactors.
+
+3. 📝 **Explicit waivers / 显式豁免**
+   Docs, scaffolding, release metadata, visual polish, and spikes can waive TDD with a reason.
+
 ## 🔁 Closed Loop / 闭环
 
 ```text
@@ -213,6 +239,7 @@ v0.7.2 把提交和 CI 检查变成 Agent 自动执行动作，而不是抛给�
 → 🏗️ Blueprint Gate
 → 🧾 Coordinate Contract Draft
 → 🧭 Task Contract
+→ 🔴 TDD Gate
 → 🛠️ Execute Batch
 → ✅ Done Gate
 → 🧱 CI Gate
@@ -227,6 +254,7 @@ v0.7.2 把提交和 CI 检查变成 Agent 自动执行动作，而不是抛给�
 → 🏗️ 图纸门禁
 → 🧾 Coordinate 契约草案
 → 🧭 任务契约
+→ 🔴 TDD 门禁
 → 🛠️ 执行批次
 → ✅ 完成门禁
 → 🧱 CI 门禁
@@ -243,14 +271,15 @@ v0.7.2 把提交和 CI 检查变成 Agent 自动执行动作，而不是抛给�
 | 🎯 K0 | North Star | Every action maps to Outcome / Current Bet / Invariants / Current Slice. | 每个动作都映射到结果、当前押注、不变量和当前切片。 |
 | 🧭 K1 | CodeRail Coordinate | Every non-trivial task compresses to G/T/S/V/X/P before implementation. | 非平凡任务在实现前压缩为 G/T/S/V/X/P。 |
 | 🧾 K2 | Task Contract | A task has ID, dependencies, acceptance, and completion evidence. | 任务必须有 ID、依赖、验收和完成证据。 |
-| ✅ K3 | Done Gate | No done without passing verification or explicit manual acceptance. | 未通过验证或无明确人工验收，不可完成。 |
-| 🧰 K4 | Tool-Native Enforcement | Prefer permissions/hooks/CI over prompt-only rules. | 优先使用权限、hooks、CI，而不是只靠提示词。 |
-| 🤝 K5 | Handoff | Event-triggered snapshot with Coordinate Summary, never a log dump. | 交接是事件触发的摘要，不是日志倾倒。 |
-| 🗂️ K6 | Asset Boundary | Raw material, notes, candidates, permanent assets, generated artifacts, and releases are different. | 区分原料、笔记、候选物、永久资产、生成物和发布物。 |
-| 🔗 K7 | Trace Graph | No meaningful action without source, target, modification, validation, and persistence links. | 有意义的动作都应有来源、目标、修改、验证和持久化链接。 |
-| 🏗️ K8 | Blueprint Gate | Complex systems need current architecture, data, deployment, UI flow, and lifecycle diagrams. | 复杂系统需要当前有效的架构、数据、部署、用户流和生命周期图纸。 |
-| 🧹 K9 | Auto Commit / Closeout Gate | No substantial stop without task result, auto-commit action, resume anchor, and next executable step. | 没有任务结果、自动提交动作、恢复入口和可执行下一步，不应停止。 |
-| 🧱 K10 | CI Gate | Run available non-decision CI checks before stopping or handing off. | 停止或交接前运行可用的非决策性 CI 检查。 |
+| 🔴 K3 | TDD Gate | Correctness-sensitive work records Red-Green-Refactor evidence or an explicit waiver. | 正确性敏感任务记录红绿重构证据或显式豁免。 |
+| ✅ K4 | Done Gate | No done without passing verification or explicit manual acceptance. | 未通过验证或无明确人工验收，不可完成。 |
+| 🧰 K5 | Tool-Native Enforcement | Prefer permissions/hooks/CI over prompt-only rules. | 优先使用权限、hooks、CI，而不是只靠提示词。 |
+| 🤝 K6 | Handoff | Event-triggered snapshot with Coordinate Summary, never a log dump. | 交接是事件触发的摘要，不是日志倾倒。 |
+| 🗂️ K7 | Asset Boundary | Raw material, notes, candidates, permanent assets, generated artifacts, and releases are different. | 区分原料、笔记、候选物、永久资产、生成物和发布物。 |
+| 🔗 K8 | Trace Graph | No meaningful action without source, target, modification, validation, and persistence links. | 有意义的动作都应有来源、目标、修改、验证和持久化链接。 |
+| 🏗️ K9 | Blueprint Gate | Complex systems need current architecture, data, deployment, UI flow, and lifecycle diagrams. | 复杂系统需要当前有效的架构、数据、部署、用户流和生命周期图纸。 |
+| 🧹 K10 | Auto Commit / Closeout Gate | No substantial stop without task result, auto-commit action, resume anchor, and next executable step. | 没有任务结果、自动提交动作、恢复入口和可执行下一步，不应停止。 |
+| 🧱 K11 | CI Gate | Run available non-decision CI checks before stopping or handing off. | 停止或交接前运行可用的非决策性 CI 检查。 |
 
 ## ⚡ Quick Start / 快速开始
 
@@ -314,6 +343,7 @@ Run:
 Then read AGENTS.md, docs/NORTH_STAR.md, docs/TASKS.md, and docs/HARNESS_SPEC.md.
 For every non-trivial coding task, draft G/T/S/V/X/P before implementation.
 When architecture, data, deployment, UI flow, or lifecycle complexity appears, run blueprint_check.py and update docs/BLUEPRINTS.md.
+When the task is a bug, regression, parser, validator, domain logic, API, shared utility, or risky refactor, run TDD Gate.
 Before saying done, run the done gate and update trace/status files.
 Before stopping, run available CI checks, auto-commit safe task-scoped work, and produce Closeout State, Auto Commit action, Handoff Trigger Check, and one Next Executable Step.
 ```
@@ -332,6 +362,7 @@ git clone https://github.com/HaipingShi/coderail.git <path-to-coderail>
 然后读取 AGENTS.md、docs/NORTH_STAR.md、docs/TASKS.md、docs/HARNESS_SPEC.md。
 每个非平凡编码任务，在实现前先起草 G/T/S/V/X/P。
 当出现架构、数据、部署、用户流或生命周期复杂度时，运行 blueprint_check.py 并更新 docs/BLUEPRINTS.md。
+当任务是 bug、回归、parser、validator、领域逻辑、API、共享工具或高风险重构时，运行 TDD Gate。
 在宣布完成前，运行 done gate，并同步 trace/status 文件。
 停止前运行可用 CI 检查，自动提交安全任务级变更，并输出收口状态、自动提交动作、交接触发检查和一个可执行下一步。
 ```
@@ -377,6 +408,7 @@ X — Stop
 P — Persist
 
 Work only inside S. Stop if X triggers.
+Use TDD Gate for correctness-sensitive work.
 Before marking done, run verification, record trace evidence, run done_gate.py, and refresh inspect state.
 Before stopping after substantial work, run ci_gate.py where available, then closeout_check.py --auto-commit.
 If the task touches architecture, data, deployment, UI flow, or lifecycle state, run blueprint_check.py and keep required diagrams current.
@@ -399,6 +431,7 @@ X — Stop，停止条件
 P — Persist，需要同步的记录
 
 只在 S 范围内工作。触发 X 就停止。
+对正确性敏感任务使用 TDD Gate。
 标记完成前，先运行验证，记录 trace 证据，运行 done_gate.py，并刷新 inspect state。
 完成实质性工作后停止前，先运行可用 ci_gate.py，再运行 closeout_check.py --auto-commit。
 如果任务触及架构、数据、部署、用户流或生命周期状态，运行 blueprint_check.py，并保持必要图纸为 current。
@@ -411,6 +444,7 @@ P — Persist，需要同步的记录
 /coderail:contract-draft  # draft formal G/T/S/V/X/P gate / 起草正式契约
 /coderail:blueprint       # check/update architecture blueprint coverage / 检查图纸覆盖
 /coderail:task-contract   # accept/finalize task contract / 确认任务契约
+/coderail:tdd-gate        # Red-Green-Refactor evidence / TDD 门禁
 /coderail:execute-batch   # work inside S until done/blocked/failed/X / 在 S 内执行
 /coderail:done-gate       # verification-before-complete / 完成前验证
 /coderail:ci-gate         # run non-decision CI/CD checks / CI/CD 门禁
@@ -444,6 +478,7 @@ docs/ASSETS.md                  # asset boundary / 资产边界
 ```bash
 python scripts/contract_check.py --target .
 python scripts/coordinate_check.py --target .
+python scripts/tdd_check.py --target .
 python scripts/blueprint_check.py --target .
 python scripts/hook_guard.py --stage stop --target . --soft
 python scripts/done_gate.py --target . --task T-001 --harness-result passed
@@ -464,6 +499,7 @@ npm test
 npm run ci
 npm run doctor
 npm run inspect
+npm run tdd-check
 npm run blueprint-check
 npm run done-gate
 npm run closeout-check

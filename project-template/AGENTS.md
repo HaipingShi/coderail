@@ -29,6 +29,10 @@ Every non-trivial task must have a CodeRail Coordinate:
 
 If any field is missing, stop and run `/align`, `/contract-draft`, or `/task-contract`.
 
+## TDD Gate
+
+Use Red-Green-Refactor for bugs, regressions, parsers, validators, domain logic, APIs, shared utilities, and risky refactors. In `V`, set TDD mode to required, optional, or waived; required tasks need Red and Green evidence before done.
+
 ## Contract Draft Gate
 
 For vague, high-risk, cross-module, or mid-session requirements, create a `Coordinate Contract Draft` before coding. Use `docs/CONTRACTS.md` or `/coderail:contract-draft`.
@@ -115,7 +119,7 @@ Pause only for decision-grade blockers: missing goal, forbidden scope, product/s
 Before any substantial final response or stop:
 
 1. State task result: done, stage-complete, blocked, failed, or deferred.
-2. Run V, CI Gate when available, and done gate only when marking done.
+2. Run TDD Gate when required, CI Gate when available, and done gate only when marking done.
 3. Inspect `git diff/status`; classify safe-to-stage, do-not-stage, ignored/generated.
 4. Auto-commit safe task-scoped files when possible; never use `git add .` when unsafe.
 5. Run Handoff Trigger Check: H0/H1/H2/H3; update HANDOFF only for H1/H2/H3.

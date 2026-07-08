@@ -104,6 +104,7 @@ def pre_edit(target: Path) -> int:
 
 def prompt() -> int:
     print("[CodeRail] Load AGENTS.md. Treat CodeRail rules as long-lived project rails, not ordinary task notes.")
+    print("[CodeRail] For bugs/regressions/parsers/domain logic/APIs/shared utilities, run TDD Gate.")
     print("[CodeRail] For architecture/data/deployment/UI/lifecycle complexity, keep docs/BLUEPRINTS.md current.")
     print("[CodeRail] Before stopping, include Closeout State, Auto Commit action, Handoff Trigger Check, and Next Executable Step.")
     return 0

@@ -50,6 +50,7 @@ def test_required_v06_files_exist():
         'references/TRACE_GRAPH.md',
         'references/CONTRACT_DRAFT.md',
         'references/RUNTIME_STATE_INSPECT.md',
+        'references/TDD_GATE.md',
         'references/DONE_GATE.md',
         'references/CLOSEOUT_GATE.md',
         'references/LOOP_ENGINEERING.md',
@@ -59,6 +60,7 @@ def test_required_v06_files_exist():
         'scripts/trace_doctor.py',
         'scripts/contract_check.py',
         'scripts/inspect_state.py',
+        'scripts/tdd_check.py',
         'scripts/done_gate.py',
         'scripts/closeout_check.py',
         'scripts/ci_gate.py',
@@ -68,6 +70,7 @@ def test_required_v06_files_exist():
         'skills/link/SKILL.md',
         'skills/contract-draft/SKILL.md',
         'skills/inspect/SKILL.md',
+        'skills/tdd-gate/SKILL.md',
         'skills/done-gate/SKILL.md',
         'skills/closeout/SKILL.md',
         'skills/ci-gate/SKILL.md',
@@ -134,6 +137,30 @@ def test_done_gate_scope_prefix_is_segment_aware():
     check(not done_gate.matches_any('docs2/file.md', ['docs/**']), 'docs/** must not match docs2/file.md')
     check(done_gate.matches_any('src\\app.py', ['src/**']), 'src/** should match backslash paths')
     check(not done_gate.matches_any('src2\\app.py', ['src/**']), 'src/** must not match src2 paths')
+
+
+def test_tdd_gate_blocks_done_required_without_red_green():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        (target/'docs').mkdir()
+        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## B-001 Fix parser regression\n\nStatus: [x]\nType: bug\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Fix parser regression\n\nS — Scope:\n- Allowed:\n  - src/parser.py\n- Forbidden:\n  - none\n\nV — Verify:\n- TDD mode: required\n- Harness:\n  - pytest tests/test_parser.py\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/tdd_check.py'), '--target', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 1, 'done required TDD task without red/green should fail')
+        check('missing Red check, Green check' in result.stdout, 'missing red/green diagnostic')
+
+
+def test_tdd_gate_accepts_required_evidence():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        (target/'docs').mkdir()
+        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## B-001 Fix parser regression\n\nStatus: [x]\nType: bug\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Fix parser regression\n\nS — Scope:\n- Allowed:\n  - src/parser.py\n- Forbidden:\n  - none\n\nV — Verify:\n- TDD mode: required\n- Red check: pytest tests/test_parser.py failed on malformed token case\n- Green check: pytest tests/test_parser.py passed\n- Refactor check: pytest tests/test_parser.py passed after cleanup\n- Regression check: malformed token case remains in tests/test_parser.py\n- CI check: npm run ci passed\n- Harness:\n  - pytest tests/test_parser.py\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/tdd_check.py'), '--target', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout)
+        check('Status: healthy' in result.stdout, 'complete TDD evidence should be healthy')
 
 
 def test_done_gate_skipped_requires_manual_acceptance():

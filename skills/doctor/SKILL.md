@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: Run CodeRail health checks, including contracts, coordinates, done/closeout readiness, inspect state, trace, and blueprint awareness.
+description: Run CodeRail health checks, including contracts, coordinates, TDD, done/closeout readiness, inspect state, trace, and blueprint awareness.
 ---
 
 # doctor
@@ -20,6 +20,7 @@ Summarize:
 - North Star health
 - Contract Draft health
 - Coordinate coverage
+- TDD Gate health
 - Harness / done gate readiness
 - Closeout / handoff readiness
 - CI Gate readiness

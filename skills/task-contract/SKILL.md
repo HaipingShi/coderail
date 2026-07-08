@@ -7,6 +7,8 @@ description: Convert a request into a concrete task with a CodeRail Coordinate.
 
 Use the Coordinate Draft Gate. Append or update TASKS.md with G/T/S/V/X/P, dependencies, acceptance, and completion fields. Write a task trace event.
 
+For correctness-sensitive work, set `TDD mode` in V before implementation.
+
 ## Rules
 
 - Keep output concise.

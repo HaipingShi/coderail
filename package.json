@@ -1,7 +1,7 @@
 {
   "name": "coderail",
-  "version": "0.7.2",
-  "description": "Blueprint Gate, North-Star, Coordinate Contract Draft, Done Gate, Auto Commit Gate, CI Gate, Inspect, and traceable governance for AI coding agents",
+  "version": "0.7.3",
+  "description": "Blueprint Gate, North-Star, Coordinate Contract Draft, TDD Gate, Done Gate, Auto Commit Gate, CI Gate, Inspect, and traceable governance for AI coding agents",
   "license": "MIT",
   "private": false,
   "author": "HaipingShi",
@@ -19,6 +19,7 @@
     "governance",
     "handoff",
     "harness",
+    "tdd",
     "north-star",
     "task-contract",
     "coordinate",
@@ -32,6 +33,7 @@
   "scripts": {
     "test": "node scripts/run_python.js tests/test_structure.py",
     "ci": "node scripts/run_python.js scripts/ci_gate.py --target .",
+    "tdd-check": "node scripts/run_python.js scripts/tdd_check.py --target .",
     "doctor": "node scripts/run_python.js scripts/doctor.py --target .",
     "drift-check": "node scripts/run_python.js scripts/drift_check.py --target .",
     "blueprint-check": "node scripts/run_python.js scripts/blueprint_check.py --target .",

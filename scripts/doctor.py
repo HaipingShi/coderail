@@ -17,6 +17,7 @@ import trace_doctor  # noqa: E402
 import contract_check  # noqa: E402
 import blueprint_check  # noqa: E402
 import inspect_state  # noqa: E402
+import tdd_check  # noqa: E402
 
 REQUIRED = [
     "AGENTS.md",
@@ -110,6 +111,14 @@ def main(argv=None) -> int:
 
     contract_severe, contract_warn = run_contracts(root)
     coord_severe, coord_warn = run_coordinate(root)
+    tdd_severe, tdd_warn = [], []
+    if (docs / "TASKS.md").exists():
+        for header, body, status in coordinate_check.split_tasks(read(docs / "TASKS.md")):
+            if "Example task" in header or "Task Template" in header:
+                continue
+            s, w = tdd_check.check_task(header, body, status)
+            tdd_severe.extend(s)
+            tdd_warn.extend(w)
 
     harness_warn = []
     if not (docs / "HARNESS_SPEC.md").exists():
@@ -157,7 +166,7 @@ def main(argv=None) -> int:
     if not agents:
         entry_warn.append("AGENTS.md missing")
     else:
-        for phrase in ["CodeRail Coordinate", "done gate", "Coordinate Contract Draft", "Runtime State Inspect", "Closeout"]:
+        for phrase in ["CodeRail Coordinate", "done gate", "Coordinate Contract Draft", "Runtime State Inspect", "TDD Gate", "Closeout"]:
             if phrase not in agents:
                 entry_warn.append(f"AGENTS.md does not mention {phrase}")
 
@@ -175,8 +184,8 @@ def main(argv=None) -> int:
     if workflows.exists() and not list(workflows.glob("*.yml")) and not list(workflows.glob("*.yaml")):
         ci_warn.append(".github/workflows exists but has no workflow files")
 
-    severe = contract_severe + coord_severe + trace_severe + blueprint_severe
-    warnings = ns_warn + contract_warn + coord_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn + blueprint_warn + ci_warn
+    severe = contract_severe + coord_severe + tdd_severe + trace_severe + blueprint_severe
+    warnings = ns_warn + contract_warn + coord_warn + tdd_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn + blueprint_warn + ci_warn
     status = "unhealthy" if (missing or severe) else ("usable with warnings" if warnings else "healthy")
 
     print("# Governance Doctor Report\n")
@@ -202,6 +211,7 @@ def main(argv=None) -> int:
     section("North Star", [], ns_warn)
     section("Contract Drafts", contract_severe, contract_warn)
     section("Coordinate", coord_severe, coord_warn)
+    section("TDD Gate", tdd_severe, tdd_warn)
     section("Harness / Done Gate", [], harness_warn)
     section("Handoff", [], handoff_warn)
     section("Asset Boundary", [], asset_warn)
@@ -227,6 +237,8 @@ def main(argv=None) -> int:
         fixes.append("/contract-draft — fix or accept/reject draft contracts")
     if coord_severe or coord_warn:
         fixes.append("/task-contract — fill missing coordinate fields")
+    if tdd_severe or tdd_warn:
+        fixes.append("/tdd-gate — record Red-Green-Refactor evidence or an explicit waiver")
     if trace_severe or trace_warn:
         fixes.append("/trace or /link — fix trace gaps; then run trace_index.py")
     if inspect_warn:

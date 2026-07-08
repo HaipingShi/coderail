@@ -68,6 +68,10 @@ def main(argv=None) -> int:
         contract_target = root / "project-template" if (root / "project-template").exists() else root
         failures += bool(run("Contract check", [python, str(scripts / "contract_check.py"), "--target", str(contract_target)], root))
 
+    if (scripts / "tdd_check.py").exists():
+        tdd_target = root / "project-template" if (root / "project-template").exists() else root
+        failures += bool(run("TDD gate", [python, str(scripts / "tdd_check.py"), "--target", str(tdd_target)], root))
+
     if has_git_repo(root):
         failures += bool(run("Whitespace diff check", ["git", "-C", str(root), "diff", "--check"], root))
 
@@ -78,4 +82,3 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

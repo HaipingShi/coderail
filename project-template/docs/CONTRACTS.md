@@ -31,6 +31,13 @@ S — Scope:
   - none
 
 V — Verify:
+- TDD mode: required | optional | waived
+- Red check:
+- Green check:
+- Refactor check:
+- Regression check:
+- CI check:
+- Waiver reason:
 - Harness:
   -
 - Manual acceptance:

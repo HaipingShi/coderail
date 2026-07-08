@@ -60,10 +60,13 @@ jobs:
         shell: bash
         run: |
           tag="${{ steps.tag.outputs.tag }}"
-          title="${tag} - Auto Commit and CI Gate"
+          summary="$(grep -m 1 -v '^[[:space:]]*$' release-notes.md | sed 's/[.]$//')"
+          if [[ -z "$summary" ]]; then
+            summary="CodeRail release"
+          fi
+          title="${tag} - ${summary}"
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release edit "$tag" --title "$title" --notes-file release-notes.md --latest
           else
             gh release create "$tag" --verify-tag --title "$title" --notes-file release-notes.md --latest
           fi
-
