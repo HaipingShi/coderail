@@ -1,35 +1,33 @@
 #!/usr/bin/env python3
-"""Initialize CodeRail files in a repository.
-
-This script copies project-template files without overwriting non-empty files
-unless --force is provided. It has no network access and runs only local file IO.
-"""
+"""Initialize CodeRail files in a repository without overwriting non-empty files."""
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import shutil
 import sys
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "project-template"
 
-LITE_FILES = [
+LITE = [
     "AGENTS.md",
     "CLAUDE.md",
     "docs/NORTH_STAR.md",
     "docs/TASKS.md",
     "docs/HARNESS_SPEC.md",
     "docs/HANDOFF.md",
+    "docs/CODERAIL_STATUS.md",
 ]
 
-STANDARD_FILES = LITE_FILES + [
+STANDARD = LITE + [
     "docs/ASSETS.md",
     "docs/DECISIONS.md",
     "docs/LESSONS.md",
     "docs/RUNLOG.md",
     "docs/TASK_GRAPH.md",
     "docs/METRICS.md",
+    "docs/CONTRACTS.md",
     "docs/TRACELOG.jsonl",
     "docs/TRACE_INDEX.md",
 ]
@@ -45,24 +43,26 @@ def copy_file(rel: str, target: Path, force: bool) -> str:
     return f"wrote {rel}"
 
 
-def main() -> int:
+def main(argv=None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--target", default=".", help="Repository root to initialize")
+    parser.add_argument("--target", default=".")
     parser.add_argument("--mode", choices=["lite", "standard"], default="standard")
-    parser.add_argument("--force", action="store_true", help="Overwrite existing non-empty files")
-    args = parser.parse_args()
-
+    parser.add_argument("--force", action="store_true")
+    args = parser.parse_args(argv)
     target = Path(args.target).resolve()
     if not target.exists():
         print(f"target does not exist: {target}", file=sys.stderr)
         return 2
-    files = LITE_FILES if args.mode == "lite" else STANDARD_FILES
-    for rel in files:
+    for rel in (LITE if args.mode == "lite" else STANDARD):
         print(copy_file(rel, target, args.force))
-    print("\nNext: open docs/NORTH_STAR.md and fill Outcome, Current Bet, Invariants, and Current Slice.")
-    print("Then: each task in docs/TASKS.md should carry a CodeRail Coordinate (G/T/S/V/X/P).")
-    print("Trace: append events to docs/TRACELOG.jsonl via scripts/trace_event.py and regenerate docs/TRACE_INDEX.md.")
+    print("\nNext:")
+    print("1. Fill docs/NORTH_STAR.md.")
+    print("2. Use docs/CONTRACTS.md for high-risk Coordinate Contract Drafts.")
+    print("3. Create a task coordinate in docs/TASKS.md.")
+    print("4. Run scripts/inspect_state.py --target <repo> to refresh docs/CODERAIL_STATUS.md.")
+    print("5. Run scripts/done_gate.py before marking work done.")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

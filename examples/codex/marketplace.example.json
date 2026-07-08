@@ -1,5 +1,5 @@
 {
-  "name": "local-repo",
+  "name": "coderail",
   "plugins": [
     {
       "name": "coderail",
@@ -9,7 +9,7 @@
       },
       "policy": {
         "installation": "AVAILABLE",
-        "authentication": "NONE"
+        "authentication": "ON_INSTALL"
       },
       "category": "Productivity"
     }

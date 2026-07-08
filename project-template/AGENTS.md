@@ -1,22 +1,18 @@
-# Agent Coding Runtime Entry
+# CodeRail Runtime Entry
 
-This repository uses CodeRail.
+This repository uses CodeRail. Keep this file short; full schemas live in `references/`.
 
-## Governance Layering（治理分层）
+## Governance layers
 
-Before editing any file, recognize which layer it belongs to. Do not modify, rewrite, or "optimize" files in a higher layer without explicit user authorization.
-
-- **L1 治理内核（不可动）**: The K0–K7 rule sections of this file, `references/`, `skills/`, `scripts/`, `.claude-plugin/`, `.codex-plugin/`. Unless the user explicitly says "upgrade CodeRail", do not modify these. Treat drift in these files as a stop condition.
-- **L2 项目资产（受控改）**: `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/DECISIONS.md`, `docs/HANDOFF.md`, `docs/TRACELOG.jsonl`, `docs/HARNESS_SPEC.md`. Editing these requires the governance flow — go through `/align` or `/task-contract`, and write a trace event. `TRACELOG.jsonl` is append-only; never edit past lines.
-- **L3 业务代码（自由改）**: `src/`, `tests/`, business logic. Edit freely within the `S` (Scope) field of the current CodeRail Coordinate.
-
-If you are unsure which layer a file belongs to, ask the user. Do not assume.
+- **L1 kernel**: CodeRail package files, plugin manifests, skills, scripts, references. Do not modify unless the user explicitly asks to upgrade CodeRail.
+- **L2 project state**: `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/CONTRACTS.md`, `docs/HANDOFF.md`, `docs/TRACELOG.jsonl`, `docs/HARNESS_SPEC.md`. Edit through CodeRail flow. `TRACELOG.jsonl` is append-only.
+- **L3 implementation**: business code and tests. Edit only inside the current S field.
 
 ## K0 North-Star Kernel
 
-Before any implementation, read or create `docs/NORTH_STAR.md`.
+Before implementation, read or create `docs/NORTH_STAR.md`.
 
-Every task must pass the North-Star Check:
+Every task must answer:
 
 1. What outcome does this serve?
 2. What user intent level is this request?
@@ -25,13 +21,11 @@ Every task must pass the North-Star Check:
 5. What should this task not become?
 6. What would indicate drift?
 
-If `docs/NORTH_STAR.md` does not exist, create a provisional one before coding.
-If the user request is L0-L3, do not implement directly. First produce an engineering judgment and a task contract.
-If a task cannot be mapped to the North Star, stop and run alignment before editing code.
+If the request is L0-L3, do not jump to code. Produce an engineering judgment and a contract draft first.
 
 ## K1 CodeRail Coordinate
 
-Before implementation, every non-trivial task must have a CodeRail Coordinate:
+Every non-trivial task must have a CodeRail Coordinate:
 
 - **G — Goal**: which North Star outcome this serves.
 - **T — Task**: the exact task to complete.
@@ -40,26 +34,41 @@ Before implementation, every non-trivial task must have a CodeRail Coordinate:
 - **X — Stop**: conditions that require stopping or escalating.
 - **P — Persist**: project assets to update after the action.
 
-If any field is missing, stop and run `/align` or `/task-contract`. Do not code
-from vague intent. Do not mark done without V. Do not modify outside S. Do not
-continue after X is triggered. Do not leave P unsynced.
+If any field is missing, stop and run `/align`, `/contract-draft`, or `/task-contract`.
+
+## Contract Draft Gate
+
+For vague, high-risk, cross-module, or mid-session requirements, create a `Coordinate Contract Draft` before coding. Use `docs/CONTRACTS.md` or `/coderail:contract-draft`.
+
+Do not code from vague intent. Do not silently fold a side request into the current task.
+
+## Verification-before-complete
+
+Before marking done, run `/coderail:done-gate` or `scripts/done_gate.py`.
+
+No done without:
+
+1. V passed or explicit manual acceptance.
+2. S respected.
+3. P synced, at least TASKS and TRACE.
+4. A verify trace event or fresh verification evidence.
+5. Handoff Trigger Check performed.
+
+## Runtime State Inspect
+
+Use `/coderail:inspect` or `scripts/inspect_state.py` before resuming, before handoff, after task jumps, or when the project feels hard to understand. It writes `docs/CODERAIL_STATUS.md`.
 
 ## K7 Trace Graph
 
-Before implementation, every non-trivial action must be linkable:
+Every meaningful action must be linkable:
 
-1. What North Star outcome does it serve?
-2. What task or intent does it implement?
-3. What files or assets does it modify?
-4. What validates it?
-5. What state should persist after it?
-6. What trace event records this action?
+1. source or intent
+2. North Star or task
+3. modified files/assets
+4. verification evidence
+5. persisted state
 
-If an action cannot be linked to a North Star, task, validation, or persistent
-asset, stop and run `/align` or `/trace`.
-
-Full coordinate and trace schemas live in
-`references/CODERAIL_COORDINATE.md` and `references/TRACE_GRAPH.md`.
+If an action cannot be linked, stop and run `/trace` or `/link`.
 
 ## Load order
 
@@ -72,58 +81,44 @@ Always read:
 
 Read when needed:
 
-- `docs/HANDOFF.md`: new session, H2/H3 handoff, resumed work, blocked task.
-- `docs/DECISIONS.md`: dependency, architecture, API, data model, security, build system changes.
-- `docs/LESSONS.md`: repeated error, failed harness, related module failure.
-- `docs/ASSETS.md`: raw material, generated documents, exported files, intermediate analysis.
-- `docs/TRACELOG.jsonl` / `docs/TRACE_INDEX.md`: why the project looks the way it does.
-- `docs/RUNLOG.md`: only when detailed execution history is needed.
+- `docs/CONTRACTS.md`: draft-gated or high-risk work.
+- `docs/CODERAIL_STATUS.md`: resuming, inspecting, or handing off.
+- `docs/HANDOFF.md`: new session, H2/H3 handoff, blocked task.
+- `docs/TRACELOG.jsonl` / `docs/TRACE_INDEX.md`: history, trace gaps, why code exists.
+- `docs/DECISIONS.md`, `docs/LESSONS.md`, `docs/ASSETS.md`: durable decisions, repeated failures, asset changes.
 
 ## Intent levels
 
-- L0 Outcome: final result or business/user outcome.
-- L1 Product / Domain: user flows, domain objects, behavior boundaries.
-- L2 Architecture: modules, state ownership, runtime boundaries, dependency direction.
-- L3 Technical Design: API, schema, error model, directory structure, technical choices.
-- L4 Task Plan: task ID, acceptance, and the CodeRail Coordinate (G/T/S/V/X/P).
-- L5 Implementation: code, tests, scripts, config, migrations.
+- L0 Outcome
+- L1 Product / Domain
+- L2 Architecture
+- L3 Technical Design
+- L4 Task Plan
+- L5 Implementation
 
-Do not collapse L0-L3 requests into L5 patches before framing the engineering judgment.
+Do not collapse L0-L3 requests into L5 patches before framing the judgment.
 
 ## Non-negotiable rules
 
-- Do not mark a task done without running the harness or recording manual acceptance.
-- Do not modify forbidden files without a divergence note and user approval when risk is high.
-- Do not treat raw material or working notes as permanent project assets.
-- Do not perform broad refactors outside the task contract.
-- Do not hide failed tests.
-- Do not fake harness results.
-- Prefer tool-native enforcement over prompt-only rules when available.
+- Do not mark done without the done gate.
+- Do not modify forbidden files without approval and trace.
+- Do not treat raw material or working notes as permanent assets.
+- Do not hide failed tests or fake harness results.
+- Prefer permissions/hooks/CI over prompt-only rules.
 
 ## Execution rhythm
 
-Plan at fine granularity. Execute in an authorized batch until done, blocked, failed, or drift is detected. Do not ask for confirmation at every low-risk internal step.
+Plan finely. Execute authorized batches until done, blocked, failed, or drift is detected. Do not ask for confirmation at every low-risk internal step.
 
-Pause only when:
-
-- The task cannot map to `docs/NORTH_STAR.md`.
-- The task needs forbidden files.
-- The task changes product goal, security, permissions, payment, privacy, destructive migration, public API, or data model.
-- Harness fails twice and root cause is unclear.
-- A new dependency or new persistent state is needed.
-- Documentation and code disagree about the target behavior.
+Pause when the task cannot map to North Star, needs forbidden scope, changes product/security/payment/privacy/API/schema/persistence, harness fails twice without root cause, or docs and code disagree.
 
 ## Completion
 
-1. Run task harness.
-2. Run global smoke checks when relevant.
-3. Inspect `git diff`.
-4. Update `docs/TASKS.md`.
-5. Update `docs/NORTH_STAR.md` if outcome, invariants, current slice, or decision debt changed.
-6. Update `docs/DECISIONS.md` only for durable engineering decisions.
-7. Update `docs/LESSONS.md` only for reusable failure lessons.
-8. Update `docs/ASSETS.md` when asset state changes.
-9. Write trace events for change / verify (and handoff if H1/H2/H3).
-10. Regenerate `docs/TRACE_INDEX.md`.
-11. Run Handoff Trigger Check.
-12. Update `docs/HANDOFF.md` only for H1/H2/H3.
+1. Run V.
+2. Inspect `git diff`.
+3. Run done gate.
+4. Update TASKS and required P assets.
+5. Write change/verify trace events.
+6. Regenerate TRACE_INDEX.
+7. Inspect state if resuming or handing off.
+8. Update HANDOFF only for H1/H2/H3.

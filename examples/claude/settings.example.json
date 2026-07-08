@@ -1,25 +1,7 @@
 {
-  "note": "Example only. Not enabled by default. Copy the deny rules you want into your Claude Code settings to actually block edits (prompt rules are soft; this is hard, K4 tool-native enforcement). See AGENTS.md Governance Layering for what each layer means.",
   "permissions": {
     "deny": [
-      "Write(references/**)",
-      "Edit(references/**)",
-      "Write(skills/**)",
-      "Edit(skills/**)",
-      "Write(scripts/**)",
-      "Edit(scripts/**)",
-      "Write(.claude-plugin/**)",
-      "Edit(.claude-plugin/**)",
-      "Write(.codex-plugin/**)",
-      "Edit(.codex-plugin/**)",
-      "Write(AGENTS.md)",
-      "Edit(AGENTS.md)",
-      "Write(docs/TRACELOG.jsonl)",
-      "Edit(docs/TRACELOG.jsonl)",
-      "Write(migrations/**)",
-      "Edit(migrations/**)",
-      "Write(.env)",
-      "Edit(.env)"
+      "Write(docs/TRACELOG.jsonl) unless appending via trace_event.py"
     ]
   }
 }

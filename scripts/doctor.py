@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""Governance doctor for CodeRail projects.
-
-Integrates coordinate_check and trace_doctor and reports seven sections:
-North Star, Coordinate, Task Contract, Harness, Handoff, Asset Boundary,
-Trace Graph. Standard library only.
-"""
+"""Governance doctor for CodeRail projects."""
 from __future__ import annotations
 
 import argparse
-import re
 import subprocess
 import sys
 from pathlib import Path
+
+SCRIPTS = Path(__file__).resolve().parent
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+import coordinate_check  # noqa: E402
+import trace_doctor  # noqa: E402
+import contract_check  # noqa: E402
+import blueprint_check  # noqa: E402
+import inspect_state  # noqa: E402
 
 REQUIRED = [
     "AGENTS.md",
@@ -21,6 +25,8 @@ REQUIRED = [
     "docs/HANDOFF.md",
 ]
 OPTIONAL = [
+    "docs/CONTRACTS.md",
+    "docs/CODERAIL_STATUS.md",
     "docs/ASSETS.md",
     "docs/DECISIONS.md",
     "docs/LESSONS.md",
@@ -28,17 +34,6 @@ OPTIONAL = [
     "docs/TRACELOG.jsonl",
     "docs/TRACE_INDEX.md",
 ]
-
-SCRIPTS_DIR = Path(__file__).resolve().parent
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
-
-import coordinate_check  # noqa: E402
-import trace_doctor  # noqa: E402
-
-# blueprint_check is optional in spirit (non-blocking), but we import it
-# unconditionally to surface the awareness section in every doctor run.
-import blueprint_check  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -50,133 +45,142 @@ def read(path: Path) -> str:
 
 def line_count(path: Path) -> int:
     text = read(path)
-    return 0 if not text else len(text.splitlines())
+    return len(text.splitlines()) if text else 0
 
 
 def git_status(root: Path) -> str:
     try:
-        out = subprocess.check_output(
-            ["git", "-C", str(root), "status", "--short"],
-            text=True, stderr=subprocess.DEVNULL,
-        )
-        return out.strip()
+        return subprocess.check_output(["git", "-C", str(root), "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
     except Exception:
         return "git status unavailable"
 
 
+def run_coordinate(root: Path):
+    tasks_path = root / "docs" / "TASKS.md"
+    severe, warnings = [], []
+    if not tasks_path.exists():
+        return ["docs/TASKS.md missing"], []
+    text = read(tasks_path)
+    for header, body, status in coordinate_check.split_tasks(text):
+        if "Example task" in header or "Task Template" in header:
+            continue
+        s, w = coordinate_check.check_task(header, body, status)
+        severe.extend(s)
+        warnings.extend(w)
+    return severe, warnings
+
+
+def run_contracts(root: Path):
+    path = root / "docs" / "CONTRACTS.md"
+    if not path.exists():
+        return [], ["docs/CONTRACTS.md missing (optional unless draft-gated work is active)"]
+    severe, warnings = [], []
+    for header, body, status in contract_check.split_drafts(read(path)):
+        if "Example" in header or "Short title" in header:
+            continue
+        s, w = contract_check.check_draft(header, body, status)
+        severe.extend(s)
+        warnings.extend(w)
+    return severe, warnings
+
+
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--target", default=".")
-    args = parser.parse_args(argv)
+    ap = argparse.ArgumentParser(description="Run CodeRail governance doctor")
+    ap.add_argument("--target", default=".")
+    args = ap.parse_args(argv)
     root = Path(args.target).resolve()
+    docs = root / "docs"
 
     missing = [p for p in REQUIRED if not (root / p).exists()]
 
-    # --- North Star ---
-    ns_warnings = []
-    ns = root / "docs/NORTH_STAR.md"
-    if ns.exists() and line_count(ns) > 100:
-        ns_warnings.append(f"docs/NORTH_STAR.md is {line_count(ns)} lines; target <= 100")
-    if not ns.exists():
-        ns_warnings.append("docs/NORTH_STAR.md missing")
+    ns_warn = []
+    if not (docs / "NORTH_STAR.md").exists():
+        ns_warn.append("docs/NORTH_STAR.md missing")
+    elif line_count(docs / "NORTH_STAR.md") > 100:
+        ns_warn.append(f"docs/NORTH_STAR.md is {line_count(docs / 'NORTH_STAR.md')} lines; target <= 100")
 
-    # --- Task Contract + Coordinate (via coordinate_check) ---
-    coord_severe = []
-    coord_warnings = []
-    tasks_path = root / "docs/TASKS.md"
-    if tasks_path.exists():
-        text = tasks_path.read_text(encoding="utf-8", errors="ignore")
-        for header, body, status in coordinate_check.split_tasks(text):
-            s, w = coordinate_check.check_task(header, body, status)
-            coord_severe.extend(s)
-            coord_warnings.extend(w)
-        if "CodeRail Coordinate" not in text:
-            coord_warnings.append("TASKS.md has no CodeRail Coordinate block")
-        if re.search(r"Status:\s*\[x\]", text) and "Harness result:" not in text:
-            coord_warnings.append("A done task may be missing Harness result")
+    contract_severe, contract_warn = run_contracts(root)
+    coord_severe, coord_warn = run_coordinate(root)
+
+    harness_warn = []
+    if not (docs / "HARNESS_SPEC.md").exists():
+        harness_warn.append("docs/HARNESS_SPEC.md missing")
+    elif "Global Checks" not in read(docs / "HARNESS_SPEC.md"):
+        harness_warn.append("HARNESS_SPEC.md has no Global Checks section")
+
+    handoff_warn = []
+    if (docs / "HANDOFF.md").exists():
+        if line_count(docs / "HANDOFF.md") > 120:
+            handoff_warn.append("docs/HANDOFF.md is too long; target <= 120 lines")
+        if "Coordinate Summary" not in read(docs / "HANDOFF.md"):
+            handoff_warn.append("HANDOFF.md has no Coordinate Summary")
+
+    asset_warn = []
+    if not (docs / "ASSETS.md").exists():
+        asset_warn.append("docs/ASSETS.md missing (optional but recommended)")
+
+    events = trace_doctor.load_events(docs / "TRACELOG.jsonl")
+    trace_severe, trace_warn = trace_doctor.check(events, docs / "TRACE_INDEX.md", docs / "TRACELOG.jsonl")
+    trace_info = []
+    trace_warn_filtered = []
+    for item in trace_warn:
+        if "TRACELOG.jsonl is empty" in item:
+            trace_info.append(item)
+        else:
+            trace_warn_filtered.append(item)
+    trace_warn = trace_warn_filtered
+
+    inspect_warn = []
+    if not (docs / "CODERAIL_STATUS.md").exists():
+        inspect_warn.append("docs/CODERAIL_STATUS.md missing; run scripts/inspect_state.py")
     else:
-        coord_severe.append("docs/TASKS.md missing")
+        status_text = read(docs / "CODERAIL_STATUS.md")
+        if "Generated by `scripts/inspect_state.py`" not in status_text:
+            inspect_warn.append("CODERAIL_STATUS.md does not look generated")
 
-    # --- Harness ---
-    harness_warnings = []
-    harness_path = root / "docs/HARNESS_SPEC.md"
-    if not harness_path.exists():
-        harness_warnings.append("docs/HARNESS_SPEC.md missing")
-    elif "Global Checks" not in read(harness_path):
-        harness_warnings.append("HARNESS_SPEC.md has no Global Checks section")
-
-    # --- Handoff ---
-    handoff_warnings = []
-    handoff = root / "docs/HANDOFF.md"
-    if handoff.exists() and line_count(handoff) > 120:
-        handoff_warnings.append(f"docs/HANDOFF.md is {line_count(handoff)} lines; target <= 120")
-    if handoff.exists() and "Coordinate Summary" not in read(handoff):
-        handoff_warnings.append("HANDOFF.md has no Coordinate Summary")
-
-    # --- Asset Boundary ---
-    asset_warnings = []
-    assets_path = root / "docs/ASSETS.md"
-    if not assets_path.exists():
-        asset_warnings.append("docs/ASSETS.md missing (optional but recommended)")
-
-    # --- Trace Graph (via trace_doctor) ---
-    log_path = root / "docs/TRACELOG.jsonl"
-    index_path = root / "docs/TRACE_INDEX.md"
-    events = trace_doctor.load_events(log_path)
-    trace_severe, trace_warnings = trace_doctor.check(events, index_path, log_path)
-
+    entry_warn = []
     agents = read(root / "AGENTS.md")
-    agents_warnings = []
     if not agents:
-        agents_warnings.append("AGENTS.md missing")
-    elif "North-Star" not in agents and "NORTH_STAR" not in agents:
-        agents_warnings.append("AGENTS.md does not mention North-Star Kernel")
-    if agents and "CodeRail Coordinate" not in agents:
-        agents_warnings.append("AGENTS.md does not mention CodeRail Coordinate")
+        entry_warn.append("AGENTS.md missing")
+    else:
+        for phrase in ["CodeRail Coordinate", "done gate", "Coordinate Contract Draft", "Runtime State Inspect"]:
+            if phrase not in agents:
+                entry_warn.append(f"AGENTS.md does not mention {phrase}")
 
-    all_warnings = (
-        ns_warnings + coord_warnings + harness_warnings + handoff_warnings
-        + asset_warnings + trace_warnings + agents_warnings
-    )
-    severe = coord_severe + trace_severe
-
-    status = "unhealthy" if (missing or severe) else ("usable with warnings" if all_warnings else "healthy")
+    severe = contract_severe + coord_severe + trace_severe
+    warnings = ns_warn + contract_warn + coord_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn
+    status = "unhealthy" if (missing or severe) else ("usable with warnings" if warnings else "healthy")
 
     print("# Governance Doctor Report\n")
     print(f"Status: {status}\n")
     print("## Missing required files")
-    if missing:
-        for item in missing:
-            print(f"- {item}")
-    else:
-        print("- none")
+    print("- none" if not missing else "\n".join(f"- {x}" for x in missing))
 
-    def section(title, severe_items, warn_items):
+    def section(title, sev, warn, info=None):
         print(f"\n## {title}")
         shown = False
-        if severe_items:
-            for item in severe_items:
-                print(f"- SEVERE: {item}")
+        for x in sev:
+            print(f"- SEVERE: {x}")
             shown = True
-        if warn_items:
-            for item in warn_items:
-                print(f"- {item}")
+        for x in warn:
+            print(f"- {x}")
+            shown = True
+        for x in info or []:
+            print(f"- info: {x}")
             shown = True
         if not shown:
             print("- ok")
 
-    section("North Star", [], ns_warnings)
-    section("Coordinate", coord_severe, coord_warnings)
-    section("Task Contract", [], [])
-    section("Harness", [], harness_warnings)
-    section("Handoff", [], handoff_warnings)
-    section("Asset Boundary", [], asset_warnings)
-    section("Trace Graph", trace_severe, trace_warnings)
-    section("Entry file (AGENTS.md)", [], agents_warnings)
+    section("North Star", [], ns_warn)
+    section("Contract Drafts", contract_severe, contract_warn)
+    section("Coordinate", coord_severe, coord_warn)
+    section("Harness / Done Gate", [], harness_warn)
+    section("Handoff", [], handoff_warn)
+    section("Asset Boundary", [], asset_warn)
+    section("Trace Graph", trace_severe, trace_warn, trace_info)
+    section("Runtime State Inspect", [], inspect_warn)
+    section("Entry file", [], entry_warn)
 
-    # Blueprint Awareness is educational, non-blocking, and multi-line — it does
-    # NOT go through section() (which is severe/warning二元) and never affects
-    # exit code or status. It only surfaces diagrams the project might benefit from.
     print("\n## Blueprint Awareness")
     print(blueprint_check.run_check(root))
 
@@ -185,24 +189,26 @@ def main(argv=None) -> int:
         print(f"- {item}: {'yes' if (root / item).exists() else 'no'}")
 
     print("\n## Git status")
-    gs = git_status(root)
-    print(gs if gs else "clean")
+    print(git_status(root) or "clean")
 
     print("\n## Suggested fixes")
-    suggestions = []
-    if ns_warnings:
-        suggestions.append("/align — realign NORTH_STAR.md")
-    if coord_severe or coord_warnings:
-        suggestions.append("/task-contract — fill missing CodeRail Coordinate fields")
-    if trace_severe or trace_warnings:
-        suggestions.append("/trace or /link — fix trace gaps and regenerate TRACE_INDEX.md")
-        suggestions.append("python3 scripts/trace_index.py --target .")
-    if any(warnings for warnings in [handoff_warnings]):
-        suggestions.append("/handoff — refresh Coordinate Summary")
-    if not suggestions:
-        suggestions.append("none — project is healthy")
-    for s in suggestions:
-        print(f"- {s}")
+    fixes = []
+    if ns_warn:
+        fixes.append("/align — realign NORTH_STAR.md")
+    if contract_severe or contract_warn:
+        fixes.append("/contract-draft — fix or accept/reject draft contracts")
+    if coord_severe or coord_warn:
+        fixes.append("/task-contract — fill missing coordinate fields")
+    if trace_severe or trace_warn:
+        fixes.append("/trace or /link — fix trace gaps; then run trace_index.py")
+    if inspect_warn:
+        fixes.append("/inspect — refresh CODERAIL_STATUS.md")
+    if handoff_warn:
+        fixes.append("/handoff — refresh Coordinate Summary")
+    if not fixes:
+        fixes.append("none — project is healthy")
+    for item in fixes:
+        print(f"- {item}")
 
     return 1 if status == "unhealthy" else 0
 

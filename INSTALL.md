@@ -1,4 +1,11 @@
-# Install
+# Install CodeRail
+
+## Local template install
+
+```bash
+python3 scripts/init_project.py --target /path/to/repo --mode standard
+python3 scripts/doctor.py --target /path/to/repo
+```
 
 ## Claude Code
 
@@ -6,29 +13,14 @@
 claude --plugin-dir ./coderail
 ```
 
-Then run:
-
-```text
-/coderail:project-init
-```
-
-Claude Code plugin skills are namespaced as `/coderail:<skill>`.
-
 ## Codex
 
-For a repo-scoped marketplace:
+Use `.codex-plugin/plugin.json` as the plugin manifest and point the marketplace entry at this package.
+
+## Verify v0.6 features
 
 ```bash
-mkdir -p ./plugins ./ .agents/plugins
-cp -R /path/to/coderail ./plugins/coderail
-cp examples/codex/marketplace.example.json .agents/plugins/marketplace.json
-```
-
-Restart Codex and open the plugin browser.
-
-## Generic
-
-```bash
-python3 coderail/scripts/init_project.py --target /path/to/repo --mode standard
-python3 coderail/scripts/doctor.py --target /path/to/repo
+python3 scripts/contract_check.py --target /path/to/repo
+python3 scripts/inspect_state.py --target /path/to/repo --write
+python3 scripts/done_gate.py --target /path/to/repo --task T-001 --harness-result passed
 ```

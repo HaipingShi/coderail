@@ -1,20 +1,8 @@
-# Python
 __pycache__/
-*.py[cod]
-*.egg-info/
 .pytest_cache/
-
-# OS / editor
+*.pyc
 .DS_Store
-Thumbs.db
-.idea/
-.vscode/
-*.swp
-
-# Local environment
-.env
-.env.*
-
-# E2E test artifacts (run_e2e.py uses a temp dir, but guard against stray demo-app)
-demo-app/
-coderail-e2e-*/
+node_modules/
+dist/
+build/
+.venv/

@@ -1,62 +1,43 @@
-# Kernel Reference
+# CodeRail Kernel
 
-The CodeRail Kernel is eight invariants. K0 anchors direction; K1 compresses a
-task's runtime state into one coordinate; K2-K6 bound, verify, and continue the
-work; K7 indexes it so the next agent can follow.
+CodeRail is a repo-local governance rail for AI coding agents.
 
-## K0 North-Star Kernel
+## K0 North Star
 
-Every coding action must map to the current Outcome, Current Bet, Invariants, or
-Current Slice in `docs/NORTH_STAR.md`.
-
-K0 is mandatory because users often begin with incomplete plans and develop
-through exploration. The agent must not only follow the local conversation. It
-must repeatedly look up at the persistent project direction.
+Direction anchor. Every non-trivial action maps to `docs/NORTH_STAR.md`.
 
 ## K1 CodeRail Coordinate
 
-Every non-trivial task must carry a CodeRail Coordinate before implementation:
-**G**oal, **T**ask, **S**cope, **V**erify, **X** (Stop), **P**ersist.
-
-The coordinate compresses the previously scattered North-Star Link, Allowed/
-Forbidden Files, Harness, Stop Triggers, and Persisted Assets into one block the
-agent re-checks at every gate. Full text: [`CODERAIL_COORDINATE.md`](CODERAIL_COORDINATE.md).
+Task coordinate. Every task compresses to G/T/S/V/X/P before implementation.
 
 ## K2 Task Contract
 
-Every task must have a task ID, North-Star Link, acceptance, dependencies, and
-completion record. Allowed/forbidden files, harness, and stop triggers live
-inside the CodeRail Coordinate (S/V/X) to avoid duplication.
+Executable task boundary. A task has ID, dependencies, acceptance, completion evidence, and a Coordinate.
 
-## K3 Harness Gate
+## K3 Done Gate
 
-No task is done until the harness passes or manual acceptance is explicitly
-recorded.
+Verification-before-complete. No done without passing V or explicit manual acceptance.
 
 ## K4 Tool-Native Enforcement
 
-Use permissions, hooks, CI, branch protection, pre-commit, and review gates when
-possible. Prompt rules are fallback.
+Use permissions, hooks, CI, tests, and scripts when possible. Prompt rules are fallback.
 
-## K5 Handoff / Continuation
+## K5 Handoff
 
-Handoff is event-triggered and short. It carries a Coordinate Summary, not a
-history log.
+Event-triggered snapshot, never a log dump. Handoff carries a Coordinate Summary and next action.
 
 ## K6 Asset Boundary
 
-Raw material, working notes, candidates, permanent project assets, generated
-artifacts, and release artifacts must remain distinct.
+Raw material, working notes, candidates, permanent project assets, generated artifacts, and releases are different.
 
-## K7 Trace Graph Kernel
+## K7 Trace Graph
 
-No action without a trace link. Every meaningful development action records its
-source, target, modification, validation, and persistence location in
-`docs/TRACELOG.jsonl`. Full text: [`TRACE_GRAPH.md`](TRACE_GRAPH.md).
+No meaningful action without source, target, modified files/assets, validation evidence, and persistence link.
 
-## Renumbering note (v0.4.0)
+## Productization spine
 
-Before v0.4.0 the kernel was K0–K6 with "K1 Task Contract" and "K2 Execution
-Rhythm" as separate rows. In v0.4.0 the Task Contract moved to K2 and the
-Execution Rhythm was absorbed into the CodeRail Coordinate (G/T/X) and the
-`execute-batch` skill. K7 Trace Graph was added.
+v0.6 adds three runtime surfaces:
+
+1. Coordinate Contract Draft — formal pre-implementation gate.
+2. Runtime State Inspect — inspectable status from repo-local files.
+3. Done Gate — verification-before-complete.

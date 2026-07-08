@@ -9,7 +9,12 @@
 - `[f]` failed
 - `[r]` reopened
 
-## T-001 Example task
+## Task Template
+
+Copy this block and rename the heading to `\## T-001 Short task title` when creating a real task.
+
+```markdown
+\## T-001 Short task title
 
 Status: [ ]
 Type: feature | bug | refactor | docs | harness | chore
@@ -18,11 +23,6 @@ Owner:
 Branch:
 
 ### CodeRail Coordinate
-
-> The coordinate compresses Goal, Task, Scope, Verify, Stop, and Persist into
-> one block. It replaces the old separate North-Star Link / Allowed Files /
-> Forbidden Files / Harness / Stop Triggers / Persisted Assets fields. See
-> `references/CODERAIL_COORDINATE.md`.
 
 G — Goal:
 - North Star:
@@ -35,7 +35,7 @@ S — Scope:
 - Allowed:
   - 
 - Forbidden:
-  - 
+  - none
 
 V — Verify:
 - Harness:
@@ -44,8 +44,8 @@ V — Verify:
   - 
 
 X — Stop:
-- 
-- 
+- forbidden files needed
+- harness fails twice with unclear root cause
 
 P — Persist:
 - TASKS:
@@ -56,9 +56,6 @@ P — Persist:
 - TRACE:
 
 ### Task Contract
-
-> Dependency, acceptance, and completion only. Scope/verify/stop live above in
-> the CodeRail Coordinate so they are not duplicated.
 
 Depends on:
 - 
@@ -72,19 +69,20 @@ Acceptance:
 
 ### Critical Check
 
-- [ ] The task maps to `docs/NORTH_STAR.md` through its G field.
-- [ ] The request level was not collapsed incorrectly into implementation.
-- [ ] Changes stayed inside S (Allowed) and respected S (Forbidden).
-- [ ] No raw material or working note was treated as a permanent asset.
-- [ ] New dependency, API, schema, or persistent state was recorded.
-- [ ] V can verify the change, or manual acceptance is explicit.
-- [ ] P was synced (at least TASKS and TRACE).
+- [ ] G maps to `docs/NORTH_STAR.md`.
+- [ ] Changes stayed inside S.
+- [ ] V can verify the change or manual acceptance is explicit.
+- [ ] P was synced, at least TASKS and TRACE.
 
 ### Completion
 
+Done gate: pass | blocked | warning
 Completed at:
 Commit:
 Harness result:
+Manual acceptance:
 Handoff level: H0 | H1 | H2 | H3
 Trace:
+Inspect status:
 Notes:
+```

@@ -1,220 +1,104 @@
 #!/usr/bin/env python3
-"""Append a trace event to docs/TRACELOG.jsonl.
-
-Standard library only. Auto-generates an event id (TR-YYYYMMDD-HHMMSS-XXXX) and
-an ISO timestamp. Supports both CLI flags and --from-file JSON input.
-
-Schema reference: references/TRACE_GRAPH.md
-"""
+"""Append a trace event to docs/TRACELOG.jsonl."""
 from __future__ import annotations
-
-import argparse
-import json
-import secrets
-import sys
+import argparse, json, secrets, sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-VALID_TYPES = {
-    "intent", "align", "task", "decision", "research", "attempt",
-    "change", "verify", "handoff", "lesson",
-}
-EDGE_KEYS = [
-    "serves", "derived_from", "implements", "modifies", "validated_by",
-    "depends_on", "supersedes", "blocks", "relates_to",
-]
+VALID_TYPES={"intent","align","task","decision","research","attempt","change","verify","handoff","lesson"}
+EDGE_KEYS=["serves","derived_from","implements","modifies","validated_by","depends_on","supersedes","blocks","relates_to"]
 
+def make_id(now=None):
+    now=now or datetime.now(timezone.utc)
+    return f"TR-{now.strftime('%Y%m%d-%H%M%S')}-{secrets.token_hex(2)}"
 
-def make_id(now: datetime | None = None) -> str:
-    now = now or datetime.now(timezone.utc)
-    suffix = secrets.token_hex(2)
-    return f"TR-{now.strftime('%Y%m%d-%H%M%S')}-{suffix}"
-
-
-def _split_list(value):
-    if value is None:
-        return None
-    if isinstance(value, (list, tuple)):
-        return [v for v in value if v]
-    parts = [p.strip() for p in str(value).split(",")]
+def split_list(value):
+    if value is None: return None
+    if isinstance(value,(list,tuple)): return [str(v).strip() for v in value if str(v).strip()]
+    parts=[p.strip() for p in str(value).split(',')]
     return [p for p in parts if p]
 
-
-def build_event(args) -> dict:
-    """Build a trace event dict from parsed args. Raises ValueError on invalid input."""
-    etype = args.type
-    if etype not in VALID_TYPES:
-        raise ValueError(f"invalid --type {etype!r}; one of {sorted(VALID_TYPES)}")
-
-    now = datetime.now(timezone.utc)
-    event = {
-        "id": args.id or make_id(now),
-        "ts": args.ts or now.isoformat(timespec="seconds"),
-        "type": etype,
-        "summary": args.summary or "",
-    }
-
-    optional_scalars = {
-        "task": args.task,
-        "north_star": args.north_star,
-        "status": args.status,
-        "source_kind": args.source_kind,
-        "source_ref": args.source_ref,
-        "harness_command": args.harness_command,
-        "harness_result": args.harness_result,
-        "commit": args.commit,
-    }
-    for key, val in optional_scalars.items():
-        if val:
-            event[key] = val
-
-    files = _split_list(args.files)
-    if files:
-        event["files"] = files
-
-    for edge in EDGE_KEYS:
-        cli_attr = edge.replace("_", "-")
-        val = getattr(args, cli_attr, None)
-        lst = _split_list(val)
-        if lst:
-            event[edge] = lst
-
-    coordinate = _build_coordinate(args)
-    if coordinate is not None:
-        event["coordinate"] = coordinate
-
-    # Type-specific rules.
-    if etype == "change":
-        has_anchor = bool(event.get("task") or event.get("north_star") or event.get("files"))
-        if not has_anchor:
-            raise ValueError(
-                "change event must have at least one of --task, --north-star, --files"
-            )
-    if etype == "verify":
-        if not event.get("harness_result"):
-            raise ValueError("verify event must have --harness-result")
-
-    return event
-
-
-def _build_coordinate(args) -> dict | None:
-    has_any = any([
-        args.goal, args.coordinate_task,
-        args.scope_allowed, args.scope_forbidden,
-        args.verify, args.stop, args.persist,
-    ])
-    if not has_any:
+def build_coordinate(ns):
+    if not any(getattr(ns,k,None) for k in ["goal","coordinate_task","scope_allowed","scope_forbidden","verify","stop","persist"]):
         return None
-    coord = {}
-    if args.goal:
-        coord["goal"] = args.goal
-    if args.coordinate_task:
-        coord["task"] = args.coordinate_task
-    scope = {}
-    allowed = _split_list(args.scope_allowed)
-    forbidden = _split_list(args.scope_forbidden)
-    if allowed:
-        scope["allowed"] = allowed
-    if forbidden:
-        scope["forbidden"] = forbidden
-    if scope:
-        coord["scope"] = scope
-    if args.verify:
-        coord["verify"] = _split_list(args.verify) or [args.verify]
-    if args.stop:
-        coord["stop"] = _split_list(args.stop) or [args.stop]
-    if args.persist:
-        coord["persist"] = _split_list(args.persist) or [args.persist]
-    return coord
+    c={}
+    if ns.goal: c["goal"]=ns.goal
+    if ns.coordinate_task: c["task"]=ns.coordinate_task
+    scope={}
+    if split_list(ns.scope_allowed): scope["allowed"]=split_list(ns.scope_allowed)
+    if split_list(ns.scope_forbidden): scope["forbidden"]=split_list(ns.scope_forbidden)
+    if scope: c["scope"]=scope
+    if split_list(ns.verify): c["verify"]=split_list(ns.verify)
+    if split_list(ns.stop): c["stop"]=split_list(ns.stop)
+    if split_list(ns.persist): c["persist"]=split_list(ns.persist)
+    return c
 
-
-def append_event(target: Path, event: dict) -> Path:
-    docs = target / "docs"
-    docs.mkdir(parents=True, exist_ok=True)
-    log = docs / "TRACELOG.jsonl"
-    with log.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(event, ensure_ascii=False, sort_keys=False) + "\n")
-    return log
-
-
-def _load_from_file(path: Path) -> argparse.Namespace:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    ns = argparse.Namespace()
-    for key in ["id", "ts", "type", "summary", "task", "north_star", "status",
-                "source_kind", "source_ref", "files", "harness_command",
-                "harness_result", "commit", "goal", "coordinate_task",
-                "scope_allowed", "scope_forbidden", "verify", "stop", "persist"]:
-        attr = key if "_" in key and key not in ("scope_allowed", "scope_forbidden", "coordinate_task") else key
-        setattr(ns, attr, data.get(key))
+def build_event(ns):
+    if ns.type not in VALID_TYPES:
+        raise ValueError(f"invalid type {ns.type!r}")
+    now=datetime.now(timezone.utc)
+    ev={"id": ns.id or make_id(now), "ts": ns.ts or now.isoformat(timespec='seconds'), "type": ns.type, "summary": ns.summary or ""}
+    for key in ["task","north_star","status","source_kind","source_ref","harness_command","harness_result","commit"]:
+        val=getattr(ns,key,None)
+        if val: ev[key]=val
+    files=split_list(getattr(ns,"files",None))
+    if files: ev["files"]=files
     for edge in EDGE_KEYS:
-        setattr(ns, edge.replace("_", "-"), data.get(edge))
+        val=getattr(ns, edge, None)
+        lst=split_list(val)
+        if lst: ev[edge]=lst
+    coord=build_coordinate(ns)
+    if coord: ev["coordinate"]=coord
+    if ev["type"]=="change" and not (ev.get("task") or ev.get("north_star") or ev.get("files")):
+        raise ValueError("change event must have at least one of --task, --north-star, --files")
+    if ev["type"]=="verify" and not ev.get("harness_result"):
+        raise ValueError("verify event must have --harness-result")
+    return ev
+
+def parse(argv=None):
+    p=argparse.ArgumentParser(description='Append a CodeRail trace event')
+    p.add_argument('--target', default='.')
+    p.add_argument('--from-file')
+    p.add_argument('--type', choices=sorted(VALID_TYPES))
+    p.add_argument('--summary')
+    p.add_argument('--task'); p.add_argument('--north-star', dest='north_star'); p.add_argument('--status')
+    p.add_argument('--source-kind', dest='source_kind'); p.add_argument('--source-ref', dest='source_ref')
+    p.add_argument('--files'); p.add_argument('--harness-command', dest='harness_command'); p.add_argument('--harness-result', dest='harness_result')
+    p.add_argument('--commit'); p.add_argument('--id'); p.add_argument('--ts')
+    for edge in EDGE_KEYS:
+        p.add_argument('--'+edge.replace('_','-'), dest=edge)
+    p.add_argument('--goal'); p.add_argument('--coordinate-task', dest='coordinate_task')
+    p.add_argument('--scope-allowed', dest='scope_allowed'); p.add_argument('--scope-forbidden', dest='scope_forbidden')
+    p.add_argument('--verify'); p.add_argument('--stop'); p.add_argument('--persist')
+    ns=p.parse_args(argv)
+    if ns.from_file:
+        data=json.loads(Path(ns.from_file).read_text(encoding='utf-8'))
+        for key, val in data.items():
+            k = 'north_star' if key=='north-star' else key.replace('-', '_')
+            if hasattr(ns,k) and getattr(ns,k) in (None, ''):
+                setattr(ns,k,val)
+    if not ns.type:
+        p.error('--type is required unless supplied by --from-file')
     return ns
 
+def append_event(target: Path, ev: dict) -> Path:
+    docs=target/'docs'; docs.mkdir(parents=True, exist_ok=True)
+    log=docs/'TRACELOG.jsonl'
+    with log.open('a', encoding='utf-8') as fh:
+        fh.write(json.dumps(ev, ensure_ascii=False)+'\n')
+    return log
 
-def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Append a trace event to docs/TRACELOG.jsonl")
-    parser.add_argument("--target", default=".", help="Repository root containing docs/")
-    parser.add_argument("--type", required=True, choices=sorted(VALID_TYPES))
-    parser.add_argument("--summary", help="1-3 line summary of the event")
-    parser.add_argument("--task", help="Task id, e.g. T-001")
-    parser.add_argument("--north-star", help="North star id, e.g. NS-001")
-    parser.add_argument("--status", help="open | accepted | rejected | superseded | blocked | done")
-    parser.add_argument("--source-kind", help="user | agent | ci | external")
-    parser.add_argument("--source-ref", help="Reference to the source (chat id, url, file)")
-    parser.add_argument("--files", help="Comma-separated modified files")
-    parser.add_argument("--serves", help="Comma-separated north star ids served")
-    parser.add_argument("--derived-from", help="Comma-separated event/source ids")
-    parser.add_argument("--implements", help="Comma-separated task ids implemented")
-    parser.add_argument("--modifies", help="Comma-separated files/assets modified")
-    parser.add_argument("--validated-by", help="Comma-separated verify/task ids")
-    parser.add_argument("--depends-on", help="Comma-separated ids depended on")
-    parser.add_argument("--supersedes", help="Comma-separated ids superseded")
-    parser.add_argument("--blocks", help="Comma-separated ids blocked")
-    parser.add_argument("--relates-to", help="Comma-separated ids related")
-    parser.add_argument("--harness-command", help="Harness command run")
-    parser.add_argument("--harness-result", help="passed | failed | skipped | manual")
-    parser.add_argument("--commit", help="Commit sha if available")
-    parser.add_argument("--id", help="Override the auto-generated event id")
-    parser.add_argument("--ts", help="Override the auto-generated ISO timestamp")
-    # CodeRail Coordinate fields.
-    parser.add_argument("--goal", help="Coordinate G: which North Star outcome this serves")
-    parser.add_argument("--coordinate-task", dest="coordinate_task", help="Coordinate T: the exact task")
-    parser.add_argument("--scope-allowed", help="Coordinate S allowed, comma-separated")
-    parser.add_argument("--scope-forbidden", help="Coordinate S forbidden, comma-separated")
-    parser.add_argument("--verify", help="Coordinate V: harness/test/manual acceptance")
-    parser.add_argument("--stop", help="Coordinate X: stop conditions")
-    parser.add_argument("--persist", help="Coordinate P: assets to update, comma-separated")
-    parser.add_argument("--from-file", help="Read event fields from a JSON file")
-    args = parser.parse_args(argv)
-
-    if args.from_file:
-        file_ns = _load_from_file(Path(args.from_file))
-        # CLI flags take precedence over the file where both are present.
-        for key in dir(args):
-            if key.startswith("_"):
-                continue
-            val = getattr(args, key)
-            if val is None and hasattr(file_ns, key):
-                setattr(args, key, getattr(file_ns, key))
-        if not args.type:
-            args.type = file_ns.type
-
+def main(argv=None):
     try:
-        event = build_event(args)
-    except ValueError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        return 2
-
-    target = Path(args.target).resolve()
+        ns=parse(argv); ev=build_event(ns)
+    except (ValueError, json.JSONDecodeError) as e:
+        print(f"error: {e}", file=sys.stderr); return 2
+    target=Path(ns.target).resolve()
     if not target.exists():
-        print(f"target does not exist: {target}", file=sys.stderr)
-        return 2
-
-    log = append_event(target, event)
-    print(f"appended {event['id']} ({event['type']}) to {log}")
-    print("next: run scripts/trace_index.py --target " + str(target))
+        print(f"target does not exist: {target}", file=sys.stderr); return 2
+    log=append_event(target, ev)
+    print(f"appended {ev['id']} ({ev['type']}) to {log}")
+    print(f"next: python3 scripts/trace_index.py --target {target}")
     return 0
-
-
-if __name__ == "__main__":
+if __name__=='__main__':
     raise SystemExit(main())

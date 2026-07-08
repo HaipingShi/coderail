@@ -4,68 +4,32 @@ Updated at:
 Handoff Level: H0 | H1 | H2 | H3
 Current branch:
 Current task:
-Current execution batch:
-Agent:
+Trace:
+Inspect status:
+
+## Coordinate Summary
+
+G:
+T:
+S:
+- Allowed:
+- Forbidden:
+V:
+X:
+P:
 
 ## Current State
 
 Done:
 - 
 
-In Progress:
+In progress:
 - 
 
 Blocked:
 - 
 
-Next:
-- 
-
-## North-Star Continuity
-
-Outcome:
-- 
-
-Current slice:
-- 
-
-Drift risk: none | low | medium | high
-
-Do not continue before resolving:
-- 
-
-## Coordinate Summary
-
-> A minimal snapshot of the current task's CodeRail Coordinate. Do not copy the
-> whole task document; copy only what the next agent needs to resume.
-
-Current G:
-- 
-
-Current T:
-- 
-
-Current S:
-- Allowed:
-- Forbidden:
-
-Current V:
-- 
-
-Current X:
-- 
-
-Current P:
-- 
-
-Trace:
-- 
-
-## Orphan / Drift Notes
-
-- (orphan tasks, orphan changes, verification gaps — leave empty if none)
-
-## Tests
+## Verification
 
 Passed:
 - 
@@ -73,21 +37,21 @@ Passed:
 Failed:
 - 
 
-Not Run:
+Not run:
 - 
 
-## Important Files
+## Trace / Drift Notes
 
+Orphans:
 - 
 
-## Decisions
-
-Accepted:
+Verification gaps:
 - 
 
-Pending:
+## Next Recommended Action
+
 - 
 
 ## Resume Prompt
 
-Continue from `docs/NORTH_STAR.md`, `docs/TASKS.md`, and `docs/HARNESS_SPEC.md`. Only read this handoff when resuming, blocked, switching agent, or when H2/H3 is indicated.
+Continue this repository under CodeRail. Read `AGENTS.md`, `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/CODERAIL_STATUS.md`, and `docs/HARNESS_SPEC.md`. Use the current Coordinate Summary; do not mark done without the done gate.

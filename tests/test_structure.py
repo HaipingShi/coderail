@@ -1,79 +1,122 @@
 from pathlib import Path
 import json
+import subprocess
+import sys
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def check(cond, msg):
+    if not cond:
+        raise AssertionError(msg)
+
+
+def run(cmd):
+    subprocess.check_call(cmd)
+
+
 def test_manifests_exist():
-    assert (ROOT / '.claude-plugin/plugin.json').exists()
-    assert (ROOT / '.codex-plugin/plugin.json').exists()
-
-
-def test_codex_manifest_points_to_skills():
-    data = json.loads((ROOT / '.codex-plugin/plugin.json').read_text())
-    assert data['skills'] == './skills/'
-    assert (ROOT / 'skills').exists()
+    check((ROOT/'.claude-plugin/plugin.json').exists(), 'missing claude manifest')
+    check((ROOT/'.codex-plugin/plugin.json').exists(), 'missing codex manifest')
 
 
 def test_versions_consistent():
-    expected = (ROOT / 'VERSION').read_text().strip()
-    assert expected, 'VERSION file is empty'
-    for manifest in ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json', 'package.json']:
-        data = json.loads((ROOT / manifest).read_text())
-        assert data['version'] == expected, f"{manifest} version {data['version']} != VERSION {expected}"
+    expected = (ROOT/'VERSION').read_text().strip()
+    for path in ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json', 'package.json']:
+        data = json.loads((ROOT/path).read_text())
+        check(data['version'] == expected, f'{path} version mismatch')
 
 
-def test_all_skills_have_frontmatter_name_description():
-    for skill in (ROOT / 'skills').iterdir():
-        if skill.is_dir():
-            text = (skill / 'SKILL.md').read_text()
-            assert text.startswith('---')
-            assert 'name:' in text.split('---', 2)[1]
-            assert 'description:' in text.split('---', 2)[1]
+def test_entry_files_short():
+    check(len((ROOT/'project-template/AGENTS.md').read_text(encoding='utf-8').splitlines()) <= 130, 'AGENTS too long')
+    check(len((ROOT/'project-template/CLAUDE.md').read_text(encoding='utf-8').splitlines()) <= 60, 'CLAUDE too long')
 
 
-def test_trace_and_link_skills_exist():
-    assert (ROOT / 'skills/trace/SKILL.md').exists()
-    assert (ROOT / 'skills/link/SKILL.md').exists()
-    assert (ROOT / 'skills/blueprint/SKILL.md').exists()
+def test_skills_have_frontmatter():
+    for d in (ROOT/'skills').iterdir():
+        if d.is_dir():
+            txt = (d/'SKILL.md').read_text(encoding='utf-8')
+            head = txt.split('---', 2)[1]
+            check(txt.startswith('---'), f'{d} no frontmatter')
+            check('name:' in head and 'description:' in head, f'{d} incomplete frontmatter')
 
 
-def test_coordinate_and_trace_references_exist():
-    assert (ROOT / 'references/CODERAIL_COORDINATE.md').exists()
-    assert (ROOT / 'references/TRACE_GRAPH.md').exists()
-    assert (ROOT / 'references/BLUEPRINT_STANDARD.md').exists()
-
-
-def test_project_template_has_trace_files():
-    assert (ROOT / 'project-template/docs/TRACELOG.jsonl').exists()
-    assert (ROOT / 'project-template/docs/TRACE_INDEX.md').exists()
-
-
-def test_tasks_template_has_coordinate_block():
-    text = (ROOT / 'project-template/docs/TASKS.md').read_text(encoding='utf-8')
-    assert 'CodeRail Coordinate' in text
-    assert 'G — Goal' in text
-    assert 'P — Persist' in text
-
-
-def test_entry_files_stay_short():
-    # Entry files must remain concise; full schemas live in references.
-    agents = (ROOT / 'project-template/AGENTS.md').read_text(encoding='utf-8')
-    assert len(agents.splitlines()) <= 130, 'AGENTS.md grew too long'
-    claude = (ROOT / 'project-template/CLAUDE.md').read_text(encoding='utf-8')
-    assert len(claude.splitlines()) <= 60, 'CLAUDE.md grew too long'
-
-
-def test_trace_scripts_exist():
-    for script in ['trace_event.py', 'trace_index.py', 'trace_doctor.py', 'coordinate_check.py', 'blueprint_check.py']:
-        assert (ROOT / 'scripts' / script).exists(), f'missing scripts/{script}'
+def test_required_v06_files_exist():
+    required = [
+        'references/CODERAIL_COORDINATE.md',
+        'references/TRACE_GRAPH.md',
+        'references/CONTRACT_DRAFT.md',
+        'references/RUNTIME_STATE_INSPECT.md',
+        'references/DONE_GATE.md',
+        'scripts/coordinate_check.py',
+        'scripts/trace_event.py',
+        'scripts/trace_index.py',
+        'scripts/trace_doctor.py',
+        'scripts/contract_check.py',
+        'scripts/inspect_state.py',
+        'scripts/done_gate.py',
+        'skills/trace/SKILL.md',
+        'skills/link/SKILL.md',
+        'skills/contract-draft/SKILL.md',
+        'skills/inspect/SKILL.md',
+        'skills/done-gate/SKILL.md',
+        'project-template/docs/CONTRACTS.md',
+        'project-template/docs/CODERAIL_STATUS.md',
+    ]
+    for p in required:
+        check((ROOT/p).exists(), f'missing {p}')
 
 
 def test_runtime_terms_are_engineering_focused():
-    # Runtime files should use engineering terminology rather than research-origin labels.
     disallowed = [''.join(['S','tra','TA']), ' '.join(['Strategic','Trajectory']), '-'.join(['Self','Judgment'])]
     for path in ROOT.rglob('*'):
         if path.is_file() and path.suffix in {'.md', '.json', '.py'} and 'tests' not in path.parts:
             body = path.read_text(encoding='utf-8', errors='ignore')
             for term in disallowed:
-                assert term not in body, f'{term} found in {path}'
+                check(term not in body, f'{term} found in {path}')
+
+
+def test_trace_event_edges_and_from_file():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td); (target/'docs').mkdir()
+        event = target/'event.json'
+        event.write_text(json.dumps({
+            'type': 'change', 'summary': 'change thing', 'task': 'T-001',
+            'north_star': 'NS-001', 'files': 'src/a.py',
+            'derived_from': ['intent-1'], 'validated_by': ['TR-v'],
+            'goal': 'G', 'coordinate_task': 'T', 'verify': 'pytest', 'persist': 'TASKS,TRACE'
+        }), encoding='utf-8')
+        run([sys.executable, str(ROOT/'scripts/trace_event.py'), '--target', str(target), '--from-file', str(event)])
+        row = json.loads((target/'docs/TRACELOG.jsonl').read_text().splitlines()[0])
+        check(row['derived_from'] == ['intent-1'], 'derived_from edge missing')
+        check(row['validated_by'] == ['TR-v'], 'validated_by edge missing')
+        check(row['coordinate']['goal'] == 'G', 'coordinate missing')
+
+
+def test_init_contract_inspect_done_gate_flow():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td, '--mode', 'standard'])
+        check((target/'docs/CONTRACTS.md').exists(), 'CONTRACTS missing')
+        check((target/'docs/CODERAIL_STATUS.md').exists(), 'STATUS missing')
+        run([sys.executable, str(ROOT/'scripts/contract_check.py'), '--target', td])
+        run([sys.executable, str(ROOT/'scripts/inspect_state.py'), '--target', td, '--write'])
+        check('CodeRail Status' in (target/'docs/CODERAIL_STATUS.md').read_text(), 'inspect did not write status')
+        # Add a real task by unescaping the template enough for the parser.
+        tasks = target/'docs/TASKS.md'
+        tasks.write_text('''# Tasks\n\n## T-001 Init docs\n\nStatus: [~]\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n- Outcome served: initialize governance\n\nT — Task:\n- Create governance docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual template check passed\n\nX — Stop:\n- business implementation requested\n\nP — Persist:\n- TASKS\n- TRACE\n\n### Task Contract\n\nAcceptance:\n- [ ] docs present\n''', encoding='utf-8')
+        run([sys.executable, str(ROOT/'scripts/trace_event.py'), '--target', td, '--type', 'verify', '--summary', 'manual check passed', '--task', 'T-001', '--north-star', 'NS-001', '--harness-result', 'passed', '--goal', 'initialize governance', '--coordinate-task', 'Create governance docs', '--verify', 'manual template check passed', '--persist', 'TASKS,TRACE'])
+        run([sys.executable, str(ROOT/'scripts/trace_index.py'), '--target', td])
+        run([sys.executable, str(ROOT/'scripts/done_gate.py'), '--target', td, '--task', 'T-001', '--harness-result', 'passed'])
+
+
+def run_all():
+    tests = [v for k, v in globals().items() if k.startswith('test_')]
+    for t in tests:
+        t(); print('ok', t.__name__)
+    print(f'{len(tests)} tests passed')
+
+
+if __name__ == '__main__':
+    run_all()

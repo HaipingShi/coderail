@@ -1,7 +1,7 @@
 {
   "name": "coderail",
-  "version": "0.4.2",
-  "description": "North-Star Kernel, CodeRail Coordinate, task/handoff/harness/trace skills for AI coding agents.",
+  "version": "0.6.0",
+  "description": "North-Star, Coordinate Contract Draft, Done Gate, Inspect, and traceable governance for AI coding agents.",
   "author": {
     "name": "CodeRail"
   },
@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "CodeRail",
-    "shortDescription": "Keep AI coding aligned, test-gated, handoff-ready, and traceable.",
-    "longDescription": "A workflow kit for AI coding agents. It adds a North-Star Kernel, the CodeRail Coordinate (Goal/Task/Scope/Verify/Stop/Persist), task contracts, execution batches, harness gates, handoff discipline, asset boundaries, a lightweight trace graph, and drift checks without loading a long governance manual every turn.",
+    "shortDescription": "Draft before coding. Verify before done. Inspect before handoff.",
+    "longDescription": "CodeRail is a repo-local governance rail for AI coding agents. It adds a North-Star Kernel, Coordinate Contract Draft, CodeRail Coordinate (Goal/Task/Scope/Verify/Stop/Persist), task contracts, execution batches, verification-before-complete, runtime state inspect, handoff discipline, asset boundaries, and a lightweight trace graph without turning your repo into a workflow engine.",
     "developerName": "CodeRail",
     "category": "Productivity",
     "capabilities": [
@@ -30,8 +30,8 @@
       "Shell"
     ],
     "defaultPrompt": [
-      "Use CodeRail to align this feature before coding.",
-      "Use CodeRail to create a task contract with a CodeRail Coordinate and run the done gate."
+      "Use CodeRail to draft a coordinate contract before coding.",
+      "Use CodeRail to inspect state and run the done gate before handoff."
     ]
   }
 }

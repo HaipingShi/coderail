@@ -1,7 +1,7 @@
 {
   "name": "coderail",
-  "version": "0.4.2",
-  "description": "North-Star Kernel, CodeRail Coordinate, and governance skills for AI coding agents",
+  "version": "0.6.0",
+  "description": "North-Star, Coordinate Contract Draft, Done Gate, Inspect, and traceable governance for AI coding agents",
   "license": "MIT",
   "private": false,
   "author": "HaipingShi",
@@ -25,8 +25,11 @@
     "trace-graph"
   ],
   "scripts": {
-    "test": "python3 -m pytest tests || python3 tests/test_structure.py",
+    "test": "python3 tests/test_structure.py",
     "doctor": "python3 scripts/doctor.py --target .",
-    "drift-check": "python3 scripts/drift_check.py --target ."
+    "drift-check": "python3 scripts/drift_check.py --target .",
+    "inspect": "python3 scripts/inspect_state.py --target .",
+    "done-gate": "python3 scripts/done_gate.py --target .",
+    "contract-check": "python3 scripts/contract_check.py --target ."
   }
 }
