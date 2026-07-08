@@ -25,11 +25,11 @@
     "trace-graph"
   ],
   "scripts": {
-    "test": "python3 tests/test_structure.py",
-    "doctor": "python3 scripts/doctor.py --target .",
-    "drift-check": "python3 scripts/drift_check.py --target .",
-    "inspect": "python3 scripts/inspect_state.py --target .",
-    "done-gate": "python3 scripts/done_gate.py --target .",
-    "contract-check": "python3 scripts/contract_check.py --target ."
+    "test": "node scripts/run_python.js tests/test_structure.py",
+    "doctor": "node scripts/run_python.js scripts/doctor.py --target .",
+    "drift-check": "node scripts/run_python.js scripts/drift_check.py --target .",
+    "inspect": "node scripts/run_python.js scripts/inspect_state.py --target .",
+    "done-gate": "node scripts/run_python.js scripts/done_gate.py --target .",
+    "contract-check": "node scripts/run_python.js scripts/contract_check.py --target ."
   }
 }

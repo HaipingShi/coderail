@@ -71,14 +71,16 @@ def split_patterns(value: str) -> list[str]:
 
 
 def matches_any(path: str, patterns: list[str]) -> bool:
+    normalized = path.replace("\\", "/").lstrip("./")
     for pat in patterns:
-        p = pat.rstrip()
+        p = pat.rstrip().replace("\\", "/").lstrip("./")
         if not p:
             continue
         if p.endswith("/**"):
-            if path.startswith(p[:-3].rstrip("/")):
+            base = p[:-3].rstrip("/")
+            if normalized == base or normalized.startswith(base + "/"):
                 return True
-        if fnmatch.fnmatch(path, p) or path == p:
+        if fnmatch.fnmatch(normalized, p) or normalized == p:
             return True
     return False
 
@@ -103,7 +105,7 @@ def has_verify_trace(events: list[dict], task: str) -> bool:
     for ev in events:
         if ev.get("type") == "verify" and ev.get("task") == task:
             result = str(ev.get("harness_result", "")).lower()
-            if result in {"passed", "manual", "skipped"}:
+            if result in {"passed", "manual"}:
                 return True
     return False
 
@@ -156,7 +158,9 @@ def main(argv=None) -> int:
 
     if args.harness_result == "failed":
         severe.append(f"{task_id}: fresh harness result is failed")
-    verification_ok = args.harness_result in {"passed", "manual", "skipped"} or bool(args.manual_acceptance)
+    verification_ok = args.harness_result in {"passed", "manual"} or bool(args.manual_acceptance)
+    if args.harness_result == "skipped" and not args.manual_acceptance:
+        severe.append(f"{task_id}: skipped harness requires explicit manual acceptance evidence")
     events = load_events(root)
     if not verification_ok and not has_verify_trace(events, task_id):
         severe.append(f"{task_id}: no passing verify trace or fresh harness/manual acceptance evidence")
