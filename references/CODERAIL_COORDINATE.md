@@ -46,6 +46,8 @@ P — Persist:
 - **Full Rail** is for code, schema, dependencies, data writes, runners, pipelines, external interfaces, migrations, and releases. It requires full G/T/S/V/X/P, executable verification or explicit manual acceptance, TASKS + TRACE persistence, Done Gate, and Closeout.
 - **Light Rail** is for theory, product positioning, design principles, philosophy boundaries, terminology, ADRs, and document drafts. It requires a goal, boundary, persistence location, next executable step, and trace/decision backlink or explicit manual acceptance. It does not require a code/test implementation loop when there is no code path.
 
+Current tasks must write `Rail: full` or `Rail: light` explicitly. Inference is only a diagnostic fallback and should not be used as the source of truth for done checks.
+
 ## Coordinate Draft Gate
 
 Before creating a task contract, present a Coordinate Draft. If G is vague, S touches high-risk files, V is missing, or X has already fired, stop for alignment instead of coding.

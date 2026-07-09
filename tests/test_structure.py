@@ -124,7 +124,7 @@ def test_init_contract_inspect_done_gate_flow():
         check('CodeRail Status' in (target/'docs/CODERAIL_STATUS.md').read_text(encoding='utf-8'), 'inspect did not write status')
         # Add a real task by unescaping the template enough for the parser.
         tasks = target/'docs/TASKS.md'
-        tasks.write_text('''# Tasks\n\n## T-001 Init docs\n\nStatus: [~]\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n- Outcome served: initialize governance\n\nT — Task:\n- Create governance docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual template check passed\n\nX — Stop:\n- business implementation requested\n\nP — Persist:\n- TASKS\n- TRACE\n\n### Task Contract\n\nAcceptance:\n- [ ] docs present\n''', encoding='utf-8')
+        tasks.write_text('''# Tasks\n\n## T-001 Init docs\n\nStatus: [~]\nType: docs\nRail: light\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n- Outcome served: initialize governance\n\nT — Task:\n- Create governance docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual template check passed\n\nX — Stop:\n- business implementation requested\n\nP — Persist:\n- TASKS\n- TRACE\n\n### Task Contract\n\nAcceptance:\n- [ ] docs present\n''', encoding='utf-8')
         run([sys.executable, str(ROOT/'scripts/trace_event.py'), '--target', td, '--type', 'verify', '--summary', 'manual check passed', '--task', 'T-001', '--north-star', 'NS-001', '--harness-result', 'passed', '--goal', 'initialize governance', '--coordinate-task', 'Create governance docs', '--verify', 'manual template check passed', '--persist', 'TASKS,TRACE'])
         run([sys.executable, str(ROOT/'scripts/trace_index.py'), '--target', td])
         run([sys.executable, str(ROOT/'scripts/done_gate.py'), '--target', td, '--task', 'T-001', '--harness-result', 'passed'])
@@ -167,7 +167,7 @@ def test_done_gate_skipped_requires_manual_acceptance():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
         run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td, '--mode', 'standard'])
-        (target/'docs/TASKS.md').write_text('''# Tasks\n\n## T-001 Init docs\n\nStatus: [~]\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Create governance docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual template check\n\nX — Stop:\n- business implementation requested\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        (target/'docs/TASKS.md').write_text('''# Tasks\n\n## T-001 Init docs\n\nStatus: [~]\nType: docs\nRail: light\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Create governance docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual template check\n\nX — Stop:\n- business implementation requested\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
         failed = subprocess.run([
             sys.executable, str(ROOT/'scripts/done_gate.py'), '--target', td,
             '--task', 'T-001', '--harness-result', 'skipped', '--changed-files', 'docs/TASKS.md'
@@ -201,6 +201,26 @@ def test_done_gate_light_rail_allows_docs_manual_acceptance_without_trace_p():
         check('P must include TRACE' not in result.stdout, 'light rail should not require TRACE when manual acceptance is explicit')
 
 
+def test_current_tasks_must_declare_rail_explicitly():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        (target/'docs').mkdir()
+        (target/'docs/TASKS.md').write_text('''# Tasks\n\n## T-001 Missing rail\n\nStatus: [~]\nType: docs\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Draft docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Manual acceptance:\n  - accepted\n\nX — Stop:\n- code requested\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        (target/'docs/TRACELOG.jsonl').write_text('', encoding='utf-8')
+        coord = subprocess.run([
+            sys.executable, str(ROOT/'scripts/coordinate_check.py'), '--target', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(coord.returncode == 1, 'current task without explicit Rail should fail coordinate check')
+        check("Rail missing" in coord.stdout, 'missing rail diagnostic should be explicit')
+
+        done = subprocess.run([
+            sys.executable, str(ROOT/'scripts/done_gate.py'), '--target', td,
+            '--task', 'T-001', '--harness-result', 'manual'
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(done.returncode == 1, 'done gate should not rely on inferred rail')
+        check("--rail-type" in done.stdout, 'done gate should name the CLI override escape hatch')
+
+
 def test_closeout_check_reports_commit_boundaries():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
@@ -208,7 +228,7 @@ def test_closeout_check_reports_commit_boundaries():
         (target/'docs').mkdir()
         (target/'src').mkdir()
         (target/'build').mkdir()
-        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## T-001 Closeout docs\n\nStatus: [~]\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Improve closeout docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual docs check\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## T-001 Closeout docs\n\nStatus: [~]\nType: docs\nRail: light\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Improve closeout docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Harness:\n  - manual docs check\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
         (target/'docs'/'HANDOFF.md').write_text('''# Handoff\n\n## Coordinate Summary\n\nG:\n\n## Auto Commit\n\n## Next Executable Step\n\n- run closeout\n''', encoding='utf-8')
         (target/'docs'/'note.md').write_text('note\n', encoding='utf-8')
         (target/'src'/'app.py').write_text('print("x")\n', encoding='utf-8')
@@ -233,7 +253,7 @@ def test_closeout_check_auto_commits_safe_scope_only():
         run(['git', '-C', td, 'config', 'user.name', 'CodeRail Test'])
         (target/'docs').mkdir()
         (target/'src').mkdir()
-        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## T-002 Auto commit docs\n\nStatus: [~]\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Improve docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - none\n\nV — Verify:\n- Harness:\n  - manual docs check\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        (target/'docs'/'TASKS.md').write_text('''# Tasks\n\n## T-002 Auto commit docs\n\nStatus: [~]\nType: docs\nRail: light\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Improve docs\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - none\n\nV — Verify:\n- Harness:\n  - manual docs check\n\nX — Stop:\n- forbidden files needed\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
         (target/'docs'/'HANDOFF.md').write_text('''# Handoff\n\n## Coordinate Summary\n\nG:\n\n## Auto Commit\n\n## Next Executable Step\n\n- continue\n''', encoding='utf-8')
         (target/'docs'/'note.md').write_text('note\n', encoding='utf-8')
         (target/'src'/'outside.py').write_text('print("outside")\n', encoding='utf-8')

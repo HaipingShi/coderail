@@ -129,10 +129,12 @@ def render(root: Path) -> tuple[str, str]:
     if active:
         t = active[0]
         coord = t["coord"]
+        explicit_rail = coordinate_check.explicit_rail(t["body"])
         rail = coordinate_check.rail_type(t["header"], t["body"], None, None)
         task_kind = coordinate_check.task_type(t["body"]) or "(unspecified)"
         lines.append(f"- Task: {t['header']} ({t['status']})")
         lines.append(f"- Rail: {rail}")
+        lines.append(f"- Rail source: {'explicit' if explicit_rail else 'inferred; add Rail: full | light'}")
         lines.append(f"- Type: {task_kind}")
         lines.append(f"- G: {coord.get('g','(missing)') or '(missing)'}")
         lines.append(f"- T: {coord.get('t','(missing)') or '(missing)'}")

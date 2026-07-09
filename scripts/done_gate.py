@@ -137,12 +137,19 @@ def main(argv=None) -> int:
         return 1
     header, body, status = found
     task_id = header.split()[0]
+    explicit_rail = coordinate_check.explicit_rail(body, args.rail_type)
+    rail_meta = coordinate_check.meta_value("Rail", body)
     rail = coordinate_check.rail_type(header, body, args.rail_type, args.task_type)
+    rail_source = "explicit" if explicit_rail else "inferred"
     task_kind = args.task_type or coordinate_check.task_type(body) or "(unspecified)"
     coord = coordinate_check.parse_coordinate(body)
     if coord is None:
         severe.append(f"{task_id}: missing CodeRail Coordinate")
     else:
+        if not explicit_rail:
+            severe.append(f"{task_id}: Rail missing; write 'Rail: full' or 'Rail: light' explicitly, or pass --rail-type")
+        elif rail_meta and not args.rail_type and rail_meta not in {"full", "light"}:
+            severe.append(f"{task_id}: Rail must be full or light")
         for key, label in [("g", "G"), ("t", "T"), ("s_allowed", "S allowed"), ("v", "V"), ("p", "P")]:
             if not coord.get(key):
                 severe.append(f"{task_id}: {label} missing")
@@ -193,6 +200,7 @@ def main(argv=None) -> int:
     print(f"Status: {status_out}")
     print(f"Task: {task_id}\n")
     print(f"Rail: {rail}")
+    print(f"Rail source: {rail_source}")
     print(f"Type: {task_kind}\n")
     print("## Severe")
     print("- none" if not severe else "\n".join(f"- {x}" for x in severe))

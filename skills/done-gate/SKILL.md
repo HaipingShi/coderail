@@ -15,7 +15,7 @@ Run:
 python3 scripts/done_gate.py --target . --task <TASK_ID> --harness-result passed
 ```
 
-Use `--rail-type light --task-type docs|design` for docs-only or design-only tasks. Use `--manual-acceptance` only when automatic harness is impossible and acceptance is explicit. Do not claim a skipped harness passed.
+Tasks should declare `Rail: full` or `Rail: light` in TASKS. Use `--rail-type light --task-type docs|design` only as an intentional override for docs-only or design-only tasks that have not been updated yet. Use `--manual-acceptance` only when automatic harness is impossible and acceptance is explicit. Do not claim a skipped harness passed.
 
 ## Gate checks
 

@@ -18,7 +18,7 @@ If the request is L0-L3, do not jump to code. Produce an engineering judgment an
 
 ## K1 CodeRail Coordinate
 
-Every non-trivial task must choose a rail and have a matching Coordinate.
+Every non-trivial task must explicitly declare `Rail: full` or `Rail: light` and have a matching Coordinate. Do not let the agent silently infer the rail for current work; CLI overrides such as `--rail-type light` must be intentional and recorded.
 
 - **Full Rail**: code, schema, dependencies, data writes, runners, pipelines, external interfaces, migrations, or release work. Use full G/T/S/V/X/P, executable verification, trace, done gate, and closeout.
 - **Light Rail**: theory, product positioning, design principles, philosophy boundaries, terminology, ADRs, and document drafts. Use a light coordinate: goal, boundary, persistence location, acceptance/trace or manual acceptance, and next step. Do not force an implementation/test loop when there is no code path.

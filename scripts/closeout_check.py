@@ -146,6 +146,8 @@ def main(argv=None) -> int:
         coord = coordinate_check.parse_coordinate(body) or {}
         if not coord:
             severe.append(f"{task_id}: missing CodeRail Coordinate")
+        elif not coordinate_check.explicit_rail(body):
+            severe.append(f"{task_id}: Rail missing; write 'Rail: full' or 'Rail: light' explicitly")
 
     allowed = done_gate.split_patterns(coord.get("s_allowed", ""))
     forbidden = done_gate.split_patterns(coord.get("s_forbidden", ""))

@@ -11,27 +11,30 @@ Done Gate is not Closeout Gate. Passing Done Gate allows `done`; it does not by 
 A Full Rail task may be completed only when:
 
 1. It has a CodeRail Coordinate.
-2. G still maps to the North Star.
-3. T is completed.
-4. S was respected.
-5. V has a passing harness result or explicit manual acceptance.
-6. X is not triggered, or the triggered stop condition is resolved and recorded.
-7. P is synced: TASKS and TRACE are mandatory; HANDOFF, DECISIONS, LESSONS, ASSETS are updated when relevant.
-8. There is a verify trace event for the task.
-9. `docs/TRACE_INDEX.md` is current.
-10. Handoff Trigger Check has been performed.
+2. It explicitly declares `Rail: full`, or the done gate is run with an intentional `--rail-type full` override.
+3. G still maps to the North Star.
+4. T is completed.
+5. S was respected.
+6. V has a passing harness result or explicit manual acceptance.
+7. X is not triggered, or the triggered stop condition is resolved and recorded.
+8. P is synced: TASKS and TRACE are mandatory; HANDOFF, DECISIONS, LESSONS, ASSETS are updated when relevant.
+9. There is a verify trace event for the task.
+10. `docs/TRACE_INDEX.md` is current.
+11. Handoff Trigger Check has been performed.
 
 A Light Rail task may use lighter completion evidence for docs-only or
 design-only work:
 
 1. It still needs a Coordinate with goal, task, scope boundary, verify/manual
    acceptance, stop conditions, and persistence.
-2. S must be respected and forbidden files still block completion.
-3. P must include TASKS and a durable backlink: TRACE, DECISIONS, RUNLOG,
+2. It explicitly declares `Rail: light`, or the done gate is run with an
+   intentional `--rail-type light` override.
+3. S must be respected and forbidden files still block completion.
+4. P must include TASKS and a durable backlink: TRACE, DECISIONS, RUNLOG,
    HANDOFF, or explicit manual acceptance recorded in the task.
-4. Verification may be a review, decision acceptance, trace event, or explicit
+5. Verification may be a review, decision acceptance, trace event, or explicit
    manual acceptance. Do not pretend an executable harness ran.
-5. Historical warnings from old closed tasks are historical debt, not current
+6. Historical warnings from old closed tasks are historical debt, not current
    blockers for the active task.
 
 ## Gate result

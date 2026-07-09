@@ -5,6 +5,7 @@
 Rail layering and friction reduction.
 
 - Added Full Rail / Light Rail language for task type governance.
+- Made explicit `Rail: full | light` required for current task contracts and done checks, with `--rail-type` as an intentional override.
 - Let docs-only and design-only done checks use explicit manual acceptance without requiring fake engineering harness evidence.
 - Classified old closed-task findings as historical debt in Doctor instead of current blockers.
 - Added governance friction signals for long HANDOFF, long TASKS, warning noise, and docs/design tasks over-constrained by Full Rail.

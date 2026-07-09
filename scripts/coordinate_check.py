@@ -31,8 +31,12 @@ def meta_value(label: str, body: str) -> str:
 def task_type(body: str, override: str | None = None) -> str:
     return (override or meta_value("Type", body)).strip().lower()
 
+def explicit_rail(body: str, override: str | None = None) -> str:
+    value = (override or meta_value("Rail", body)).strip().lower()
+    return value if value in {"full", "light"} else ""
+
 def rail_type(header: str, body: str, rail_override: str | None = None, task_type_override: str | None = None) -> str:
-    explicit = (rail_override or meta_value("Rail", body)).strip().lower()
+    explicit = explicit_rail(body, rail_override)
     if explicit in {"full", "light"}:
         return explicit
     t = task_type(body, task_type_override)
@@ -83,12 +87,18 @@ def parse_coordinate(body: str) -> dict | None:
 def check_task(header: str, body: str, status: str):
     severe, warnings = [], []
     tid = header.split()[0]
+    rail_meta = meta_value("Rail", body)
+    explicit = explicit_rail(body)
     rail = rail_type(header, body)
     coord = parse_coordinate(body)
     if coord is None:
         if status in {"[ ]", "[~]", "[!]", "[x]"}:
             severe.append(f"{tid}: no CodeRail Coordinate block")
         return severe, warnings
+    if not explicit and status in {"[ ]", "[~]", "[!]"}:
+        severe.append(f"{tid}: Rail missing; write 'Rail: full' or 'Rail: light' explicitly")
+    elif rail_meta and not explicit:
+        severe.append(f"{tid}: Rail must be full or light")
     for key, label in [("g","G (Goal)"),("t","T (Task)"),("s_allowed","S allowed"),("v","V (Verify)"),("p","P (Persist)")]:
         if not coord.get(key): severe.append(f"{tid}: {label} missing")
     if not coord.get("s_forbidden"):
