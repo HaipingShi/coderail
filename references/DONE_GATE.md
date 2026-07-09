@@ -8,7 +8,7 @@ Done Gate is not Closeout Gate. Passing Done Gate allows `done`; it does not by 
 
 ## Gate checks
 
-A task may be completed only when:
+A Full Rail task may be completed only when:
 
 1. It has a CodeRail Coordinate.
 2. G still maps to the North Star.
@@ -21,6 +21,19 @@ A task may be completed only when:
 9. `docs/TRACE_INDEX.md` is current.
 10. Handoff Trigger Check has been performed.
 
+A Light Rail task may use lighter completion evidence for docs-only or
+design-only work:
+
+1. It still needs a Coordinate with goal, task, scope boundary, verify/manual
+   acceptance, stop conditions, and persistence.
+2. S must be respected and forbidden files still block completion.
+3. P must include TASKS and a durable backlink: TRACE, DECISIONS, RUNLOG,
+   HANDOFF, or explicit manual acceptance recorded in the task.
+4. Verification may be a review, decision acceptance, trace event, or explicit
+   manual acceptance. Do not pretend an executable harness ran.
+5. Historical warnings from old closed tasks are historical debt, not current
+   blockers for the active task.
+
 ## Gate result
 
 `done_gate.py` returns:
@@ -28,6 +41,13 @@ A task may be completed only when:
 - `pass` when completion is allowed.
 - `blocked` when a required condition is missing.
 - `warning` when completion is allowed but follow-up cleanup is recommended.
+
+Diagnostic output should distinguish:
+
+- `must-fix blocker`: missing current evidence, scope violation, failed verify, or forbidden changes.
+- `warning`: current cleanup that does not invalidate completion.
+- `historical debt`: old closed-task debt that should not block the current task by default.
+- `optimization opportunity`: friction signals such as long handoff, long TASKS, or docs/design tasks over-constrained by Full Rail.
 
 ## Non-goals
 

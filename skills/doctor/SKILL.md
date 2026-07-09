@@ -17,6 +17,10 @@ Doctor checks installation and governance health. It is not the same as `/inspec
 
 Summarize:
 
+- Must-fix blockers
+- Warnings
+- Historical debt
+- Optimization opportunities
 - North Star health
 - Contract Draft health
 - Coordinate coverage
@@ -29,5 +33,9 @@ Summarize:
 - Trace Graph
 - Runtime inspect status
 - Suggested next fixes
+
+Treat "high production but high entanglement" as a governance friction signal:
+long HANDOFF, long TASKS, noisy warnings, docs-only work on Full Rail, and
+historical debt mixed into current blockers.
 
 Keep the final answer concise.

@@ -184,6 +184,23 @@ def test_done_gate_skipped_requires_manual_acceptance():
         check(passed.returncode == 0, 'skipped harness with manual acceptance should pass')
 
 
+def test_done_gate_light_rail_allows_docs_manual_acceptance_without_trace_p():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td, '--mode', 'standard'])
+        (target/'docs/TASKS.md').write_text('''# Tasks\n\n## T-001 Design boundary\n\nStatus: [~]\nType: docs\nRail: light\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Draft design boundary\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Manual acceptance:\n  - User accepted design boundary draft\n\nX — Stop:\n- code implementation requested\n\nP — Persist:\n- TASKS\n- DECISIONS\n''', encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/done_gate.py'), '--target', td,
+            '--task', 'T-001', '--rail-type', 'light', '--task-type', 'docs',
+            '--harness-result', 'skipped',
+            '--manual-acceptance', 'User accepted design boundary draft',
+            '--changed-files', 'docs/TASKS.md'
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout)
+        check('Rail: light' in result.stdout, 'done gate should report light rail')
+        check('P must include TRACE' not in result.stdout, 'light rail should not require TRACE when manual acceptance is explicit')
+
+
 def test_closeout_check_reports_commit_boundaries():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
@@ -230,6 +247,29 @@ def test_closeout_check_auto_commits_safe_scope_only():
         committed = subprocess.check_output(['git', '-C', td, 'show', '--name-only', '--format='], text=True, encoding='utf-8')
         check('docs/note.md' in committed.replace('\\', '/'), 'docs file should be committed')
         check('src/outside.py' not in committed.replace('\\', '/'), 'outside file must not be committed')
+
+
+def test_doctor_separates_historical_debt_from_current_blockers():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td, '--mode', 'standard'])
+        (target/'docs/TASKS.md').write_text('''# Tasks\n\n## T-001 Old closed task\n\nStatus: [x]\nType: bug\n\n### Task Contract\n\nAcceptance:\n- [x] legacy task closed before CodeRail coordinate existed\n\n## T-002 Current design note\n\nStatus: [~]\nType: docs\nRail: light\n\n### CodeRail Coordinate\n\nG — Goal:\n- North Star: NS-001\n\nT — Task:\n- Draft terms\n\nS — Scope:\n- Allowed:\n  - docs/**\n- Forbidden:\n  - src/**\n\nV — Verify:\n- Manual acceptance:\n  - maintainer review pending\n\nX — Stop:\n- code change requested\n\nP — Persist:\n- TASKS\n- TRACE\n''', encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/doctor.py'), '--target', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
+        check(result.returncode == 0, result.stdout)
+        check('## Historical Debt' in result.stdout, 'doctor should expose historical debt section')
+        check('historical debt: Coordinate: T-001' in result.stdout, 'closed task issue should be historical debt')
+        check('must-fix blocker: T-001' not in result.stdout, 'closed task debt must not be current blocker')
+
+
+def test_templates_include_rail_and_compact_handoff_policy():
+    tasks = (ROOT/'project-template/docs/TASKS.md').read_text(encoding='utf-8')
+    handoff = (ROOT/'project-template/docs/HANDOFF.md').read_text(encoding='utf-8')
+    check('Rail: full | light' in tasks, 'TASKS template should expose rail type')
+    check('Compact summary policy' in tasks, 'TASKS template should include compact summary policy')
+    check('Recovery Commands' in handoff, 'HANDOFF template should include recovery commands')
+    check('Archived history' in handoff, 'HANDOFF template should move long history elsewhere')
 
 
 def test_blueprint_gate_blocks_complex_project_without_index():

@@ -9,6 +9,8 @@ DONE_MARKERS = {"[x]"}
 STATUS_RE = re.compile(r"Status:\s*(\[[ x~!fr]\])")
 FIELD_RE = re.compile(r"^([GTSVXP])\s*[—\-:]\s*(Goal|Task|Scope|Verify|Stop|Persist):?\s*$", re.I)
 SUB_RE = re.compile(r"^[-*\s]*(Allowed|Forbidden|Harness|Manual acceptance):\s*$", re.I)
+LIGHT_TYPES = {"docs", "documentation", "design", "research", "adr", "note", "notes", "positioning", "principle", "terminology"}
+FULL_TYPES = {"feature", "bug", "fix", "refactor", "harness", "runner", "pipeline", "schema", "data", "api", "migration", "release"}
 
 def split_tasks(text: str):
     matches = list(TASK_HEADER.finditer(text))
@@ -21,6 +23,29 @@ def split_tasks(text: str):
 def _extract_status(body: str) -> str:
     m = STATUS_RE.search(body)
     return m.group(1) if m else "unknown"
+
+def meta_value(label: str, body: str) -> str:
+    m = re.search(rf"^{re.escape(label)}:\s*([^\n]+)", body, re.I | re.M)
+    return m.group(1).strip().lower() if m else ""
+
+def task_type(body: str, override: str | None = None) -> str:
+    return (override or meta_value("Type", body)).strip().lower()
+
+def rail_type(header: str, body: str, rail_override: str | None = None, task_type_override: str | None = None) -> str:
+    explicit = (rail_override or meta_value("Rail", body)).strip().lower()
+    if explicit in {"full", "light"}:
+        return explicit
+    t = task_type(body, task_type_override)
+    if t in LIGHT_TYPES:
+        return "light"
+    if t in FULL_TYPES:
+        return "full"
+    blob = f"{header}\n{body}".lower()
+    if any(k in blob for k in ["schema", "migration", "runner", "pipeline", "api", "data write", "dependency", "release"]):
+        return "full"
+    if any(k in blob for k in ["adr", "design note", "principle", "terminology", "positioning", "philosoph"]):
+        return "light"
+    return "full"
 
 def parse_coordinate(body: str) -> dict | None:
     m = re.search(r"###\s+CodeRail Coordinate(.*?)(?=^###\s|^##\s|\Z)", body, re.S|re.M)
@@ -58,6 +83,7 @@ def parse_coordinate(body: str) -> dict | None:
 def check_task(header: str, body: str, status: str):
     severe, warnings = [], []
     tid = header.split()[0]
+    rail = rail_type(header, body)
     coord = parse_coordinate(body)
     if coord is None:
         if status in {"[ ]", "[~]", "[!]", "[x]"}:
@@ -73,11 +99,14 @@ def check_task(header: str, body: str, status: str):
         v = coord.get("v", "").lower()
         if not v:
             severe.append(f"{tid}: done task missing V evidence")
-        elif not any(word in v for word in ["harness", "manual", "pytest", "test", "lint", "typecheck", "build", "passed"]):
+        elif rail == "full" and not any(word in v for word in ["harness", "manual", "pytest", "test", "lint", "typecheck", "build", "passed"]):
             warnings.append(f"{tid}: done task V has no clear harness/manual acceptance evidence")
+        elif rail == "light" and not any(word in v for word in ["manual", "accept", "review", "trace", "decision", "adr", "docs", "design"]):
+            warnings.append(f"{tid}: done light-rail task should record review, trace, decision, or manual acceptance evidence")
         p = coord.get("p", "").upper()
         if "TASKS" not in p: severe.append(f"{tid}: done task P missing TASKS")
-        if "TRACE" not in p: severe.append(f"{tid}: done task P missing TRACE")
+        if "TRACE" not in p and rail == "full": severe.append(f"{tid}: done task P missing TRACE")
+        if "TRACE" not in p and rail == "light": warnings.append(f"{tid}: done light-rail task P missing TRACE; manual acceptance or decision backlink must be explicit")
     return severe, warnings
 
 def main(argv=None) -> int:

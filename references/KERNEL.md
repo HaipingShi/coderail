@@ -9,6 +9,9 @@ Direction anchor. Every non-trivial action maps to `docs/NORTH_STAR.md`.
 ## K1 CodeRail Coordinate
 
 Task coordinate. Every task compresses to G/T/S/V/X/P before implementation.
+Use Full Rail for code, data, runner, schema, dependency, release, and external
+interface work. Use Light Rail for theory, positioning, principles, philosophy,
+terminology, ADRs, and document drafts.
 
 ## K2 Task Contract
 
@@ -21,6 +24,8 @@ Correctness-sensitive work records Red-Green-Refactor evidence or an explicit wa
 ## K4 Done Gate
 
 Verification-before-complete. No done without passing V or explicit manual acceptance.
+For Light Rail, review/decision/manual acceptance can be valid evidence; fake
+test claims and out-of-scope edits still block completion.
 
 ## K5 Tool-Native Enforcement
 

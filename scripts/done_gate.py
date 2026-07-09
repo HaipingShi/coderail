@@ -110,6 +110,13 @@ def has_verify_trace(events: list[dict], task: str) -> bool:
     return False
 
 
+def has_manual_signal(text: str, manual_acceptance: str | None) -> bool:
+    if manual_acceptance:
+        return True
+    lowered = (text or "").lower()
+    return any(word in lowered for word in ["manual acceptance", "manually accepted", "user accepted", "review accepted"])
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Run CodeRail done gate")
     ap.add_argument("--target", default=".")
@@ -117,6 +124,8 @@ def main(argv=None) -> int:
     ap.add_argument("--harness-result", choices=["passed", "failed", "manual", "skipped"], help="Fresh verification result to consider")
     ap.add_argument("--manual-acceptance", help="Manual acceptance evidence")
     ap.add_argument("--changed-files", help="Comma-separated changed files; defaults to git status")
+    ap.add_argument("--rail-type", choices=["full", "light"], help="Override rail type for this done check")
+    ap.add_argument("--task-type", help="Override task type for this done check, e.g. docs, design, feature")
     args = ap.parse_args(argv)
     root = Path(args.target).resolve()
     found = find_task(root, args.task)
@@ -128,6 +137,8 @@ def main(argv=None) -> int:
         return 1
     header, body, status = found
     task_id = header.split()[0]
+    rail = coordinate_check.rail_type(header, body, args.rail_type, args.task_type)
+    task_kind = args.task_type or coordinate_check.task_type(body) or "(unspecified)"
     coord = coordinate_check.parse_coordinate(body)
     if coord is None:
         severe.append(f"{task_id}: missing CodeRail Coordinate")
@@ -140,8 +151,12 @@ def main(argv=None) -> int:
         p = (coord.get("p") or "").upper()
         if "TASKS" not in p:
             severe.append(f"{task_id}: P must include TASKS")
-        if "TRACE" not in p:
+        if rail == "full" and "TRACE" not in p:
             severe.append(f"{task_id}: P must include TRACE")
+        if rail == "light" and "TRACE" not in p and not has_manual_signal(coord.get("v", ""), args.manual_acceptance):
+            severe.append(f"{task_id}: light rail without TRACE requires explicit manual acceptance evidence")
+        elif rail == "light" and "TRACE" not in p:
+            warnings.append(f"{task_id}: light rail P has no TRACE; keep manual acceptance or decision backlink explicit")
 
         changed = []
         if args.changed_files:
@@ -159,10 +174,11 @@ def main(argv=None) -> int:
     if args.harness_result == "failed":
         severe.append(f"{task_id}: fresh harness result is failed")
     verification_ok = args.harness_result in {"passed", "manual"} or bool(args.manual_acceptance)
-    if args.harness_result == "skipped" and not args.manual_acceptance:
-        severe.append(f"{task_id}: skipped harness requires explicit manual acceptance evidence")
     events = load_events(root)
-    if not verification_ok and not has_verify_trace(events, task_id):
+    trace_ok = has_verify_trace(events, task_id)
+    if args.harness_result == "skipped" and not args.manual_acceptance and not (rail == "light" and trace_ok):
+        severe.append(f"{task_id}: skipped harness requires explicit manual acceptance evidence")
+    if not verification_ok and not trace_ok:
         severe.append(f"{task_id}: no passing verify trace or fresh harness/manual acceptance evidence")
 
     trace_index = root / "docs" / "TRACE_INDEX.md"
@@ -176,6 +192,8 @@ def main(argv=None) -> int:
     print("# Done Gate Report\n")
     print(f"Status: {status_out}")
     print(f"Task: {task_id}\n")
+    print(f"Rail: {rail}")
+    print(f"Type: {task_kind}\n")
     print("## Severe")
     print("- none" if not severe else "\n".join(f"- {x}" for x in severe))
     print("\n## Warnings")

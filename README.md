@@ -9,9 +9,9 @@
 🛤️ **Draft before coding. Verify before done. Close out before stopping.**
 🛤️ **先对齐再编码，先验证再完成，停止前先收口。**
 
-CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, CodeRail Coordinate, Coordinate Contract Drafts, TDD Gate, task contracts, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, short handoffs, asset boundaries, and trace links.
+CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, Full Rail / Light Rail task governance, CodeRail Coordinate, Coordinate Contract Drafts, TDD Gate, task contracts, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, short handoffs, asset boundaries, and trace links.
 
-CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是任务系统或重型工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、CodeRail Coordinate、契约草案、TDD Gate、任务契约、完成前验证、自动任务级提交、CI Gate、运行态检查、交接摘要、资产边界和可追踪链接。
+CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是任务系统或重型工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、Full Rail / Light Rail 分层、CodeRail Coordinate、契约草案、TDD Gate、任务契约、完成前验证、自动任务级提交、CI Gate、运行态检查、交接摘要、资产边界和可追踪链接。
 
 Version: **v0.7.3**
 
@@ -30,6 +30,21 @@ Version: **v0.7.3**
 | 🔗 | Records trace events so decisions, changes, and validation stay connected. | 记录 trace 事件，让决策、修改和验证保持连接。 |
 | 🏗️ | Checks blueprint coverage for architecture, data, deployment, UI flow, and lifecycle complexity. | 检测架构、数据、部署、用户流和生命周期复杂度是否有必要图纸覆盖。 |
 | 🪝 | Provides example hooks for prompt reminders, protected governance edits, and periodic health checks. | 提供 hooks 示例，用于提示、保护治理文件、阶段性健康检查。 |
+
+## 🚦 Rail Levels / 治理分层
+
+CodeRail uses two rail levels so productive research projects do not pay the same governance cost for every kind of thinking.
+
+CodeRail 使用两档治理，避免研究型项目把所有思考都压成同等强度的工程闭环。
+
+| Rail | Use for | Required evidence |
+|---|---|---|
+| **Full Rail** | Code, schema, dependencies, data writes, runners, pipelines, external interfaces, migrations, releases. | Full G/T/S/V/X/P, executable verification or explicit manual acceptance, TASKS + TRACE, Done Gate, Closeout. |
+| **Light Rail** | Theory, product positioning, design principles, philosophy boundaries, terminology, ADRs, document drafts. | Goal, boundary, persistence location, next step, and trace/decision backlink or explicit manual acceptance. |
+
+Light Rail lowers process weight, not integrity. It still forbids fake verification, hidden failures, out-of-scope edits, and chat-memory-only state.
+
+Light Rail 降低的是流程重量，不是诚信要求：仍然禁止伪验证、隐藏失败、越界修改和用聊天记忆替代项目状态。
 
 ## 🧑‍💻 For Users / 面向用户
 

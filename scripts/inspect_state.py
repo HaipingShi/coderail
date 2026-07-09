@@ -68,7 +68,7 @@ def task_statuses(root: Path):
         if "Example task" in header or "Copy template" in header:
             continue
         coord = coordinate_check.parse_coordinate(body) or {}
-        rows.append({"id": header.split()[0], "header": header, "status": status, "coord": coord})
+        rows.append({"id": header.split()[0], "header": header, "body": body, "status": status, "coord": coord})
     return rows
 
 
@@ -129,7 +129,11 @@ def render(root: Path) -> tuple[str, str]:
     if active:
         t = active[0]
         coord = t["coord"]
+        rail = coordinate_check.rail_type(t["header"], t["body"], None, None)
+        task_kind = coordinate_check.task_type(t["body"]) or "(unspecified)"
         lines.append(f"- Task: {t['header']} ({t['status']})")
+        lines.append(f"- Rail: {rail}")
+        lines.append(f"- Type: {task_kind}")
         lines.append(f"- G: {coord.get('g','(missing)') or '(missing)'}")
         lines.append(f"- T: {coord.get('t','(missing)') or '(missing)'}")
         lines.append(f"- S allowed: {coord.get('s_allowed','(missing)') or '(missing)'}")

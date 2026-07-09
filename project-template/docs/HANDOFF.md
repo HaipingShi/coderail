@@ -10,6 +10,8 @@ Resume anchor:
 
 ## Coordinate Summary
 
+North Star / slice:
+Rail: full | light
 G:
 T:
 S:
@@ -19,16 +21,20 @@ V:
 X:
 P:
 
-## Current State
+## Recent Completed Slice
 
-Done:
 - 
+
+## Current State
 
 In progress:
 - 
 
 Blocked:
 - 
+
+Stop conditions:
+-
 
 ## Verification
 
@@ -41,19 +47,24 @@ Failed:
 Not run:
 - 
 
-## Trace / Drift Notes
+## Artifacts
 
-Orphans:
-- 
+Generated:
+-
 
-Verification gaps:
-- 
+Ignored / not staged:
+-
+
+Archived history:
+- TRACE_INDEX | RUNLOG | archive:
 
 ## Auto Commit
 
 Eligible:
 Action:
 Commit:
+Exact files staged:
+-
 Safe to stage:
 -
 Do not stage:
@@ -65,6 +76,13 @@ Avoid git add .:
 ## Next Executable Step
 
 - 
+
+## Recovery Commands
+
+```bash
+python scripts/inspect_state.py --target . --write
+python scripts/doctor.py --target .
+```
 
 ## Resume Prompt
 

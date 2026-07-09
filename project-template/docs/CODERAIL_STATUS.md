@@ -11,6 +11,8 @@ Status: unknown
 
 ## Active Coordinate
 
+Rail:
+Type:
 G:
 T:
 S:

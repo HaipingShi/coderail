@@ -18,7 +18,10 @@ If the request is L0-L3, do not jump to code. Produce an engineering judgment an
 
 ## K1 CodeRail Coordinate
 
-Every non-trivial task must have a CodeRail Coordinate:
+Every non-trivial task must choose a rail and have a matching Coordinate.
+
+- **Full Rail**: code, schema, dependencies, data writes, runners, pipelines, external interfaces, migrations, or release work. Use full G/T/S/V/X/P, executable verification, trace, done gate, and closeout.
+- **Light Rail**: theory, product positioning, design principles, philosophy boundaries, terminology, ADRs, and document drafts. Use a light coordinate: goal, boundary, persistence location, acceptance/trace or manual acceptance, and next step. Do not force an implementation/test loop when there is no code path.
 
 - **G — Goal**: which North Star outcome this serves.
 - **T — Task**: the exact task to complete.
@@ -43,12 +46,12 @@ Do not code from vague intent. Do not silently fold a side request into the curr
 
 Before marking done, run `/coderail:done-gate` or `scripts/done_gate.py`.
 
-No done without:
+No done without the rail-appropriate evidence:
 
 1. V passed or explicit manual acceptance.
 2. S respected.
-3. P synced, at least TASKS and TRACE.
-4. A verify trace event or fresh verification evidence.
+3. P synced. Full Rail requires TASKS and TRACE; Light Rail requires TASKS plus trace, decision backlink, or explicit manual acceptance.
+4. A verify trace event or fresh verification/manual evidence.
 5. Handoff Trigger Check performed.
 
 ## Runtime State Inspect
@@ -121,6 +124,6 @@ Before any substantial final response or stop:
 1. State task result: done, stage-complete, blocked, failed, or deferred.
 2. Run TDD Gate when required, CI Gate when available, and done gate only when marking done.
 3. Inspect `git diff/status`; classify safe-to-stage, do-not-stage, ignored/generated.
-4. Auto-commit safe task-scoped files when possible; never use `git add .` when unsafe.
+4. Auto-commit exact task-scoped files when possible; never use `git add .` when unsafe.
 5. Run Handoff Trigger Check: H0/H1/H2/H3; update HANDOFF only for H1/H2/H3.
 6. State one Next Executable Step: a command or the next task card.

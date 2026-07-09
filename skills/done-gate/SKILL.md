@@ -15,7 +15,7 @@ Run:
 python3 scripts/done_gate.py --target . --task <TASK_ID> --harness-result passed
 ```
 
-Use `--manual-acceptance` only when automatic harness is impossible and acceptance is explicit.
+Use `--rail-type light --task-type docs|design` for docs-only or design-only tasks. Use `--manual-acceptance` only when automatic harness is impossible and acceptance is explicit. Do not claim a skipped harness passed.
 
 ## Gate checks
 
@@ -27,6 +27,8 @@ Use `--manual-acceptance` only when automatic harness is impossible and acceptan
 - P is synced, at least TASKS and TRACE.
 - A verify trace exists or fresh verification evidence is supplied.
 - TRACE_INDEX is current or will be regenerated before handoff.
+
+For Light Rail, TASKS plus trace, decision backlink, or explicit manual acceptance is enough. Historical debt from old closed tasks should be labeled historical instead of blocking the current task.
 
 ## Rules
 

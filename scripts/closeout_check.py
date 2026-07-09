@@ -208,6 +208,8 @@ def main(argv=None) -> int:
 
     print("\n### Safe to stage")
     print(bullet(files["safe"]))
+    print("\n### Exact files staged")
+    print(bullet(files["safe"] if auto_action == "committed" else []))
     print("\n### Do not stage")
     do_not_stage = files["forbidden"] + files["outside"]
     print(bullet(do_not_stage))

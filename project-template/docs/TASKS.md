@@ -20,6 +20,7 @@ Copy this block and rename the heading to `\## T-001 Short task title` when crea
 
 Status: [ ]
 Type: feature | bug | refactor | docs | harness | chore
+Rail: full | light
 Priority: P1 | P2 | P3
 Owner:
 Branch:
@@ -101,9 +102,17 @@ Auto commit:
 - Eligible: yes | no
 - Action: committed | skipped | blocked | failed
 - Commit:
+- Exact files staged:
 - Safe to stage:
 - Do not stage:
 - Ignored/generated artifacts:
 - Avoid git add .: yes | no
 Notes:
 ```
+
+## Compact summary policy
+
+When a completed chain becomes long, keep only status, key result, completion
+evidence, and trace backlink in TASKS. Move detailed logs, failed attempts,
+terminal output, and long rationale to TRACE_INDEX, RUNLOG, DECISIONS, or an
+archive. TASKS should stay fast to scan during recovery.

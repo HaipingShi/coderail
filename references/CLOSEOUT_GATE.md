@@ -26,6 +26,7 @@ Auto Commit:
 - Eligible:
 - Action: committed | skipped | blocked | failed
 - Commit:
+- Exact files staged:
 - Safe to stage:
 - Do not stage:
 - Ignored/generated artifacts:
@@ -88,6 +89,12 @@ If unrelated, ignored, generated, or out-of-scope files are present, do not use
 broad staging. Stage only safe task-scoped files and leave unrelated work alone.
 If no safe commit can be made, record `blocked`, `failed`, or `skipped` with the
 next executable step.
+
+For task-sliced commits, prefer one commit per coherent task or
+stage-complete checkpoint. The closeout packet must name exact staged files and
+whether `git add .` is forbidden for the current worktree. If work is not done,
+the resume anchor must point to the active task, current file, failing command,
+or next task card.
 
 ## Handoff trigger check
 

@@ -18,12 +18,13 @@ Use only when H1/H2/H3 trigger fires.
 
 Keep it short:
 
-- Current North Star / slice
-- Coordinate Summary
-- Current task and next task
-- Verification state
-- Auto-commit action
-- Trace gaps / blockers
+- Current North Star / current task
+- Coordinate Summary, including Full Rail or Light Rail
+- Recent completed slice
 - Next executable step
+- Stop conditions
+- Generated and ignored artifacts
+- Recovery commands
+- Auto-commit action
 
-Do not paste full logs, full diffs, or TRACELOG contents.
+Move long history to TRACE_INDEX, RUNLOG, DECISIONS, or archive. Do not paste full logs, full diffs, or TRACELOG contents.
