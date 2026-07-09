@@ -10,6 +10,7 @@ Rail layering and friction reduction.
 - Classified old closed-task findings as historical debt in Doctor instead of current blockers.
 - Added governance friction signals for long HANDOFF, long TASKS, warning noise, and docs/design tasks over-constrained by Full Rail.
 - Slimmed HANDOFF and TASKS templates toward coordinate summary, recent slice, recovery commands, compact summaries, and trace back-links.
+- Added a regression observation harness whose reusable script/docs are committed while run artifacts stay under `.coderail-runs/`.
 - Verified with `npm test`, `npm run ci`, Doctor, Blueprint Gate, Coordinate Check, and Contract Check.
 
 ## v0.7.3

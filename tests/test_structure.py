@@ -64,6 +64,7 @@ def test_required_v06_files_exist():
         'scripts/done_gate.py',
         'scripts/closeout_check.py',
         'scripts/ci_gate.py',
+        'scripts/regression_observe.py',
         'scripts/blueprint_check.py',
         'scripts/hook_guard.py',
         'skills/trace/SKILL.md',
@@ -79,6 +80,7 @@ def test_required_v06_files_exist():
         'project-template/docs/CODERAIL_STATUS.md',
         'project-template/docs/BLUEPRINTS.md',
         'docs/BLUEPRINTS.md',
+        'docs/REGRESSION_OBSERVE.md',
         'examples/hooks.example.json',
         'examples/claude/settings.example.json',
     ]
@@ -290,6 +292,26 @@ def test_templates_include_rail_and_compact_handoff_policy():
     check('Compact summary policy' in tasks, 'TASKS template should include compact summary policy')
     check('Recovery Commands' in handoff, 'HANDOFF template should include recovery commands')
     check('Archived history' in handoff, 'HANDOFF template should move long history elsewhere')
+
+
+def test_regression_observe_scaffold_keeps_artifacts_ignored():
+    gitignore = (ROOT/'.gitignore').read_text(encoding='utf-8')
+    package = json.loads((ROOT/'package.json').read_text(encoding='utf-8'))
+    docs = (ROOT/'docs/REGRESSION_OBSERVE.md').read_text(encoding='utf-8')
+    check('.coderail-runs/' in gitignore, 'regression run directory must be gitignored')
+    check('tmp/coderail-regression/' in gitignore, 'alternate regression temp directory must be gitignored')
+    check('regression-observe' in package.get('scripts', {}), 'npm regression-observe script missing')
+    check('Do not\nstage the run directory' in docs or 'Do not stage the run directory' in docs, 'docs must warn not to stage run artifacts')
+
+    with tempfile.TemporaryDirectory() as td:
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/regression_observe.py'), '--target', str(ROOT),
+            '--run-dir', td, '--skip-npm-test'
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
+        check(result.returncode == 0, result.stdout + result.stderr)
+        check((Path(td)/'summary.json').exists(), 'regression observer should write summary.json to run dir')
+        check((Path(td)/'report.md').exists(), 'regression observer should write report.md to run dir')
+        check('CodeRail Regression Observation' in result.stdout, 'observer should print summary report')
 
 
 def test_blueprint_gate_blocks_complex_project_without_index():

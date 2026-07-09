@@ -507,6 +507,7 @@ python scripts/trace_event.py --target . --type verify --task T-001 --harness-re
 python scripts/trace_index.py --target .
 python scripts/inspect_state.py --target . --write
 python scripts/doctor.py --target .
+python scripts/regression_observe.py --target .
 ```
 
 With npm wrappers:
@@ -524,6 +525,7 @@ npm run done-gate
 npm run closeout-check
 npm run ci
 npm run contract-check
+npm run regression-observe
 ```
 
 ## 🚦 Boundary / 边界
