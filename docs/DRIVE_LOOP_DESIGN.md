@@ -268,3 +268,23 @@ Regression:
 - OpenAI, Follow a goal: https://learn.chatgpt.com/use-cases/follow-goals
 - OpenAI, Unrolling the Codex agent loop: https://openai.com/index/unrolling-the-codex-agent-loop/
 - OpenAI, Harness engineering: https://openai.com/index/harness-engineering/
+
+## 13. D5 - Legacy Cutoff for Runtime State Inspect
+
+Mature repositories may contain closed tasks that predate CodeRail and lack its
+verification vocabulary. D5 adds an explicit document-order anchor in
+`docs/NORTH_STAR.md`:
+
+```markdown
+## Legacy Cutoff
+
+- Enforcement starts at: T-178
+```
+
+`inspect_state.py` keeps weak-V gaps before the anchor visible as historical
+verification debt, but only the anchor and later tasks contribute closed-task
+verification gaps to current status. Any doing/blocked task before the anchor
+also remains in the current enforcement scope. A missing
+anchor fails closed. No configured cutoff preserves the pre-D5 all-task
+behavior. The cutoff changes classification only; it does not rewrite history,
+grant autonomy, or weaken post-cutover verification.

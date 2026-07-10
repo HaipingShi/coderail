@@ -34,6 +34,15 @@ Owner:
 
 - 
 
+## Legacy Cutoff
+
+- Enforcement starts at:
+
+Leave this blank for a new project. When adopting CodeRail into a repository
+with historical tasks, set it to the first post-cutover task ID as it appears in
+`docs/TASKS.md`. Inspect keeps earlier verification gaps visible as historical
+debt without treating them as current blockers.
+
 ## Drive Contract
 
 - Mode: manual | continuous

@@ -300,7 +300,9 @@ def test_templates_include_rail_and_compact_handoff_policy():
     check('Compact summary policy' in tasks, 'TASKS template should include compact summary policy')
     check('Recovery Commands' in handoff, 'HANDOFF template should include recovery commands')
     check('Archived history' in handoff, 'HANDOFF template should move long history elsewhere')
+    check('## Legacy Cutoff' in north_star, 'NORTH_STAR template should include legacy cutoff')
     check('## Drive Contract' in north_star, 'NORTH_STAR template should include Drive Contract')
+    check('## Historical Verification Debt' in status, 'status template should separate historical verification debt')
     check('## Drive Decision' in status, 'status template should include Drive Decision')
 
 
@@ -418,6 +420,16 @@ def write_drive_project(target: Path, tasks: str, trace_rows=None, mode='continu
     (target/'docs'/'TRACELOG.jsonl').write_text(
         ''.join(json.dumps(row) + '\n' for row in rows), encoding='utf-8'
     )
+
+
+def test_drive_field_value_does_not_cross_blank_field_lines():
+    scripts = str(ROOT/'scripts')
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import drive_check
+
+    text = '- Terminal condition:\n\nContinuous Drive requires evidence.\n'
+    check(drive_check.field_value(text, 'Terminal condition') == '', 'blank field must stay blank')
 
 
 def drive_task(task_id='T-001', status='[~]', autonomy='allowed', priority='P1', result='', depends='none'):
@@ -657,6 +669,141 @@ def test_drive_check_does_not_advance_task_with_unmet_dependency():
         report = run_drive(target)
         check(report['decision'] == 'BLOCKED_DECISION', report)
         check(report['task'] is None, report)
+
+
+def inspect_task(task_id: str, status: str, verification: str) -> str:
+    return f'''## {task_id} Inspect task
+
+Status: {status}
+Type: docs
+Rail: light
+Priority: P1
+Autonomy: human-gated
+
+### CodeRail Coordinate
+
+G — Goal:
+- North Star: NS-001
+
+T — Task:
+- Inspect current state
+
+S — Scope:
+- Allowed:
+  - docs/**
+- Forbidden:
+  - src/**
+
+V — Verify:
+- {verification}
+
+X — Stop:
+- forbidden files needed
+
+P — Persist:
+- TASKS
+- TRACE
+'''
+
+
+def write_inspect_project(target: Path, tasks: str, enforcement_task) -> None:
+    (target/'docs').mkdir(parents=True, exist_ok=True)
+    cutoff = (
+        f'\n## Legacy Cutoff\n\n- Enforcement starts at: {enforcement_task}\n'
+        if enforcement_task is not None else ''
+    )
+    (target/'docs'/'NORTH_STAR.md').write_text(f'''# North Star
+
+## Outcome
+
+- inspect current work without hiding historical debt
+{cutoff}
+## Drive Contract
+
+- Mode: manual
+''', encoding='utf-8')
+    (target/'docs'/'TASKS.md').write_text('# Tasks\n\n' + tasks, encoding='utf-8')
+    (target/'docs'/'HANDOFF.md').write_text(
+        '# Handoff\n\nHandoff Level: H0\n\n## Coordinate Summary\n', encoding='utf-8'
+    )
+    (target/'docs'/'CONTRACTS.md').write_text('# Coordinate Contract Drafts\n', encoding='utf-8')
+    (target/'docs'/'TRACELOG.jsonl').write_text('', encoding='utf-8')
+
+
+def run_inspect(target: Path):
+    return subprocess.run([
+        sys.executable, str(ROOT/'scripts/inspect_state.py'), '--target', str(target), '--no-write'
+    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+
+
+def test_inspect_legacy_cutoff_separates_historical_verification_debt():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        tasks = (
+            inspect_task('T-001', '[x]', 'legacy note only')
+            + '\n' + inspect_task('T-178', '[~]', 'manual acceptance passed')
+        )
+        write_inspect_project(target, tasks, 'T-178')
+        result = run_inspect(target)
+        check(result.returncode == 0, result.stdout + result.stderr)
+        check('Status: warning' in result.stdout, result.stdout)
+        check('## Verification Gaps\n\n- none' in result.stdout, result.stdout)
+        check('## Historical Verification Debt' in result.stdout, result.stdout)
+        check('T-001: done task has weak V evidence' in result.stdout, result.stdout)
+        check('- Enforcement starts at: T-178' in result.stdout, result.stdout)
+
+
+def test_inspect_legacy_cutoff_keeps_pre_cutover_doing_task_in_current_scope():
+    scripts = str(ROOT/'scripts')
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import inspect_state
+
+    tasks = [
+        {'id': 'T-100', 'status': '[~]'},
+        {'id': 'T-101', 'status': '[x]'},
+        {'id': 'T-178', 'status': '[x]'},
+    ]
+    ns = '## Legacy Cutoff\n\n- Enforcement starts at: T-178\n'
+    _, enforced, historical, issue = inspect_state.legacy_cutoff(ns, tasks)
+    check(not issue, issue)
+    check([task['id'] for task in enforced] == ['T-100', 'T-178'], enforced)
+    check([task['id'] for task in historical] == ['T-101'], historical)
+
+
+def test_inspect_legacy_cutoff_keeps_post_cutover_gap_blocking():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        tasks = (
+            inspect_task('T-001', '[x]', 'legacy note only')
+            + '\n' + inspect_task('T-178', '[x]', 'manual acceptance passed')
+            + '\n' + inspect_task('T-179', '[x]', 'weak current note')
+        )
+        write_inspect_project(target, tasks, 'T-178')
+        result = run_inspect(target)
+        check(result.returncode == 1, result.stdout + result.stderr)
+        current = result.stdout.split('## Historical Verification Debt', 1)[0]
+        check('T-179: done task has weak V evidence' in current, result.stdout)
+        check('T-001: done task has weak V evidence' not in current, result.stdout)
+
+
+def test_inspect_legacy_cutoff_fails_closed_when_anchor_is_missing():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_inspect_project(target, inspect_task('T-001', '[x]', 'legacy note only'), 'T-178')
+        result = run_inspect(target)
+        check(result.returncode == 1, result.stdout + result.stderr)
+        check('configured enforcement task T-178 was not found' in result.stdout, result.stdout)
+
+
+def test_inspect_without_legacy_cutoff_preserves_existing_behavior():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_inspect_project(target, inspect_task('T-001', '[x]', 'legacy note only'), None)
+        result = run_inspect(target)
+        check(result.returncode == 1, result.stdout + result.stderr)
+        check('T-001: done task has weak V evidence' in result.stdout, result.stdout)
+        check('- Enforcement starts at: none (all tasks enforced)' in result.stdout, result.stdout)
 
 
 def test_inspect_surfaces_drive_decision():

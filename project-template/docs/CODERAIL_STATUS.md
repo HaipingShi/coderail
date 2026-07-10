@@ -9,6 +9,12 @@ Status: unknown
 - Outcome:
 - Current Slice:
 
+## Legacy Cutoff
+
+- Enforcement starts at: none (all tasks enforced)
+- Status: disabled
+- Historical tasks excluded from current verification status: 0
+
 ## Active Coordinate
 
 Rail:
@@ -29,6 +35,10 @@ P:
 - none
 
 ## Verification Gaps
+
+- none
+
+## Historical Verification Debt
 
 - none
 

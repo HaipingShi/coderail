@@ -49,7 +49,7 @@ def section(text: str, header: str) -> str:
 
 
 def field_value(text: str, label: str) -> str:
-    match = re.search(rf"^\s*-?\s*{re.escape(label)}:\s*(.*)$", text, re.I | re.M)
+    match = re.search(rf"^[ \t]*-?[ \t]*{re.escape(label)}:[ \t]*(.*)$", text, re.I | re.M)
     return match.group(1).strip() if match else ""
 
 

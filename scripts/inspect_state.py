@@ -83,24 +83,52 @@ def draft_statuses(root: Path):
     return rows
 
 
+def legacy_cutoff(ns: str, tasks: list[dict]) -> tuple[str, list[dict], list[dict], str]:
+    block = drive_check.section(ns, "Legacy Cutoff")
+    enforcement_task = drive_check.field_value(block, "Enforcement starts at")
+    if not enforcement_task:
+        return "", tasks, [], ""
+
+    anchor = next((index for index, task in enumerate(tasks) if task["id"] == enforcement_task), None)
+    if anchor is None:
+        issue = f"legacy cutoff configured enforcement task {enforcement_task} was not found"
+        return enforcement_task, tasks, [], issue
+
+    before = tasks[:anchor]
+    post_cutover = tasks[anchor:]
+    active_before_cutoff = [task for task in before if task["status"] in {"[~]", "[!]"}]
+    historical = [task for task in before if task["status"] not in {"[~]", "[!]"}]
+    return enforcement_task, active_before_cutoff + post_cutover, historical, ""
+
+
+def weak_verification_gaps(tasks: list[dict]) -> list[str]:
+    gaps = []
+    for task in tasks:
+        verification = (task["coord"].get("v") or "").lower()
+        if task["status"] == "[x]" and not any(
+            marker in verification for marker in ["passed", "manual", "pytest", "test", "harness"]
+        ):
+            gaps.append(f"{task['id']}: done task has weak V evidence")
+    return gaps
+
+
 def render(root: Path) -> tuple[str, str]:
     docs = root / "docs"
     ns = read(docs / "NORTH_STAR.md")
     outcome = first_section_value(ns, "Outcome") or "(unknown)"
     current_slice = first_section_value(ns, "Current Slice") or "(unknown)"
     tasks = task_statuses(root)
+    enforcement_task, enforced_tasks, historical_tasks, cutoff_issue = legacy_cutoff(ns, tasks)
     drafts = draft_statuses(root)
     active = [t for t in tasks if t["status"] in {"[~]", "[ ]", "[!]"}]
     events = load_events(root)
     trace_severe, trace_warn = trace_doctor.check(events, docs / "TRACE_INDEX.md", docs / "TRACELOG.jsonl")
     drive = drive_check.evaluate(root)
 
-    verification_gaps = []
-    for t in tasks:
-        coord = t["coord"]
-        v = (coord.get("v") or "").lower()
-        if t["status"] == "[x]" and not any(k in v for k in ["passed", "manual", "pytest", "test", "harness"]):
-            verification_gaps.append(f"{t['id']}: done task has weak V evidence")
+    verification_gaps = weak_verification_gaps(enforced_tasks)
+    historical_verification_debt = weak_verification_gaps(historical_tasks)
+    if cutoff_issue:
+        verification_gaps.insert(0, cutoff_issue)
     for item in trace_severe:
         if "verify" in item or "harness" in item:
             verification_gaps.append(item)
@@ -131,6 +159,17 @@ def render(root: Path) -> tuple[str, str]:
     lines.append("")
     lines.append(f"- Outcome: {outcome}")
     lines.append(f"- Current Slice: {current_slice}")
+    lines.append("")
+    lines.append("## Legacy Cutoff")
+    lines.append("")
+    if enforcement_task:
+        lines.append(f"- Enforcement starts at: {enforcement_task}")
+        lines.append(f"- Status: {'invalid' if cutoff_issue else 'active'}")
+        lines.append(f"- Historical tasks excluded from current verification status: {len(historical_tasks)}")
+    else:
+        lines.append("- Enforcement starts at: none (all tasks enforced)")
+        lines.append("- Status: disabled")
+        lines.append("- Historical tasks excluded from current verification status: 0")
     lines.append("")
     lines.append("## Active Coordinate")
     lines.append("")
@@ -173,6 +212,15 @@ def render(root: Path) -> tuple[str, str]:
     lines.append("## Verification Gaps")
     lines.append("")
     lines.append("- none" if not verification_gaps else "\n".join(f"- {x}" for x in verification_gaps))
+    lines.append("")
+    lines.append("## Historical Verification Debt")
+    lines.append("")
+    if not historical_verification_debt:
+        lines.append("- none")
+    else:
+        lines.extend(f"- {item}" for item in historical_verification_debt[:20])
+        if len(historical_verification_debt) > 20:
+            lines.append(f"- ... {len(historical_verification_debt) - 20} more")
     lines.append("")
     lines.append("## Trace Gaps")
     lines.append("")

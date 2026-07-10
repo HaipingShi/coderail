@@ -318,6 +318,25 @@ Continuous Drive proceeds for `CONTINUE`, `REPAIR`, and `ADVANCE`. It returns
 control only for `REVIEW_DIRECTION`, `BLOCKED_DECISION`, `COMPLETE`, or
 `EXHAUSTED`. See `references/DRIVE_LOOP.md` for the Goal Bridge and full policy.
 
+### Mature-repository cutover / 成熟仓库切入
+
+When adopting CodeRail after a repository already has closed task history, set
+the first post-cutover task in `docs/NORTH_STAR.md`:
+
+```markdown
+## Legacy Cutoff
+
+- Enforcement starts at: T-178
+```
+
+`inspect_state.py` then reports earlier weak verification as historical debt
+without turning current status red. The anchor and later tasks remain fully
+enforced; a missing anchor fails closed. Leave the field blank for a new project
+or when every task should be enforced.
+
+成熟仓库可用首个 post-cutover task 作为文档顺序锚点。旧任务缺口仍会展示，
+但不再污染当前阻塞状态；锚点及后续任务继续完整执行门禁。
+
 ## 🧬 Kernel / 内核
 
 | | Invariant | Plain meaning | 中文解释 |
