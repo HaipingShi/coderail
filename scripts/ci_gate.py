@@ -72,6 +72,10 @@ def main(argv=None) -> int:
         tdd_target = root / "project-template" if (root / "project-template").exists() else root
         failures += bool(run("TDD gate", [python, str(scripts / "tdd_check.py"), "--target", str(tdd_target)], root))
 
+    if (scripts / "drive_check.py").exists():
+        drive_target = root / "project-template" if (root / "project-template").exists() else root
+        failures += bool(run("Drive check", [python, str(scripts / "drive_check.py"), "--target", str(drive_target)], root))
+
     if has_git_repo(root):
         failures += bool(run("Whitespace diff check", ["git", "-C", str(root), "diff", "--check"], root))
 

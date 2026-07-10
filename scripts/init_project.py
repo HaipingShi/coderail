@@ -65,6 +65,7 @@ def main(argv=None) -> int:
     print("6. Run scripts/tdd_check.py when correctness-sensitive work needs Red-Green-Refactor evidence.")
     print("7. Run scripts/done_gate.py before marking work done.")
     print("8. Run scripts/ci_gate.py and scripts/closeout_check.py --auto-commit before stopping after substantial work.")
+    print("9. For long-running work, configure the Drive Contract and run scripts/drive_check.py at checkpoints.")
     return 0
 
 

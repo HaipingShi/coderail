@@ -36,6 +36,13 @@ P:
 
 - none
 
+## Drive Decision
+
+- Mode: manual
+- Decision: BLOCKED_DECISION
+- Reason: Drive Contract is not configured for continuous execution.
+- Next action: Complete the Drive Contract or continue in manual mode.
+
 ## Handoff
 
 - Level:

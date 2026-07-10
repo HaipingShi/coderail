@@ -20,6 +20,7 @@ if str(SCRIPTS) not in sys.path:
 import coordinate_check  # noqa: E402
 import trace_doctor  # noqa: E402
 import contract_check  # noqa: E402
+import drive_check  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -92,6 +93,7 @@ def render(root: Path) -> tuple[str, str]:
     active = [t for t in tasks if t["status"] in {"[~]", "[ ]", "[!]"}]
     events = load_events(root)
     trace_severe, trace_warn = trace_doctor.check(events, docs / "TRACE_INDEX.md", docs / "TRACELOG.jsonl")
+    drive = drive_check.evaluate(root)
 
     verification_gaps = []
     for t in tasks:
@@ -109,7 +111,13 @@ def render(root: Path) -> tuple[str, str]:
     handoff_level = hm.group(1).strip() if hm else "unknown"
     handoff_needs = "yes" if "needs" in handoff.lower() else "no"
 
-    status = "blocked" if verification_gaps or trace_severe else ("warning" if trace_gaps or not outcome or active else "healthy")
+    drive_blocked = drive["mode"] == "continuous" and drive["decision"] in {"BLOCKED_DECISION", "EXHAUSTED"}
+    drive_warning = drive["mode"] == "continuous" and drive["decision"] == "REVIEW_DIRECTION"
+    status = (
+        "blocked"
+        if verification_gaps or trace_severe or drive_blocked
+        else ("warning" if trace_gaps or not outcome or active or drive_warning else "healthy")
+    )
 
     lines = []
     lines.append("# CodeRail Status")
@@ -170,6 +178,14 @@ def render(root: Path) -> tuple[str, str]:
     lines.append("")
     lines.append("- none" if not trace_gaps else "\n".join(f"- {x}" for x in trace_gaps[:20]))
     lines.append("")
+    lines.append("## Drive Decision")
+    lines.append("")
+    lines.append(f"- Mode: {drive['mode']}")
+    lines.append(f"- Decision: {drive['decision']}")
+    lines.append(f"- Task: {drive['task'] or 'none'}")
+    lines.append(f"- Reason: {drive['reason']}")
+    lines.append(f"- Next action: {drive['next_action']}")
+    lines.append("")
     lines.append("## Handoff")
     lines.append("")
     lines.append(f"- Level: {handoff_level}")
@@ -179,6 +195,8 @@ def render(root: Path) -> tuple[str, str]:
     lines.append("")
     if verification_gaps:
         lines.append("- Run `/coderail:done-gate` and fix verification gaps before marking done.")
+    elif drive["mode"] == "continuous":
+        lines.append(f"- Drive {drive['decision']}: {drive['next_action']}")
     elif active:
         lines.append("- Continue the active task inside S and stop if X triggers.")
     elif drafts:

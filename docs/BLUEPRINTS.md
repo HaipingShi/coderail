@@ -9,8 +9,8 @@
 | PF | Page Flow / Wireframe Flow | not-applicable | | | | No page navigation surface. |
 | SA | System Architecture | current | README.md | CodeRail | 2026-07-08 | Repo-local governance kit: templates, skills, scripts, references, plugin manifests. |
 | CD | Component Diagram | current | README.md | CodeRail | 2026-07-08 | Main components are `skills/`, `scripts/`, `project-template/`, and `references/`. |
-| SEQ | Sequence Diagram | planned | docs/BLUEPRINTS.md | CodeRail | 2026-07-08 | Planned for init/check/done gate flows. |
-| SM | State Machine Diagram | current | docs/BLUEPRINTS.md | CodeRail | 2026-07-08 | Blueprint lifecycle uses planned/current/stale/missing/not-applicable. |
+| SEQ | Sequence Diagram | current | docs/DRIVE_LOOP_DESIGN.md | CodeRail | 2026-07-10 | Goal, harness, Drive Decision, and Direction Review sequence. |
+| SM | State Machine Diagram | current | docs/DRIVE_LOOP_DESIGN.md | CodeRail | 2026-07-10 | Drive states and deterministic precedence are specified in sections 5-6. |
 | ERD | ER Diagram / Database Model | not-applicable | | | | No database layer. |
 | DFD | Data Flow Diagram | not-applicable | | | | No persistent data pipeline. |
 | DD | Deployment Diagram | not-applicable | | | | No hosted runtime. |

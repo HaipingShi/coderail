@@ -22,6 +22,7 @@ Status: [ ]
 Type: feature | bug | refactor | docs | harness | chore
 Rail: full | light
 Priority: P1 | P2 | P3
+Autonomy: allowed | human-gated
 Owner:
 Branch:
 
@@ -96,6 +97,7 @@ Handoff level: H0 | H1 | H2 | H3
 Handoff updated: yes | no
 Trace:
 Inspect status:
+Drive decision:
 Resume anchor:
 Next executable step:
 Auto commit:

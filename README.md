@@ -9,9 +9,9 @@
 🛤️ **Draft before coding. Verify before done. Close out before stopping.**
 🛤️ **先对齐再编码，先验证再完成，停止前先收口。**
 
-CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, Full Rail / Light Rail task governance, CodeRail Coordinate, Coordinate Contract Drafts, TDD Gate, task contracts, verification-before-complete, automatic task-scoped commits, CI Gate, runtime state inspect, short handoffs, asset boundaries, and trace links.
+CodeRail is a lightweight governance rail for AI coding agents. It keeps long-running coding work aligned through a small repo-local kernel: North Star, Architecture Blueprint Layer, Full Rail / Light Rail task governance, CodeRail Coordinate, Coordinate Contract Drafts, TDD Gate, task contracts, verification-before-complete, deterministic Drive Decisions, automatic task-scoped commits, CI Gate, runtime state inspect, short handoffs, asset boundaries, and trace links.
 
-CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是任务系统或重型工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、Full Rail / Light Rail 分层、CodeRail Coordinate、契约草案、TDD Gate、任务契约、完成前验证、自动任务级提交、CI Gate、运行态检查、交接摘要、资产边界和可追踪链接。
+CodeRail 是一个面向 AI 编码 Agent 的轻量级治理轨道。它不是任务系统或重型工作流引擎，而是在你的仓库里放入一套小而稳定的执行内核：North Star、Architecture Blueprint Layer、Full Rail / Light Rail 分层、CodeRail Coordinate、契约草案、TDD Gate、任务契约、完成前验证、确定性 Drive Decision、自动任务级提交、CI Gate、运行态检查、交接摘要、资产边界和可追踪链接。
 
 Version: **v0.7.3**
 
@@ -26,6 +26,7 @@ Version: **v0.7.3**
 | ✅ | Blocks "done" until verification, scope, persistence, and trace are present. | 没有验证、范围约束、持久化和 trace，不允许标记完成。 |
 | 🧹 | Auto-commits safe task-scoped work and leaves one executable next step before stopping. | 停止前自动提交安全的任务级变更，并留下一个可执行下一步。 |
 | 🧱 | Runs CI Gate so non-decision checks do not become user interruptions. | 运行 CI Gate，让非决策性检查不再打断用户。 |
+| 🚗 | Computes a Drive Decision so continuous goals keep moving until review or terminal states. | 计算 Drive Decision，让持续目标推进到复盘或终态，而不是在非决策步骤停下。 |
 | 🔍 | Produces a compact repo-local state surface for resume/debug/handoff. | 生成可检查的仓库状态，方便恢复、调试和交接。 |
 | 🔗 | Records trace events so decisions, changes, and validation stay connected. | 记录 trace 事件，让决策、修改和验证保持连接。 |
 | 🏗️ | Checks blueprint coverage for architecture, data, deployment, UI flow, and lifecycle complexity. | 检测架构、数据、部署、用户流和生命周期复杂度是否有必要图纸覆盖。 |
@@ -264,6 +265,7 @@ v0.7.3 让 TDD 在关键任务中成为一等门禁：
 → 🧱 CI Gate
 → 🔗 Trace
 → 🔍 Inspect
+→ 🚗 Drive Decision: continue / repair / advance / review / stop
 → 🧹 Auto Commit / Closeout
 → 🤝 Handoff
 ```
@@ -279,9 +281,42 @@ v0.7.3 让 TDD 在关键任务中成为一等门禁：
 → 🧱 CI 门禁
 → 🔗 Trace 记录
 → 🔍 状态检查
+→ 🚗 Drive Decision：继续 / 修复 / 前进 / 复盘 / 停止
 → 🧹 自动提交 / 收口
 → 🤝 交接
 ```
+
+## 🚗 Continuous Drive / 持续推进
+
+Drive Loop adds goal-preserving initiative without turning CodeRail into an
+agent runtime. Codex Goal or another long-running surface keeps the objective
+active; CodeRail computes the next safe project state from repo-local evidence.
+
+Drive Loop 增加“目标保持型主动性”，但不会把 CodeRail 变成 Agent runtime。
+Codex Goal 或其他长程运行面负责维持目标，CodeRail 根据仓库证据计算下一安全状态。
+
+Configure `docs/NORTH_STAR.md`:
+
+```markdown
+## Drive Contract
+
+- Mode: continuous
+- Terminal condition: all current-slice acceptance and terminal checks pass
+- Progress signal: completed acceptance items
+- Retry budget: 3
+- No-progress limit: 2
+- Human gates: schema, dependency, API, persistence, security, privacy, payment
+```
+
+Mark only pre-authorized tasks with `Autonomy: allowed`, then run:
+
+```bash
+python scripts/drive_check.py --target .
+```
+
+Continuous Drive proceeds for `CONTINUE`, `REPAIR`, and `ADVANCE`. It returns
+control only for `REVIEW_DIRECTION`, `BLOCKED_DECISION`, `COMPLETE`, or
+`EXHAUSTED`. See `references/DRIVE_LOOP.md` for the Goal Bridge and full policy.
 
 ## 🧬 Kernel / 内核
 
@@ -299,6 +334,9 @@ v0.7.3 让 TDD 在关键任务中成为一等门禁：
 | 🏗️ K9 | Blueprint Gate | Complex systems need current architecture, data, deployment, UI flow, and lifecycle diagrams. | 复杂系统需要当前有效的架构、数据、部署、用户流和生命周期图纸。 |
 | 🧹 K10 | Auto Commit / Closeout Gate | No substantial stop without task result, auto-commit action, resume anchor, and next executable step. | 没有任务结果、自动提交动作、恢复入口和可执行下一步，不应停止。 |
 | 🧱 K11 | CI Gate | Run available non-decision CI checks before stopping or handing off. | 停止或交接前运行可用的非决策性 CI 检查。 |
+
+Drive Loop sits above K0-K11 as an execution policy. It reuses existing kernel
+evidence and does not add a new source of authority.
 
 ## ⚡ Quick Start / 快速开始
 
@@ -465,6 +503,7 @@ P — Persist，需要同步的记录
 /coderail:task-contract   # accept/finalize task contract / 确认任务契约
 /coderail:tdd-gate        # Red-Green-Refactor evidence / TDD 门禁
 /coderail:execute-batch   # work inside S until done/blocked/failed/X / 在 S 内执行
+/coderail:drive           # continue/repair/advance from deterministic evidence / 根据确定性证据持续推进
 /coderail:done-gate       # verification-before-complete / 完成前验证
 /coderail:ci-gate         # run non-decision CI/CD checks / CI/CD 门禁
 /coderail:done            # sync P, trace, status, optional handoff / 同步记录
@@ -506,6 +545,8 @@ python scripts/closeout_check.py --target . --task T-001 --task-result stage-com
 python scripts/trace_event.py --target . --type verify --task T-001 --harness-result passed --summary "tests passed"
 python scripts/trace_index.py --target .
 python scripts/inspect_state.py --target . --write
+python scripts/drive_check.py --target .
+python scripts/drive_observe.py --target .
 python scripts/doctor.py --target .
 python scripts/regression_observe.py --target .
 ```
@@ -530,9 +571,9 @@ npm run regression-observe
 
 ## 🚦 Boundary / 边界
 
-CodeRail is **not** a hosted CI system, issue tracker, graph database, multi-agent orchestrator, web preview, or workflow runtime. It is a repo-local governance rail for AI coding execution with a CI Gate that calls checks already available in the repository.
+CodeRail is **not** a hosted CI system, issue tracker, graph database, multi-agent orchestrator, web preview, or workflow runtime. Drive computes policy state but does not run a model or scheduler. CodeRail remains a repo-local governance rail for AI coding execution.
 
-CodeRail **不是** 托管 CI 系统、issue tracker、图数据库、多 Agent 调度器、Web 预览工具或工作流运行时。它是一条仓库本地的 AI 编码执行治理轨道，CI Gate 只调用仓库里已有的检查。
+CodeRail **不是** 托管 CI 系统、issue tracker、图数据库、多 Agent 调度器、Web 预览工具或工作流运行时。Drive 只计算策略状态，不运行模型或调度器；CodeRail 仍是一条仓库本地治理轨道。
 
 It borrows productization patterns without copying a loop engine:
 

@@ -55,6 +55,13 @@ An agent may stop only after naming task result, auto-commit action, handoff tri
 
 Run available non-decision CI checks before stopping or handing off.
 
+## Drive policy above the kernel
+
+Drive Loop is not a new kernel invariant or workflow runtime. It consumes K0-K11
+evidence to compute `CONTINUE`, `REPAIR`, `ADVANCE`, `REVIEW_DIRECTION`,
+`BLOCKED_DECISION`, `COMPLETE`, or `EXHAUSTED`. Codex Goal or another agent
+surface may supply scheduling, but it never expands CodeRail authority.
+
 ## Productization spine
 
 v0.6 adds three runtime surfaces:
@@ -63,4 +70,4 @@ v0.6 adds three runtime surfaces:
 2. Runtime State Inspect — inspectable status from repo-local files.
 3. Done Gate — verification-before-complete.
 
-v0.7 adds Blueprint Gate. v0.7.1 adds Closeout Gate for deterministic resume state. v0.7.2 makes safe task-scoped commits automatic and adds CI Gate. v0.7.3 adds TDD Gate.
+v0.7 adds Blueprint Gate. v0.7.1 adds Closeout Gate for deterministic resume state. v0.7.2 makes safe task-scoped commits automatic and adds CI Gate. v0.7.3 adds TDD Gate. Drive Loop is the next execution-policy layer above this kernel.

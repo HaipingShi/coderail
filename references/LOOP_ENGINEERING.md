@@ -9,7 +9,7 @@ small internal step.
 ## Loop shape
 
 ```text
-Align -> Contract -> Execute Batch -> Verify -> Persist -> Closeout -> Continue or Handoff
+Align -> Contract -> Execute Batch -> Verify -> Persist -> Drive Decision -> Continue, Review, or Closeout
 ```
 
 ## Batch rule
@@ -26,6 +26,12 @@ Inside an authorized batch, continue until one of these occurs:
    decision is required;
 8. an automatic task-scoped commit/snapshot cannot be created before more tasks
    would be mixed.
+
+Under a continuous Drive Contract, a stage-complete checkpoint is not itself a
+reason to return control or activate a second task. Keep the checkpointed task
+active until acceptance is done. Run `drive_check.py`; continue for `CONTINUE`,
+`REPAIR`, and `ADVANCE`, and leave the execution loop only for
+`REVIEW_DIRECTION`, `BLOCKED_DECISION`, `COMPLETE`, or `EXHAUSTED`.
 
 ## Anti-fragmentation rule
 

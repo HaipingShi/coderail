@@ -113,9 +113,9 @@ Do not collapse L0-L3 requests into L5 patches before framing the judgment.
 
 ## Execution rhythm
 
-Plan finely. Execute authorized batches until done, stage-complete, blocked, failed, or drift is detected. Fine-grained tasks are for traceability, not permission to stop after every low-risk internal step.
+Plan finely. Execute authorized batches until done, stage-complete, blocked, failed, or drift is detected. Under a continuous Drive Contract, run `drive_check.py` at checkpoints. A stage-complete task stays active and continues toward acceptance; advance only after the current task leaves active state.
 
-Pause only for decision-grade blockers: missing goal, forbidden scope, product/security/payment/privacy/API/schema/persistence changes, unclear repeated harness failure, or docs/code contradiction. Run non-decision gates yourself.
+Pause only for `BLOCKED_DECISION`, `REVIEW_DIRECTION`, `COMPLETE`, or `EXHAUSTED`: missing goal, forbidden scope, product/security/payment/privacy/API/schema/persistence changes, unclear repeated harness failure, or docs/code contradiction. Run non-decision gates yourself.
 
 ## Closeout
 

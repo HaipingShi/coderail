@@ -34,6 +34,18 @@ Owner:
 
 - 
 
+## Drive Contract
+
+- Mode: manual | continuous
+- Terminal condition:
+- Progress signal:
+- Retry budget: 3
+- No-progress limit: 2
+- Human gates:
+
+Continuous Drive is authorized only when the terminal condition and progress
+signal are explicit. Goal persistence never expands scope or permissions.
+
 ## Coordinate Rule
 
 Every active task must map to this North Star through its G field. If G cannot identify an Outcome, Current Bet, Invariant, or Current Slice, the task is not ready for implementation.

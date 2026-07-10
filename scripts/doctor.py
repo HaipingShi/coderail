@@ -18,6 +18,7 @@ import contract_check  # noqa: E402
 import blueprint_check  # noqa: E402
 import inspect_state  # noqa: E402
 import tdd_check  # noqa: E402
+import drive_check  # noqa: E402
 
 REQUIRED = [
     "AGENTS.md",
@@ -204,6 +205,16 @@ def main(argv=None) -> int:
     blueprint_warn = blueprint["warnings"]
     blueprint_info = blueprint["info"]
 
+    drive = drive_check.evaluate(root)
+    drive_severe, drive_warn, drive_info = [], [], []
+    drive_summary = f"{drive['mode']} / {drive['decision']}: {drive['reason']}"
+    if drive["mode"] == "continuous" and drive["decision"] in {"BLOCKED_DECISION", "EXHAUSTED"}:
+        drive_severe.append(drive_summary)
+    elif drive["mode"] == "continuous" and drive["decision"] == "REVIEW_DIRECTION":
+        drive_warn.append(drive_summary)
+    else:
+        drive_info.append(drive_summary)
+
     ci_warn = []
     package = read_json(root / "package.json")
     scripts = package.get("scripts", {}) if isinstance(package.get("scripts", {}), dict) else {}
@@ -213,8 +224,8 @@ def main(argv=None) -> int:
     if workflows.exists() and not list(workflows.glob("*.yml")) and not list(workflows.glob("*.yaml")):
         ci_warn.append(".github/workflows exists but has no workflow files")
 
-    severe = contract_severe + coord_severe + tdd_severe + trace_severe + blueprint_severe
-    warnings = ns_warn + contract_warn + coord_warn + tdd_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn + blueprint_warn + ci_warn
+    severe = contract_severe + coord_severe + tdd_severe + trace_severe + blueprint_severe + drive_severe
+    warnings = ns_warn + contract_warn + coord_warn + tdd_warn + harness_warn + handoff_warn + asset_warn + trace_warn + inspect_warn + entry_warn + blueprint_warn + drive_warn + ci_warn
     if len(warnings) > 12:
         friction.append(f"done/doctor warning noise: {len(warnings)} warnings; classify current blockers separately from historical debt")
     if historical_debt and not (missing or severe):
@@ -250,6 +261,7 @@ def main(argv=None) -> int:
     section("Asset Boundary", [], asset_warn)
     section("Trace Graph", trace_severe, trace_warn, trace_info)
     section("Runtime State Inspect", [], inspect_warn)
+    section("Drive Loop", drive_severe, drive_warn, drive_info)
     section("Entry file", [], entry_warn)
 
     section("Blueprint Gate", blueprint_severe, blueprint_warn, blueprint_info)
@@ -314,6 +326,8 @@ def main(argv=None) -> int:
         fixes.append("/handoff — refresh Coordinate Summary")
     if blueprint_severe or blueprint_warn:
         fixes.append("/blueprint — update docs/BLUEPRINTS.md and required architecture diagrams")
+    if drive_severe or drive_warn:
+        fixes.append("/drive — follow the Drive Decision or repair the Drive Contract before continuing")
     if ci_warn:
         fixes.append("/ci-gate — add or run a repo-local CI script for non-decision checks")
     if friction:

@@ -54,6 +54,7 @@ def test_required_v06_files_exist():
         'references/DONE_GATE.md',
         'references/CLOSEOUT_GATE.md',
         'references/LOOP_ENGINEERING.md',
+        'references/DRIVE_LOOP.md',
         'scripts/coordinate_check.py',
         'scripts/trace_event.py',
         'scripts/trace_index.py',
@@ -65,6 +66,8 @@ def test_required_v06_files_exist():
         'scripts/closeout_check.py',
         'scripts/ci_gate.py',
         'scripts/regression_observe.py',
+        'scripts/drive_check.py',
+        'scripts/drive_observe.py',
         'scripts/blueprint_check.py',
         'scripts/hook_guard.py',
         'skills/trace/SKILL.md',
@@ -76,11 +79,13 @@ def test_required_v06_files_exist():
         'skills/closeout/SKILL.md',
         'skills/ci-gate/SKILL.md',
         'skills/blueprint/SKILL.md',
+        'skills/drive/SKILL.md',
         'project-template/docs/CONTRACTS.md',
         'project-template/docs/CODERAIL_STATUS.md',
         'project-template/docs/BLUEPRINTS.md',
         'docs/BLUEPRINTS.md',
         'docs/REGRESSION_OBSERVE.md',
+        'docs/DRIVE_LOOP_DESIGN.md',
         'examples/hooks.example.json',
         'examples/claude/settings.example.json',
     ]
@@ -288,10 +293,15 @@ def test_doctor_separates_historical_debt_from_current_blockers():
 def test_templates_include_rail_and_compact_handoff_policy():
     tasks = (ROOT/'project-template/docs/TASKS.md').read_text(encoding='utf-8')
     handoff = (ROOT/'project-template/docs/HANDOFF.md').read_text(encoding='utf-8')
+    north_star = (ROOT/'project-template/docs/NORTH_STAR.md').read_text(encoding='utf-8')
+    status = (ROOT/'project-template/docs/CODERAIL_STATUS.md').read_text(encoding='utf-8')
     check('Rail: full | light' in tasks, 'TASKS template should expose rail type')
+    check('Autonomy: allowed | human-gated' in tasks, 'TASKS template should expose autonomy')
     check('Compact summary policy' in tasks, 'TASKS template should include compact summary policy')
     check('Recovery Commands' in handoff, 'HANDOFF template should include recovery commands')
     check('Archived history' in handoff, 'HANDOFF template should move long history elsewhere')
+    check('## Drive Contract' in north_star, 'NORTH_STAR template should include Drive Contract')
+    check('## Drive Decision' in status, 'status template should include Drive Decision')
 
 
 def test_regression_observe_scaffold_keeps_artifacts_ignored():
@@ -373,6 +383,310 @@ def test_hook_guard_allows_explicit_governance_upgrade():
         sys.executable, str(ROOT/'scripts/hook_guard.py'), '--stage', 'pre-edit', '--target', str(ROOT)
     ], input=payload, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', env=env)
     check(result.returncode == 0, 'explicit governance upgrade should bypass hook guard')
+
+
+def write_drive_project(target: Path, tasks: str, trace_rows=None, mode='continuous'):
+    (target/'docs').mkdir(parents=True, exist_ok=True)
+    (target/'docs'/'NORTH_STAR.md').write_text(f'''# North Star
+
+## Outcome
+
+- ship the current slice
+
+## Current Slice
+
+- Milestone: M-001
+
+## Drive Contract
+
+- Mode: {mode}
+- Terminal condition: all autonomous tasks pass their terminal harness
+- Progress signal: completed acceptance items
+- Retry budget: 3
+- No-progress limit: 2
+- Human gates: schema, dependency, public API, security, privacy, payment, persistence
+''', encoding='utf-8')
+    (target/'docs'/'TASKS.md').write_text('# Tasks\n\n' + tasks, encoding='utf-8')
+    (target/'docs'/'HARNESS_SPEC.md').write_text('''# Harness Spec
+
+## Drive Progress Harness
+
+- Progress signal: completed acceptance items
+- Terminal evidence: all autonomous tasks passed
+''', encoding='utf-8')
+    rows = trace_rows or []
+    (target/'docs'/'TRACELOG.jsonl').write_text(
+        ''.join(json.dumps(row) + '\n' for row in rows), encoding='utf-8'
+    )
+
+
+def drive_task(task_id='T-001', status='[~]', autonomy='allowed', priority='P1', result='', depends='none'):
+    completion = f'\n### Completion\n\nTask result: {result}\n' if result else ''
+    return f'''## {task_id} Drive task
+
+Status: {status}
+Type: feature
+Rail: full
+Priority: {priority}
+Autonomy: {autonomy}
+
+### CodeRail Coordinate
+
+G — Goal:
+- North Star: NS-001
+
+T — Task:
+- Advance the slice
+
+S — Scope:
+- Allowed:
+  - src/**
+- Forbidden:
+  - schema/**
+
+V — Verify:
+- Harness:
+  - pytest
+
+X — Stop:
+- decision-grade change required
+
+P — Persist:
+- TASKS
+- TRACE
+
+### Task Contract
+
+Depends on:
+- {depends}
+
+Acceptance:
+- [ ] task evidence
+{completion}'''
+
+
+def run_drive(target: Path, *args):
+    result = subprocess.run([
+        sys.executable, str(ROOT/'scripts/drive_check.py'), '--target', str(target), '--json', *args
+    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+    check(result.returncode == 0, result.stdout + result.stderr)
+    return json.loads(result.stdout)
+
+
+def test_drive_check_continues_active_autonomous_task():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        report = run_drive(target)
+        check(report['decision'] == 'CONTINUE', report)
+        check(report['task'] == 'T-001', report)
+        check(report['next_action'], 'CONTINUE must name a next action')
+
+
+def test_drive_check_repairs_known_failure_with_budget():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        report = run_drive(target, '--harness-result', 'failed', '--retry-count', '1', '--failure-known')
+        check(report['decision'] == 'REPAIR', report)
+
+
+def test_drive_check_exhausts_retry_budget():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        report = run_drive(target, '--harness-result', 'failed', '--retry-count', '3', '--failure-known')
+        check(report['decision'] == 'EXHAUSTED', report)
+
+
+def test_drive_check_advances_to_ready_task_after_current_task_is_done():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        tasks = drive_task('T-001', '[x]', result='done') + '\n' + drive_task('T-002', '[ ]', priority='P1')
+        write_drive_project(target, tasks)
+        report = run_drive(target)
+        check(report['decision'] == 'ADVANCE', report)
+        check(report['task'] == 'T-002', report)
+
+
+def test_drive_check_keeps_stage_complete_task_active_until_done():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        tasks = drive_task('T-001', '[~]', result='stage-complete') + '\n' + drive_task('T-002', '[ ]', priority='P1')
+        write_drive_project(target, tasks)
+        report = run_drive(target)
+        check(report['decision'] == 'CONTINUE', report)
+        check(report['task'] == 'T-001', report)
+
+
+def test_drive_check_blocks_human_gated_task():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(autonomy='human-gated'))
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+
+
+def test_drive_check_requests_direction_review_after_repeated_reopen():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        trace = [
+            {'id': 'TR-1', 'type': 'task', 'task': 'T-001', 'status': 'reopened', 'summary': 'reopened once'},
+            {'id': 'TR-2', 'type': 'task', 'task': 'T-001', 'status': 'reopened', 'summary': 'reopened twice'},
+        ]
+        write_drive_project(target, drive_task(), trace)
+        report = run_drive(target)
+        check(report['decision'] == 'REVIEW_DIRECTION', report)
+
+
+def test_drive_check_completes_only_with_terminal_evidence():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'))
+        report = run_drive(target, '--terminal-evidence')
+        check(report['decision'] == 'COMPLETE', report)
+
+
+def test_drive_check_manual_mode_is_backward_compatible():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(), mode='manual')
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check(report['mode'] == 'manual', report)
+
+
+def test_drive_check_blocks_decision_grade_changed_files_before_repair():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        report = run_drive(
+            target, '--harness-result', 'failed', '--retry-count', '1', '--failure-known',
+            '--changed-files', 'prisma/schema.prisma'
+        )
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+
+
+def test_drive_check_blocks_changed_file_outside_active_scope():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        report = run_drive(target, '--changed-files', 'unrelated/file.py')
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check('outside' in report['reason'].lower(), report)
+
+
+def test_drive_check_reads_git_status_when_changed_files_omitted():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        subprocess.run(['git', 'init', '-q', str(target)], check=True)
+        subprocess.run(['git', '-C', str(target), 'add', 'docs'], check=True)
+        subprocess.run([
+            'git', '-C', str(target), '-c', 'user.name=CodeRail Test',
+            '-c', 'user.email=coderail@example.invalid', 'commit', '-qm', 'fixture'
+        ], check=True)
+        (target/'unrelated').mkdir()
+        (target/'unrelated'/'file.py').write_text('changed\n', encoding='utf-8')
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check('unrelated/file.py' in report['reason'], report)
+
+
+def test_drive_check_resets_retry_budget_after_passing_checkpoint():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        trace = [
+            {'type': 'verify', 'task': 'T-001', 'status': 'failed', 'harness_result': 'failed'},
+            {'type': 'task', 'task': 'T-001', 'status': 'retry'},
+            {'type': 'verify', 'task': 'T-001', 'status': 'failed', 'harness_result': 'failed'},
+            {'type': 'verify', 'task': 'T-001', 'status': 'complete', 'harness_result': 'passed'},
+        ]
+        write_drive_project(target, drive_task(), trace)
+        report = run_drive(target)
+        check(report['decision'] == 'CONTINUE', report)
+        check('retry 0/3' in report['evidence'], report)
+
+
+def test_drive_check_blocks_multiple_active_tasks():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        tasks = drive_task('T-001') + '\n' + drive_task('T-002')
+        write_drive_project(target, tasks)
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check('multiple active tasks' in report['reason'].lower(), report)
+
+
+def test_drive_check_requires_valid_selected_task_coordinate():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        malformed = '''## T-001 Malformed drive task
+
+Status: [~]
+Type: feature
+Rail: full
+Priority: P1
+Autonomy: allowed
+
+### Task Contract
+
+Depends on:
+- none
+'''
+        write_drive_project(target, malformed)
+        report = run_drive(target, '--changed-files', '')
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check('coordinate' in report['reason'].lower(), report)
+
+
+def test_drive_check_requires_configured_progress_harness():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        (target/'docs'/'HARNESS_SPEC.md').write_text('# Harness Spec\n\n## Global Checks\n', encoding='utf-8')
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check('progress harness' in report['reason'].lower(), report)
+
+
+def test_drive_check_does_not_advance_task_with_unmet_dependency():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task('T-002', '[ ]', depends='T-001'))
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check(report['task'] is None, report)
+
+
+def test_inspect_surfaces_drive_decision():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        (target/'docs'/'HANDOFF.md').write_text('# Handoff\n\nHandoff Level: H0\n\n## Coordinate Summary\n', encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/inspect_state.py'), '--target', str(target), '--no-write'
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout + result.stderr)
+        check('## Drive Decision' in result.stdout, result.stdout)
+        check('- Decision: CONTINUE' in result.stdout, result.stdout)
+
+
+def test_drive_observe_reports_forward_progress_and_safety_metrics():
+    with tempfile.TemporaryDirectory() as td:
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/drive_observe.py'), '--target', str(ROOT), '--run-dir', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout + result.stderr)
+        summary_path = Path(td)/'summary.json'
+        report_path = Path(td)/'report.md'
+        check(summary_path.exists(), 'drive observation summary missing')
+        check(report_path.exists(), 'drive observation report missing')
+        summary = json.loads(summary_path.read_text(encoding='utf-8'))
+        check(summary['scenario_agreement'] == 1.0, summary)
+        check(summary['unsafe_decision_crossings'] == 0, summary)
+        check(summary['baseline_unnecessary_stops'] > summary['drive_unnecessary_stops'], summary)
+        check('CodeRail Drive A/B Observation' in result.stdout, result.stdout)
 
 
 def run_all():
