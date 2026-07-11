@@ -5,7 +5,7 @@ description: Append trace events for meaningful actions.
 
 # trace
 
-Record source, target, files/assets, verification, persistence, and coordinate summary. Use scripts/trace_event.py, then scripts/trace_index.py.
+Record source, target, files/assets, verification, persistence, and coordinate summary. Use the finish command or `python .coderail/coderail.py trace-index`.
 
 ## Rules
 

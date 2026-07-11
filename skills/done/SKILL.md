@@ -12,7 +12,7 @@ Run the completion workflow. This skill wraps verification-before-complete and c
 1. Run TDD Gate when required.
 2. Run the task harness or record explicit manual acceptance.
 3. Inspect `git diff` and confirm changes stay inside S.
-4. Run `/coderail:done-gate` or `scripts/done_gate.py`.
+4. Run `/coderail:done-gate` or `python .coderail/coderail.py done`.
 5. Update `docs/TASKS.md` only after the gate passes.
 6. Write change and verify trace events.
 7. Regenerate `docs/TRACE_INDEX.md`.

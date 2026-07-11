@@ -11,7 +11,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage prompt --target ."
+            "command": "python .coderail/coderail.py hook --stage prompt"
           }
         ]
       }
@@ -22,7 +22,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage pre-edit --target ."
+            "command": "python .coderail/coderail.py hook --stage pre-edit"
           }
         ]
       }
@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python <path-to-coderail>/scripts/hook_guard.py --stage stop --target . --soft"
+            "command": "python .coderail/coderail.py hook --stage stop"
           }
         ]
       }

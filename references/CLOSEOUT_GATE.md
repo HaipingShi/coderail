@@ -68,7 +68,8 @@ Improve the implementation.
 Before stopping, classify the worktree and auto-commit safe task-scoped files
 when all conditions hold:
 
-1. the task result is `done` or `stage-complete`;
+1. the task result is `done` or `stage-complete`; for `blocked`, `failed`, or
+   `deferred`, the unified `finish` command may commit persistence files only;
 2. V/Done Gate requirements are satisfied when claiming `done`;
 3. no forbidden file changes are present;
 4. safe-to-stage files can be derived from S;
@@ -87,6 +88,10 @@ Classify:
 
 If unrelated, ignored, generated, or out-of-scope files are present, do not use
 broad staging. Stage only safe task-scoped files and leave unrelated work alone.
+CodeRail persistence files (`TASKS`, trace/index, inspect status, and handoff)
+may be included by the unified `finish` command even when implementation S is
+narrow; unrelated project files remain outside the commit.
+
 If no safe commit can be made, record `blocked`, `failed`, or `skipped` with the
 next executable step.
 

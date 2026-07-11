@@ -12,7 +12,7 @@ Use this skill when architecture, lifecycle, data, deployment, UI flow, or cross
 Run:
 
 ```bash
-python scripts/blueprint_check.py --target .
+python .coderail/coderail.py blueprint
 ```
 
 Then update `docs/BLUEPRINTS.md` or the linked diagrams when the gate reports missing, stale, planned, or invalid coverage.

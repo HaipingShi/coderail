@@ -22,7 +22,7 @@ Use this skill to show the current project state, not to write business code.
 Run:
 
 ```bash
-python3 scripts/inspect_state.py --target . --write
+python .coderail/coderail.py inspect --write
 ```
 
 or, if scripts are not available, manually produce the same sections:

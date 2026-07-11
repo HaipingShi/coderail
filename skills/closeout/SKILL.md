@@ -12,13 +12,13 @@ Use at the end of any substantial task, batch boundary, blocked state, or handof
 Run available CI/CD checks first:
 
 ```bash
-python3 scripts/ci_gate.py --target .
+python .coderail/coderail.py ci
 ```
 
 Run when available:
 
 ```bash
-python3 scripts/closeout_check.py --target . --task <TASK_ID> --task-result stage-complete --auto-commit
+python .coderail/coderail.py finish --task <TASK_ID> --task-result stage-complete
 ```
 
 Use `--task-result done` only after Done Gate has passed.

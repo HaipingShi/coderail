@@ -12,7 +12,7 @@ Use before closeout when a repository has tests, build scripts, CodeRail scripts
 Run:
 
 ```bash
-python3 scripts/ci_gate.py --target .
+python .coderail/coderail.py ci
 ```
 
 or:

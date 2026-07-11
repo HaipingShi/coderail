@@ -110,13 +110,19 @@ def prompt() -> int:
     return 0
 
 
-def stop(target: Path, soft: bool) -> int:
-    print("[CodeRail] Stop reminder: do not end substantial work without closeout state and auto-commit action.")
-    print("[CodeRail] Running Blueprint Gate...")
-    bp = run_script("blueprint_check.py", target)
-    print("[CodeRail] Running Doctor...")
-    dr = run_script("doctor.py", target)
-    status = 1 if bp or dr else 0
+def stop(target: Path, soft: bool, task: str | None, task_result: str) -> int:
+    print("[CodeRail] Enforcing the finish-task stop boundary.")
+    command = [
+        sys.executable,
+        str(Path(__file__).resolve().parent / "finish_task.py"),
+        "--target",
+        str(target),
+        "--task-result",
+        task_result,
+    ]
+    if task:
+        command.extend(["--task", task])
+    status = subprocess.run(command).returncode
     if status and soft:
         print("[CodeRail] Hook found issues, but soft mode will not block.")
         return 0
@@ -128,6 +134,12 @@ def main(argv=None) -> int:
     ap.add_argument("--stage", choices=["prompt", "pre-edit", "blueprint", "doctor", "stop"], required=True)
     ap.add_argument("--target", default=".")
     ap.add_argument("--soft", action="store_true", help="Report issues without blocking")
+    ap.add_argument("--task", help="Task id for the stop boundary")
+    ap.add_argument(
+        "--task-result",
+        choices=["done", "stage-complete", "blocked", "failed", "deferred"],
+        default="stage-complete",
+    )
     args = ap.parse_args(argv)
     target = Path(args.target).resolve()
 
@@ -140,7 +152,7 @@ def main(argv=None) -> int:
     if args.stage == "doctor":
         return run_script("doctor.py", target)
     if args.stage == "stop":
-        return stop(target, args.soft)
+        return stop(target, args.soft, args.task, args.task_result)
     return 2
 
 

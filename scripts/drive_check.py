@@ -211,7 +211,16 @@ def terminal_from_events(events: list[dict]) -> bool:
     return False
 
 
-def report(decision: str, mode: str, reason: str, next_action: str, task: str | None = None, evidence=None) -> dict:
+def report(
+    decision: str,
+    mode: str,
+    reason: str,
+    next_action: str,
+    task: str | None = None,
+    evidence=None,
+    recommended_task: str | None = None,
+    next_task_mode: str = "recommend",
+) -> dict:
     return {
         "mode": mode,
         "decision": decision,
@@ -220,6 +229,8 @@ def report(decision: str, mode: str, reason: str, next_action: str, task: str | 
         "reason": reason,
         "next_action": next_action,
         "evidence": evidence or [],
+        "recommended_task": recommended_task,
+        "next_task_mode": next_task_mode,
     }
 
 
@@ -233,6 +244,7 @@ def evaluate(
     terminal_evidence: bool = False,
     changed_files: list[str] | None = None,
     decision_signals: list[str] | None = None,
+    next_task_mode: str | None = None,
 ) -> dict:
     north_star = read(root / "docs" / "NORTH_STAR.md")
     contract = section(north_star, "Drive Contract")
@@ -241,6 +253,9 @@ def evaluate(
     progress_signal = field_value(contract, "Progress signal")
     retry_budget = int_value(field_value(contract, "Retry budget"), 3)
     no_progress_limit = int_value(field_value(contract, "No-progress limit"), 2)
+    configured_next_mode = (next_task_mode or field_value(contract, "Next-task mode") or "recommend").lower()
+    if configured_next_mode not in {"recommend", "activate"}:
+        configured_next_mode = "recommend"
     progress_harness = section(read(root / "docs" / "HARNESS_SPEC.md"), "Drive Progress Harness")
     harness_progress = field_value(progress_harness, "Progress signal")
     checkpoint_command = field_value(progress_harness, "Checkpoint command")
@@ -258,11 +273,18 @@ def evaluate(
     files = git_changed_files(root) if changed_files is None else changed_files
     signals = [value for value in (decision_signals or []) if value]
 
+    recommendation = ready[0] if ready else None
     if mode != "continuous":
+        next_action = (
+            f"Recommended next task: {recommendation['id']}. Activate it explicitly when ready."
+            if recommendation
+            else "Continue in manual mode; no dependency-ready autonomous task is available to recommend."
+        )
         return report(
-            "BLOCKED_DECISION", mode, "Drive Contract is not in continuous mode.",
-            "Continue in manual mode or explicitly authorize a continuous Drive Contract.",
+            "BLOCKED_DECISION", mode, "Drive Contract is not in continuous mode.", next_action,
             active_id,
+            recommended_task=recommendation["id"] if recommendation else None,
+            next_task_mode=configured_next_mode,
         )
     if not terminal_condition or not progress_signal:
         missing = "terminal condition" if not terminal_condition else "progress signal"
@@ -378,10 +400,12 @@ def evaluate(
         )
     if ready:
         chosen = ready[0]
+        verb = "Activate" if configured_next_mode == "activate" else "Recommend"
         return report(
             "ADVANCE", mode, f"{chosen['id']} is the highest-priority dependency-ready autonomous task.",
-            f"Activate {chosen['id']}, confirm its Coordinate, and run its first progress checkpoint.", chosen["id"],
+            f"{verb} {chosen['id']}; confirm its Coordinate and run its first progress checkpoint.", chosen["id"],
             [f"ready={chosen['id']}", f"priority={chosen['priority'].upper()}"],
+            recommended_task=chosen["id"], next_task_mode=configured_next_mode,
         )
     if terminal:
         return report(
@@ -408,6 +432,8 @@ def render_human(result: dict) -> str:
     lines.append(f"Decision: {result['decision']}")
     lines.append(f"May stop: {'yes' if result['may_stop'] else 'no'}")
     lines.append(f"Task: {result['task'] or 'none'}")
+    lines.append(f"Next-task mode: {result['next_task_mode']}")
+    lines.append(f"Recommended task: {result['recommended_task'] or 'none'}")
     lines.append("")
     lines.append("## Reason")
     lines.append("")
@@ -437,6 +463,7 @@ def main(argv=None) -> int:
         help="Comma-separated task delta; defaults to all current git changes",
     )
     parser.add_argument("--decision-signal", action="append", default=[])
+    parser.add_argument("--next-task-mode", choices=["recommend", "activate"])
     args = parser.parse_args(argv)
     root = Path(args.target).resolve()
     if not root.exists() or not (root / "docs" / "NORTH_STAR.md").exists():
@@ -451,6 +478,7 @@ def main(argv=None) -> int:
         terminal_evidence=args.terminal_evidence,
         changed_files=None if args.changed_files is None else split_files(args.changed_files),
         decision_signals=args.decision_signal,
+        next_task_mode=args.next_task_mode,
     )
     print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else render_human(result))
     return 0

@@ -13,7 +13,7 @@ Read `references/DRIVE_LOOP.md`, then read `AGENTS.md`, `docs/NORTH_STAR.md`,
 1. Work only on the active task or a dependency-ready task marked `Autonomy: allowed`.
 2. Stay inside G and S; Goal persistence does not grant new authority.
 3. Run the declared progress/task harness at each meaningful checkpoint.
-4. Run `python3 scripts/drive_check.py --target .` with fresh harness, retry,
+4. Run `python .coderail/coderail.py drive` with fresh harness, retry,
    no-progress, changed-file, and decision signals when applicable. The command
    reads current Git changes by default. In a pre-existing dirty multi-agent
    worktree, pass the exact task delta with `--changed-files`; never use that

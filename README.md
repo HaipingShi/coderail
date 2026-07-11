@@ -485,9 +485,9 @@ P — Persist
 
 Work only inside S. Stop if X triggers.
 Use TDD Gate for correctness-sensitive work.
-Before marking done, run verification, record trace evidence, run done_gate.py, and refresh inspect state.
-Before stopping after substantial work, run ci_gate.py where available, then closeout_check.py --auto-commit.
-If the task touches architecture, data, deployment, UI flow, or lifecycle state, run blueprint_check.py and keep required diagrams current.
+Before marking done, run verification, record trace evidence, and use `python .coderail/coderail.py finish --task <ID> --task-result done`.
+Before stopping after substantial work, run `python .coderail/coderail.py finish --task <ID> --task-result <result>`.
+If the task touches architecture, data, deployment, UI flow, or lifecycle state, run `python .coderail/coderail.py blueprint` and keep required diagrams current.
 ```
 
 ```text
@@ -508,9 +508,9 @@ P — Persist，需要同步的记录
 
 只在 S 范围内工作。触发 X 就停止。
 对正确性敏感任务使用 TDD Gate。
-标记完成前，先运行验证，记录 trace 证据，运行 done_gate.py，并刷新 inspect state。
-完成实质性工作后停止前，先运行可用 ci_gate.py，再运行 closeout_check.py --auto-commit。
-如果任务触及架构、数据、部署、用户流或生命周期状态，运行 blueprint_check.py，并保持必要图纸为 current。
+标记完成前，先运行验证，记录 trace 证据，并使用 `python .coderail/coderail.py finish --task <ID> --task-result done`。
+完成实质性工作后停止前，运行 `python .coderail/coderail.py finish --task <ID> --task-result <result>`。
+如果任务触及架构、数据、部署、用户流或生命周期状态，运行 `python .coderail/coderail.py blueprint`，并保持必要图纸为 current。
 ```
 
 ## 🕹️ Normal Session / 标准会话
@@ -557,7 +557,7 @@ python scripts/contract_check.py --target .
 python scripts/coordinate_check.py --target .
 python scripts/tdd_check.py --target .
 python scripts/blueprint_check.py --target .
-python scripts/hook_guard.py --stage stop --target . --soft
+python scripts/hook_guard.py --stage stop --target .
 python scripts/done_gate.py --target . --task T-001 --harness-result passed
 python scripts/ci_gate.py --target .
 python scripts/closeout_check.py --target . --task T-001 --task-result stage-complete --auto-commit
@@ -569,6 +569,22 @@ python scripts/drive_observe.py --target .
 python scripts/doctor.py --target .
 python scripts/regression_observe.py --target .
 ```
+
+After `init_project.py`, target repositories use the repo-local launcher below;
+they do not need a copy of CodeRail's `scripts/` directory:
+
+```bash
+python .coderail/coderail.py inspect
+python .coderail/coderail.py finish --task T-001 --task-result done
+python .coderail/coderail.py drive
+```
+
+The launcher resolves the configured CodeRail source from `.coderail/config.json`
+or the `CODERAIL_HOME` environment variable. `finish` is the single stop-boundary
+command: it runs verification, trace/index, done/CI checks, inspect, task-scoped
+closeout, and Drive recommendation/activation. `recommend` is the default
+next-task mode; set `Next-task mode: activate` in the Drive Contract only when
+automatic activation is authorized.
 
 With npm wrappers:
 

@@ -12,7 +12,7 @@ Use before implementation for correctness-sensitive tasks and before done for an
 Run:
 
 ```bash
-python3 scripts/tdd_check.py --target .
+python .coderail/coderail.py tdd
 ```
 
 ## Required evidence
@@ -30,4 +30,3 @@ python3 scripts/tdd_check.py --target .
 - Optional or waived for docs-only, scaffolding, release metadata, visual polish, and exploratory spikes.
 - Do not treat tests written after implementation as Red evidence unless the failure was reproduced before the fix.
 - If TDD is waived, record the reason in `V -- Verify`.
-

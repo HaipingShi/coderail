@@ -42,7 +42,21 @@ def git_status_entries(root: Path, include_ignored: bool = True) -> list[tuple[s
     return entries
 
 
-def classify(entries: list[tuple[str, str]], allowed: list[str], forbidden: list[str]) -> dict[str, list[str]]:
+STATE_FILES = {
+    "docs/TASKS.md",
+    "docs/TRACELOG.jsonl",
+    "docs/TRACE_INDEX.md",
+    "docs/CODERAIL_STATUS.md",
+    "docs/HANDOFF.md",
+}
+
+
+def classify(
+    entries: list[tuple[str, str]],
+    allowed: list[str],
+    forbidden: list[str],
+    include_state: bool = False,
+) -> dict[str, list[str]]:
     result = {
         "safe": [],
         "outside": [],
@@ -55,6 +69,8 @@ def classify(entries: list[tuple[str, str]], allowed: list[str], forbidden: list
             continue
         if forbidden and done_gate.matches_any(path, forbidden):
             result["forbidden"].append(path)
+        elif include_state and path in STATE_FILES:
+            result["safe"].append(path)
         elif allowed and not done_gate.matches_any(path, allowed):
             result["outside"].append(path)
         else:
@@ -127,7 +143,14 @@ def main(argv=None) -> int:
         help="Closeout result being prepared",
     )
     ap.add_argument("--no-ignored", action="store_true", help="Do not include ignored files in the auto-commit scan")
-    ap.add_argument("--auto-commit", action="store_true", help="Commit safe task-scoped files automatically when possible")
+    ap.add_argument(
+        "--auto-commit", action="store_true",
+        help="Commit safe task-scoped files automatically when possible",
+    )
+    ap.add_argument(
+        "--include-state", action="store_true",
+        help="Include CodeRail persistence files in the task-scoped commit",
+    )
     ap.add_argument("--commit-message", help="Commit message to use with --auto-commit")
     ap.add_argument("--commit-type", default="chore", help="Commit type for the default auto-commit message")
     args = ap.parse_args(argv)
@@ -155,7 +178,14 @@ def main(argv=None) -> int:
         severe.append(f"{task_id}: S allowed missing")
 
     entries = git_status_entries(root, include_ignored=not args.no_ignored)
-    files = classify(entries, allowed, forbidden)
+    files = classify(entries, allowed, forbidden, include_state=args.include_state)
+    if args.task_result not in {"done", "stage-complete"} and args.include_state:
+        # Preserve the blocked/failed evidence without committing an attempted
+        # implementation that has not reached a safe task boundary.
+        state_safe = [path for path in files["safe"] if path in STATE_FILES]
+        implementation_safe = [path for path in files["safe"] if path not in STATE_FILES]
+        files["safe"] = state_safe
+        files["outside"].extend(implementation_safe)
     if files["forbidden"]:
         severe.append(f"{task_id}: forbidden files are changed")
     if files["outside"]:
@@ -170,7 +200,13 @@ def main(argv=None) -> int:
 
     dirty = bool([item for item in entries if item[0] != "!!"])
     unsafe_add_all = bool(files["forbidden"] or files["outside"] or files["ignored"])
-    auto_commit_allowed = dirty and args.task_result in {"done", "stage-complete"} and bool(files["safe"]) and not files["forbidden"] and not severe
+    auto_commit_allowed = (
+        dirty
+        and bool(files["safe"])
+        and not files["forbidden"]
+        and not severe
+        and (args.task_result in {"done", "stage-complete"} or args.include_state)
+    )
     status_out = "blocked" if severe else ("warning" if warnings or unsafe_add_all else "ready")
     commit_message = args.commit_message or default_commit_message(task_id, args.task_result, args.commit_type)
     auto_action = "not requested"
@@ -195,6 +231,7 @@ def main(argv=None) -> int:
     print(f"Status: {status_out}")
     print(f"Task: {task_id}")
     print(f"Task result: {args.task_result}\n")
+    print(f"Include CodeRail state: {yes_no(args.include_state)}")
 
     print("## Severe")
     print("- none" if not severe else "\n".join(f"- {x}" for x in severe))
