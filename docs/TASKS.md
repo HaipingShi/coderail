@@ -11,7 +11,7 @@
 
 ## T-001 Self-bootstrap CodeRail execution boundary
 
-Status: [~]
+Status: [x]
 Type: feature
 Rail: full
 Priority: P1
@@ -79,12 +79,12 @@ Acceptance:
 
 ### Completion
 
-Task result: stage-complete
+Task result: done
 Done gate: warning
 Completed at:
 Commit:
 Harness result: passed
-Handoff level: H1
+Handoff level: H0
 Handoff updated: no
 Trace:
 Inspect status: refreshed
