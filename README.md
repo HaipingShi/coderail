@@ -318,6 +318,13 @@ Continuous Drive proceeds for `CONTINUE`, `REPAIR`, and `ADVANCE`. It returns
 control only for `REVIEW_DIRECTION`, `BLOCKED_DECISION`, `COMPLETE`, or
 `EXHAUSTED`. See `references/DRIVE_LOOP.md` for the Goal Bridge and full policy.
 
+Execution and recommendation are separate channels. An optional
+`Recommendation Contract` lets manual projects run a read-only North Star
+continuation audit after a slice closes. It may recommend reviewing a pending
+draft, proposing the next Coordinate Draft, requesting a human gate, or closing
+the mission when terminal evidence exists. It never activates a task or grants
+implementation authority; projects without the contract retain legacy behavior.
+
 ### Mature-repository cutover / 成熟仓库切入
 
 When adopting CodeRail after a repository already has closed task history, set

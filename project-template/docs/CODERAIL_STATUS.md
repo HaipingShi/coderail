@@ -53,6 +53,23 @@ P:
 - Reason: Drive Contract is not configured for continuous execution.
 - Next action: Complete the Drive Contract or continue in manual mode.
 
+## Execution Decision
+
+- Mode: manual
+- Decision: BLOCKED_DECISION
+- Task: none
+- Reason: Drive Contract is not configured for continuous execution.
+- Next action: Wait for implementation authority.
+
+## Recommendation Decision
+
+- Status: NO_RECOMMENDATION
+- Reason: Recommendation Contract is not configured.
+- Next action: Continue using explicit human direction.
+- Requires human approval for execution: yes
+- Evidence:
+  - none
+
 ## Handoff
 
 - Level:

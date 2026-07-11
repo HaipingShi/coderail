@@ -288,3 +288,22 @@ also remains in the current enforcement scope. A missing
 anchor fails closed. No configured cutoff preserves the pre-D5 all-task
 behavior. The cutoff changes classification only; it does not rewrite history,
 grant autonomy, or weaken post-cutover verification.
+
+## 14. D6 - Recommendation Autonomy
+
+D6 separates two decisions that previously collapsed into one early return:
+
+1. Execution Decision retains the existing Drive states and remains the sole
+   authority for activation or implementation.
+2. Recommendation Decision performs a deterministic, read-only North Star
+   continuation audit.
+
+An optional Recommendation Contract records mode, mission status, current-slice
+status, next candidate, and human gate. Manual Drive may produce
+`PROPOSE_COORDINATE`, `REVIEW_ACTIVE_DRAFT`, `REVIEW_DIRECTION`,
+`REQUEST_HUMAN_GATE`, or `MISSION_COMPLETE` without granting implementation
+authority. `MISSION_COMPLETE` requires terminal evidence. Missing fields fail
+closed, and missing contracts preserve legacy behavior as `NO_RECOMMENDATION`.
+
+Recommendation is derived state only. It does not write TASKS, activate a task,
+change the North Star, expand scope, or convert roadmap links into authority.

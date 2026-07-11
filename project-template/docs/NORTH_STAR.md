@@ -58,6 +58,19 @@ signal are explicit. Goal persistence never expands scope or permissions.
 `recommend` is the safe default; use `activate` only when the project explicitly
 authorizes automatic activation of the next dependency-ready autonomous task.
 
+## Recommendation Contract
+
+- Mode: manual | auto-draft
+- Mission Status: active | complete
+- Current Slice Status: active | complete
+- Next Candidate: <task id> | ID pending | none
+- Human Gate: implementation | coordinate-activation | none
+
+This optional contract enables a read-only continuation audit independently of
+execution authority. `auto-draft` may propose a Coordinate Draft, but it never
+activates a task, modifies project files, or grants implementation permission.
+Leave the section unconfigured in legacy projects to preserve existing manual behavior.
+
 ## Coordinate Rule
 
 Every active task must map to this North Star through its G field. If G cannot identify an Outcome, Current Bet, Invariant, or Current Slice, the task is not ready for implementation.

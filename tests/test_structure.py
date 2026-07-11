@@ -302,8 +302,11 @@ def test_templates_include_rail_and_compact_handoff_policy():
     check('Archived history' in handoff, 'HANDOFF template should move long history elsewhere')
     check('## Legacy Cutoff' in north_star, 'NORTH_STAR template should include legacy cutoff')
     check('## Drive Contract' in north_star, 'NORTH_STAR template should include Drive Contract')
+    check('## Recommendation Contract' in north_star, 'NORTH_STAR template should include Recommendation Contract')
     check('## Historical Verification Debt' in status, 'status template should separate historical verification debt')
     check('## Drive Decision' in status, 'status template should include Drive Decision')
+    check('## Execution Decision' in status, 'status template should name the execution channel')
+    check('## Recommendation Decision' in status, 'status template should name the recommendation channel')
 
 
 def test_regression_observe_scaffold_keeps_artifacts_ignored():
@@ -419,6 +422,40 @@ def write_drive_project(target: Path, tasks: str, trace_rows=None, mode='continu
     rows = trace_rows or []
     (target/'docs'/'TRACELOG.jsonl').write_text(
         ''.join(json.dumps(row) + '\n' for row in rows), encoding='utf-8'
+    )
+
+
+def add_recommendation_contract(
+    target: Path,
+    *,
+    mode='auto-draft',
+    mission='active',
+    current_slice='complete',
+    next_candidate='ID pending',
+    human_gate='implementation',
+):
+    path = target/'docs'/'NORTH_STAR.md'
+    text = path.read_text(encoding='utf-8')
+    text += f'''\n## Recommendation Contract
+
+- Mode: {mode}
+- Mission Status: {mission}
+- Current Slice Status: {current_slice}
+- Next Candidate: {next_candidate}
+- Human Gate: {human_gate}
+'''
+    path.write_text(text, encoding='utf-8')
+
+
+def write_contracts(target: Path, *statuses: str):
+    rows = []
+    for index, status in enumerate(statuses, 1):
+        rows.append(f'''## CD-{index:03d} Fixture draft
+
+Status: {status}
+''')
+    (target/'docs'/'CONTRACTS.md').write_text(
+        '# Coordinate Contract Drafts\n\n' + '\n'.join(rows), encoding='utf-8'
     )
 
 
@@ -566,6 +603,109 @@ def test_drive_check_manual_mode_is_backward_compatible():
         report = run_drive(target)
         check(report['decision'] == 'BLOCKED_DECISION', report)
         check(report['mode'] == 'manual', report)
+
+
+def test_manual_drive_can_propose_coordinate_without_execution_authority():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target)
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check(report['recommendation']['status'] == 'PROPOSE_COORDINATE', report)
+        check(report['recommendation']['requires_human_for_execution'] is True, report)
+
+
+def test_manual_drive_reviews_only_pending_contract_drafts():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target)
+        write_contracts(target, 'proposed')
+        report = run_drive(target)
+        check(report['recommendation']['status'] == 'REVIEW_ACTIVE_DRAFT', report)
+
+
+def test_accepted_and_terminal_contract_drafts_are_not_active():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target)
+        write_contracts(target, 'accepted-human-gated', 'accepted', 'completed', 'rejected', 'backlogged')
+        report = run_drive(target)
+        check(report['recommendation']['status'] == 'PROPOSE_COORDINATE', report)
+
+
+def test_mission_complete_requires_terminal_evidence_for_recommendation():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target, mission='complete', next_candidate='none')
+        without_evidence = run_drive(target)
+        check(without_evidence['recommendation']['status'] != 'MISSION_COMPLETE', without_evidence)
+        with_evidence = run_drive(target, '--terminal-evidence')
+        check(with_evidence['recommendation']['status'] == 'MISSION_COMPLETE', with_evidence)
+
+
+def test_mission_complete_terminal_evidence_wins_over_stale_pending_draft():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target, mission='complete', next_candidate='none')
+        write_contracts(target, 'proposed')
+        report = run_drive(target, '--terminal-evidence')
+        check(report['recommendation']['status'] == 'MISSION_COMPLETE', report)
+
+
+def test_mission_complete_does_not_override_open_task():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[~]', autonomy='human-gated'), mode='manual')
+        add_recommendation_contract(target, mission='complete', next_candidate='none')
+        report = run_drive(target, '--terminal-evidence')
+        check(report['recommendation']['status'] == 'REVIEW_DIRECTION', report)
+        check('open task' in report['recommendation']['reason'].lower(), report)
+
+
+def test_manual_recommendation_mode_does_not_auto_draft_coordinate():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target, mode='manual')
+        report = run_drive(target)
+        check(report['recommendation']['status'] == 'REVIEW_DIRECTION', report)
+
+
+def test_active_mission_without_next_candidate_requests_direction_review():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target, next_candidate='none')
+        report = run_drive(target)
+        check(report['recommendation']['status'] == 'REVIEW_DIRECTION', report)
+
+
+def test_human_gated_ready_task_is_recommended_but_not_advanced():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(
+            target, drive_task(status='[x]') + '\n' + drive_task('T-002', '[ ]', autonomy='human-gated'),
+            mode='manual',
+        )
+        add_recommendation_contract(target, current_slice='active', next_candidate='T-002')
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check(report['recommendation']['status'] == 'REQUEST_HUMAN_GATE', report)
+        check(report['recommendation']['requires_human_for_execution'] is True, report)
+
+
+def test_legacy_project_without_recommendation_contract_stays_non_autonomous():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        report = run_drive(target)
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check(report['recommendation']['status'] == 'NO_RECOMMENDATION', report)
 
 
 def test_drive_check_blocks_decision_grade_changed_files_before_repair():
@@ -817,6 +957,59 @@ def test_inspect_surfaces_drive_decision():
         check(result.returncode == 0, result.stdout + result.stderr)
         check('## Drive Decision' in result.stdout, result.stdout)
         check('- Decision: CONTINUE' in result.stdout, result.stdout)
+
+
+def test_inspect_separates_execution_and_recommendation_and_ignores_closed_drafts():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target)
+        write_contracts(target, 'accepted-human-gated', 'completed')
+        (target/'docs'/'HANDOFF.md').write_text(
+            '# Handoff\n\nHandoff Level: H0\n\n## Coordinate Summary\n', encoding='utf-8'
+        )
+        result = run_inspect(target)
+        check(result.returncode == 0, result.stdout + result.stderr)
+        check('## Execution Decision' in result.stdout, result.stdout)
+        check('## Recommendation Decision' in result.stdout, result.stdout)
+        check('- Status: PROPOSE_COORDINATE' in result.stdout, result.stdout)
+        check('active contract draft' not in result.stdout.lower(), result.stdout)
+
+
+def test_drift_check_validates_recommendation_contract_contradictions():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target, mission='complete', next_candidate='T-999')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/drift_check.py'), '--target', str(target)
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 1, result.stdout)
+        check('Mission complete requires Next Candidate: none' in result.stdout, result.stdout)
+
+
+def test_drift_check_requires_next_candidate_for_auto_draft_continuation():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target, next_candidate='')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/drift_check.py'), '--target', str(target)
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 1, result.stdout)
+        check('auto-draft continuation requires Next Candidate' in result.stdout, result.stdout)
+
+
+def test_drift_check_requires_active_task_for_active_slice():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        add_recommendation_contract(target, current_slice='active', next_candidate='T-002')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/drift_check.py'), '--target', str(target)
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 1, result.stdout)
+        check('Current Slice active requires a non-empty Active Task' in result.stdout, result.stdout)
 
 
 def test_drive_observe_reports_forward_progress_and_safety_metrics():

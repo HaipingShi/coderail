@@ -32,6 +32,28 @@ Autonomy: allowed
 Missing terminal or progress evidence makes continuous execution a
 `BLOCKED_DECISION`; Drive must not invent it.
 
+## Recommendation contract
+
+Execution authority and read-only planning are separate channels. Projects may
+optionally add this deterministic contract to `docs/NORTH_STAR.md`:
+
+```markdown
+## Recommendation Contract
+
+- Mode: auto-draft
+- Mission Status: active
+- Current Slice Status: complete
+- Next Candidate: ID pending
+- Human Gate: implementation
+```
+
+Manual Drive still blocks activation and implementation, but it does not block
+the continuation audit. Recommendation may review a pending draft, propose a
+new Coordinate Draft, request direction or a human gate, or recognize mission
+completion with terminal evidence. It never writes project state or treats a
+roadmap candidate as execution authority. Missing contracts preserve legacy
+behavior as `NO_RECOMMENDATION`.
+
 ## Decisions
 
 | Decision | Required agent behavior |
@@ -88,6 +110,10 @@ Machine-readable report:
 ```bash
 python3 scripts/drive_check.py --target . --json
 ```
+
+The JSON keeps the existing execution fields and adds a nested
+`recommendation` object with `status`, `reason`, `evidence`, `next_action`, and
+`requires_human_for_execution`.
 
 Runtime evidence may be supplied for one checkpoint:
 

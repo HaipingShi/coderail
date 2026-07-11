@@ -27,6 +27,8 @@ It deliberately avoids MCP runtime, web preview, graph database, or background e
 - Verification Gaps
 - Historical Verification Debt
 - Trace Gaps
+- Execution Decision
+- Recommendation Decision and evidence
 - Handoff State
 - Recommended Next Action
 - Auto Commit
@@ -38,6 +40,12 @@ It deliberately avoids MCP runtime, web preview, graph database, or background e
 
 Doctor is for installation and compliance gaps.
 Inspect is for daily continuation.
+
+Inspect keeps execution permission separate from recommendation autonomy. A
+manual or human-gated execution result may therefore coexist with a read-only
+continuation recommendation. Only pending draft statuses are described as
+active; accepted, completed, rejected, and backlogged drafts remain visible but
+do not block continuation audit.
 
 ## Legacy cutoff for mature repositories
 

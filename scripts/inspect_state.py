@@ -123,6 +123,7 @@ def render(root: Path) -> tuple[str, str]:
     tasks = task_statuses(root)
     enforcement_task, enforced_tasks, historical_tasks, cutoff_issue = legacy_cutoff(ns, tasks)
     drafts = draft_statuses(root)
+    active_drafts = [d for d in drafts if d["status"] in drive_check.ACTIVE_DRAFT_STATUSES]
     active = [t for t in tasks if t["status"] in {"[~]", "[ ]", "[!]"}]
     events = load_events(root)
     trace_severe, trace_warn = trace_doctor.check(events, docs / "TRACE_INDEX.md", docs / "TRACELOG.jsonl")
@@ -237,6 +238,30 @@ def render(root: Path) -> tuple[str, str]:
     lines.append(f"- Reason: {drive['reason']}")
     lines.append(f"- Next action: {drive['next_action']}")
     lines.append("")
+    lines.append("## Execution Decision")
+    lines.append("")
+    lines.append(f"- Mode: {drive['mode']}")
+    lines.append(f"- Decision: {drive['decision']}")
+    lines.append(f"- Task: {drive['task'] or 'none'}")
+    lines.append(f"- Reason: {drive['reason']}")
+    lines.append(f"- Next action: {drive['next_action']}")
+    lines.append("")
+    recommendation = drive["recommendation"]
+    lines.append("## Recommendation Decision")
+    lines.append("")
+    lines.append(f"- Status: {recommendation['status']}")
+    lines.append(f"- Reason: {recommendation['reason']}")
+    lines.append(f"- Next action: {recommendation['next_action']}")
+    lines.append(
+        "- Requires human approval for execution: "
+        + ("yes" if recommendation["requires_human_for_execution"] else "no")
+    )
+    lines.append("- Evidence:")
+    if recommendation["evidence"]:
+        lines.extend(f"  - {item}" for item in recommendation["evidence"])
+    else:
+        lines.append("  - none")
+    lines.append("")
     lines.append("## Handoff")
     lines.append("")
     lines.append(f"- Level: {handoff_level}")
@@ -246,11 +271,15 @@ def render(root: Path) -> tuple[str, str]:
     lines.append("")
     if verification_gaps:
         lines.append("- Run `/coderail:done-gate` and fix verification gaps before marking done.")
+    elif drive["mode"] == "continuous" and drive["decision"] in drive_check.NON_STOP_STATES:
+        lines.append(f"- Drive {drive['decision']}: {drive['next_action']}")
+    elif recommendation["status"] != "NO_RECOMMENDATION":
+        lines.append(f"- Recommendation {recommendation['status']}: {recommendation['next_action']}")
     elif drive["mode"] == "continuous":
         lines.append(f"- Drive {drive['decision']}: {drive['next_action']}")
     elif active:
         lines.append("- Continue the active task inside S and stop if X triggers.")
-    elif drafts:
+    elif active_drafts:
         lines.append("- Accept, revise, reject, or backlog the active contract draft before coding.")
     else:
         lines.append("- Run `/coderail:align` or `/coderail:contract-draft` for the next request.")

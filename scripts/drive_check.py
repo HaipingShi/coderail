@@ -18,12 +18,14 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import coordinate_check  # noqa: E402
+import contract_check  # noqa: E402
 import done_gate  # noqa: E402
 
 
 NON_STOP_STATES = {"CONTINUE", "REPAIR", "ADVANCE"}
 STOP_STATES = {"REVIEW_DIRECTION", "BLOCKED_DECISION", "COMPLETE", "EXHAUSTED"}
 PRIORITY = {"p1": 0, "p2": 1, "p3": 2}
+ACTIVE_DRAFT_STATUSES = {"proposed", "pending", "draft", "revision-requested"}
 DECISION_PATH_PATTERNS = [
     re.compile(r"(^|/)(package\.json|pyproject\.toml|requirements[^/]*\.txt)$", re.I),
     re.compile(r"(^|/)([^/]*lock[^/]*)$", re.I),
@@ -107,6 +109,125 @@ def parse_tasks(root: Path) -> list[dict]:
             }
         )
     return tasks
+
+
+def recommendation_report(
+    root: Path,
+    north_star: str,
+    tasks: list[dict],
+    *,
+    execution_mode: str,
+    terminal_evidence: bool,
+) -> dict:
+    contract = section(north_star, "Recommendation Contract")
+    if not contract:
+        return {
+            "status": "NO_RECOMMENDATION",
+            "reason": "No Recommendation Contract is configured; legacy execution behavior is preserved.",
+            "evidence": [],
+            "next_action": "Continue using explicit human direction or the existing Drive Contract.",
+            "requires_human_for_execution": execution_mode != "continuous",
+        }
+
+    mode = (field_value(contract, "Mode") or "manual").split("|")[0].strip().lower()
+    mission = field_value(contract, "Mission Status").lower()
+    current_slice = field_value(contract, "Current Slice Status").lower()
+    next_candidate = field_value(contract, "Next Candidate")
+    human_gate = field_value(contract, "Human Gate").lower()
+    evidence = [
+        f"Recommendation Mode: {mode or '(missing)'}",
+        f"Mission Status: {mission or '(missing)'}",
+        f"Current Slice Status: {current_slice or '(missing)'}",
+        f"Next Candidate: {next_candidate or '(missing)'}",
+    ]
+    requires_human = execution_mode != "continuous" or human_gate not in {"", "none"}
+    open_tasks = [task for task in tasks if task["status"] in {"[~]", "[!]", "[ ]", "[r]"}]
+
+    if mission == "complete":
+        if open_tasks:
+            task_ids = ", ".join(task["id"] for task in open_tasks)
+            return {
+                "status": "REVIEW_DIRECTION",
+                "reason": f"Mission Status conflicts with open task evidence: {task_ids}.",
+                "evidence": evidence + [f"open tasks={task_ids}"],
+                "next_action": "Resolve the open tasks or restore Mission Status to active before closing the mission.",
+                "requires_human_for_execution": True,
+            }
+        if terminal_evidence:
+            return {
+                "status": "MISSION_COMPLETE",
+                "reason": "Mission Status is complete and terminal evidence is present.",
+                "evidence": evidence + ["terminal evidence=present"],
+                "next_action": "Close the mission without proposing another Coordinate.",
+                "requires_human_for_execution": False,
+            }
+        return {
+            "status": "REVIEW_DIRECTION",
+            "reason": "Mission Status says complete, but terminal evidence is absent.",
+            "evidence": evidence + ["terminal evidence=absent"],
+            "next_action": "Provide terminal evidence or restore Mission Status to active.",
+            "requires_human_for_execution": True,
+        }
+
+    drafts = list(contract_check.split_drafts(read(root / "docs" / "CONTRACTS.md")))
+    active_draft = next((header for header, _body, status in drafts if status in ACTIVE_DRAFT_STATUSES), "")
+    if active_draft:
+        return {
+            "status": "REVIEW_ACTIVE_DRAFT",
+            "reason": f"{active_draft.split()[0]} is still a pending Coordinate Contract Draft.",
+            "evidence": evidence + [f"active draft={active_draft.split()[0]}"],
+            "next_action": "Accept, revise, reject, or backlog the pending draft; do not implement it automatically.",
+            "requires_human_for_execution": True,
+        }
+
+    gated = next(
+        (
+            task for task in tasks
+            if task["status"] in {"[~]", "[ ]", "[r]"} and task["autonomy"] != "allowed"
+        ),
+        None,
+    )
+    if gated:
+        return {
+            "status": "REQUEST_HUMAN_GATE",
+            "reason": f"{gated['id']} is identified as the next task but remains human-gated.",
+            "evidence": evidence + [f"task={gated['id']}", f"autonomy={gated['autonomy']}"],
+            "next_action": f"Request explicit execution authority for {gated['id']}; do not activate or implement it automatically.",
+            "requires_human_for_execution": True,
+        }
+
+    if mission == "active" and current_slice == "complete":
+        if next_candidate.strip().lower() in {"", "none"}:
+            return {
+                "status": "REVIEW_DIRECTION",
+                "reason": "The mission remains active, but no next candidate is identified.",
+                "evidence": evidence,
+                "next_action": "Review product direction and identify a candidate without claiming mission completion.",
+                "requires_human_for_execution": True,
+            }
+        if mode != "auto-draft":
+            return {
+                "status": "REVIEW_DIRECTION",
+                "reason": "The mission remains active, but Recommendation Mode does not allow automatic drafting.",
+                "evidence": evidence,
+                "next_action": "Review the next candidate manually; do not create or activate a Coordinate automatically.",
+                "requires_human_for_execution": True,
+            }
+        return {
+            "status": "PROPOSE_COORDINATE",
+            "reason": "The mission remains active after the current slice completed.",
+            "evidence": evidence,
+            "next_action": "Run align or contract-draft in proposal-only mode; do not activate or implement the candidate.",
+            "requires_human_for_execution": True,
+        }
+
+    return {
+        "status": "NO_RECOMMENDATION",
+        "reason": "The Recommendation Contract does not identify a deterministic continuation action.",
+        "evidence": evidence,
+        "next_action": "Continue the current authorized work or request direction.",
+        "requires_human_for_execution": requires_human,
+    }
 
 
 def ready_tasks(tasks: list[dict]) -> list[dict]:
@@ -211,7 +332,7 @@ def terminal_from_events(events: list[dict]) -> bool:
     return False
 
 
-def report(
+def _execution_report(
     decision: str,
     mode: str,
     reason: str,
@@ -273,17 +394,31 @@ def evaluate(
     files = git_changed_files(root) if changed_files is None else changed_files
     signals = [value for value in (decision_signals or []) if value]
 
-    recommendation = ready[0] if ready else None
+    ready_recommendation = ready[0] if ready else None
+    recommendation = recommendation_report(
+        root,
+        north_star,
+        tasks,
+        execution_mode=mode,
+        terminal_evidence=terminal,
+    )
+    base_report = _execution_report
+
+    def report(*args, **kwargs):
+        result = base_report(*args, **kwargs)
+        result["recommendation"] = recommendation
+        return result
+
     if mode != "continuous":
         next_action = (
-            f"Recommended next task: {recommendation['id']}. Activate it explicitly when ready."
-            if recommendation
+            f"Recommended next task: {ready_recommendation['id']}. Activate it explicitly when ready."
+            if ready_recommendation
             else "Continue in manual mode; no dependency-ready autonomous task is available to recommend."
         )
         return report(
             "BLOCKED_DECISION", mode, "Drive Contract is not in continuous mode.", next_action,
             active_id,
-            recommended_task=recommendation["id"] if recommendation else None,
+            recommended_task=ready_recommendation["id"] if ready_recommendation else None,
             next_task_mode=configured_next_mode,
         )
     if not terminal_condition or not progress_signal:
@@ -446,6 +581,16 @@ def render_human(result: dict) -> str:
     lines.append("## Evidence")
     lines.append("")
     lines.extend(f"- {item}" for item in result["evidence"]) if result["evidence"] else lines.append("- none")
+    recommendation = result["recommendation"]
+    lines.append("")
+    lines.append("## Recommendation Decision")
+    lines.append("")
+    lines.append(f"Status: {recommendation['status']}")
+    lines.append(f"Requires human approval for execution: {'yes' if recommendation['requires_human_for_execution'] else 'no'}")
+    lines.append(f"Reason: {recommendation['reason']}")
+    lines.append(f"Next action: {recommendation['next_action']}")
+    lines.append("Evidence:")
+    lines.extend(f"- {item}" for item in recommendation["evidence"]) if recommendation["evidence"] else lines.append("- none")
     return "\n".join(lines)
 
 

@@ -4,6 +4,8 @@
 
 Rail layering and friction reduction.
 
+- Separated Execution Decision from read-only Recommendation Decision so manual Drive can block implementation without suppressing North Star continuation audit.
+- Added the optional Recommendation Contract, nested JSON recommendation output, active-draft status filtering, Inspect dual-channel output, and contradiction checks in Drift Check.
 - Added Full Rail / Light Rail language for task type governance.
 - Made explicit `Rail: full | light` required for current task contracts and done checks, with `--rail-type` as an intentional override.
 - Let docs-only and design-only done checks use explicit manual acceptance without requiring fake engineering harness evidence.
