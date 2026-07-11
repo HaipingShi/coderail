@@ -80,8 +80,8 @@ Avoid git add .:
 ## Recovery Commands
 
 ```bash
-python scripts/inspect_state.py --target . --write
-python scripts/doctor.py --target .
+python .coderail/coderail.py inspect --write
+python .coderail/coderail.py doctor
 ```
 
 ## Resume Prompt

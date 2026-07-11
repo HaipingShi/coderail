@@ -46,6 +46,7 @@ debt without treating them as current blockers.
 ## Drive Contract
 
 - Mode: manual | continuous
+- Next-task mode: recommend
 - Terminal condition:
 - Progress signal:
 - Retry budget: 3
@@ -54,6 +55,8 @@ debt without treating them as current blockers.
 
 Continuous Drive is authorized only when the terminal condition and progress
 signal are explicit. Goal persistence never expands scope or permissions.
+`recommend` is the safe default; use `activate` only when the project explicitly
+authorizes automatic activation of the next dependency-ready autonomous task.
 
 ## Coordinate Rule
 

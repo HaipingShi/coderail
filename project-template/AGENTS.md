@@ -30,7 +30,7 @@ Every non-trivial task must explicitly declare `Rail: full` or `Rail: light` and
 - **X — Stop**: conditions that require stopping or escalating.
 - **P — Persist**: project assets to update after the action.
 
-If any field is missing, stop and run `/align`, `/contract-draft`, or `/task-contract`.
+If any field is missing, stop and run the matching CodeRail skill or repair `docs/TASKS.md` before coding.
 
 ## TDD Gate
 
@@ -44,7 +44,7 @@ Do not code from vague intent. Do not silently fold a side request into the curr
 
 ## Verification-before-complete
 
-Before marking done, run `/coderail:done-gate` or `scripts/done_gate.py`.
+Before marking done, run the CodeRail skill or `python .coderail/coderail.py done`.
 
 No done without the rail-appropriate evidence:
 
@@ -56,11 +56,11 @@ No done without the rail-appropriate evidence:
 
 ## Runtime State Inspect
 
-Use `/coderail:inspect` or `scripts/inspect_state.py` before resuming, before handoff, after task jumps, or when the project feels hard to understand. It writes `docs/CODERAIL_STATUS.md`.
+Use the CodeRail inspect skill or `python .coderail/coderail.py inspect` before resuming, before handoff, after task jumps, or when the project feels hard to understand. It writes `docs/CODERAIL_STATUS.md`.
 
 ## Blueprint Gate
 
-Use `docs/BLUEPRINTS.md` and `scripts/blueprint_check.py` when architecture, data, deployment, UI flow, or lifecycle complexity appears. Required diagrams must be current before high-complexity work is treated as done.
+Use `docs/BLUEPRINTS.md` and `python .coderail/coderail.py blueprint` when architecture, data, deployment, UI flow, or lifecycle complexity appears. Required diagrams must be current before high-complexity work is treated as done.
 
 ## K7 Trace Graph
 
@@ -113,7 +113,7 @@ Do not collapse L0-L3 requests into L5 patches before framing the judgment.
 
 ## Execution rhythm
 
-Plan finely. Execute authorized batches until done, stage-complete, blocked, failed, or drift is detected. Under a continuous Drive Contract, run `drive_check.py` at checkpoints. A stage-complete task stays active and continues toward acceptance; advance only after the current task leaves active state.
+Plan finely. Execute authorized batches until done, stage-complete, blocked, failed, or drift is detected. Under a continuous Drive Contract, run `python .coderail/coderail.py drive` at checkpoints. A stage-complete task stays active and continues toward acceptance; advance only after the current task leaves active state.
 
 Pause only for `BLOCKED_DECISION`, `REVIEW_DIRECTION`, `COMPLETE`, or `EXHAUSTED`: missing goal, forbidden scope, product/security/payment/privacy/API/schema/persistence changes, unclear repeated harness failure, or docs/code contradiction. Run non-decision gates yourself.
 
@@ -121,9 +121,7 @@ Pause only for `BLOCKED_DECISION`, `REVIEW_DIRECTION`, `COMPLETE`, or `EXHAUSTED
 
 Before any substantial final response or stop:
 
-1. State task result: done, stage-complete, blocked, failed, or deferred.
-2. Run TDD Gate when required, CI Gate when available, and done gate only when marking done.
-3. Inspect `git diff/status`; classify safe-to-stage, do-not-stage, ignored/generated.
-4. Auto-commit exact task-scoped files when possible; never use `git add .` when unsafe.
-5. Run Handoff Trigger Check: H0/H1/H2/H3; update HANDOFF only for H1/H2/H3.
-6. State one Next Executable Step: a command or the next task card.
+1. Run `python .coderail/coderail.py finish --task <ID> --task-result <result>`.
+2. Report its Closeout State, Auto Commit action, Handoff Trigger Check, recommendation, and Next Executable Step.
+3. Never use `git add .` when unsafe.
+4. In continuous mode, a non-terminal finish result forbids ending the response; follow its next action instead.

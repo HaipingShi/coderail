@@ -36,6 +36,7 @@ S — Scope:
   - .coderail/**
   - docs/**
   - examples/**
+  - project-template/**
   - references/CLOSEOUT_GATE.md
   - scripts/**
   - skills/**
