@@ -101,3 +101,92 @@ Auto commit: requested
 Notes:
 
 Drive decision: BLOCKED_DECISION
+
+## T-002 Doctor generated-marker compatibility
+
+Status: [x]
+Type: bug
+Rail: full
+Priority: P1
+Autonomy: allowed
+Owner: Codex
+Branch: main
+
+### CodeRail Coordinate
+
+G — Goal:
+- North Star: keep CodeRail executable and diagnosable across launcher migrations
+- Outcome served: remove the false Doctor warning before production-project sync
+
+T — Task:
+- Accept both `scripts/inspect_state.py` and `.coderail/coderail.py inspect` generated-status markers without weakening invalid-status detection.
+
+S — Scope:
+- Allowed:
+  - scripts/doctor.py
+  - tests/test_structure.py
+  - docs/NORTH_STAR.md
+  - docs/TASKS.md
+  - docs/CONTRACTS.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - docs/CODERAIL_STATUS.md
+  - docs/HANDOFF.md
+- Forbidden:
+  - package.json
+  - lockfiles
+  - project-template behavior changes outside marker compatibility
+  - /Users/geesh/projects/timeBuilderEngin/**
+
+V — Verify:
+- TDD mode: required
+- Red check: `AttributeError: module 'scripts.doctor' has no attribute 'is_generated_status'`
+- Green check: marker unit test passed for legacy, repo-local, and invalid text
+- Refactor check: marker compatibility is localized to `is_generated_status`
+- Regression check: `npm test` passed (63 tests)
+- CI check: `npm run ci` passed
+- Harness:
+  - python scripts/doctor.py --target project-template
+  - python scripts/drift_check.py --target project-template
+
+X — Stop:
+- Inspect output contract must change
+- unrelated failing harness has unclear root cause
+
+P — Persist:
+- TASKS
+- HANDOFF
+- TRACE
+- Inspect status
+- Closeout commit
+
+### Task Contract
+
+Depends on:
+- T-001
+
+Blocks:
+- downstream timeBuilderEngin CodeRail sync
+
+Acceptance:
+- [x] legacy generated marker remains accepted
+- [x] repo-local launcher generated marker is accepted
+- [x] unrelated status text still produces the Doctor warning
+- [x] source test and CI gates pass
+
+### Completion
+
+Task result: done
+Done gate: pending
+Completed at:
+Commit:
+Harness result: passed
+Handoff level: H0
+Handoff updated: no
+Trace:
+Inspect status: refreshed
+Resume anchor: docs/TASKS.md#T-002
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+Auto commit: requested
+
+Drive decision: BLOCKED_DECISION

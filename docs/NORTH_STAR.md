@@ -1,7 +1,7 @@
 # North Star
 
 Status: current
-Last reviewed: 2026-07-11
+Last reviewed: 2026-07-12
 Owner: CodeRail maintainers
 
 ## Outcome
@@ -20,9 +20,9 @@ Owner: CodeRail maintainers
 
 ## Current Slice
 
-- Milestone: M-008 Execution boundary hardening
-- Execution Batch: self-bootstrap and verify the unified finish flow
-- Active Task: T-001
+- Milestone: M-009 Compatibility and production sync hardening
+- Execution Batch: repair Doctor marker compatibility before downstream sync
+- Active Task: T-002
 
 ## Non-Goals
 
