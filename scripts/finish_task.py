@@ -168,6 +168,7 @@ def main(argv=None) -> int:
         failures += bool(run("Trace Index", "trace_index.py", root))
 
     done_rc = 0
+    task_marked_done = False  # FN-027: track the actual close, for honest reporting
     if args.task_result == "done":
         done_evidence = list(evidence_args)
         if not args.harness_result and verification:
@@ -183,6 +184,8 @@ def main(argv=None) -> int:
             if task_id and not set_task_status(root, task_id, "[x]"):
                 print(f"Could not mark {task_id} done in docs/TASKS.md", file=sys.stderr)
                 failures += 1
+            else:
+                task_marked_done = bool(task_id)
 
     # Drive is evaluated from the task state. Closeout remains the authority for
     # changed-file scope and performs the final task-scoped commit below.
@@ -225,7 +228,17 @@ def main(argv=None) -> int:
 
     print("\n" + drive_check.render_human(decision))
     print("\n# Finish Task Report\n")
-    print(f"Closeout state: {'blocked' if failures else args.task_result}")
+    # FN-027: the verdict must match what actually happened. If the task WAS
+    # closed (and possibly committed), never report it as simply "blocked" -
+    # that leads callers to "run done again", which can only produce
+    # "no active task" once the task is [x].
+    if failures and task_marked_done:
+        print(f"Closeout state: {args.task_result} (WITH ERRORS)")
+        print(f"NOTE: {task_id} WAS marked done in docs/TASKS.md and the commit")
+        print("step ran. Do NOT rerun done for this task. Investigate the failed")
+        print("check(s) above, then audit the ledger:  coderail progress")
+    else:
+        print(f"Closeout state: {'blocked' if failures else args.task_result}")
     print(f"May stop: {'yes' if decision['may_stop'] and not failures else 'no'}")
     print(f"Next task mode: {decision['next_task_mode']}")
     print(f"Activated task: {activated_task or 'none'}")
