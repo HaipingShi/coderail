@@ -70,4 +70,4 @@ v0.6 adds three runtime surfaces:
 2. Runtime State Inspect — inspectable status from repo-local files.
 3. Done Gate — verification-before-complete.
 
-v0.7 adds Blueprint Gate. v0.7.1 adds Closeout Gate for deterministic resume state. v0.7.2 makes safe task-scoped commits automatic and adds CI Gate. v0.7.3 adds TDD Gate. Drive Loop is the next execution-policy layer above this kernel.
+v0.7 adds Blueprint Gate. v0.7.1 adds Closeout Gate for deterministic resume state. v0.7.2 makes safe task-scoped commits automatic and adds CI Gate. v0.7.3 adds TDD Gate. v0.8.0 adds the Convergent Coding positioning, the single-entry coderail command (start/check/done/next), spin detection, the plain-language progress journal, and blueprint scaffolding. Drive Loop is the next execution-policy layer above this kernel.

@@ -1,19 +1,60 @@
 # Changelog
 
-## Unreleased
+## v0.8.0
 
-Rail layering and friction reduction.
+Convergent Coding.
+
+The release that gives CodeRail its formal positioning — **spec is the output, not the input** — and rebuilds the outward interface around three plain commands so vibe coders and agents need zero terminology.
+
+### Single entry point and plain-language interface
+
+- Added `scripts/coderail.py`: `start` (begin a task), `check` (am I on track?), `done` (finish safely), `next` (pick up the next queued task). The 21 legacy scripts remain as advanced internals.
+- `start` auto-generates the task coordinate and auto-infers the rail level; users never choose Full/Light Rail.
+- Rewrote root and template `AGENTS.md` in plain language; internal jargon (K-invariants, L-levels, G/T/S/V/X/P) removed from the outward interface.
+- Translated all 20 skill descriptions to natural language.
+- Condensed `README.md` from 649 to under 100 lines with a 60-second quickstart first.
+
+### Task chain: automatic handoff
+
+- `done` recommends the next queued task after a successful close; `coderail next --go` activates it (deterministic: first queued task in file order).
+- `check` shows queue state.
+
+### Spinning-in-place detection (second-order feedback)
+
+- Deterministic counters — failed `done` attempts, trace retries, file churn across recent commits, blocked tasks — trigger a plain-language `== Step back ==` notice in `check`/`done`.
+- Escalation ladder: action → design (3 failures) → intent (5 failures, quoting the North Star). Counter state lives in `.coderail/spin.json` (git-ignored).
+
+### Plain-language reporting
+
+- Added `docs/PROGRESS.md`: three short lines per finished task, newest first — the one file a non-technical owner reads.
+- After every successful `done`, a report scaffold forces the agent to answer three plain questions (what changed / how verified / what's next) with no jargon, no file paths, no tool names.
+
+### Blueprint gap detection and scaffolding
+
+- `check` and `done` surface missing/stale diagrams (4 layers, 11 classes) detected from real code signals (frontend, backend, schema, Dockerfile, CI config).
+- Added `coderail blueprint --scaffold`: creates Mermaid stubs under `docs/blueprints/` and updates `docs/BLUEPRINTS.md` index rows to `planned`.
+- Convergent rule codified: diagrams are ratified from what was built, never drawn ahead of the code.
+
+### Positioning
+
+- Added `references/CONVERGENT_CODING.md`: the explore → ratify → converge loop, what it borrows from SDD/TDD/DDD/cybernetics, and five testable design commitments (bilingual).
+- Template `AGENTS.md` anchors the principle for agents: never demand an upfront spec; never violate ratified constraints.
+
+### Rail layering and friction reduction (previously unreleased)
 
 - Separated Execution Decision from read-only Recommendation Decision so manual Drive can block implementation without suppressing North Star continuation audit.
 - Added the optional Recommendation Contract, nested JSON recommendation output, active-draft status filtering, Inspect dual-channel output, and contradiction checks in Drift Check.
-- Added Full Rail / Light Rail language for task type governance.
-- Made explicit `Rail: full | light` required for current task contracts and done checks, with `--rail-type` as an intentional override.
+- Added Full Rail / Light Rail language for task type governance, with explicit `Rail: full | light` required for current task contracts and done checks, and `--rail-type` as an intentional override.
 - Let docs-only and design-only done checks use explicit manual acceptance without requiring fake engineering harness evidence.
 - Classified old closed-task findings as historical debt in Doctor instead of current blockers.
 - Added governance friction signals for long HANDOFF, long TASKS, warning noise, and docs/design tasks over-constrained by Full Rail.
 - Slimmed HANDOFF and TASKS templates toward coordinate summary, recent slice, recovery commands, compact summaries, and trace back-links.
 - Added a regression observation harness whose reusable script/docs are committed while run artifacts stay under `.coderail-runs/`.
-- Verified with `npm test`, `npm run ci`, Doctor, Blueprint Gate, Coordinate Check, and Contract Check.
+
+### Verification
+
+- All 63 structure tests pass (`npm test`, `npm run ci`).
+- End-to-end tested in fresh repos: init → start → check → done auto-commit, `next --go` handoff, spin escalation at 3 and 5 failures, PROGRESS.md journaling, blueprint scaffold on a frontend + backend + SQL + Docker project.
 
 ## v0.7.3
 
