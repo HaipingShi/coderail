@@ -1,5 +1,47 @@
 # Changelog
 
+## Unreleased
+
+Trust hardening: closes the field-negative findings from the first real-world run (FN-001..FN-012). The theme: every promise the tool makes is now machine-checked, and every claim it reports is backed by evidence.
+
+### done actually verifies (FN-010)
+
+- `start --verify "cmd"` registers shell commands; `done` RUNS them and refuses to close the task on any non-zero exit, printing the failing command and output tail.
+- All verify commands passing auto-fills harness evidence; "Checked by" in PROGRESS.md now records real exit codes (`` `npm test` exit 0 ``) instead of boilerplate.
+- Closing without any machine check is allowed but permanently marked `UNVERIFIED` in the progress journal, with a warning at close time.
+
+### One task identity everywhere (FN-011)
+
+- `start --id T-186` (or a `T-186 ...` title prefix) binds the user's business id; `check`, `done`, PROGRESS.md, and the auto-commit message all show `T-00x (T-186)` consistently.
+
+### Acceptance ledger (FN-012)
+
+- `start --accept "item"` (repeatable) registers acceptance items; `done` refuses to close until each is explicitly marked `done` or `deferred` via `--accept-status`.
+- Deferred items are automatically registered as queued follow-up tasks and listed in the progress entry — silent scope-shrink is no longer possible.
+
+### TDD promise check (FN-009)
+
+- `start --tests "file"` registers promised test files; `done` warns loudly when a promised test file never appears in the diff, and records the warning in PROGRESS.md.
+
+### Install/upgrade single source of truth (FN-005, FN-002, FN-008)
+
+- The shim (`.coderail/coderail.py`) is now versioned; `init` refreshes an outdated shim automatically and NEVER overwrites `config.json` (machine-local state).
+- Shim errors now include actionable recovery: the `CODERAIL_HOME` override and the config path to fix.
+- `doctor` checks shim version against the CodeRail home version and verifies `coderail_home` reachability.
+
+### doctor checks concepts, not keywords (FN-007)
+
+- A managed marker (`<!-- coderail:gates ... -->`) written by init certifies gate coverage; without it, each gate concept passes if ANY synonym appears — plain-language AGENTS.md files no longer produce false warnings.
+
+### Blueprint truthfulness (FN-006, FN-008b)
+
+- `init` prefills `docs/BLUEPRINTS.md` from detected code signals instead of defaulting everything to `not-applicable` and contradicting doctor one command later.
+- `blueprint --scaffold` stubs now embed the project's detected layers and top-level directories, so agents replace placeholders with facts.
+
+### Spin detection noise (FN-003)
+
+- File churn now counts only pure modifications (`git log --name-status -M -C`); renames, copies, adds, and deletes no longer trigger false "never settles" warnings.
+
 ## v0.8.0
 
 Convergent Coding.
