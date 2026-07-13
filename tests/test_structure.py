@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -1140,6 +1141,131 @@ def test_done_output_is_summary_with_report_on_disk():
         body = reports[0].read_text(encoding='utf-8')
         check('deep-evidence-line' in body, 'verify output tail missing from report')
         check('Full gate output' in body, 'gate output missing from report')
+
+
+def test_done_with_warnings_still_writes_ledger():
+    # FN-023: a done that produces warnings (EOF newline + TDD heuristic)
+    # must STILL write the PROGRESS entry and the on-disk report.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        # File without trailing newline -> EOF warning in the gates.
+        (root/'src').mkdir(exist_ok=True)
+        (root/'src/parser.py').write_text('def parse(): pass', encoding='utf-8')  # no EOF newline
+        # Title with correctness-sensitive words + promised test never touched
+        # -> TDD warnings on done.
+        r = cr('start', 'Fix parser validation logic', '--verify', 'true',
+               '--tests', 'tests/test_parser.py')
+        check(r.returncode == 0, r.stdout)
+        r = cr('done')
+        check(r.returncode == 0, r.stdout)
+        check('WARNING' in r.stdout, f'expected TDD warning in output: {r.stdout}')
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        check('Fix parser validation logic' in progress,
+              f'PROGRESS entry missing despite warnings (FN-023): {progress}')
+        reports = list((root/'.coderail/reports').glob('done-*.md'))
+        check(len(reports) == 1, f'report missing despite warnings (FN-023): {reports}')
+
+
+def test_done_ledger_failure_is_loud_and_repairable():
+    # FN-023: if a ledger step fails, done must say so explicitly (not report
+    # success), and progress --repair must backfill the missing entry.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        cr('start', 'Ledger failure task', '--verify', 'true')
+        # Sabotage the journal: make docs/PROGRESS.md an unwritable directory.
+        (root/'docs/PROGRESS.md').mkdir()
+        r = cr('done')
+        check(r.returncode == 1, f'done must fail loudly on ledger error: {r.stdout}')
+        check('LEDGER ERROR' in r.stdout, f'no explicit ledger error: {r.stdout}')
+        check('progress --repair' in r.stdout, f'no repair remedy given: {r.stdout}')
+        # Repair: restore the path, then backfill.
+        (root/'docs/PROGRESS.md').rmdir()
+        r = cr('progress')
+        check(r.returncode == 1 and 'Ledger gap' in r.stdout, r.stdout)
+        r = cr('progress', '--repair')
+        check(r.returncode == 0, r.stdout)
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        check('Ledger failure task' in progress, f'repair did not backfill: {progress}')
+        check('retroactive entry' in progress, f'repair entry not marked honest: {progress}')
+        r = cr('progress')
+        check(r.returncode == 0 and 'complete' in r.stdout, r.stdout)
+
+
+def test_tdd_heuristic_respects_declared_type():
+    # FN-024: --type refactor silences the TDD hint from start to done;
+    # a feature-typed correctness-sensitive task without --tests keeps it.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Refactor the parser validation logic',
+               '--type', 'refactor', '--verify', 'true')
+        check(r.returncode == 0, r.stdout)
+        r = cr('done')
+        check(r.returncode == 0, r.stdout)
+        reports = list((root/'.coderail/reports').glob('done-*.md'))
+        body = reports[-1].read_text(encoding='utf-8')
+        check('likely needs TDD' not in body,
+              f'refactor task still got TDD hint (FN-024): {body}')
+        # Control: same wording, feature type, no --tests -> hint kept.
+        r = cr('start', 'Improve the parser validation logic',
+               '--type', 'feature', '--verify', 'true')
+        check(r.returncode == 0, r.stdout)
+        r = cr('done')
+        check(r.returncode == 0, r.stdout)
+        body = sorted((root/'.coderail/reports').glob('done-*.md'))[-1].read_text(encoding='utf-8')
+        check('likely needs TDD' in body,
+              f'feature task lost the TDD hint (FN-024 control): {body}')
+
+
+def test_files_globs_expand_and_accumulate():
+    # FN-021: --files is repeatable and supports globs mixed with plain paths.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        (root/'src/director').mkdir(parents=True)
+        for n in ['director_core.ts', 'director_utils.ts']:
+            (root/'src/director'/n).write_text('export {}\n', encoding='utf-8')
+        r = cr('start', 'Glob scope task',
+               '--files', 'src/director/director*.ts',
+               '--files', 'docs/NOTES.md,README.md',
+               '--verify', 'true')
+        check(r.returncode == 0, r.stdout)
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        for expect in ['src/director/director_core.ts', 'src/director/director_utils.ts',
+                       'docs/NOTES.md', 'README.md']:
+            check(f'- {expect}' in tasks, f'missing expanded file {expect}: {tasks[-800:]}')
+
+
+def test_shim_probes_candidate_homes():
+    # FN-022: config.local.json overrides config.json, and coderail_home may
+    # be a list of candidates probed in order.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        shim = root/'.coderail/coderail.py'
+        # Break the committed config; provide a working local override.
+        (root/'.coderail/config.json').write_text(
+            json.dumps({'coderail_home': ['/nonexistent/one', '/nonexistent/two']}),
+            encoding='utf-8')
+        env = {k: v for k, v in os.environ.items() if k != 'CODERAIL_HOME'}
+        r = subprocess.run([sys.executable, str(shim), 'check'],
+                           capture_output=True, text=True, cwd=td, env=env)
+        check(r.returncode == 2 and 'candidate' in (r.stderr or ''),
+              f'broken candidates should be listed: {r.stderr}')
+        (root/'.coderail/config.local.json').write_text(
+            json.dumps({'coderail_home': str(ROOT)}), encoding='utf-8')
+        r = subprocess.run([sys.executable, str(shim), 'check'],
+                           capture_output=True, text=True, cwd=td, env=env)
+        check(r.returncode == 0, f'local override not honoured: {r.stderr}\n{r.stdout}')
+
+
+def test_done_next_flag_sets_journal_next():
+    # FN-020: --next injects the real next step into the journal.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        cr('start', 'Next field task', '--verify', 'true')
+        r = cr('done', '--next', 'wire the harness to file-backed storage')
+        check(r.returncode == 0, r.stdout)
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        check('- Next: wire the harness to file-backed storage' in progress,
+              f'--next not honoured: {progress}')
 
 
 def run_all():
