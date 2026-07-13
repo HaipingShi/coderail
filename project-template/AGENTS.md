@@ -52,6 +52,28 @@ finished, fix what it points out — do not talk your way around it.
 If you finished part of the work but not all of it, use
 `done --result stage-complete` so the next session knows where to pick up.
 
+## After "done": report in plain language (non-negotiable)
+
+The user may not read code or technical docs. After every finished task,
+your closing message to them MUST answer exactly three questions, in the
+user's own language, in 3-6 sentences total:
+
+1. **What can you see or do now that you couldn't before?**
+2. **How do I know it works?** (what was actually checked, said plainly)
+3. **What's next — and do you need to decide anything?**
+
+Rules:
+- No file paths, no tool names, no framework jargon, no task IDs —
+  unless the user asks for them.
+- If a decision is needed, phrase it as a clear either/or question.
+  Never say "let me know how you'd like to proceed" without options.
+- Never paste raw command output or gate reports at the user.
+
+The `done` command also appends a three-line entry to `docs/PROGRESS.md`.
+That file is the project's plain-language journal — the ONE file a
+non-technical owner reads to stay oriented. Never let it rot: if you close
+work without `done`, add the entry yourself, newest first.
+
 ## When the tool says "Step back"
 
 `check` and `done` watch for signs that you are going in circles: the same

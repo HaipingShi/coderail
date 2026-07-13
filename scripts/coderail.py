@@ -149,6 +149,71 @@ def print_next_recommendation(root: Path) -> None:
             print("Task list is clear. Start your next task with:  coderail start \"...\"")
 
 
+# ------------------------------------------------- plain-language reporting
+#
+# Vibe coders lose judgment late in a project because every report is jargon
+# and every doc is unreadable. Two countermeasures:
+#   1. docs/PROGRESS.md - ONE file, newest first, three short lines per task.
+#      The only file a non-technical owner ever needs to read.
+#   2. A report scaffold printed after every `done`, forcing the agent to
+#      answer three plain questions before moving on.
+
+def task_field(text: str, task_id: str, field: str) -> str:
+    """Pull a one-line value (e.g. first Verify bullet) from a task block."""
+    block_m = re.search(
+        rf"^##\s+{re.escape(task_id)}\b((?:(?!^##\s).)*)", text, re.M | re.S
+    )
+    if not block_m:
+        return ""
+    block = block_m.group(1)
+    section = re.search(rf"^{field}[^\n]*\n((?:- [^\n]+\n?)+)", block, re.M)
+    if not section:
+        return ""
+    first = section.group(1).strip().splitlines()[0]
+    return first.lstrip("- ").strip()
+
+
+def append_progress(root: Path, task_id: str, title: str, verified: str, next_hint: str) -> None:
+    path = root / "docs" / "PROGRESS.md"
+    header = (
+        "# Progress - plain language, newest first\n\n"
+        "If you only read one file in this project, read this one.\n"
+        "Each entry: what got done, how it was checked, what comes next.\n"
+    )
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    entry = (
+        f"\n## {today} - {title} ({task_id})\n\n"
+        f"- Done: {title}\n"
+        f"- Checked by: {verified or 'see task record'}\n"
+        f"- Next: {next_hint}\n"
+    )
+    if path.exists():
+        text = path.read_text(encoding="utf-8")
+        # Insert newest entry right after the header (before older entries).
+        first_entry = text.find("\n## ")
+        if first_entry == -1:
+            text = text.rstrip() + "\n" + entry
+        else:
+            text = text[:first_entry] + entry + text[first_entry:]
+        path.write_text(text, encoding="utf-8")
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(header + entry, encoding="utf-8")
+
+
+def print_user_report_scaffold(task_id: str, title: str, verified: str) -> None:
+    print()
+    print("== Now tell the user, in their language, no jargon ==")
+    print(f"  1. What can they see or do now that they couldn't before?")
+    print(f"     (task was: {title})")
+    print(f"  2. How do you know it works?")
+    print(f"     (evidence: {verified or 'state it plainly'})")
+    print(f"  3. What do you suggest next, and is any decision needed from them?")
+    print("  Rules: 3-6 sentences total. No file paths, no tool names,")
+    print("  no framework talk unless the user asks. If they must decide")
+    print("  something, make it a clear either/or question.")
+
+
 # ------------------------------------------------- spinning-in-place detection
 #
 # Second-order feedback (Wiener): when first-order feedback (edit -> verify)
@@ -448,7 +513,8 @@ def cmd_done(args) -> int:
     if args.no_commit:
         extra += ["--no-auto-commit"]
 
-    task_before = args.task or active_task_id(read_tasks(root))
+    tasks_text_before = read_tasks(root)
+    task_before = args.task or active_task_id(tasks_text_before)
 
     rc, _ = run_script("finish_task.py", root, extra)
 
@@ -457,7 +523,23 @@ def cmd_done(args) -> int:
         if task_before:
             bump_spin_state(root, task_before, reset=True)
         print("Task closed. Docs updated, checks passed, safe files committed.")
+
+        title = verified = ""
+        if task_before:
+            tasks = list_tasks(tasks_text_before)
+            title = next((t["title"] for t in tasks if t["id"] == task_before), "")
+            verified = (
+                args.manual_acceptance
+                or task_field(tasks_text_before, task_before, "V")
+            )
+            todo = next_todo_task(read_tasks(root))
+            next_hint = f"{todo['id']} {todo['title']}" if todo else "decide with the user"
+            append_progress(root, task_before, title or task_before, verified, next_hint)
+            print("Progress journal updated: docs/PROGRESS.md")
+
         print_next_recommendation(root)
+        if task_before:
+            print_user_report_scaffold(task_before, title or task_before, verified)
     elif rc == 3:
         print("This project runs in continuous mode: keep going with the next step above.")
     else:
