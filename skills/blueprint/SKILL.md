@@ -5,17 +5,24 @@ description: Keep simple architecture/data/flow diagrams up to date when the pro
 
 # Blueprint Gate
 
-Use this skill when architecture, lifecycle, data, deployment, UI flow, or cross-layer complexity appears.
+Use this skill when architecture, lifecycle, data, deployment, UI flow, or cross-layer complexity appears — or when `check`/`done` prints a `== Blueprints ==` notice.
 
 ## Action
 
-Run:
+Check coverage (the tool detects which diagrams THIS codebase needs from real code signals):
 
 ```bash
 python .coderail/coderail.py blueprint
 ```
 
-Then update `docs/BLUEPRINTS.md` or the linked diagrams when the gate reports missing, stale, planned, or invalid coverage.
+Fill the gaps automatically — creates Mermaid stubs under `docs/blueprints/` and marks index rows `planned`:
+
+```bash
+python .coderail/coderail.py blueprint --scaffold        # required + stale gaps
+python .coderail/coderail.py blueprint --scaffold --all  # also recommended
+```
+
+Then replace each stub's placeholder shapes with the project's real structure and set its row in `docs/BLUEPRINTS.md` to `current`.
 
 ## Diagram Classes
 
