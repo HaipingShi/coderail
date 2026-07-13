@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.8.4
 
 Close-before-report ordering fix: closes the fourth round of field findings (FN-027/FN-028) and corrects the root-cause analysis of FN-023. The theme: the closeout ledger runs from a snapshot taken before anything mutates, and every verdict printed matches what actually happened on disk.
 
