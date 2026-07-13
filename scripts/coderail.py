@@ -171,9 +171,12 @@ def task_meta(root: Path, task_id: str) -> dict:
 
 
 def fmt_id(task_id: str, meta: dict | None = None) -> str:
-    """One id policy everywhere: internal id, with the business id alongside."""
+    """One id policy everywhere: the user's business id leads (it is what
+    humans remember and grep for); the internal id follows (FN-014)."""
     display = (meta or {}).get("display_id")
-    return f"{task_id} ({display})" if display and display != task_id else task_id
+    if display and display != task_id:
+        return f"{display} (internal {task_id})"
+    return task_id
 
 
 def run_verify_commands(root: Path, commands: list[str]) -> list[dict]:
@@ -262,7 +265,8 @@ def task_field(text: str, task_id: str, field: str) -> str:
 def append_progress(root: Path, task_id: str, title: str, verified: str, next_hint: str,
                     evidence: list[str] | None = None,
                     deferred: list[str] | None = None,
-                    warnings: list[str] | None = None) -> None:
+                    warnings: list[str] | None = None,
+                    accepted: list[tuple[str, str]] | None = None) -> None:
     path = root / "docs" / "PROGRESS.md"
     header = (
         "# Progress - plain language, newest first\n\n"
@@ -278,6 +282,8 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
     )
     for line in evidence or []:
         entry += f"- Evidence: {line}\n"
+    for item, status in accepted or []:
+        entry += f"- Acceptance [{status}]: {item}\n"
     for item in deferred or []:
         entry += f"- Deferred: {item} (registered as a follow-up task)\n"
     for w in warnings or []:
@@ -298,15 +304,42 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
 
 def print_user_report_scaffold(task_id: str, title: str, verified: str) -> None:
     print()
-    print("== Now tell the user, in their language, no jargon ==")
-    print(f"  1. What can they see or do now that they couldn't before?")
-    print(f"     (task was: {title})")
-    print(f"  2. How do you know it works?")
-    print(f"     (evidence: {verified or 'state it plainly'})")
-    print(f"  3. What do you suggest next, and is any decision needed from them?")
-    print("  Rules: 3-6 sentences total. No file paths, no tool names,")
-    print("  no framework talk unless the user asks. If they must decide")
-    print("  something, make it a clear either/or question.")
+    print("== Now tell the user (their language, no jargon, 3-6 sentences) ==")
+    print(f"  1. what they can do now  2. how you know it works ({verified or 'state plainly'})")
+    print("  3. what next / any decision - phrase decisions as clear either/or.")
+
+
+def write_done_report(root: Path, shown: str, title: str,
+                      verify_results: list[dict],
+                      accepted_pairs: list[tuple[str, str]],
+                      tdd_warnings: list[str],
+                      gate_output: str) -> str:
+    """FN-018: persist the full evidence trail (incl. verify output tails)
+    so the console can stay quiet without losing anything."""
+    reports = root / ".coderail" / "reports"
+    reports.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    safe_id = re.sub(r"[^A-Za-z0-9_-]", "_", shown)
+    path = reports / f"done-{stamp}-{safe_id}.md"
+    lines = [f"# Done report - {shown} - {title}", ""]
+    if verify_results:
+        lines.append("## Verify commands")
+        for r in verify_results:
+            lines += [f"### `{r['cmd']}` (exit {r['exit']})", "", "```",
+                      r.get("tail", "").rstrip(), "```", ""]
+    else:
+        lines += ["## Verify commands", "", "None registered - task closed unverified.", ""]
+    if accepted_pairs:
+        lines.append("## Acceptance")
+        for item, status in accepted_pairs:
+            lines.append(f"- [{status}] {item}")
+        lines.append("")
+    if tdd_warnings:
+        lines.append("## Warnings")
+        lines += [f"- {w}" for w in tdd_warnings] + [""]
+    lines += ["## Full gate output", "", "```", gate_output.rstrip(), "```", ""]
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return str(path.relative_to(root))
 
 
 # ------------------------------------------------- blueprint coverage
@@ -839,18 +872,38 @@ def cmd_done(args) -> int:
             return 1
 
     # ---- FN-012: acceptance items must each be marked done or deferred.
+    # Two input forms (FN-016 improvement): positional "done,deferred,done"
+    # or unambiguous numbered "1=done" "2=deferred" (repeatable, any order).
     accept_items = meta.get("accept", [])
     accept_statuses: list[str] = []
     deferred_items: list[str] = []
     if accept_items:
-        raw = (args.accept_status or "").strip()
-        statuses = [s.strip().lower() for s in raw.split(",") if s.strip()]
-        if len(statuses) != len(accept_items) or any(s not in ("done", "deferred") for s in statuses):
+        raw_parts: list[str] = []
+        for chunk in (args.accept_status or []):
+            raw_parts += [p.strip() for p in chunk.split(",") if p.strip()]
+        statuses: list[str] | None = None
+        if raw_parts and all("=" in p for p in raw_parts):
+            by_index: dict[int, str] = {}
+            for p in raw_parts:
+                idx_s, _, val = p.partition("=")
+                try:
+                    by_index[int(idx_s.strip())] = val.strip().lower()
+                except ValueError:
+                    by_index = {}
+                    break
+            if len(by_index) == len(accept_items) and set(by_index) == set(range(1, len(accept_items) + 1)):
+                statuses = [by_index[i] for i in range(1, len(accept_items) + 1)]
+        elif raw_parts and not any("=" in p for p in raw_parts):
+            statuses = [p.lower() for p in raw_parts]
+
+        if (statuses is None or len(statuses) != len(accept_items)
+                or any(s not in ("done", "deferred") for s in statuses)):
             print(f"Cannot close {shown}: this task registered {len(accept_items)} acceptance item(s).")
-            print("State each one explicitly with --accept-status (comma list of done|deferred):")
+            print("State each one explicitly, either positionally or by number:")
             for i, item in enumerate(accept_items, 1):
                 print(f"  {i}. {item}")
-            print(f'Example:  coderail done --accept-status "done,deferred,done"')
+            print('Positional:  coderail done --accept-status "done,deferred,done"')
+            print('By number:   coderail done --accept-status "1=done" --accept-status "2=deferred"')
             return 1
         accept_statuses = statuses
         deferred_items = [item for item, s in zip(accept_items, statuses) if s == "deferred"]
@@ -870,8 +923,10 @@ def cmd_done(args) -> int:
             print(f"WARNING: {w}")
 
     extra = []
-    if args.task:
-        extra += ["--task", args.task]
+    # FN-017-1: ALWAYS pass the resolved task explicitly, so the gate chain
+    # and the reporting chain are guaranteed to close the SAME task.
+    if task_before:
+        extra += ["--task", task_before]
     extra += ["--task-result", args.result]
     harness = args.harness_result
     if not harness and verify_results:
@@ -884,37 +939,57 @@ def cmd_done(args) -> int:
         extra += ["--no-auto-commit"]
     if meta.get("display_id"):
         extra += ["--commit-message",
-                  f"chore({task_before}/{meta['display_id']}): "
+                  f"chore({meta['display_id']}/{task_before}): "
                   + ("complete task" if args.result == "done" else f"{args.result} checkpoint")]
 
-    rc, _ = run_script("finish_task.py", root, extra)
+    # FN-018: capture the full gate output instead of dumping 100+ lines.
+    rc, gate_output = run_script("finish_task.py", root, extra, capture=True)
+    if args.verbose:
+        print(gate_output)
+        if rc == 0 and "Status: blocked" in gate_output:
+            print("NOTE: the inspect section above says 'blocked' for a project-level")
+            print("      reason (e.g. empty North Star) - unrelated to this task closure,")
+            print("      which PASSED.")
 
     print()
     if rc == 0:
         if task_before:
             bump_spin_state(root, task_before, reset=True)
-        print("Task closed. Docs updated, checks passed, safe files committed.")
 
         title = verified = ""
+        report_path = None
         if task_before:
-            tasks = list_tasks(tasks_text_before)
-            title = next((t["title"] for t in tasks if t["id"] == task_before), "")
+            # FN-017-1: trust the file, not our assumption - the closed task is
+            # the one whose status actually flipped away from [~].
+            before_by_id = {t["id"]: t for t in list_tasks(tasks_text_before)}
+            after_by_id = {t["id"]: t for t in list_tasks(read_tasks(root))}
+            flipped = [
+                tid for tid, t in after_by_id.items()
+                if before_by_id.get(tid, {}).get("status") == "[~]" and t["status"] != "[~]"
+            ]
+            closed_id = task_before
+            if flipped and task_before not in flipped:
+                closed_id = flipped[0]
+                print(f"NOTE: the gate closed {closed_id}, not {task_before}; reporting on {closed_id}.")
+                meta = task_meta(root, closed_id)
+                shown = fmt_id(closed_id, meta)
+            title = before_by_id.get(closed_id, {}).get("title", "")
 
-            # FN-010: "Checked by" must be true evidence, never boilerplate.
+            # FN-017-2: "Checked by" is true evidence, never boilerplate.
             evidence_lines: list[str] = []
             if verify_results:
                 verified = "; ".join(f"`{r['cmd']}` exit {r['exit']}" for r in verify_results)
                 evidence_lines = [f"`{r['cmd']}` -> exit {r['exit']}" for r in verify_results]
             elif args.manual_acceptance:
-                verified = args.manual_acceptance
+                verified = f"manual check: {args.manual_acceptance}"
             else:
-                v_field = task_field(tasks_text_before, task_before, "V")
-                if v_field and v_field != BOILERPLATE_VERIFY:
-                    verified = f"UNVERIFIED - stated check was: {v_field}"
-                else:
-                    verified = "UNVERIFIED - no machine check was run"
-                print("WARNING: closing without machine verification. Register commands")
-                print('         next time with:  coderail start "..." --verify "your test cmd"')
+                verified = "unverified - no verify commands registered"
+
+            accepted_pairs = list(zip(accept_items, accept_statuses)) if accept_statuses else []
+            report_path = write_done_report(
+                root, shown, title, verify_results, accepted_pairs,
+                tdd_warnings, gate_output,
+            )
 
             todo = next_todo_task(read_tasks(root))
             next_hint = f"{todo['id']} {todo['title']}" if todo else "decide with the user"
@@ -923,33 +998,56 @@ def cmd_done(args) -> int:
                 evidence=evidence_lines,
                 deferred=deferred_items,
                 warnings=tdd_warnings,
+                accepted=accepted_pairs,
             )
-            print("Progress journal updated: docs/PROGRESS.md")
 
-            # FN-012: deferred acceptance items become queued follow-up tasks.
-            if deferred_items:
-                text_now = read_tasks(root)
-                blocks = ""
-                for item in deferred_items:
-                    new_id = next_task_id(text_now + blocks)
-                    blocks += (
-                        f"\n## {new_id} {item}\n\nStatus: [ ]\nType: feature\nRail: full\n\n"
-                        f"### CodeRail Coordinate\n\nG — Goal\n- Deferred from {shown}: {item}\n\n"
-                        f"T — Task\n- {item}\n\nS — Scope\nAllowed:\n  - to be decided while working\n"
-                        f"Forbidden:\n  - none\n\nV — Verify\n- {BOILERPLATE_VERIFY}\n\n"
-                        f"X — Stop\n- Stop and ask if changes are needed outside the allowed files.\n\n"
-                        f"P — Persist\n- TASKS, TRACE\n"
-                    )
-                tasks_path(root).write_text(text_now.rstrip() + "\n" + blocks, encoding="utf-8")
-                print(f"Deferred items registered as queued tasks: {len(deferred_items)}")
+            # FN-018: <= 15 lines, unambiguous verdict first.
+            print(f"== Done: {shown} - {title or '(untitled)'} ==")
+            if verify_results:
+                ok = sum(1 for r in verify_results if r["exit"] == 0)
+                print(f"  verify:      {ok}/{len(verify_results)} command(s) passed")
+            else:
+                print("  verify:      none registered - closed as unverified")
+            if accepted_pairs:
+                n_done = sum(1 for _, s in accepted_pairs if s == "done")
+                n_def = len(accepted_pairs) - n_done
+                print(f"  acceptance:  {n_done} done, {n_def} deferred")
+            print(f"  warnings:    {len(tdd_warnings)}")
+            print(f"  committed:   {'no (--no-commit)' if args.no_commit else 'yes (safe task files)'}")
+            print(f"  journal:     docs/PROGRESS.md updated")
+            if report_path:
+                print(f"  full report: {report_path}")
+        else:
+            print("Task closed. Docs updated, checks passed, safe files committed.")
+
+        # FN-012: deferred acceptance items become queued follow-up tasks.
+        if deferred_items:
+            text_now = read_tasks(root)
+            blocks = ""
+            for item in deferred_items:
+                new_id = next_task_id(text_now + blocks)
+                blocks += (
+                    f"\n## {new_id} {item}\n\nStatus: [ ]\nType: feature\nRail: full\n\n"
+                    f"### CodeRail Coordinate\n\nG — Goal\n- Deferred from {shown}: {item}\n\n"
+                    f"T — Task\n- {item}\n\nS — Scope\nAllowed:\n  - to be decided while working\n"
+                    f"Forbidden:\n  - none\n\nV — Verify\n- {BOILERPLATE_VERIFY}\n\n"
+                    f"X — Stop\n- Stop and ask if changes are needed outside the allowed files.\n\n"
+                    f"P — Persist\n- TASKS, TRACE\n"
+                )
+            tasks_path(root).write_text(text_now.rstrip() + "\n" + blocks, encoding="utf-8")
+            print(f"  deferred:    {len(deferred_items)} item(s) registered as queued tasks")
 
         print_blueprint_notice(root)
         print_next_recommendation(root)
         if task_before:
             print_user_report_scaffold(shown, title or shown, verified)
     elif rc == 3:
+        if not args.verbose:
+            print(gate_output)
         print("This project runs in continuous mode: keep going with the next step above.")
     else:
+        if not args.verbose:
+            print(gate_output)  # on failure, details ARE the point
         if task_before:
             bump_spin_state(root, task_before)
         print("Not finished yet - one or more checks did not pass (details above).")
@@ -1038,8 +1136,11 @@ def build_parser() -> argparse.ArgumentParser:
                         help="How the task ended (default: done)")
     p_done.add_argument("--harness-result", choices=["passed", "failed", "manual", "skipped"])
     p_done.add_argument("--manual-acceptance", help="One sentence: how you manually confirmed it works")
-    p_done.add_argument("--accept-status",
-                        help="Comma list of done|deferred, one per acceptance item, in order")
+    p_done.add_argument("--accept-status", action="append",
+                        help='Per acceptance item: "done,deferred,..." (positional) '
+                             'or "1=done" "2=deferred" (numbered, repeatable)')
+    p_done.add_argument("--verbose", action="store_true",
+                        help="Print the full gate reports (always saved to .coderail/reports/)")
     p_done.add_argument("--no-commit", action="store_true", help="Do not auto-commit")
     p_done.add_argument("--target", default=".")
 

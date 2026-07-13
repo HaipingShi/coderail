@@ -233,6 +233,14 @@ def main(argv=None) -> int:
         if shim_ver is None:
             entry_warn.append(
                 ".coderail/coderail.py is an old unversioned shim; re-run init to update it")
+        elif shim_ver == "0.0.0-dev":
+            # FN-015 blind spot: a hand-copied shim keeps the placeholder. It
+            # still works (falls back to reading VERSION from the home), so
+            # this is guidance, not a false mismatch alarm.
+            entry_warn.append(
+                ".coderail/coderail.py was copied by hand (placeholder version); it works, "
+                "but run init once to stamp the real version: "
+                "python <coderail-home>/scripts/init_project.py --target .")
         elif home_ver and shim_ver != home_ver:
             entry_warn.append(
                 f".coderail/coderail.py shim is v{shim_ver} but CodeRail home is v{home_ver}; "
