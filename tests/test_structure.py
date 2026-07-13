@@ -1268,6 +1268,83 @@ def test_done_next_flag_sets_journal_next():
               f'--next not honoured: {progress}')
 
 
+def test_done_produces_all_four_artifacts_end_to_end():
+    # FN-027: the real done flow (no mocks) must leave all four artifacts at
+    # once - PROGRESS entry, on-disk report, TASKS closed, commit made - and
+    # the captured Done Gate Report must not be blocked. Two consecutive
+    # tasks, per the field acceptance criteria.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        for n, (biz, title) in enumerate([('T-201', 'First artifact task'),
+                                          ('T-202', 'Second artifact task')], 1):
+            r = cr('start', f'{biz} {title}', '--verify', 'true')
+            check(r.returncode == 0, r.stdout)
+            r = cr('done', '--next', f'next step after {biz}')
+            check(r.returncode == 0, r.stdout)
+            progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+            check(title in progress, f'(1/4) PROGRESS missing {biz}: {progress}')
+            check(f'next step after {biz}' in progress, f'--next lost for {biz}: {progress}')
+            reports = list((root/'.coderail/reports').glob('done-*.md'))
+            check(len(reports) == n, f'(2/4) report count {len(reports)} != {n}')
+            body = sorted(reports)[-1].read_text(encoding='utf-8')
+            check('Status: blocked' not in body,
+                  f'(FN-027b) Done Gate blocked inside a passing close: {body}')
+            tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+            check(tasks.count('Status: [x]') == n, f'(3/4) TASKS close count != {n}: {tasks}')
+            log = subprocess.run(['git', 'log', '--oneline'], cwd=td,
+                                 capture_output=True, text=True).stdout
+            check(f'chore({biz}/' in log, f'(4/4) commit missing for {biz}: {log}')
+            check(not (root/'.coderail/pending_close.json').exists(),
+                  'snapshot must be cleared after a fully-ledgered close')
+        r = cr('progress')
+        check(r.returncode == 0 and 'complete' in r.stdout,
+              f'built-in audit disagrees with artifacts: {r.stdout}')
+
+
+def test_snapshot_survives_ledger_failure_and_repair_restores_params():
+    # FN-028: a close whose ledger step fails must keep the snapshot on disk,
+    # and progress --repair must restore the REAL --next text and per-item
+    # acceptance verdicts from it - not default copy.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Snapshot recovery task', '--verify', 'true',
+               '--accept', 'first criterion', '--accept', 'second criterion')
+        check(r.returncode == 0, r.stdout)
+        (root/'docs/PROGRESS.md').unlink(missing_ok=True)
+        (root/'docs/PROGRESS.md').mkdir()  # sabotage: journal unwritable
+        r = cr('done', '--next', 'switch harness to real compiler output',
+               '--accept-status', '1=done', '--accept-status', '2=deferred')
+        check(r.returncode == 1 and 'LEDGER ERROR' in r.stdout, r.stdout)
+        check((root/'.coderail/pending_close.json').exists(),
+              'snapshot must survive a failed ledger (FN-028)')
+        (root/'docs/PROGRESS.md').rmdir()
+        r = cr('progress', '--repair')
+        check(r.returncode == 0, r.stdout)
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        check('- Next: switch harness to real compiler output' in progress,
+              f'real --next text not restored (FN-028): {progress}')
+        check('[done]' in progress and 'first criterion' in progress,
+              f'acceptance verdicts not restored: {progress}')
+        check('[deferred]' in progress and 'second criterion' in progress,
+              f'deferred verdict not restored: {progress}')
+        check(not (root/'.coderail/pending_close.json').exists(),
+              'snapshot must be consumed by repair')
+
+
+def test_failed_done_on_open_task_still_says_rerun():
+    # FN-027: "run done again" is only printed when the task is genuinely
+    # still open (here: verify fails, task stays [~]).
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        cr('start', 'Failing verify task', '--verify', 'false')
+        r = cr('done')
+        check(r.returncode == 1, r.stdout)
+        check('coderail done' in r.stdout and 'again' in r.stdout,
+              f'open-task failure should still suggest rerun: {r.stdout}')
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Status: [~]' in tasks, 'task must remain open after failed verify')
+
+
 def run_all():
     tests = [v for k, v in globals().items() if k.startswith('test_')]
     for t in tests:

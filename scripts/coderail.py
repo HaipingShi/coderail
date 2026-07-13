@@ -13,6 +13,7 @@ these three commands. Advanced commands remain available for power users.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -862,6 +863,34 @@ def cmd_check(args) -> int:
 BOILERPLATE_VERIFY = "Manually confirm the result works as intended."
 
 
+# FN-027/FN-028: everything the closeout ledger needs is snapshotted BEFORE
+# any state-mutating step runs, and persisted to disk so a crash or a
+# mid-flow "task not found" can never lose it. progress --repair reads it.
+
+def pending_close_path(root: Path) -> Path:
+    return root / ".coderail" / "pending_close.json"
+
+
+def write_pending_close(root: Path, snapshot: dict) -> None:
+    path = pending_close_path(root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def load_pending_close(root: Path) -> dict:
+    try:
+        return json.loads(pending_close_path(root).read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError, OSError):
+        return {}
+
+
+def clear_pending_close(root: Path) -> None:
+    try:
+        pending_close_path(root).unlink()
+    except (FileNotFoundError, OSError):
+        pass
+
+
 def cmd_done(args) -> int:
     root = Path(args.target).resolve()
 
@@ -943,6 +972,29 @@ def cmd_done(args) -> int:
         for w in tdd_warnings:
             print(f"WARNING: {w}")
 
+    # FN-027/FN-028: snapshot the full closeout context to disk BEFORE the
+    # gate runs. From here on, no ledger step may depend on "the current
+    # active task" - the task will stop being active mid-flow by design.
+    snapshot_title = ""
+    if task_before:
+        for t in list_tasks(tasks_text_before):
+            if t["id"] == task_before:
+                snapshot_title = t["title"]
+                break
+        write_pending_close(root, {
+            "task": task_before,
+            "display_id": meta.get("display_id", ""),
+            "title": snapshot_title,
+            "next_hint": (args.next_hint or "").strip(),
+            "accept_items": accept_items,
+            "accept_statuses": accept_statuses,
+            "manual_acceptance": args.manual_acceptance or "",
+            "verify_results": [
+                {"cmd": r["cmd"], "exit": r["exit"]} for r in verify_results
+            ],
+            "stamp": datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S"),
+        })
+
     extra = []
     # FN-017-1: ALWAYS pass the resolved task explicitly, so the gate chain
     # and the reporting chain are guaranteed to close the SAME task.
@@ -973,7 +1025,24 @@ def cmd_done(args) -> int:
             print("      which PASSED.")
 
     print()
-    if rc in (0, 3):
+    # FN-027: decide by FACTS, not by the gate's return code alone. The field
+    # run proved rc can be 1 while the task WAS closed and committed - and the
+    # old rc-only branch then skipped the entire ledger and told the user to
+    # "run done again" (which can only yield "no active task").
+    after_by_id_fact = {t["id"]: t for t in list_tasks(read_tasks(root))}
+    task_closed_fact = bool(
+        task_before
+        and after_by_id_fact.get(task_before, {}).get("status") == "[x]"
+        and {t["id"]: t for t in list_tasks(tasks_text_before)}.get(
+            task_before, {}).get("status") != "[x]"
+    )
+    if rc in (0, 3) or task_closed_fact:
+        if rc not in (0, 3):
+            print(f"GATE INCONSISTENCY: the gate reported failure (rc={rc}) but")
+            print(f"{shown} WAS closed in docs/TASKS.md. Trusting the file: writing")
+            print("the ledger now. Do NOT rerun done. Gate output is in the report;")
+            print("investigate it, but the close itself stands.")
+            print()
         # FN-023: rc==3 (continuous mode) is ALSO a successful close - the
         # gate closed the task and committed. The ledger steps below must run
         # for every successful close, and each is individually guarded so a
@@ -1077,6 +1146,15 @@ def cmd_done(args) -> int:
             except Exception as e:  # noqa: BLE001
                 ledger_errors.append(f"deferred task queueing (docs/TASKS.md): {e}")
 
+        # FN-027 fuse: audit the ledger with the same logic as
+        # `coderail progress` before declaring victory. If the entry we just
+        # claimed to write is not actually on disk, that is a hard error.
+        if task_before and not ledger_errors:
+            gap_ids = {g[0] for g in ledger_gaps(root)}
+            if task_before in gap_ids or closed_id in gap_ids:
+                ledger_errors.append(
+                    "post-close audit: the PROGRESS entry claimed above is NOT on disk")
+
         if ledger_errors:
             print()
             print("LEDGER ERROR: the task WAS closed and committed, but these")
@@ -1084,7 +1162,11 @@ def cmd_done(args) -> int:
             for e in ledger_errors:
                 print(f"  - {e}")
             print("Repair with:  coderail progress --repair")
+            print("(the closeout snapshot is kept in .coderail/pending_close.json)")
             return 1
+
+        # Ledger complete: the snapshot has served its purpose.
+        clear_pending_close(root)
 
         print_blueprint_notice(root)
         print_next_recommendation(root)
@@ -1093,13 +1175,25 @@ def cmd_done(args) -> int:
         if rc == 3:
             print("This project runs in continuous mode: keep going with the next task.")
             return 3
+        return 0
     else:
         if not args.verbose:
             print(gate_output)  # on failure, details ARE the point
         if task_before:
             bump_spin_state(root, task_before)
+        # FN-027: only tell the user to rerun done if the task is genuinely
+        # still open - "run done again" on a closed task can only produce
+        # "no active task" and is actively misleading.
+        still_open = bool(
+            task_before
+            and after_by_id_fact.get(task_before, {}).get("status") in ("[~]", "[ ]")
+        )
         print("Not finished yet - one or more checks did not pass (details above).")
-        print("Fix what it points out, then run:  coderail done   again.")
+        if still_open or not task_before:
+            print("Fix what it points out, then run:  coderail done   again.")
+        else:
+            print(f"NOTE: {shown} is no longer open in docs/TASKS.md. Do NOT rerun")
+            print("done. Audit the ledger instead:  coderail progress --repair")
         text = read_tasks(root)
         print_spin_report(root, active_task_id(text), list_tasks(text))
     return rc
@@ -1107,11 +1201,10 @@ def cmd_done(args) -> int:
 
 # ---------------------------------------------------------------- progress
 
-def cmd_progress(args) -> int:
-    """FN-023: audit the ledger - every closed task must have a PROGRESS
-    entry. --repair writes honest retroactive entries for any that are missing
-    (e.g. closes that predate the transactional fix)."""
-    root = Path(args.target).resolve()
+def ledger_gaps(root: Path) -> list[tuple[str, str, dict]]:
+    """Every closed task must have a PROGRESS.md entry. Returns the ones that
+    do not, as (task_id, title, meta). Shared by `coderail progress` and the
+    post-close audit fuse inside `done` (FN-027)."""
     progress_file = root / "docs" / "PROGRESS.md"
     progress_text = progress_file.read_text(encoding="utf-8") if progress_file.exists() else ""
 
@@ -1126,6 +1219,15 @@ def cmd_progress(args) -> int:
                 or (display and f"({display}" in progress_text):
             continue
         missing.append((tid, t["title"], m))
+    return missing
+
+
+def cmd_progress(args) -> int:
+    """FN-023: audit the ledger - every closed task must have a PROGRESS
+    entry. --repair writes honest retroactive entries for any that are missing
+    (e.g. closes that predate the transactional fix)."""
+    root = Path(args.target).resolve()
+    missing = ledger_gaps(root)
 
     if not missing:
         print("Ledger is complete: every closed task has a PROGRESS.md entry.")
@@ -1138,14 +1240,28 @@ def cmd_progress(args) -> int:
         print("Write retroactive entries with:  coderail progress --repair")
         return 1
 
+    # FN-028: if the interrupted close left its snapshot behind, restore the
+    # REAL --next text, acceptance verdicts, and verify evidence from it
+    # instead of falling back to default copy.
+    pending = load_pending_close(root)
+
     for tid, title, m in missing:
         shown = fmt_id(tid, m)
+        snap = pending if pending.get("task") == tid else {}
         # Point at the on-disk done report if one survived the original close.
         reports = sorted((root / ".coderail" / "reports").glob("done-*.md")) \
             if (root / ".coderail" / "reports").is_dir() else []
         safe = re.sub(r"[^A-Za-z0-9_-]", "_", shown)
         matching = [p for p in reports if safe in p.name or tid in p.name]
-        if m.get("verify"):
+
+        if snap.get("verify_results"):
+            checked = ("retroactive entry - verify results recovered from the "
+                       "closeout snapshot: "
+                       + "; ".join(f"`{r['cmd']}` exit {r['exit']}"
+                                   for r in snap["verify_results"]))
+        elif snap.get("manual_acceptance"):
+            checked = f"retroactive entry - manual check: {snap['manual_acceptance']}"
+        elif m.get("verify"):
             checked = ("retroactive entry - verify commands were registered ("
                        + "; ".join(f"`{c}`" for c in m["verify"])
                        + "); original console evidence was lost to a ledger bug")
@@ -1153,10 +1269,18 @@ def cmd_progress(args) -> int:
             checked = "retroactive entry - no verify commands were registered"
         if matching:
             checked += f"; surviving report: {matching[-1].relative_to(root)}"
-        append_progress(root, shown, title, checked,
-                        "decide with the user",
+
+        next_hint = snap.get("next_hint") or "decide with the user"
+        accepted = list(zip(snap.get("accept_items", []),
+                            snap.get("accept_statuses", []))) \
+            if snap.get("accept_statuses") else []
+        append_progress(root, shown, title, checked, next_hint,
+                        accepted=accepted,
                         warnings=["this entry was written by progress --repair, "
                                   "after the close itself skipped the journal"])
+        if snap:
+            clear_pending_close(root)
+            pending = {}
         print(f"  repaired: {shown}")
     print("Ledger repaired. Review docs/PROGRESS.md and commit it.")
     return 0

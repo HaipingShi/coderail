@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.8.4
+
+Close-before-report ordering fix: closes the fourth round of field findings (FN-027/FN-028) and corrects the root-cause analysis of FN-023. The theme: the closeout ledger runs from a snapshot taken before anything mutates, and every verdict printed matches what actually happened on disk.
+
+### Root cause correction (FN-027, supersedes the FN-023 analysis)
+
+- The v0.8.2 FN-023 fix targeted the wrong branch: it assumed warning paths skipped the ledger, but the fourth field run (T-191, zero warnings) proved the real defect is ordering - `done` decided success purely by the gate's return code, and the gate can return failure AFTER the task was already closed and committed (its late stages query "the current active task", which by then no longer exists). The old rc-only branch then skipped the whole ledger and printed a misleading "run done again".
+- `done` now decides by facts, not return codes: after the gate runs, it checks whether the task actually flipped to `[x]` in TASKS.md. A closed-and-committed task gets its full ledger (journal entry, on-disk report, deferred queueing) even when the gate reports failure, with an explicit `GATE INCONSISTENCY` note instead of silence.
+- The "run done again" hint is only printed when the task is genuinely still open; a failure on an already-closed task points to `coderail progress --repair` instead.
+- `finish_task`'s Finish Task Report matches reality: when checks fail after the task was marked done and committed, it reports `done (WITH ERRORS)` with an explicit do-not-rerun note, never a bare "blocked".
+- Built-in fuse: `done` ends by running the same audit as `coderail progress` and hard-fails with `LEDGER ERROR` if the journal entry it just claimed to write is not actually on disk.
+
+### Closeout snapshot (FN-028)
+
+- Before any state-mutating step, `done` persists the full closeout context to `.coderail/pending_close.json` (gitignored): task id, display id, title, `--next` text, acceptance items and verdicts, manual-acceptance note, verify results. No ledger step depends on "the current active task" any more.
+- The snapshot is deleted only after the ledger is fully written. If a close is interrupted mid-ledger, `progress --repair` reads the surviving snapshot and restores the REAL `--next` text, per-item acceptance verdicts, and verify evidence into the retroactive entry - not default copy.
+
+### Tests
+
+- Lessons applied from FN-023's failed fix: the three new regression tests are end-to-end against the real `done` flow, no mocked report layer. They assert (a) two consecutive closes each leave all four artifacts at once (journal entry with verbatim `--next`, on-disk report with a non-blocked Done Gate, closed TASKS entry, task commit) plus a clean audit; (b) a sabotaged journal keeps the snapshot and `--repair` restores the original parameters verbatim; (c) the rerun hint only appears for genuinely open tasks (76 total).
+
 ## v0.8.3
 
 Ledger integrity and gate coherence: closes the third round of field findings (FN-020..FN-024) from the timebuild run. The theme: closing a task and recording that close are one transaction, and both ends of a task's life apply the same rules.
