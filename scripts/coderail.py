@@ -202,7 +202,7 @@ def changed_files_now(root: Path) -> set[str]:
     """Files changed but not yet committed, plus files in recent commits."""
     names: set[str] = set()
     try:
-        r = subprocess.run(["git", "status", "--porcelain"], cwd=str(root),
+        r = subprocess.run(["git", "status", "--porcelain", "-uall"], cwd=str(root),
                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                            text=True, encoding="utf-8", errors="replace")
         for line in r.stdout.splitlines():
@@ -413,6 +413,23 @@ def cmd_blueprint(args) -> int:
     index_path = root / "docs" / "BLUEPRINTS.md"
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    # FN-008b: anchor each stub in the project's REAL detected shape so the
+    # agent replaces placeholders with facts, not more placeholders.
+    layers = result.get("layers", {}) or {}
+    detected = [f"{layer}: {', '.join(sig)}" for layer, sig in layers.items() if sig]
+    top_dirs = sorted(
+        p.name + "/" for p in root.iterdir()
+        if p.is_dir() and not p.name.startswith(".")
+        and p.name not in ("node_modules", "docs", "__pycache__")
+    )[:12]
+    anchor = ""
+    if detected or top_dirs:
+        anchor = "\nDetected in this codebase (use these real names in the diagram):\n"
+        for d in detected:
+            anchor += f"- {d}\n"
+        if top_dirs:
+            anchor += f"- top-level dirs: {', '.join(top_dirs)}\n"
+
     created = []
     for did in todo_ids:
         title, mermaid = MERMAID_STUBS[did]
@@ -421,7 +438,8 @@ def cmd_blueprint(args) -> int:
             stub_path.write_text(
                 f"# {title} ({did})\n\n"
                 f"Status: draft scaffold - replace the placeholder shapes with this\n"
-                f"project's real structure, then set the index row to `current`.\n\n"
+                f"project's real structure, then set the index row to `current`.\n"
+                f"{anchor}\n"
                 f"What this diagram answers: see docs/BLUEPRINTS.md notes for {did}.\n\n"
                 f"```mermaid\n{mermaid}\n```\n",
                 encoding="utf-8",
@@ -525,10 +543,13 @@ def bump_spin_state(root: Path, task_id: str, *, reset: bool = False) -> None:
 
 
 def churning_files(root: Path) -> list[tuple[str, int]]:
-    """Files touched in >= SPIN_CHURN_THRESHOLD of the last SPIN_CHURN_COMMITS commits."""
+    """Files MODIFIED in >= SPIN_CHURN_THRESHOLD of the last SPIN_CHURN_COMMITS
+    commits. Renames/copies/adds/deletes are excluded: moving a file is
+    housekeeping, not oscillation (FN-003)."""
     try:
         result = subprocess.run(
-            ["git", "log", f"-{SPIN_CHURN_COMMITS}", "--name-only", "--pretty=format:"],
+            ["git", "log", f"-{SPIN_CHURN_COMMITS}", "--name-status",
+             "-M", "-C", "--pretty=format:"],
             cwd=str(root), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             text=True, encoding="utf-8", errors="replace",
         )
@@ -537,8 +558,11 @@ def churning_files(root: Path) -> list[tuple[str, int]]:
     if result.returncode != 0:
         return []
     counts: dict[str, int] = {}
-    for name in result.stdout.splitlines():
-        name = name.strip()
+    for line in result.stdout.splitlines():
+        parts = line.strip().split("\t")
+        if len(parts) < 2 or not parts[0].startswith("M"):
+            continue  # only pure modifications count toward churn
+        name = parts[-1].strip()
         if not name or name.startswith("docs/") or name.startswith(".coderail/"):
             continue
         counts[name] = counts.get(name, 0) + 1
