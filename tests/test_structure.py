@@ -24,10 +24,18 @@ def test_manifests_exist():
 
 
 def test_versions_consistent():
-    expected = (ROOT/'VERSION').read_text(encoding='utf-8').strip()
+    # FN-015: VERSION is the single source of truth for every version display.
+    expected = (ROOT/'VERSION').read_text(encoding='utf-8').strip().splitlines()[0].strip()
     for path in ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json', 'package.json']:
         data = json.loads((ROOT/path).read_text(encoding='utf-8'))
         check(data['version'] == expected, f'{path} version mismatch')
+    readme = (ROOT/'README.md').read_text(encoding='utf-8')
+    check(f'version-v{expected}-' in readme, f'README badge does not match VERSION ({expected})')
+    shim = (ROOT/'scripts/local_entry.py').read_text(encoding='utf-8')
+    check('SHIM_VERSION = "0.0.0-dev"' in shim,
+          'local_entry.py template must keep the 0.0.0-dev placeholder (stamped at install)')
+    check('def effective_version' in shim,
+          'local_entry.py must fall back to reading home VERSION for hand-copied shims')
 
 
 def test_entry_files_short():
@@ -1037,6 +1045,101 @@ def test_drive_observe_reports_forward_progress_and_safety_metrics():
         check(summary['unsafe_decision_crossings'] == 0, summary)
         check(summary['baseline_unnecessary_stops'] > summary['drive_unnecessary_stops'], summary)
         check('CodeRail Drive A/B Observation' in result.stdout, result.stdout)
+
+
+def _lifecycle_env(td):
+    """Init a fresh git project in td, return a runner for coderail commands."""
+    root = Path(td)
+    subprocess.check_call(['git', 'init', '-q'], cwd=td)
+    subprocess.check_call(['git', 'config', 'user.email', 't@t.io'], cwd=td)
+    subprocess.check_call(['git', 'config', 'user.name', 't'], cwd=td)
+    subprocess.run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    (root/'docs/NORTH_STAR.md').write_text('Test project goal.\n', encoding='utf-8')
+    subprocess.check_call(['git', 'add', '-A'], cwd=td)
+    subprocess.check_call(['git', 'commit', '-qm', 'init'], cwd=td)
+
+    def cr(*args):
+        return subprocess.run(
+            [sys.executable, str(ROOT/'scripts/coderail.py'), *args, '--target', td],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
+    return root, cr
+
+
+def test_progress_entries_match_their_tasks():
+    # FN-017-1: start A -> done A -> start B -> done B; each PROGRESS entry
+    # must carry ITS OWN task's title, never the previous one.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'X-1 Alpha feature', '--verify', 'true'); check(r.returncode == 0, r.stdout)
+        r = cr('done'); check(r.returncode == 0, r.stdout)
+        r = cr('start', 'X-2 Beta feature', '--verify', 'true'); check(r.returncode == 0, r.stdout)
+        r = cr('done'); check(r.returncode == 0, r.stdout)
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        entries = [l for l in progress.splitlines() if l.startswith('## ')]
+        check(len(entries) == 2, f'expected 2 entries, got {entries}')
+        check('Beta feature' in entries[0] and 'Alpha feature' not in entries[0],
+              f'newest entry cross-contaminated: {entries[0]}')
+        check('Alpha feature' in entries[1] and 'Beta feature' not in entries[1],
+              f'older entry cross-contaminated: {entries[1]}')
+        # FN-014: business id leads everywhere.
+        check('X-2 (internal' in entries[0], f'business id not leading: {entries[0]}')
+
+
+def test_progress_checked_by_carries_real_verify_evidence():
+    # FN-017-2: verify exit codes must reach the report; no boilerplate.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        cr('start', 'Verified task', '--verify', 'true')
+        r = cr('done'); check(r.returncode == 0, r.stdout)
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        check('`true` exit 0' in progress, f'verify evidence missing: {progress}')
+        check('Manually confirm the result works as intended' not in progress,
+              'boilerplate leaked into Checked by')
+        # Unverified fallback wording (task without verify commands).
+        cr('start', 'Unverified task')
+        r = cr('done'); check(r.returncode == 0, r.stdout)
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        check('unverified - no verify commands registered' in progress,
+              f'unverified wording missing: {progress}')
+
+
+def test_progress_lists_acceptance_and_defers_queue():
+    # FN-017-3: per-item acceptance statuses land in PROGRESS; deferred items
+    # are trackable as queued tasks. Also covers numbered --accept-status.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        cr('start', 'Accept task', '--verify', 'true',
+           '--accept', 'item one', '--accept', 'item two', '--accept', 'item three')
+        r = cr('done')  # missing statuses -> refuse, numbered list shown
+        check(r.returncode == 1 and '1. item one' in r.stdout, r.stdout)
+        r = cr('done', '--accept-status', '1=done', '--accept-status', '3=done',
+               '--accept-status', '2=deferred')
+        check(r.returncode == 0, r.stdout)
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        check('Acceptance [done]: item one' in progress, progress)
+        check('Acceptance [deferred]: item two' in progress, progress)
+        check('Acceptance [done]: item three' in progress, progress)
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('## T-002 item two' in tasks, f'deferred item not queued: {tasks[-400:]}')
+
+
+def test_done_output_is_summary_with_report_on_disk():
+    # FN-018: default done output stays compact; full gate report is on disk
+    # with verify output tails.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        cr('start', 'Quiet task', '--verify', 'echo deep-evidence-line && true')
+        r = cr('done'); check(r.returncode == 0, r.stdout)
+        check('== Done:' in r.stdout, r.stdout)
+        core = r.stdout.split('== Done:')[1].split('== Now tell')[0]
+        check(len(core.strip().splitlines()) <= 15, f'summary too long:\n{core}')
+        check('Done Gate Report' not in r.stdout, 'full gate report leaked to console')
+        reports = list((root/'.coderail/reports').glob('done-*.md'))
+        check(len(reports) == 1, f'expected 1 report, got {reports}')
+        body = reports[0].read_text(encoding='utf-8')
+        check('deep-evidence-line' in body, 'verify output tail missing from report')
+        check('Full gate output' in body, 'gate output missing from report')
 
 
 def run_all():

@@ -21,7 +21,21 @@ import sys
 from pathlib import Path
 
 # Replaced with the CodeRail home version at install time (see init_project.py).
+# If this file was copied by hand (so the placeholder survives), effective_version()
+# falls back to reading VERSION from the CodeRail home - manual copies stay honest.
 SHIM_VERSION = "0.0.0-dev"
+
+
+def effective_version(home: "Path | None" = None) -> str:
+    if SHIM_VERSION != "0.0.0-dev":
+        return SHIM_VERSION
+    if home is not None:
+        version_file = home / "VERSION"
+        try:
+            return version_file.read_text(encoding="utf-8").strip().splitlines()[0].strip()
+        except (OSError, IndexError):
+            pass
+    return SHIM_VERSION
 
 HOME_HINT = (
     "Hint: the recorded coderail_home path is machine-specific. On a different\n"

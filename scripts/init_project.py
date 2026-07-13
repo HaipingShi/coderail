@@ -94,16 +94,17 @@ def install_local_entry(target: Path, force: bool = False) -> None:
         print("wrote .coderail/config.json")
     else:
         print("kept existing .coderail/config.json (never overwritten; edit or delete by hand)")
-    # Local working state (e.g. the spinning-in-place counter) must stay out of git.
+    # Local working state (spin counter, done reports) must stay out of git.
     gitignore = target / ".gitignore"
-    ignore_line = ".coderail/spin.json"
+    ignore_lines = [".coderail/spin.json", ".coderail/reports/"]
     existing = gitignore.read_text(encoding="utf-8", errors="ignore") if gitignore.exists() else ""
-    if ignore_line not in existing:
+    missing = [l for l in ignore_lines if l not in existing]
+    if missing:
         with gitignore.open("a", encoding="utf-8") as fh:
             if existing and not existing.endswith("\n"):
                 fh.write("\n")
-            fh.write(ignore_line + "\n")
-        print("updated .gitignore (.coderail/spin.json)")
+            fh.write("\n".join(missing) + "\n")
+        print(f"updated .gitignore ({', '.join(missing)})")
 
 
 def prefill_blueprints(target: Path) -> None:
