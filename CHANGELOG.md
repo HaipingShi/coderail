@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.8.3
 
 Ledger integrity and gate coherence: closes the third round of field findings (FN-020..FN-024) from the timebuild run. The theme: closing a task and recording that close are one transaction, and both ends of a task's life apply the same rules.
 
