@@ -99,6 +99,17 @@ The pattern behind this: when repeated fixing does not converge, the bug is
 almost never at the level where you are fixing. It lives one level up — in
 the design, or in the requirement itself.
 
+## When the tool says "Blueprints"
+
+`check` and `done` watch the codebase shape; when it grows a new layer they
+list the diagrams now needed (4 layers / 11 classes). When you see the notice,
+run `python .coderail/coderail.py blueprint --scaffold` — it creates Mermaid
+stubs under `docs/blueprints/`, marked `planned` in `docs/BLUEPRINTS.md`.
+Replace placeholders with the REAL structure (small enough that a newcomer
+understands without guesswork), then set the row to `current`. When a change
+invalidates a diagram, mark it `stale` in the same commit. Diagrams are
+ratified from what was built — never drawn ahead of the code.
+
 ## Honesty rules (non-negotiable)
 
 - Do not claim tests passed if you did not run them.
@@ -114,7 +125,6 @@ status with `python .coderail/coderail.py inspect`.
 
 ## Advanced
 
-Power users and long-running autonomous sessions can use the advanced
-commands (`doctor`, `drive`, `inspect`, `trace`, `blueprint`, `finish`, ...).
-Run `python .coderail/coderail.py --help` to list them. They are optional;
-the three everyday commands cover normal work.
+Power users and long-running autonomous sessions can use advanced commands
+(`doctor`, `drive`, `inspect`, `trace`, `finish`, ...); run
+`python .coderail/coderail.py --help` to list them. They are optional.

@@ -23,7 +23,6 @@ SCRIPTS = Path(__file__).resolve().parent
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
-    "blueprint": "blueprint_check.py",
     "ci": "ci_gate.py",
     "closeout": "closeout_check.py",
     "coordinate": "coordinate_check.py",
@@ -212,6 +211,146 @@ def print_user_report_scaffold(task_id: str, title: str, verified: str) -> None:
     print("  Rules: 3-6 sentences total. No file paths, no tool names,")
     print("  no framework talk unless the user asks. If they must decide")
     print("  something, make it a clear either/or question.")
+
+
+# ------------------------------------------------- blueprint coverage
+#
+# 4 layers, 11 diagram classes (defined in blueprint_check.py). The engine
+# detects which diagrams THIS project needs from actual code signals; here we
+# surface the gaps in everyday commands and scaffold the missing ones so the
+# project stays followable, maintainable, learnable, and deliverable.
+# Convergent rule applies: diagrams are ratified output, never upfront input.
+
+MERMAID_STUBS = {
+    "UJM": ("User Journey Map", "journey\n    title User journey\n    section Arrive\n      Open the app: 3: User\n    section Core action\n      Do the main thing: 4: User\n    section Leave satisfied\n      See the result: 5: User"),
+    "UF": ("User Flow", "flowchart TD\n    Start([User arrives]) --> A{Main choice?}\n    A -->|Path 1| B[Step]\n    A -->|Path 2| C[Step]\n    B --> Done([Goal reached])\n    C --> Done"),
+    "PF": ("Page Flow", "flowchart LR\n    Home[Home page] --> Detail[Detail page]\n    Detail --> Action[Action page]\n    Action --> Home"),
+    "SA": ("System Architecture", "flowchart TB\n    User([User]) --> FE[Frontend]\n    FE --> API[Backend / API]\n    API --> DB[(Database)]"),
+    "CD": ("Component Diagram", "flowchart TB\n    subgraph App\n      A[Module A] --> B[Module B]\n      B --> C[Shared utils]\n    end"),
+    "SEQ": ("Sequence Diagram", "sequenceDiagram\n    participant U as User\n    participant F as Frontend\n    participant B as Backend\n    U->>F: action\n    F->>B: request\n    B-->>F: response\n    F-->>U: result"),
+    "SM": ("State Machine", "stateDiagram-v2\n    [*] --> Draft\n    Draft --> Active: submit\n    Active --> Done: complete\n    Active --> Draft: reject\n    Done --> [*]"),
+    "ERD": ("ER Diagram", "erDiagram\n    USER ||--o{ ITEM : owns\n    USER {\n      string id PK\n      string name\n    }\n    ITEM {\n      string id PK\n      string user_id FK\n    }"),
+    "DFD": ("Data Flow Diagram", "flowchart LR\n    In[/Input/] --> P1[Transform]\n    P1 --> S[(Store)]\n    S --> Out[/Output/]"),
+    "DD": ("Deployment Diagram", "flowchart TB\n    subgraph Cloud\n      Web[Web service] --> DB[(Managed database)]\n    end\n    Dev[Developer] -->|deploy| Cloud"),
+    "CICD": ("CI/CD Pipeline", "flowchart LR\n    Commit --> Test --> Build --> Deploy"),
+}
+
+
+def load_blueprint_module():
+    try:
+        sys.path.insert(0, str(SCRIPTS))
+        import blueprint_check
+        return blueprint_check
+    except ImportError:
+        return None
+    finally:
+        if str(SCRIPTS) in sys.path:
+            sys.path.remove(str(SCRIPTS))
+
+
+def blueprint_gaps(root: Path) -> dict:
+    """Return {'required': [...ids missing/not-current...], 'stale': [...], 'recommended': [...]}."""
+    bc = load_blueprint_module()
+    empty = {"required": [], "stale": [], "recommended": []}
+    if bc is None:
+        return empty
+    try:
+        result = bc.check_project(root)
+    except Exception:
+        return empty
+    path = root / "docs" / "BLUEPRINTS.md"
+    rows = bc.parse_blueprints(bc.read(path)) if path.exists() else {}
+    gaps = {"required": [], "stale": [], "recommended": []}
+    for did in result.get("required", []):
+        status = rows.get(did, {}).get("status", "")
+        if status == "stale":
+            gaps["stale"].append(did)
+        elif status != "current":
+            gaps["required"].append(did)
+    for did in result.get("recommended", []):
+        status = rows.get(did, {}).get("status", "")
+        if status not in {"current", "not-applicable"}:
+            gaps["recommended"].append(did)
+    return gaps
+
+
+def print_blueprint_notice(root: Path) -> None:
+    gaps = blueprint_gaps(root)
+    if not (gaps["required"] or gaps["stale"]):
+        return
+    bc = load_blueprint_module()
+    names = (lambda ids: ", ".join(f"{i} ({bc.DIAGRAM_BY_ID[i].name})" for i in ids)) if bc else (lambda ids: ", ".join(ids))
+    print("\n== Blueprints ==")
+    if gaps["required"]:
+        print(f"  ! The code now needs diagrams it does not have: {names(gaps['required'])}")
+    if gaps["stale"]:
+        print(f"  ! These diagrams no longer match the code: {names(gaps['stale'])}")
+    print("  A project without current diagrams cannot be handed over, maintained,")
+    print("  or learned from. Create/update them with:  coderail blueprint --scaffold")
+    print()
+
+
+def cmd_blueprint(args) -> int:
+    root = Path(args.target).resolve()
+    bc = load_blueprint_module()
+    if bc is None:
+        print("blueprint_check.py not found next to coderail.py")
+        return 1
+
+    result = bc.check_project(root)
+    if not args.scaffold:
+        print(bc.render_report(result))
+        gaps = blueprint_gaps(root)
+        if gaps["required"] or gaps["stale"]:
+            print("\nFill the gaps automatically with:  coderail blueprint --scaffold")
+        return 1 if result["status"] == "unhealthy" else 0
+
+    # --scaffold: create stub diagrams for every required/stale/recommended gap.
+    gaps = blueprint_gaps(root)
+    todo_ids = gaps["required"] + gaps["stale"] + (gaps["recommended"] if args.all else [])
+    if not todo_ids:
+        print("Blueprint coverage is already complete for the detected project shape.")
+        return 0
+
+    bp_dir = root / "docs" / "blueprints"
+    bp_dir.mkdir(parents=True, exist_ok=True)
+    index_path = root / "docs" / "BLUEPRINTS.md"
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    created = []
+    for did in todo_ids:
+        title, mermaid = MERMAID_STUBS[did]
+        stub_path = bp_dir / f"{did.lower()}.md"
+        if not stub_path.exists():
+            stub_path.write_text(
+                f"# {title} ({did})\n\n"
+                f"Status: draft scaffold - replace the placeholder shapes with this\n"
+                f"project's real structure, then set the index row to `current`.\n\n"
+                f"What this diagram answers: see docs/BLUEPRINTS.md notes for {did}.\n\n"
+                f"```mermaid\n{mermaid}\n```\n",
+                encoding="utf-8",
+            )
+        created.append(did)
+        # Update the index row: status -> planned, path -> stub, updated -> today.
+        if index_path.exists():
+            text = index_path.read_text(encoding="utf-8")
+            row_re = re.compile(
+                rf"^(\|\s*{did}\s*\|[^|]*\|)\s*[^|]*(\|)\s*[^|]*(\|[^|]*\|)\s*[^|]*(\|[^|]*\|)\s*$",
+                re.M,
+            )
+            replacement = rf"\g<1> planned \g<2> docs/blueprints/{did.lower()}.md \g<3> {today} \g<4>"
+            text, n = row_re.subn(replacement, text, count=1)
+            if n:
+                index_path.write_text(text, encoding="utf-8")
+
+    print(f"Scaffolded {len(created)} diagram stub(s): {', '.join(created)}")
+    print(f"  Stubs: docs/blueprints/  (Mermaid, edit in place)")
+    print(f"  Index: docs/BLUEPRINTS.md  (rows set to 'planned')")
+    print()
+    print("Now replace each placeholder with the project's real structure,")
+    print("then set its index row to 'current'. Keep every diagram small:")
+    print("the goal is that a newcomer understands the system without guesswork.")
+    return 0
 
 
 # ------------------------------------------------- spinning-in-place detection
@@ -474,6 +613,7 @@ def cmd_check(args) -> int:
         print(f"Queued: {len(queued)} task(s), next would be {queued[0]['id']} {queued[0]['title']}")
 
     print_spin_report(root, active, all_tasks)
+    print_blueprint_notice(root)
 
     coord_rc, coord_out = run_script("coordinate_check.py", root, capture=True)
     tdd_rc, tdd_out = run_script("tdd_check.py", root, capture=True)
@@ -537,6 +677,7 @@ def cmd_done(args) -> int:
             append_progress(root, task_before, title or task_before, verified, next_hint)
             print("Progress journal updated: docs/PROGRESS.md")
 
+        print_blueprint_notice(root)
         print_next_recommendation(root)
         if task_before:
             print_user_report_scaffold(task_before, title or task_before, verified)
@@ -610,6 +751,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_next.add_argument("--go", action="store_true", help="Activate the recommended task")
     p_next.add_argument("--target", default=".")
 
+    p_bp = sub.add_parser("blueprint", help="Check diagram coverage; --scaffold fills the gaps")
+    p_bp.add_argument("--scaffold", action="store_true",
+                      help="Create Mermaid stubs for missing required/stale diagrams")
+    p_bp.add_argument("--all", action="store_true",
+                      help="With --scaffold: also stub recommended diagrams")
+    p_bp.add_argument("--target", default=".")
+
     p_done = sub.add_parser("done", help="Finish the current task safely")
     p_done.add_argument("--task", help="Task id (defaults to the active task)")
     p_done.add_argument("--result", default="done",
@@ -643,6 +791,8 @@ def main(argv=None) -> int:
         return cmd_check(args)
     if args.command == "next":
         return cmd_next(args)
+    if args.command == "blueprint":
+        return cmd_blueprint(args)
     if args.command == "done":
         return cmd_done(args)
 
