@@ -1,6 +1,6 @@
 {
   "name": "coderail",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Blueprint Gate, North-Star, Coordinate Contract Draft, TDD Gate, Done Gate, Auto Commit Gate, CI Gate, Inspect, and traceable governance for AI coding agents.",
   "author": {
     "name": "CodeRail"

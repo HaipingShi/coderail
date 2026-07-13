@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.8.2
 
 Reporting integrity: closes the second round of field findings (FN-013..FN-018). The theme: what the tool reports must be exactly what happened — right task, real evidence, no noise.
 
