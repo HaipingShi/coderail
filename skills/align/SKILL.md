@@ -1,6 +1,6 @@
 ---
 name: align
-description: Align a user request with NORTH_STAR before coding and draft G/T/S/V/X/P.
+description: Before coding, make sure the request actually serves the project goal, and turn it into a clear task with goal, scope, and a way to verify it.
 ---
 
 # align

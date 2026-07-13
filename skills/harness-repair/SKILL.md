@@ -1,6 +1,6 @@
 ---
 name: harness-repair
-description: Repair failed harness while preserving V and P.
+description: When the test/check setup itself is broken, fix it without weakening what it verifies.
 ---
 
 # harness-repair

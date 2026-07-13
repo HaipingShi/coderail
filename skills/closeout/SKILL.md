@@ -1,6 +1,6 @@
 ---
 name: closeout
-description: Produce deterministic closeout with task result, auto-commit action, handoff check, resume anchor, and next executable step.
+description: End a work session cleanly: report what happened, commit safe files, and leave one clear next step for whoever resumes.
 ---
 
 # closeout

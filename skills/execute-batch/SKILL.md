@@ -1,6 +1,6 @@
 ---
 name: execute-batch
-description: Execute authorized tasks continuously inside S and X.
+description: Work through the approved tasks continuously, staying inside each task's file scope and stop conditions.
 ---
 
 # execute-batch

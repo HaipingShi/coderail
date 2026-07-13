@@ -1,6 +1,6 @@
 ---
 name: trace
-description: Append trace events for meaningful actions.
+description: Record a meaningful action (change, decision, verification) in the project history so it can be found later.
 ---
 
 # trace

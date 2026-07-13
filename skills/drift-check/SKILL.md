@@ -1,6 +1,6 @@
 ---
 name: drift-check
-description: Check for North Star, Coordinate, task, trace, and handoff drift.
+description: Detect when the work has drifted away from the project goal, the task list, or the recorded history.
 ---
 
 # drift-check

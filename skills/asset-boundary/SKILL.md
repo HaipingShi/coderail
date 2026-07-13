@@ -1,6 +1,6 @@
 ---
 name: asset-boundary
-description: Classify materials and generated outputs as A0-A5 and prevent asset confusion.
+description: Tell apart raw material, working notes, and permanent project files so temporary stuff never gets treated as the real thing.
 ---
 
 # asset-boundary

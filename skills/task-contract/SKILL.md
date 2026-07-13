@@ -1,6 +1,6 @@
 ---
 name: task-contract
-description: Convert a request into a concrete task with a CodeRail Coordinate.
+description: Turn a request into a concrete task: goal, exact files allowed, how to verify, when to stop.
 ---
 
 # task-contract

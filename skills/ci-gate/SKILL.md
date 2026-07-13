@@ -1,6 +1,6 @@
 ---
 name: ci-gate
-description: Run available non-decision CI/CD checks before stopping, handing off, or auto-committing a completed task.
+description: Run the project's available checks (tests, lint, build) before stopping, handing off, or committing finished work.
 ---
 
 # ci-gate

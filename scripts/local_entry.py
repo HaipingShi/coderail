@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Repo-local CodeRail launcher installed by init_project.py."""
+"""Repo-local CodeRail launcher installed by init_project.py.
+
+Forwards every command to the CodeRail home's single entry point:
+
+    python .coderail/coderail.py start "what you want to do"
+    python .coderail/coderail.py check
+    python .coderail/coderail.py done
+"""
 from __future__ import annotations
 
 import json
@@ -9,35 +16,8 @@ import sys
 from pathlib import Path
 
 
-COMMANDS = {
-    "blueprint": "blueprint_check.py",
-    "ci": "ci_gate.py",
-    "closeout": "closeout_check.py",
-    "coordinate": "coordinate_check.py",
-    "doctor": "doctor.py",
-    "done": "done_gate.py",
-    "drive": "drive_check.py",
-    "finish": "finish_task.py",
-    "finish-task": "finish_task.py",
-    "hook": "hook_guard.py",
-    "inspect": "inspect_state.py",
-    "tdd": "tdd_check.py",
-    "trace-index": "trace_index.py",
-}
-
-
 def main(argv=None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
-    if not args or args[0] in {"-h", "--help"}:
-        print("Usage: python .coderail/coderail.py <command> [args]")
-        print("Commands: " + ", ".join(sorted(COMMANDS)))
-        return 0
-
-    command = args.pop(0)
-    script_name = COMMANDS.get(command)
-    if not script_name:
-        print(f"Unknown CodeRail command: {command}", file=sys.stderr)
-        return 2
 
     local_dir = Path(__file__).resolve().parent
     project = local_dir.parent
@@ -53,14 +33,14 @@ def main(argv=None) -> int:
         print(f"Invalid CodeRail local config: {exc}", file=sys.stderr)
         return 2
 
-    script = home / "scripts" / script_name
-    if not script.exists():
-        print(f"CodeRail script is unavailable: {script}", file=sys.stderr)
+    entry = home / "scripts" / "coderail.py"
+    if not entry.exists():
+        print(f"CodeRail entry is unavailable: {entry}", file=sys.stderr)
         return 2
 
-    if "--target" not in args:
+    if args and "--target" not in args and args[0] not in {"-h", "--help"}:
         args.extend(["--target", str(project)])
-    return subprocess.call([sys.executable, str(script), *args], cwd=str(project))
+    return subprocess.call([sys.executable, str(entry), *args], cwd=str(project))
 
 
 if __name__ == "__main__":

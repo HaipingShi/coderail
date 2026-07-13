@@ -1,6 +1,6 @@
 ---
 name: inspect
-description: Inspect CodeRail runtime state before resuming, handing off, or when the project feels hard to understand.
+description: Rebuild a clear picture of project state (active task, gaps, next step) before resuming or when things feel confusing.
 ---
 
 # Inspect

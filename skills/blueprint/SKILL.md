@@ -1,6 +1,6 @@
 ---
 name: blueprint
-description: Check and maintain Architecture Blueprint Layer coverage: 4 classes, 11 core diagrams, lifecycle status, and docs/BLUEPRINTS.md.
+description: Keep simple architecture/data/flow diagrams up to date when the project gets structurally complex.
 ---
 
 # Blueprint Gate
