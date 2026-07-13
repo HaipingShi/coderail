@@ -1,5 +1,9 @@
 # CodeRail
 
+<!-- coderail:gates coordinate,contract,tdd,inspect,closeout,done -->
+<!-- Managed marker: maintained by coderail init/upgrade. It tells doctor that
+     this file covers all gate concepts, however they are phrased. Keep it. -->
+
 This project uses CodeRail to keep AI-assisted work on track. The rules below
 are written in plain language. You do not need to learn any special terminology.
 

@@ -6,6 +6,11 @@ Forwards every command to the CodeRail home's single entry point:
     python .coderail/coderail.py start "what you want to do"
     python .coderail/coderail.py check
     python .coderail/coderail.py done
+
+If this machine keeps CodeRail somewhere else (CI, cloud sandbox, another
+laptop), point at it without editing any file:
+
+    CODERAIL_HOME=/path/to/coderail python .coderail/coderail.py check
 """
 from __future__ import annotations
 
@@ -15,6 +20,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Replaced with the CodeRail home version at install time (see init_project.py).
+SHIM_VERSION = "0.0.0-dev"
+
+HOME_HINT = (
+    "Hint: the recorded coderail_home path is machine-specific. On a different\n"
+    "machine (CI, cloud sandbox, teammate laptop), override it per run:\n"
+    "    CODERAIL_HOME=/path/to/coderail python .coderail/coderail.py <command>\n"
+    "or update .coderail/config.json to this machine's CodeRail checkout."
+)
+
 
 def main(argv=None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
@@ -22,20 +37,25 @@ def main(argv=None) -> int:
     local_dir = Path(__file__).resolve().parent
     project = local_dir.parent
     config_path = local_dir / "config.json"
+    configured_home = None
     try:
         config = json.loads(config_path.read_text(encoding="utf-8"))
         configured_home = config.get("coderail_home")
-        home_value = os.environ.get("CODERAIL_HOME") or configured_home
-        if not home_value:
-            raise KeyError("coderail_home")
-        home = Path(home_value).expanduser().resolve()
-    except (FileNotFoundError, KeyError, json.JSONDecodeError) as exc:
-        print(f"Invalid CodeRail local config: {exc}", file=sys.stderr)
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+
+    home_value = os.environ.get("CODERAIL_HOME") or configured_home
+    if not home_value:
+        print("CodeRail home is not configured (.coderail/config.json has no", file=sys.stderr)
+        print("coderail_home and CODERAIL_HOME is not set).", file=sys.stderr)
+        print(HOME_HINT, file=sys.stderr)
         return 2
 
+    home = Path(home_value).expanduser().resolve()
     entry = home / "scripts" / "coderail.py"
     if not entry.exists():
         print(f"CodeRail entry is unavailable: {entry}", file=sys.stderr)
+        print(HOME_HINT, file=sys.stderr)
         return 2
 
     if args and "--target" not in args and args[0] not in {"-h", "--help"}:

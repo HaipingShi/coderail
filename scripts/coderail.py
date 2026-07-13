@@ -132,6 +132,93 @@ def activate_task(root: Path, task_id: str) -> bool:
     return bool(n)
 
 
+# ------------------------------------------------- task metadata (FN-009/010/011/012)
+#
+# Machine-checkable commitments registered at `start`, enforced at `done`:
+#   verify:      shell commands that must exit 0 before the task can close
+#   tests:       test files that must appear in the diff (TDD promise)
+#   accept:      acceptance items that must each be marked done/deferred
+#   display_id:  the user's business id (e.g. T-186), kept consistent everywhere
+# Stored in .coderail/tasks.json (committed, so handoffs keep the contract).
+
+DISPLAY_ID_RE = re.compile(r"^([A-Z]{1,10}-\d+)\s+(.+)$")
+
+
+def meta_path(root: Path) -> Path:
+    return root / ".coderail" / "tasks.json"
+
+
+def load_meta(root: Path) -> dict:
+    import json
+    path = meta_path(root)
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return {}
+
+
+def save_meta(root: Path, meta: dict) -> None:
+    import json
+    path = meta_path(root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def task_meta(root: Path, task_id: str) -> dict:
+    return load_meta(root).get(task_id, {})
+
+
+def fmt_id(task_id: str, meta: dict | None = None) -> str:
+    """One id policy everywhere: internal id, with the business id alongside."""
+    display = (meta or {}).get("display_id")
+    return f"{task_id} ({display})" if display and display != task_id else task_id
+
+
+def run_verify_commands(root: Path, commands: list[str]) -> list[dict]:
+    """Run each registered verify command; capture exit code and output tail."""
+    results = []
+    for cmd in commands:
+        print(f"  running: {cmd}")
+        try:
+            proc = subprocess.run(
+                cmd, shell=True, cwd=str(root),
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                text=True, encoding="utf-8", errors="replace", timeout=600,
+            )
+            code, out = proc.returncode, proc.stdout or ""
+        except subprocess.TimeoutExpired:
+            code, out = 124, "(timed out after 600s)"
+        except OSError as exc:
+            code, out = 127, str(exc)
+        tail = "\n".join(out.strip().splitlines()[-20:])
+        results.append({"cmd": cmd, "exit": code, "tail": tail})
+        print(f"    exit {code}")
+    return results
+
+
+def changed_files_now(root: Path) -> set[str]:
+    """Files changed but not yet committed, plus files in recent commits."""
+    names: set[str] = set()
+    try:
+        r = subprocess.run(["git", "status", "--porcelain"], cwd=str(root),
+                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                           text=True, encoding="utf-8", errors="replace")
+        for line in r.stdout.splitlines():
+            if len(line) > 3:
+                names.add(line[3:].strip().strip('"'))
+        r = subprocess.run(["git", "log", "-10", "--name-only", "--pretty=format:"],
+                           cwd=str(root), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                           text=True, encoding="utf-8", errors="replace")
+        for line in r.stdout.splitlines():
+            if line.strip():
+                names.add(line.strip())
+    except OSError:
+        pass
+    return names
+
+
 def print_next_recommendation(root: Path) -> None:
     text = read_tasks(root)
     todo = next_todo_task(text)
@@ -172,7 +259,10 @@ def task_field(text: str, task_id: str, field: str) -> str:
     return first.lstrip("- ").strip()
 
 
-def append_progress(root: Path, task_id: str, title: str, verified: str, next_hint: str) -> None:
+def append_progress(root: Path, task_id: str, title: str, verified: str, next_hint: str,
+                    evidence: list[str] | None = None,
+                    deferred: list[str] | None = None,
+                    warnings: list[str] | None = None) -> None:
     path = root / "docs" / "PROGRESS.md"
     header = (
         "# Progress - plain language, newest first\n\n"
@@ -183,9 +273,15 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
     entry = (
         f"\n## {today} - {title} ({task_id})\n\n"
         f"- Done: {title}\n"
-        f"- Checked by: {verified or 'see task record'}\n"
+        f"- Checked by: {verified or 'UNVERIFIED - no machine check was run'}\n"
         f"- Next: {next_hint}\n"
     )
+    for line in evidence or []:
+        entry += f"- Evidence: {line}\n"
+    for item in deferred or []:
+        entry += f"- Deferred: {item} (registered as a follow-up task)\n"
+    for w in warnings or []:
+        entry += f"- Warning: {w}\n"
     if path.exists():
         text = path.read_text(encoding="utf-8")
         # Insert newest entry right after the header (before older entries).
@@ -543,6 +639,16 @@ def cmd_start(args) -> int:
 
     task_id = next_task_id(text)
     title = args.title.strip()
+
+    # FN-011: bind the user's business id. Explicit --id wins; otherwise a
+    # title prefix like "T-186 ..." or "PROJ-42 ..." is parsed and stripped.
+    display_id = (args.id or "").strip()
+    prefix_m = DISPLAY_ID_RE.match(title)
+    if not display_id and prefix_m:
+        display_id, title = prefix_m.group(1), prefix_m.group(2).strip()
+    elif display_id and prefix_m and prefix_m.group(1) == display_id:
+        title = prefix_m.group(2).strip()
+
     goal = (args.goal or title).strip()
     done_when = (args.done_when or "Manually confirm the result works as intended.").strip()
     files = [f.strip() for f in (args.files or "").split(",") if f.strip()]
@@ -550,13 +656,33 @@ def cmd_start(args) -> int:
     task_type = (args.type or "feature").strip().lower()
     rail = guess_rail(title, goal, task_type)
 
+    verify_cmds = [v.strip() for v in (args.verify or []) if v.strip()]
+    test_files = [t.strip() for t in (args.tests or []) if t.strip()]
+    accept_items = [a.strip() for a in (args.accept or []) if a.strip()]
+
+    meta = load_meta(root)
+    meta[task_id] = {
+        k: v for k, v in {
+            "display_id": display_id or None,
+            "verify": verify_cmds or None,
+            "tests": test_files or None,
+            "accept": accept_items or None,
+        }.items() if v
+    }
+    save_meta(root, meta)
+
     allowed_lines = "\n".join(f"  - {f}" for f in files) if files else "  - to be decided while working"
     forbidden_lines = "\n".join(f"  - {f}" for f in avoid) if avoid else "  - none"
+    verify_lines = "".join(f"\n- Run: `{c}` (must exit 0)" for c in verify_cmds)
+    accept_lines = ""
+    if accept_items:
+        accept_lines = "\nA — Acceptance\n" + "\n".join(f"- [ ] {a}" for a in accept_items) + "\n"
+    display_line = f"\nDisplay id: {display_id}" if display_id else ""
 
     block = f"""
 ## {task_id} {title}
 
-Status: [~]
+Status: [~]{display_line}
 Type: {task_type}
 Rail: {rail}
 
@@ -575,8 +701,8 @@ Forbidden:
 {forbidden_lines}
 
 V — Verify
-- {done_when}
-
+- {done_when}{verify_lines}
+{accept_lines}
 X — Stop
 - Stop and ask if changes are needed outside the allowed files.
 
@@ -586,10 +712,20 @@ P — Persist
     path = tasks_path(root)
     path.write_text(text.rstrip() + "\n" + block, encoding="utf-8")
 
-    print(f"Started task {task_id}: {title}")
+    shown = fmt_id(task_id, meta[task_id])
+    print(f"Started task {shown}: {title}")
     print(f"  Goal:      {goal}")
     print(f"  Files:     {', '.join(files) if files else 'decide while working'}")
     print(f"  Done when: {done_when}")
+    if verify_cmds:
+        print(f"  Verify:    {' && '.join(verify_cmds)}  (done will run these)")
+    else:
+        print("  Verify:    NONE registered - done will warn and record the task")
+        print("             as unverified. Add machine checks with --verify \"cmd\".")
+    if test_files:
+        print(f"  Tests:     {', '.join(test_files)}  (must appear in the diff)")
+    if accept_items:
+        print(f"  Accepts:   {len(accept_items)} item(s) - done will require a status for each")
     print()
     print("Recorded in docs/TASKS.md. When you are finished, run:  coderail done")
     return 0
@@ -604,7 +740,12 @@ def cmd_check(args) -> int:
 
     print("# CodeRail Check\n")
     if active:
-        print(f"Active task: {active}")
+        a_meta = task_meta(root, active)
+        print(f"Active task: {fmt_id(active, a_meta)}")
+        if a_meta.get("verify"):
+            print(f"  Verify on done: {' && '.join(a_meta['verify'])}")
+        else:
+            print("  Verify on done: none registered (will close as unverified)")
     else:
         print("Active task: none (start one with:  coderail start \"...\")")
     all_tasks = list_tasks(text)
@@ -640,21 +781,87 @@ def cmd_check(args) -> int:
 
 # ---------------------------------------------------------------- done
 
+BOILERPLATE_VERIFY = "Manually confirm the result works as intended."
+
+
 def cmd_done(args) -> int:
     root = Path(args.target).resolve()
+
+    tasks_text_before = read_tasks(root)
+    task_before = args.task or active_task_id(tasks_text_before)
+    meta = task_meta(root, task_before) if task_before else {}
+    shown = fmt_id(task_before, meta) if task_before else ""
+
+    # ---- FN-010: run registered verify commands. This is the gate itself.
+    verify_cmds = meta.get("verify", [])
+    verify_results: list[dict] = []
+    if verify_cmds:
+        print(f"Verifying {shown} ({len(verify_cmds)} command(s)):")
+        verify_results = run_verify_commands(root, verify_cmds)
+        failed = [r for r in verify_results if r["exit"] != 0]
+        if failed:
+            print()
+            for r in failed:
+                print(f"VERIFY FAILED (exit {r['exit']}): {r['cmd']}")
+                for line in r["tail"].splitlines():
+                    print(f"    {line}")
+            print()
+            print(f"Cannot close {shown}: {len(failed)} verify command(s) failed.")
+            print("Fix the failures, then run:  coderail done   again.")
+            if task_before:
+                bump_spin_state(root, task_before)
+            text = read_tasks(root)
+            print_spin_report(root, active_task_id(text), list_tasks(text))
+            return 1
+
+    # ---- FN-012: acceptance items must each be marked done or deferred.
+    accept_items = meta.get("accept", [])
+    accept_statuses: list[str] = []
+    deferred_items: list[str] = []
+    if accept_items:
+        raw = (args.accept_status or "").strip()
+        statuses = [s.strip().lower() for s in raw.split(",") if s.strip()]
+        if len(statuses) != len(accept_items) or any(s not in ("done", "deferred") for s in statuses):
+            print(f"Cannot close {shown}: this task registered {len(accept_items)} acceptance item(s).")
+            print("State each one explicitly with --accept-status (comma list of done|deferred):")
+            for i, item in enumerate(accept_items, 1):
+                print(f"  {i}. {item}")
+            print(f'Example:  coderail done --accept-status "done,deferred,done"')
+            return 1
+        accept_statuses = statuses
+        deferred_items = [item for item, s in zip(accept_items, statuses) if s == "deferred"]
+
+    # ---- FN-009: promised test files must appear in the diff.
+    tdd_warnings: list[str] = []
+    promised_tests = meta.get("tests", [])
+    if promised_tests:
+        touched = changed_files_now(root)
+        for tf in promised_tests:
+            if not any(name == tf or name.endswith("/" + tf) or tf in name for name in touched):
+                tdd_warnings.append(
+                    f"Promised test file was never touched: {tf} "
+                    f"(declared at start with --tests, absent from the diff)"
+                )
+        for w in tdd_warnings:
+            print(f"WARNING: {w}")
+
     extra = []
     if args.task:
         extra += ["--task", args.task]
     extra += ["--task-result", args.result]
-    if args.harness_result:
-        extra += ["--harness-result", args.harness_result]
+    harness = args.harness_result
+    if not harness and verify_results:
+        harness = "passed"  # all verify commands exited 0 (enforced above)
+    if harness:
+        extra += ["--harness-result", harness]
     if args.manual_acceptance:
         extra += ["--manual-acceptance", args.manual_acceptance]
     if args.no_commit:
         extra += ["--no-auto-commit"]
-
-    tasks_text_before = read_tasks(root)
-    task_before = args.task or active_task_id(tasks_text_before)
+    if meta.get("display_id"):
+        extra += ["--commit-message",
+                  f"chore({task_before}/{meta['display_id']}): "
+                  + ("complete task" if args.result == "done" else f"{args.result} checkpoint")]
 
     rc, _ = run_script("finish_task.py", root, extra)
 
@@ -668,19 +875,54 @@ def cmd_done(args) -> int:
         if task_before:
             tasks = list_tasks(tasks_text_before)
             title = next((t["title"] for t in tasks if t["id"] == task_before), "")
-            verified = (
-                args.manual_acceptance
-                or task_field(tasks_text_before, task_before, "V")
-            )
+
+            # FN-010: "Checked by" must be true evidence, never boilerplate.
+            evidence_lines: list[str] = []
+            if verify_results:
+                verified = "; ".join(f"`{r['cmd']}` exit {r['exit']}" for r in verify_results)
+                evidence_lines = [f"`{r['cmd']}` -> exit {r['exit']}" for r in verify_results]
+            elif args.manual_acceptance:
+                verified = args.manual_acceptance
+            else:
+                v_field = task_field(tasks_text_before, task_before, "V")
+                if v_field and v_field != BOILERPLATE_VERIFY:
+                    verified = f"UNVERIFIED - stated check was: {v_field}"
+                else:
+                    verified = "UNVERIFIED - no machine check was run"
+                print("WARNING: closing without machine verification. Register commands")
+                print('         next time with:  coderail start "..." --verify "your test cmd"')
+
             todo = next_todo_task(read_tasks(root))
             next_hint = f"{todo['id']} {todo['title']}" if todo else "decide with the user"
-            append_progress(root, task_before, title or task_before, verified, next_hint)
+            append_progress(
+                root, shown, title or shown, verified, next_hint,
+                evidence=evidence_lines,
+                deferred=deferred_items,
+                warnings=tdd_warnings,
+            )
             print("Progress journal updated: docs/PROGRESS.md")
+
+            # FN-012: deferred acceptance items become queued follow-up tasks.
+            if deferred_items:
+                text_now = read_tasks(root)
+                blocks = ""
+                for item in deferred_items:
+                    new_id = next_task_id(text_now + blocks)
+                    blocks += (
+                        f"\n## {new_id} {item}\n\nStatus: [ ]\nType: feature\nRail: full\n\n"
+                        f"### CodeRail Coordinate\n\nG — Goal\n- Deferred from {shown}: {item}\n\n"
+                        f"T — Task\n- {item}\n\nS — Scope\nAllowed:\n  - to be decided while working\n"
+                        f"Forbidden:\n  - none\n\nV — Verify\n- {BOILERPLATE_VERIFY}\n\n"
+                        f"X — Stop\n- Stop and ask if changes are needed outside the allowed files.\n\n"
+                        f"P — Persist\n- TASKS, TRACE\n"
+                    )
+                tasks_path(root).write_text(text_now.rstrip() + "\n" + blocks, encoding="utf-8")
+                print(f"Deferred items registered as queued tasks: {len(deferred_items)}")
 
         print_blueprint_notice(root)
         print_next_recommendation(root)
         if task_before:
-            print_user_report_scaffold(task_before, title or task_before, verified)
+            print_user_report_scaffold(shown, title or shown, verified)
     elif rc == 3:
         print("This project runs in continuous mode: keep going with the next step above.")
     else:
@@ -741,6 +983,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_start.add_argument("--avoid", help="Files/folders that must NOT change, comma separated")
     p_start.add_argument("--done-when", help="How you will know it is finished")
     p_start.add_argument("--type", help="feature | bug | refactor | docs (default: feature)")
+    p_start.add_argument("--id", help="Your own task id (e.g. T-186); also parsed from title prefix")
+    p_start.add_argument("--verify", action="append",
+                         help="Shell command that must exit 0 before done (repeatable)")
+    p_start.add_argument("--tests", action="append",
+                         help="Test file that must appear in the diff (repeatable)")
+    p_start.add_argument("--accept", action="append",
+                         help="Acceptance item; done requires done/deferred per item (repeatable)")
     p_start.add_argument("--force", action="store_true", help="Start even if another task is active")
     p_start.add_argument("--target", default=".")
 
@@ -765,6 +1014,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="How the task ended (default: done)")
     p_done.add_argument("--harness-result", choices=["passed", "failed", "manual", "skipped"])
     p_done.add_argument("--manual-acceptance", help="One sentence: how you manually confirmed it works")
+    p_done.add_argument("--accept-status",
+                        help="Comma list of done|deferred, one per acceptance item, in order")
     p_done.add_argument("--no-commit", action="store_true", help="Do not auto-commit")
     p_done.add_argument("--target", default=".")
 

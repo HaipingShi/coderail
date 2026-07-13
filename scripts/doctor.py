@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -199,14 +200,53 @@ def main(argv=None) -> int:
         if not is_generated_status(status_text):
             inspect_warn.append("CODERAIL_STATUS.md does not look generated")
 
+    # FN-005/FN-007: concept-level check, not literal keyword stuffing.
+    # A managed marker (written by init/upgrade) certifies full coverage.
+    # Without the marker, each gate concept passes if ANY synonym appears.
+    GATE_CONCEPTS = {
+        "task coordinates (goal/scope/verify)": ["CodeRail Coordinate", "coderail.py start", "coderail start"],
+        "finish/done gate": ["done gate", "coderail.py done", "coderail done", 'say "done"'],
+        "contract before risky work": ["Coordinate Contract Draft", "CONTRACTS.md", "get a yes before coding"],
+        "state inspection on resume": ["Runtime State Inspect", "coderail.py inspect", "CODERAIL_STATUS.md"],
+        "test-first for logic changes": ["TDD Gate", "failing test first", "test first"],
+        "safe scoped commits": ["Closeout", "task-related files", "git add ."],
+    }
     entry_warn = []
     agents = read(root / "AGENTS.md")
     if not agents:
         entry_warn.append("AGENTS.md missing")
-    else:
-        for phrase in ["CodeRail Coordinate", "done gate", "Coordinate Contract Draft", "Runtime State Inspect", "TDD Gate", "Closeout"]:
-            if phrase not in agents:
-                entry_warn.append(f"AGENTS.md does not mention {phrase}")
+    elif "<!-- coderail:gates" not in agents:
+        lower = agents.lower()
+        for concept, synonyms in GATE_CONCEPTS.items():
+            if not any(s.lower() in lower for s in synonyms):
+                entry_warn.append(f"AGENTS.md does not cover: {concept}")
+
+    # FN-001/FN-002: shim health - version match and coderail_home reachability.
+    shim_path = root / ".coderail" / "coderail.py"
+    config_file = root / ".coderail" / "config.json"
+    if shim_path.exists():
+        shim_text = read(shim_path)
+        m = re.search(r'SHIM_VERSION\s*=\s*"([^"]+)"', shim_text)
+        shim_ver = m.group(1) if m else None
+        home_ver_file = Path(__file__).resolve().parents[1] / "VERSION"
+        home_ver = home_ver_file.read_text(encoding="utf-8").strip().splitlines()[0].strip() if home_ver_file.exists() else None
+        if shim_ver is None:
+            entry_warn.append(
+                ".coderail/coderail.py is an old unversioned shim; re-run init to update it")
+        elif home_ver and shim_ver != home_ver:
+            entry_warn.append(
+                f".coderail/coderail.py shim is v{shim_ver} but CodeRail home is v{home_ver}; "
+                f"re-run init to update the shim")
+        if config_file.exists():
+            try:
+                cfg = json.loads(read(config_file))
+                cfg_home = cfg.get("coderail_home")
+                if cfg_home and not (Path(cfg_home).expanduser() / "scripts" / "coderail.py").exists():
+                    entry_warn.append(
+                        f"coderail_home in .coderail/config.json is unreachable ({cfg_home}); "
+                        f"fix the path or override per run with CODERAIL_HOME=/path/to/coderail")
+            except (ValueError, OSError):
+                entry_warn.append(".coderail/config.json is not valid JSON")
 
     blueprint = blueprint_check.check_project(root)
     blueprint_severe = blueprint["severe"]

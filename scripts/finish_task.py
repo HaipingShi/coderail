@@ -136,6 +136,7 @@ def main(argv=None) -> int:
     parser.add_argument("--next-task-mode", choices=["recommend", "activate"])
     parser.add_argument("--skip-ci", action="store_true")
     parser.add_argument("--no-auto-commit", action="store_true")
+    parser.add_argument("--commit-message", help="Override the auto-commit message")
     args = parser.parse_args(argv)
     root = Path(args.target).resolve()
 
@@ -214,6 +215,8 @@ def main(argv=None) -> int:
     closeout_args = task_args + ["--task-result", args.task_result]
     if not args.no_auto_commit:
         closeout_args.append("--auto-commit")
+    if args.commit_message:
+        closeout_args += ["--commit-message", args.commit_message]
     closeout_args.append("--include-state")
     closeout_rc, closeout_output = run_report("Closeout", "closeout_check.py", root, closeout_args)
     failures += bool(closeout_rc)
