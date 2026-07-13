@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+Reporting integrity: closes the second round of field findings (FN-013..FN-018). The theme: what the tool reports must be exactly what happened — right task, real evidence, no noise.
+
+### Progress journal integrity (FN-017)
+
+- Fixed cross-contamination: each PROGRESS.md entry now carries its own task's title and evidence. `done` always passes the resolved task id through the whole gate chain, and cross-checks which task's status actually flipped in TASKS.md before reporting.
+- "Checked by" always carries real evidence: verify exit codes, an explicit `manual check: ...`, or an honest `unverified - no verify commands registered`. Boilerplate can no longer appear as evidence.
+- Per-item acceptance results land in the journal (`Acceptance [done]: ...` / `Acceptance [deferred]: ...`), so partial delivery is visible at a glance.
+
+### Quiet close, full evidence on disk (FN-018)
+
+- `done` now prints a compact summary (verdict, verify count, acceptance tally, warnings, commit status) of at most ~10 lines. The full gate output plus verify command output tails are persisted to `.coderail/reports/done-<stamp>-<task>.md` (gitignored).
+- `done --verbose` restores the full console dump, with a clarifying note when the inspect section says "blocked" for project-level reasons unrelated to the passing task closure.
+- Failure output is unchanged: when the gate fails, the details are the point and are printed in full.
+
+### Business id leads (FN-014)
+
+- Everywhere a task is shown — start, check, done summary, PROGRESS.md, commit messages — the user's id comes first: `T-186 (internal T-001)` and `chore(T-186/T-001): ...`.
+
+### Acceptance input, unambiguous form (FN-016 follow-up)
+
+- `--accept-status` now also takes numbered form: `--accept-status "1=done" --accept-status "2=deferred"` (any order, repeatable), removing order-mistake risk on long checklists. Positional `"done,deferred"` still works.
+
+### Version single source of truth (FN-015 blind spot)
+
+- README badge is now covered by the version-consistency test; a hand-copied shim (placeholder version) falls back to reading VERSION from the CodeRail home, and doctor explains it instead of raising a false mismatch.
+
+### Tests
+
+- Four new end-to-end lifecycle tests: journal cross-contamination, verify evidence propagation, acceptance ledger + deferred queueing, and summary-with-report-on-disk (67 total).
+
+## v0.8.1
+
 Trust hardening: closes the field-negative findings from the first real-world run (FN-001..FN-012). The theme: every promise the tool makes is now machine-checked, and every claim it reports is backed by evidence.
 
 ### done actually verifies (FN-010)
