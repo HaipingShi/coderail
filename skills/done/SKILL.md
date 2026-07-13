@@ -1,6 +1,6 @@
 ---
 name: done
-description: Finish or close out a task only after done gate, P sync, trace, auto-commit action, and deterministic next step.
+description: Finish a task the safe way: verify it, keep changes in scope, sync the docs, commit safe files, and state the next step. Run this instead of declaring done from memory.
 ---
 
 # done

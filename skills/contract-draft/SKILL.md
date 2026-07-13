@@ -1,6 +1,6 @@
 ---
 name: contract-draft
-description: Create a Coordinate Contract Draft before implementation for vague, high-risk, cross-module, or mid-session requirements.
+description: For vague, big, or risky requests, write down the plan (what, which files, how to verify) and get a yes before coding.
 ---
 
 # Contract Draft

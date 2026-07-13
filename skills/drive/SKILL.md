@@ -1,6 +1,6 @@
 ---
 name: drive
-description: Continue a CodeRail continuous goal through safe checkpoints by running the progress harness and deterministic Drive Decision. Use when a project has a continuous Drive Contract, autonomous tasks, and a verifiable terminal condition, especially under Codex Goal or another long-running agent surface.
+description: For long-running autonomous work: at each checkpoint, decide deterministically whether to continue, repair, advance, or stop.
 ---
 
 # Drive

@@ -1,6 +1,6 @@
 ---
 name: tdd-gate
-description: Enforce Red-Green-Refactor evidence for bugs, regressions, parsers, domain logic, APIs, and shared utilities.
+description: For bugs, parsers, domain logic, APIs, and shared utilities: require a failing test first, then make it pass.
 ---
 
 # tdd-gate

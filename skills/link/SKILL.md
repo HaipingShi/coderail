@@ -1,6 +1,6 @@
 ---
 name: link
-description: Backfill missing trace relationships.
+description: Backfill missing connections in the project history so every change can be traced to a task and a reason.
 ---
 
 # link

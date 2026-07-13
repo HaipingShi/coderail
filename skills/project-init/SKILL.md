@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: Initialize CodeRail governance files in a target repository.
+description: Set up CodeRail in a repository: goal file, task list, and the three everyday commands (start / check / done).
 ---
 
 # project-init

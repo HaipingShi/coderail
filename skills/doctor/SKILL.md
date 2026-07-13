@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: Run CodeRail health checks, including contracts, coordinates, TDD, done/closeout readiness, inspect state, trace, and blueprint awareness.
+description: Health-check the project's CodeRail setup and state; reports what is missing or inconsistent and how to fix it.
 ---
 
 # doctor

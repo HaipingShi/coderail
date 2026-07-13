@@ -1,6 +1,6 @@
 ---
 name: done-gate
-description: Enforce verification-before-complete: check V, S, P, trace, and handoff trigger before marking a task done.
+description: The final verification before marking a task done: evidence exists, changes stayed in the agreed files, docs are synced.
 ---
 
 # Done Gate

@@ -61,6 +61,16 @@ def install_local_entry(target: Path, force: bool = False) -> None:
         print("wrote .coderail/config.json")
     else:
         print("skipped existing .coderail/config.json")
+    # Local working state (e.g. the spinning-in-place counter) must stay out of git.
+    gitignore = target / ".gitignore"
+    ignore_line = ".coderail/spin.json"
+    existing = gitignore.read_text(encoding="utf-8", errors="ignore") if gitignore.exists() else ""
+    if ignore_line not in existing:
+        with gitignore.open("a", encoding="utf-8") as fh:
+            if existing and not existing.endswith("\n"):
+                fh.write("\n")
+            fh.write(ignore_line + "\n")
+        print("updated .gitignore (.coderail/spin.json)")
 
 
 def main(argv=None) -> int:
@@ -76,15 +86,13 @@ def main(argv=None) -> int:
     for rel in (LITE if args.mode == "lite" else STANDARD):
         print(copy_file(rel, target, args.force))
     install_local_entry(target, args.force)
-    print("\nNext:")
-    print("1. Fill docs/NORTH_STAR.md.")
-    print("2. Use docs/CONTRACTS.md for high-risk Coordinate Contract Drafts.")
-    print("3. Create a task coordinate in docs/TASKS.md.")
-    print("4. Use docs/BLUEPRINTS.md when architecture, data, deployment, or lifecycle complexity appears.")
-    print("5. Run python .coderail/coderail.py inspect to refresh docs/CODERAIL_STATUS.md.")
-    print("6. Run python .coderail/coderail.py tdd when correctness-sensitive work needs Red-Green-Refactor evidence.")
-    print("7. Run python .coderail/coderail.py finish before every substantial stop.")
-    print("8. For long-running work, configure the Drive Contract and run python .coderail/coderail.py drive at checkpoints.")
+    print("\nCodeRail is ready. Three commands cover everyday work:")
+    print()
+    print('  python .coderail/coderail.py start "what you want to do"   # begin a task')
+    print("  python .coderail/coderail.py check                         # am I on track?")
+    print("  python .coderail/coderail.py done                          # finish safely")
+    print()
+    print("First step: write one paragraph about what you are building in docs/NORTH_STAR.md.")
     return 0
 
 

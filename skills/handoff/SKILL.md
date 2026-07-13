@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Create an event-triggered handoff snapshot with Coordinate Summary and inspect status, not an execution log.
+description: Write a short snapshot so the next session (or another person/agent) can resume without re-discovering everything.
 ---
 
 # handoff

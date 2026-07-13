@@ -1,127 +1,113 @@
-# CodeRail Runtime Entry
+# CodeRail
 
-This repository uses CodeRail. Keep this file short; full schemas live in `references/`.
+This project uses CodeRail to keep AI-assisted work on track. The rules below
+are written in plain language. You do not need to learn any special terminology.
 
-## Governance layers
+## The three commands
 
-- **L1 kernel**: CodeRail rules and entry files (`AGENTS.md`, `CLAUDE.md`), package files, plugin manifests, skills, scripts, references. Long-lived rails; do not modify unless the user explicitly asks to upgrade CodeRail.
-- **L2 project state**: `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/CONTRACTS.md`, `docs/BLUEPRINTS.md`, `docs/HANDOFF.md`, `docs/TRACELOG.jsonl`, `docs/HARNESS_SPEC.md`. Edit through CodeRail flow. `TRACELOG.jsonl` is append-only.
-- **L3 implementation**: business code and tests. Edit only inside the current S field.
+There is one entry point with three everyday commands:
 
-## K0 North-Star Kernel
+```bash
+python .coderail/coderail.py start "what you want to do"   # begin a task
+python .coderail/coderail.py check                         # am I on track?
+python .coderail/coderail.py done                          # finish safely
+```
 
-Before implementation, read or create `docs/NORTH_STAR.md`.
+Everything else (verification gates, history tracing, safe commits, handoff
+notes) happens automatically behind these three commands.
 
-Every task must name the outcome, intent level, current slice, invariant, non-goal, and drift signal.
+## Before you write any code
 
-If the request is L0-L3, do not jump to code. Produce an engineering judgment and a contract draft first.
+1. Read `docs/NORTH_STAR.md` — the project goal in one page. If it is empty,
+   ask the user what they are building and write it down first.
+2. Read `docs/TASKS.md` — what is in flight right now.
+3. Run `git status` — know what is already changed.
+4. If there is no active task for what you are about to do, run `start`.
 
-## K1 CodeRail Coordinate
+## While you work
 
-Every non-trivial task must explicitly declare `Rail: full` or `Rail: light` and have a matching Coordinate. Do not let the agent silently infer the rail for current work; CLI overrides such as `--rail-type light` must be intentional and recorded.
+- Only touch files the current task said it would touch. If you need to go
+  outside that list, say so and update the task — do not do it silently.
+- If the request is vague, big, or risky (payments, auth, data deletion,
+  schema changes), write down what you plan to do in `docs/CONTRACTS.md` and
+  get a yes before coding.
+- For bug fixes and logic-heavy code, write a failing test first, then make
+  it pass. Record that in the task.
+- Record important decisions in `docs/DECISIONS.md` (one line is enough:
+  what you decided and why).
 
-- **Full Rail**: code, schema, dependencies, data writes, runners, pipelines, external interfaces, migrations, or release work. Use full G/T/S/V/X/P, executable verification, trace, done gate, and closeout.
-- **Light Rail**: theory, product positioning, design principles, philosophy boundaries, terminology, ADRs, and document drafts. Use a light coordinate: goal, boundary, persistence location, acceptance/trace or manual acceptance, and next step. Do not force an implementation/test loop when there is no code path.
+## Before you say "done"
 
-- **G — Goal**: which North Star outcome this serves.
-- **T — Task**: the exact task to complete.
-- **S — Scope**: allowed and forbidden files/assets.
-- **V — Verify**: harness, test, build, or manual acceptance.
-- **X — Stop**: conditions that require stopping or escalating.
-- **P — Persist**: project assets to update after the action.
+Never declare a task finished from memory. Run:
 
-If any field is missing, stop and run the matching CodeRail skill or repair `docs/TASKS.md` before coding.
+```bash
+python .coderail/coderail.py done
+```
 
-## TDD Gate
+It verifies, in order: tests/checks pass (or you explicitly recorded a manual
+check), changes stayed inside the task's file list, the docs are updated, and
+then it commits only the safe, task-related files. If it says the task is not
+finished, fix what it points out — do not talk your way around it.
 
-Use Red-Green-Refactor for bugs, regressions, parsers, validators, domain logic, APIs, shared utilities, and risky refactors. In `V`, set TDD mode to required, optional, or waived; required tasks need Red and Green evidence before done.
+If you finished part of the work but not all of it, use
+`done --result stage-complete` so the next session knows where to pick up.
 
-## Contract Draft Gate
+## After "done": report in plain language (non-negotiable)
 
-For vague, high-risk, cross-module, or mid-session requirements, create a `Coordinate Contract Draft` before coding. Use `docs/CONTRACTS.md` or `/coderail:contract-draft`.
+The user may not read code or technical docs. After every finished task,
+your closing message to them MUST answer exactly three questions, in the
+user's own language, in 3-6 sentences total:
 
-Do not code from vague intent. Do not silently fold a side request into the current task.
+1. **What can you see or do now that you couldn't before?**
+2. **How do I know it works?** (what was actually checked, said plainly)
+3. **What's next — and do you need to decide anything?**
 
-## Verification-before-complete
+Rules:
+- No file paths, no tool names, no framework jargon, no task IDs —
+  unless the user asks for them.
+- If a decision is needed, phrase it as a clear either/or question.
+  Never say "let me know how you'd like to proceed" without options.
+- Never paste raw command output or gate reports at the user.
 
-Before marking done, run the CodeRail skill or `python .coderail/coderail.py done`.
+The `done` command also appends a three-line entry to `docs/PROGRESS.md`.
+That file is the project's plain-language journal — the ONE file a
+non-technical owner reads to stay oriented. Never let it rot: if you close
+work without `done`, add the entry yourself, newest first.
 
-No done without the rail-appropriate evidence:
+## When the tool says "Step back"
 
-1. V passed or explicit manual acceptance.
-2. S respected.
-3. P synced. Full Rail requires TASKS and TRACE; Light Rail requires TASKS plus trace, decision backlink, or explicit manual acceptance.
-4. A verify trace event or fresh verification/manual evidence.
-5. Handoff Trigger Check performed.
+`check` and `done` watch for signs that you are going in circles: the same
+task failing repeatedly, the same file changing in commit after commit, or
+multiple tasks getting blocked. When that happens they print a `== Step back ==`
+notice. Treat it as a hard signal, not a suggestion:
 
-## Runtime State Inspect
+- **"Is the design of this module right?"** — stop patching. Re-read the code
+  around the problem and propose a structural change to the user before
+  attempting another fix.
+- **"Is this the right thing to build at all?"** — stop coding. Re-read
+  `docs/NORTH_STAR.md`, explain the tension to the user in plain language,
+  and let them decide before continuing.
 
-Use the CodeRail inspect skill or `python .coderail/coderail.py inspect` before resuming, before handoff, after task jumps, or when the project feels hard to understand. It writes `docs/CODERAIL_STATUS.md`.
+The pattern behind this: when repeated fixing does not converge, the bug is
+almost never at the level where you are fixing. It lives one level up — in
+the design, or in the requirement itself.
 
-## Blueprint Gate
+## Honesty rules (non-negotiable)
 
-Use `docs/BLUEPRINTS.md` and `python .coderail/coderail.py blueprint` when architecture, data, deployment, UI flow, or lifecycle complexity appears. Required diagrams must be current before high-complexity work is treated as done.
+- Do not claim tests passed if you did not run them.
+- Do not mark a task done if the finish command failed.
+- Do not quietly expand a task into unrelated files.
+- Do not use `git add .` — the finish command stages only safe files.
 
-## K7 Trace Graph
+## When you come back to a project
 
-Every meaningful action must be linkable:
+If you are resuming after a break, a crash, or someone else's session, read
+`docs/HANDOFF.md` and `docs/CODERAIL_STATUS.md` first, or regenerate the
+status with `python .coderail/coderail.py inspect`.
 
-1. source or intent
-2. North Star or task
-3. modified files/assets
-4. verification evidence
-5. persisted state
+## Advanced
 
-If an action cannot be linked, stop and run `/trace` or `/link`.
-
-## Load order
-
-Always read:
-
-1. `docs/NORTH_STAR.md`
-2. `docs/TASKS.md`
-3. `docs/HARNESS_SPEC.md`
-4. `git status`
-
-Read when needed:
-
-- `docs/CONTRACTS.md`: draft-gated or high-risk work.
-- `docs/CODERAIL_STATUS.md`: resuming, inspecting, or handing off.
-- `docs/BLUEPRINTS.md`: architecture, data, deployment, UI flow, or lifecycle complexity.
-- `docs/HANDOFF.md`: new session, H2/H3 handoff, blocked task.
-- `docs/TRACELOG.jsonl` / `docs/TRACE_INDEX.md`: history, trace gaps, why code exists.
-- `docs/DECISIONS.md`, `docs/LESSONS.md`, `docs/ASSETS.md`: durable decisions, repeated failures, asset changes.
-
-## Intent levels
-
-- L0 Outcome
-- L1 Product / Domain
-- L2 Architecture
-- L3 Technical Design
-- L4 Task Plan
-- L5 Implementation
-
-Do not collapse L0-L3 requests into L5 patches before framing the judgment.
-
-## Non-negotiable rules
-
-- Do not mark done without the done gate.
-- Do not modify forbidden files without approval and trace.
-- Do not treat raw material or working notes as permanent assets.
-- Do not hide failed tests or fake harness results.
-- Prefer permissions/hooks/CI over prompt-only rules.
-
-## Execution rhythm
-
-Plan finely. Execute authorized batches until done, stage-complete, blocked, failed, or drift is detected. Under a continuous Drive Contract, run `python .coderail/coderail.py drive` at checkpoints. A stage-complete task stays active and continues toward acceptance; advance only after the current task leaves active state.
-
-Pause only for `BLOCKED_DECISION`, `REVIEW_DIRECTION`, `COMPLETE`, or `EXHAUSTED`: missing goal, forbidden scope, product/security/payment/privacy/API/schema/persistence changes, unclear repeated harness failure, or docs/code contradiction. Run non-decision gates yourself.
-
-## Closeout
-
-Before any substantial final response or stop:
-
-1. Run `python .coderail/coderail.py finish --task <ID> --task-result <result>`.
-2. Report its Closeout State, Auto Commit action, Handoff Trigger Check, recommendation, and Next Executable Step.
-3. Never use `git add .` when unsafe.
-4. In continuous mode, a non-terminal finish result forbids ending the response; follow its next action instead.
+Power users and long-running autonomous sessions can use the advanced
+commands (`doctor`, `drive`, `inspect`, `trace`, `blueprint`, `finish`, ...).
+Run `python .coderail/coderail.py --help` to list them. They are optional;
+the three everyday commands cover normal work.
