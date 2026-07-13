@@ -1,5 +1,36 @@
 # Changelog
 
+## Unreleased
+
+Ledger integrity and gate coherence: closes the third round of field findings (FN-020..FN-024) from the timebuild run. The theme: closing a task and recording that close are one transaction, and both ends of a task's life apply the same rules.
+
+### Transactional closeout (FN-023)
+
+- Fixed a silent ledger regression: in continuous mode (gate exit 3) `done` closed the task and committed but skipped the PROGRESS entry and the on-disk report entirely. Both exit paths of a successful close now run the same ledger steps.
+- Each ledger step (report file, journal entry, deferred queueing) is individually guarded: any failure prints an explicit `LEDGER ERROR` naming the failed step and the remedy, and `done` exits non-zero instead of reporting success.
+- New `coderail progress` audits the ledger (every closed task must have a journal entry); `coderail progress --repair` backfills honest retroactive entries — marked as repairs, referencing surviving reports and registered verify commands — for historical gaps like T-190.
+
+### TDD gate coherence (FN-024)
+
+- The TDD heuristic now respects an explicitly declared `Type:` — `refactor` (and docs/chore/release/etc.) tasks no longer get "likely needs TDD mode" at done after being waved through at start. `tdd_required()` in tdd_check.py is the single source of the verdict for start, check, and done.
+- Tasks that promised test files at start (`--tests`) are no longer nagged by the heuristic; the diff check (FN-009) already covers them. The bare keyword "refactor" was removed from the hint list — the explicit type is the signal.
+
+### Scope declaration ergonomics (FN-021)
+
+- `--files` is now repeatable and accepts globs: `--files "src/director/director*.ts" --files "docs/x.md,README.md"`. Globs expand against the repo at start (deduplicated, unmatched patterns kept literally for files created later), so the done scope check sees real paths.
+
+### Portable home resolution (FN-022)
+
+- The shim resolves the CodeRail home in order: `CODERAIL_HOME` env > gitignored `.coderail/config.local.json` > `config.json`; each source may hold a single path or a list of candidates probed in order. Cloud sandboxes set the local override once instead of exporting per shell; failures list every probed path.
+
+### Closeout copy (FN-020)
+
+- `done --next "..."` writes the real next step into the journal's Next field (default text only when omitted); the "Now tell the user" template truncates long verify evidence at 70 chars, pointing to the on-disk report for the full text.
+
+### Tests
+
+- Six new end-to-end tests: warning-laden done still writes the ledger, sabotaged journal fails loudly and repairs cleanly, refactor/feature TDD-hint contrast, glob expansion, candidate-home probing, and `--next` injection (73 total).
+
 ## v0.8.2
 
 Reporting integrity: closes the second round of field findings (FN-013..FN-018). The theme: what the tool reports must be exactly what happened — right task, real evidence, no noise.

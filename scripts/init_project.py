@@ -94,9 +94,10 @@ def install_local_entry(target: Path, force: bool = False) -> None:
         print("wrote .coderail/config.json")
     else:
         print("kept existing .coderail/config.json (never overwritten; edit or delete by hand)")
-    # Local working state (spin counter, done reports) must stay out of git.
+    # Local working state (spin counter, done reports, machine-local home
+    # override) must stay out of git.
     gitignore = target / ".gitignore"
-    ignore_lines = [".coderail/spin.json", ".coderail/reports/"]
+    ignore_lines = [".coderail/spin.json", ".coderail/reports/", ".coderail/config.local.json"]
     existing = gitignore.read_text(encoding="utf-8", errors="ignore") if gitignore.exists() else ""
     missing = [l for l in ignore_lines if l not in existing]
     if missing:

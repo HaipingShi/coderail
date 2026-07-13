@@ -38,11 +38,32 @@ def effective_version(home: "Path | None" = None) -> str:
     return SHIM_VERSION
 
 HOME_HINT = (
-    "Hint: the recorded coderail_home path is machine-specific. On a different\n"
-    "machine (CI, cloud sandbox, teammate laptop), override it per run:\n"
-    "    CODERAIL_HOME=/path/to/coderail python .coderail/coderail.py <command>\n"
-    "or update .coderail/config.json to this machine's CodeRail checkout."
+    "Hint: the recorded coderail_home path is machine-specific. Fix it once for\n"
+    "this machine with a gitignored local override (checked before config.json):\n"
+    '    echo \'{"coderail_home": "/path/to/coderail"}\' > .coderail/config.local.json\n'
+    "or per run:  CODERAIL_HOME=/path/to/coderail python .coderail/coderail.py <cmd>\n"
+    "config.json also accepts a list of candidate paths, probed in order (FN-022)."
 )
+
+
+def home_candidates(local_dir: Path) -> list[str]:
+    """Resolution order (FN-022): CODERAIL_HOME env > config.local.json
+    (gitignored, machine-local) > config.json. Each source may hold a single
+    path or a list of candidate paths, probed in order."""
+    candidates: list[str] = []
+    env = os.environ.get("CODERAIL_HOME")
+    if env:
+        candidates.append(env)
+    for name in ("config.local.json", "config.json"):
+        try:
+            value = json.loads((local_dir / name).read_text(encoding="utf-8")).get("coderail_home")
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            continue
+        if isinstance(value, str):
+            candidates.append(value)
+        elif isinstance(value, list):
+            candidates.extend(v for v in value if isinstance(v, str))
+    return candidates
 
 
 def main(argv=None) -> int:
@@ -50,25 +71,25 @@ def main(argv=None) -> int:
 
     local_dir = Path(__file__).resolve().parent
     project = local_dir.parent
-    config_path = local_dir / "config.json"
-    configured_home = None
-    try:
-        config = json.loads(config_path.read_text(encoding="utf-8"))
-        configured_home = config.get("coderail_home")
-    except (FileNotFoundError, json.JSONDecodeError):
-        pass
 
-    home_value = os.environ.get("CODERAIL_HOME") or configured_home
-    if not home_value:
+    candidates = home_candidates(local_dir)
+    if not candidates:
         print("CodeRail home is not configured (.coderail/config.json has no", file=sys.stderr)
         print("coderail_home and CODERAIL_HOME is not set).", file=sys.stderr)
         print(HOME_HINT, file=sys.stderr)
         return 2
 
-    home = Path(home_value).expanduser().resolve()
-    entry = home / "scripts" / "coderail.py"
-    if not entry.exists():
-        print(f"CodeRail entry is unavailable: {entry}", file=sys.stderr)
+    entry = home = None
+    for cand in candidates:
+        h = Path(cand).expanduser().resolve()
+        e = h / "scripts" / "coderail.py"
+        if e.exists():
+            home, entry = h, e
+            break
+    if entry is None:
+        print("CodeRail entry is unavailable. Probed candidate path(s):", file=sys.stderr)
+        for cand in candidates:
+            print(f"  - {Path(cand).expanduser()}", file=sys.stderr)
         print(HOME_HINT, file=sys.stderr)
         return 2
 

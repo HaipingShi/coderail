@@ -28,7 +28,6 @@ REQUIRED_HINTS = {
     "contract",
     "shared",
     "utility",
-    "refactor",
 }
 WAIVABLE_HINTS = {
     "docs",
@@ -60,12 +59,25 @@ def task_type(body: str) -> str:
     return m.group(1).strip().lower() if m else ""
 
 
-def likely_required(header: str, body: str) -> bool:
-    blob = f"{header}\n{task_type(body)}\n{body}".lower()
+# FN-024: an explicit, declared Type always beats keyword sniffing.
+# refactor = behaviour preserved, existing verify commands are the safety
+# net; forcing "write a failing test first" there is a category error.
+NON_TDD_TYPES = {"refactor", "docs", "documentation", "chore", "scaffold",
+                 "release", "metadata", "visual", "polish", "spike"}
+
+
+def tdd_required(header: str, body: str, has_declared_tests: bool = False) -> bool:
+    """Single source of truth for the TDD-needed decision. Used by every
+    caller (start, check, done all run this module), so the verdict cannot
+    differ between the two ends of a task's life (FN-024)."""
+    declared = task_type(body)
+    if declared in NON_TDD_TYPES:
+        return False
+    if has_declared_tests:
+        return False  # tests were promised at start; FN-009 checks the diff
+    blob = f"{header}\n{declared}\n{body}".lower()
     if any(hint in blob for hint in REQUIRED_HINTS):
         return True
-    if any(hint in blob for hint in WAIVABLE_HINTS):
-        return False
     return False
 
 
@@ -74,7 +86,8 @@ def has_evidence(label: str, verify_text: str) -> bool:
     return bool(value and value.lower() not in {"none", "n/a", "todo", "pending"})
 
 
-def check_task(header: str, body: str, status: str) -> tuple[list[str], list[str]]:
+def check_task(header: str, body: str, status: str,
+               declared_tests: set[str] | None = None) -> tuple[list[str], list[str]]:
     severe, warnings = [], []
     tid = header.split()[0]
     coord = coordinate_check.parse_coordinate(body) or {}
@@ -83,7 +96,8 @@ def check_task(header: str, body: str, status: str) -> tuple[list[str], list[str
         return severe, warnings
 
     mode = value_after("TDD mode", verify).lower()
-    required_by_hint = likely_required(header, body)
+    required_by_hint = tdd_required(
+        header, body, has_declared_tests=tid in (declared_tests or set()))
     if required_by_hint and not mode:
         warnings.append(f"{tid}: likely needs TDD mode because task appears correctness-sensitive")
         return severe, warnings
@@ -113,12 +127,22 @@ def main(argv=None) -> int:
         print(f"error: {tasks} not found", file=sys.stderr)
         return 2
 
+    # FN-024: tasks that promised test files at start (--tests) are already
+    # covered by the diff check in done; do not nag them here.
+    declared_tests: set[str] = set()
+    try:
+        import json
+        meta = json.loads((root / ".coderail" / "tasks.json").read_text(encoding="utf-8"))
+        declared_tests = {tid for tid, m in meta.items() if m.get("tests")}
+    except (FileNotFoundError, ValueError, OSError):
+        pass
+
     severe, warnings = [], []
     checked = 0
     for header, body, status in coordinate_check.split_tasks(text):
         if "Example task" in header or "Task Template" in header:
             continue
-        s, w = check_task(header, body, status)
+        s, w = check_task(header, body, status, declared_tests)
         severe.extend(s)
         warnings.extend(w)
         checked += 1

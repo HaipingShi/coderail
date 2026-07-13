@@ -303,9 +303,14 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
 
 
 def print_user_report_scaffold(task_id: str, title: str, verified: str) -> None:
+    # FN-020: long verify command lists overflow the prompt line; truncate
+    # here - the full text lives in the on-disk done report.
+    evidence = verified or "state plainly"
+    if len(evidence) > 70:
+        evidence = evidence[:67] + "... (full evidence in the done report)"
     print()
     print("== Now tell the user (their language, no jargon, 3-6 sentences) ==")
-    print(f"  1. what they can do now  2. how you know it works ({verified or 'state plainly'})")
+    print(f"  1. what they can do now  2. how you know it works ({evidence})")
     print("  3. what next / any decision - phrase decisions as clear either/or.")
 
 
@@ -708,7 +713,23 @@ def cmd_start(args) -> int:
 
     goal = (args.goal or title).strip()
     done_when = (args.done_when or "Manually confirm the result works as intended.").strip()
-    files = [f.strip() for f in (args.files or "").split(",") if f.strip()]
+    # FN-021: --files is repeatable and each value may mix comma lists and
+    # globs; globs expand against the repo now, unmatched patterns are kept
+    # literally (the files may not exist yet).
+    raw_files: list[str] = []
+    for chunk in (args.files or []):
+        raw_files += [f.strip() for f in chunk.split(",") if f.strip()]
+    files: list[str] = []
+    for pat in raw_files:
+        if any(ch in pat for ch in "*?["):
+            matches = sorted(
+                str(p.relative_to(root)) for p in root.glob(pat) if p.is_file()
+            )
+            files += matches or [pat]
+        else:
+            files.append(pat)
+    seen: set[str] = set()
+    files = [f for f in files if not (f in seen or seen.add(f))]
     avoid = [f.strip() for f in (args.avoid or "").split(",") if f.strip()]
     task_type = (args.type or "feature").strip().lower()
     rail = guess_rail(title, goal, task_type)
@@ -952,12 +973,17 @@ def cmd_done(args) -> int:
             print("      which PASSED.")
 
     print()
-    if rc == 0:
+    if rc in (0, 3):
+        # FN-023: rc==3 (continuous mode) is ALSO a successful close - the
+        # gate closed the task and committed. The ledger steps below must run
+        # for every successful close, and each is individually guarded so a
+        # failure is loud, named, and repairable - never silent.
         if task_before:
             bump_spin_state(root, task_before, reset=True)
 
         title = verified = ""
         report_path = None
+        ledger_errors: list[str] = []
         if task_before:
             # FN-017-1: trust the file, not our assumption - the closed task is
             # the one whose status actually flipped away from [~].
@@ -986,20 +1012,30 @@ def cmd_done(args) -> int:
                 verified = "unverified - no verify commands registered"
 
             accepted_pairs = list(zip(accept_items, accept_statuses)) if accept_statuses else []
-            report_path = write_done_report(
-                root, shown, title, verify_results, accepted_pairs,
-                tdd_warnings, gate_output,
-            )
 
-            todo = next_todo_task(read_tasks(root))
-            next_hint = f"{todo['id']} {todo['title']}" if todo else "decide with the user"
-            append_progress(
-                root, shown, title or shown, verified, next_hint,
-                evidence=evidence_lines,
-                deferred=deferred_items,
-                warnings=tdd_warnings,
-                accepted=accepted_pairs,
-            )
+            # Ledger step 1: persist the full evidence report.
+            try:
+                report_path = write_done_report(
+                    root, shown, title, verify_results, accepted_pairs,
+                    tdd_warnings, gate_output,
+                )
+            except Exception as e:  # noqa: BLE001 - must be loud, not fatal
+                ledger_errors.append(f"report file (.coderail/reports/): {e}")
+
+            # Ledger step 2: append the plain-language journal entry.
+            try:
+                todo = next_todo_task(read_tasks(root))
+                default_hint = f"{todo['id']} {todo['title']}" if todo else "decide with the user"
+                next_hint = (args.next_hint or "").strip() or default_hint  # FN-020
+                append_progress(
+                    root, shown, title or shown, verified, next_hint,
+                    evidence=evidence_lines,
+                    deferred=deferred_items,
+                    warnings=tdd_warnings,
+                    accepted=accepted_pairs,
+                )
+            except Exception as e:  # noqa: BLE001
+                ledger_errors.append(f"progress journal (docs/PROGRESS.md): {e}")
 
             # FN-018: <= 15 lines, unambiguous verdict first.
             print(f"== Done: {shown} - {title or '(untitled)'} ==")
@@ -1014,37 +1050,49 @@ def cmd_done(args) -> int:
                 print(f"  acceptance:  {n_done} done, {n_def} deferred")
             print(f"  warnings:    {len(tdd_warnings)}")
             print(f"  committed:   {'no (--no-commit)' if args.no_commit else 'yes (safe task files)'}")
-            print(f"  journal:     docs/PROGRESS.md updated")
+            if not any("PROGRESS" in e for e in ledger_errors):
+                print(f"  journal:     docs/PROGRESS.md updated")
             if report_path:
                 print(f"  full report: {report_path}")
         else:
             print("Task closed. Docs updated, checks passed, safe files committed.")
 
-        # FN-012: deferred acceptance items become queued follow-up tasks.
+        # Ledger step 3 (FN-012): deferred acceptance items become queued tasks.
         if deferred_items:
-            text_now = read_tasks(root)
-            blocks = ""
-            for item in deferred_items:
-                new_id = next_task_id(text_now + blocks)
-                blocks += (
-                    f"\n## {new_id} {item}\n\nStatus: [ ]\nType: feature\nRail: full\n\n"
-                    f"### CodeRail Coordinate\n\nG — Goal\n- Deferred from {shown}: {item}\n\n"
-                    f"T — Task\n- {item}\n\nS — Scope\nAllowed:\n  - to be decided while working\n"
-                    f"Forbidden:\n  - none\n\nV — Verify\n- {BOILERPLATE_VERIFY}\n\n"
-                    f"X — Stop\n- Stop and ask if changes are needed outside the allowed files.\n\n"
-                    f"P — Persist\n- TASKS, TRACE\n"
-                )
-            tasks_path(root).write_text(text_now.rstrip() + "\n" + blocks, encoding="utf-8")
-            print(f"  deferred:    {len(deferred_items)} item(s) registered as queued tasks")
+            try:
+                text_now = read_tasks(root)
+                blocks = ""
+                for item in deferred_items:
+                    new_id = next_task_id(text_now + blocks)
+                    blocks += (
+                        f"\n## {new_id} {item}\n\nStatus: [ ]\nType: feature\nRail: full\n\n"
+                        f"### CodeRail Coordinate\n\nG — Goal\n- Deferred from {shown}: {item}\n\n"
+                        f"T — Task\n- {item}\n\nS — Scope\nAllowed:\n  - to be decided while working\n"
+                        f"Forbidden:\n  - none\n\nV — Verify\n- {BOILERPLATE_VERIFY}\n\n"
+                        f"X — Stop\n- Stop and ask if changes are needed outside the allowed files.\n\n"
+                        f"P — Persist\n- TASKS, TRACE\n"
+                    )
+                tasks_path(root).write_text(text_now.rstrip() + "\n" + blocks, encoding="utf-8")
+                print(f"  deferred:    {len(deferred_items)} item(s) registered as queued tasks")
+            except Exception as e:  # noqa: BLE001
+                ledger_errors.append(f"deferred task queueing (docs/TASKS.md): {e}")
+
+        if ledger_errors:
+            print()
+            print("LEDGER ERROR: the task WAS closed and committed, but these")
+            print("record-keeping steps FAILED and must be repaired now:")
+            for e in ledger_errors:
+                print(f"  - {e}")
+            print("Repair with:  coderail progress --repair")
+            return 1
 
         print_blueprint_notice(root)
         print_next_recommendation(root)
         if task_before:
             print_user_report_scaffold(shown, title or shown, verified)
-    elif rc == 3:
-        if not args.verbose:
-            print(gate_output)
-        print("This project runs in continuous mode: keep going with the next step above.")
+        if rc == 3:
+            print("This project runs in continuous mode: keep going with the next task.")
+            return 3
     else:
         if not args.verbose:
             print(gate_output)  # on failure, details ARE the point
@@ -1055,6 +1103,63 @@ def cmd_done(args) -> int:
         text = read_tasks(root)
         print_spin_report(root, active_task_id(text), list_tasks(text))
     return rc
+
+
+# ---------------------------------------------------------------- progress
+
+def cmd_progress(args) -> int:
+    """FN-023: audit the ledger - every closed task must have a PROGRESS
+    entry. --repair writes honest retroactive entries for any that are missing
+    (e.g. closes that predate the transactional fix)."""
+    root = Path(args.target).resolve()
+    progress_file = root / "docs" / "PROGRESS.md"
+    progress_text = progress_file.read_text(encoding="utf-8") if progress_file.exists() else ""
+
+    missing = []
+    for t in list_tasks(read_tasks(root)):
+        if t["status"] in ("[ ]", "[~]") or "Example task" in t["title"]:
+            continue
+        tid = t["id"]
+        m = task_meta(root, tid)
+        display = m.get("display_id")
+        if f"({tid})" in progress_text or f"internal {tid})" in progress_text \
+                or (display and f"({display}" in progress_text):
+            continue
+        missing.append((tid, t["title"], m))
+
+    if not missing:
+        print("Ledger is complete: every closed task has a PROGRESS.md entry.")
+        return 0
+
+    print(f"Ledger gap: {len(missing)} closed task(s) missing from docs/PROGRESS.md:")
+    for tid, title, m in missing:
+        print(f"  - {fmt_id(tid, m)} {title}")
+    if not args.repair:
+        print("Write retroactive entries with:  coderail progress --repair")
+        return 1
+
+    for tid, title, m in missing:
+        shown = fmt_id(tid, m)
+        # Point at the on-disk done report if one survived the original close.
+        reports = sorted((root / ".coderail" / "reports").glob("done-*.md")) \
+            if (root / ".coderail" / "reports").is_dir() else []
+        safe = re.sub(r"[^A-Za-z0-9_-]", "_", shown)
+        matching = [p for p in reports if safe in p.name or tid in p.name]
+        if m.get("verify"):
+            checked = ("retroactive entry - verify commands were registered ("
+                       + "; ".join(f"`{c}`" for c in m["verify"])
+                       + "); original console evidence was lost to a ledger bug")
+        else:
+            checked = "retroactive entry - no verify commands were registered"
+        if matching:
+            checked += f"; surviving report: {matching[-1].relative_to(root)}"
+        append_progress(root, shown, title, checked,
+                        "decide with the user",
+                        warnings=["this entry was written by progress --repair, "
+                                  "after the close itself skipped the journal"])
+        print(f"  repaired: {shown}")
+    print("Ledger repaired. Review docs/PROGRESS.md and commit it.")
+    return 0
 
 
 # ---------------------------------------------------------------- next
@@ -1101,7 +1206,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_start = sub.add_parser("start", help="Begin a new task")
     p_start.add_argument("title", help="What you want to do, in one sentence")
     p_start.add_argument("--goal", help="Why this matters (defaults to the title)")
-    p_start.add_argument("--files", help="Files/folders you expect to touch, comma separated")
+    p_start.add_argument("--files", action="append",
+                         help="Files you expect to touch: repeatable, comma lists "
+                              'and globs both work (e.g. --files "src/x/*.ts" --files "docs/y.md")')
     p_start.add_argument("--avoid", help="Files/folders that must NOT change, comma separated")
     p_start.add_argument("--done-when", help="How you will know it is finished")
     p_start.add_argument("--type", help="feature | bug | refactor | docs (default: feature)")
@@ -1141,8 +1248,15 @@ def build_parser() -> argparse.ArgumentParser:
                              'or "1=done" "2=deferred" (numbered, repeatable)')
     p_done.add_argument("--verbose", action="store_true",
                         help="Print the full gate reports (always saved to .coderail/reports/)")
+    p_done.add_argument("--next", dest="next_hint",
+                        help="The real next step, written to the journal's Next field (FN-020)")
     p_done.add_argument("--no-commit", action="store_true", help="Do not auto-commit")
     p_done.add_argument("--target", default=".")
+
+    p_prog = sub.add_parser("progress", help="Audit or repair the progress journal")
+    p_prog.add_argument("--repair", action="store_true",
+                        help="Write retroactive entries for closed tasks missing from PROGRESS.md")
+    p_prog.add_argument("--target", default=".")
 
     return parser
 
@@ -1171,6 +1285,8 @@ def main(argv=None) -> int:
         return cmd_blueprint(args)
     if args.command == "done":
         return cmd_done(args)
+    if args.command == "progress":
+        return cmd_progress(args)
 
     parser.print_help()
     print("\nAdvanced commands: " + ", ".join(sorted(ADVANCED)))
