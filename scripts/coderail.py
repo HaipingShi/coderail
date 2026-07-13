@@ -89,6 +89,66 @@ def active_task_id(text: str):
     return m.group(1) if m else None
 
 
+TASK_BLOCK_RE = re.compile(
+    r"^##\s+(T-\d+)\s+([^\n]*)\n((?:(?!^##\s).)*)", re.M | re.S
+)
+
+
+def list_tasks(text: str) -> list[dict]:
+    """Return all tasks as {id, title, status} in file order."""
+    tasks = []
+    for m in TASK_BLOCK_RE.finditer(text):
+        body = m.group(3)
+        status_m = re.search(r"^Status:\s*(\[[ ~!x]\])", body, re.M)
+        tasks.append({
+            "id": m.group(1),
+            "title": m.group(2).strip(),
+            "status": status_m.group(1) if status_m else "[ ]",
+        })
+    return tasks
+
+
+def next_todo_task(text: str):
+    """Smart-but-simple recommendation: first `[ ]` task in file order.
+
+    File order is the priority order the plan was written in, so the
+    recommendation is deterministic and needs no configuration.
+    """
+    for task in list_tasks(text):
+        if task["status"] == "[ ]":
+            return task
+    return None
+
+
+def activate_task(root: Path, task_id: str) -> bool:
+    path = tasks_path(root)
+    text = path.read_text(encoding="utf-8")
+    block = re.compile(
+        rf"(^##\s+{re.escape(task_id)}\b(?:(?!^##\s).)*?^Status:\s*)\[ \]",
+        re.M | re.S,
+    )
+    new, n = block.subn(r"\g<1>[~]", text)
+    if n:
+        path.write_text(new, encoding="utf-8")
+    return bool(n)
+
+
+def print_next_recommendation(root: Path) -> None:
+    text = read_tasks(root)
+    todo = next_todo_task(text)
+    if todo:
+        print(f"Next up: {todo['id']} {todo['title']}")
+        print(f"  Continue with:  coderail next --go")
+        print(f"  Or start something new:  coderail start \"...\"")
+    else:
+        remaining = [t for t in list_tasks(text) if t["status"] in ("[~]", "[!]")]
+        if remaining:
+            ids = ", ".join(f"{t['id']}({t['status']})" for t in remaining)
+            print(f"No queued tasks. Still open: {ids}")
+        else:
+            print("Task list is clear. Start your next task with:  coderail start \"...\"")
+
+
 def guess_rail(title: str, goal: str, task_type: str) -> str:
     blob = f"{title} {goal} {task_type}".lower()
     if task_type in {"docs", "design", "research", "note"}:
@@ -177,6 +237,9 @@ def cmd_check(args) -> int:
         print(f"Active task: {active}")
     else:
         print("Active task: none (start one with:  coderail start \"...\")")
+    queued = [t for t in list_tasks(text) if t["status"] == "[ ]"]
+    if queued:
+        print(f"Queued: {len(queued)} task(s), next would be {queued[0]['id']} {queued[0]['title']}")
 
     coord_rc, coord_out = run_script("coordinate_check.py", root, capture=True)
     tdd_rc, tdd_out = run_script("tdd_check.py", root, capture=True)
@@ -221,13 +284,45 @@ def cmd_done(args) -> int:
     print()
     if rc == 0:
         print("Task closed. Docs updated, checks passed, safe files committed.")
-        print("Start your next task with:  coderail start \"...\"")
+        print_next_recommendation(root)
     elif rc == 3:
         print("This project runs in continuous mode: keep going with the next step above.")
     else:
         print("Not finished yet - one or more checks did not pass (details above).")
         print("Fix what it points out, then run:  coderail done   again.")
     return rc
+
+
+# ---------------------------------------------------------------- next
+
+def cmd_next(args) -> int:
+    root = Path(args.target).resolve()
+    text = read_tasks(root)
+
+    active = active_task_id(text)
+    if active:
+        print(f"You already have an active task: {active}.")
+        print("Finish it first with:  coderail done")
+        return 1
+
+    todo = next_todo_task(text)
+    if not todo:
+        print("No queued tasks in docs/TASKS.md.")
+        print("Start a new one with:  coderail start \"...\"")
+        return 0
+
+    if not args.go:
+        print(f"Recommended next task: {todo['id']} {todo['title']}")
+        print("Pick it up with:  coderail next --go")
+        return 0
+
+    if activate_task(root, todo["id"]):
+        print(f"Now working on {todo['id']}: {todo['title']}")
+        print("Details are in docs/TASKS.md. When finished, run:  coderail done")
+        return 0
+
+    print(f"Could not activate {todo['id']}. Check docs/TASKS.md formatting.")
+    return 1
 
 
 # ---------------------------------------------------------------- main
@@ -251,6 +346,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_check = sub.add_parser("check", help="Am I on track? What's missing?")
     p_check.add_argument("--target", default=".")
+
+    p_next = sub.add_parser("next", help="Recommend (or pick up) the next queued task")
+    p_next.add_argument("--go", action="store_true", help="Activate the recommended task")
+    p_next.add_argument("--target", default=".")
 
     p_done = sub.add_parser("done", help="Finish the current task safely")
     p_done.add_argument("--task", help="Task id (defaults to the active task)")
@@ -283,6 +382,8 @@ def main(argv=None) -> int:
         return cmd_start(args)
     if args.command == "check":
         return cmd_check(args)
+    if args.command == "next":
+        return cmd_next(args)
     if args.command == "done":
         return cmd_done(args)
 
