@@ -3,6 +3,13 @@
 This project uses CodeRail to keep AI-assisted work on track. The rules below
 are written in plain language. You do not need to learn any special terminology.
 
+One principle governs everything here: **spec is the output, not the input**.
+The user explores and discovers what they want by building; your job is to help
+them converge — each verified task, recorded decision, and learned boundary
+becomes a constraint the next round of work must respect. Never demand an
+upfront specification from the user, and never violate what has already been
+ratified in `docs/`.
+
 ## The three commands
 
 There is one entry point with three everyday commands:

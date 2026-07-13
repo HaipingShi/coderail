@@ -1,4 +1,4 @@
-# CodeRail
+# CodeRail — Convergent Coding
 
 ![version](https://img.shields.io/badge/version-v0.7.3-2f80ed)
 ![license](https://img.shields.io/badge/license-MIT-27ae60)
@@ -6,9 +6,13 @@
 ![agent](https://img.shields.io/badge/agent--ready-Codex%20%7C%20Claude-8e44ad)
 ![scope](https://img.shields.io/badge/scope-repo--local-16a085)
 
-**Your AI coding assistant stops drifting, stops declaring victory too early, and always leaves a project state the next session can pick up.**
+**Spec is the output, not the input.**
 
-**让 AI 编码助手不再跑偏、不再过早宣布完成、并且永远留下下一个会话能接得住的项目状态。**
+**Spec 是产出，不是前提。**
+
+Vibe coding explores; CodeRail converges. As you build, discover, and change your mind, the tool quietly turns what you learned into guardrails — so exploration compounds instead of unravelling. Your AI assistant stops drifting, stops declaring victory too early, and always leaves a state the next session can pick up.
+
+Vibe coding 负责发散探索，CodeRail 负责收敛。你一边做、一边发现、一边改主意，工具在背后把你学到的东西悄悄追认为护栏——让探索层层累积，而不是层层瓦解。你的 AI 助手不再跑偏、不再过早宣布完成、并且永远留下下一个会话能接得住的项目状态。
 
 No server. No accounts. No new methodology to learn. Just three commands and a `docs/` folder that stays honest.
 
@@ -45,15 +49,19 @@ That is the whole interface. Your AI assistant reads the installed `AGENTS.md` a
 
 **`done`** — 安全网。它验证测试通过（或你明确记录了人工检查）、确认改动没超出承诺的文件、同步文档、只提交安全的任务相关文件，然后告诉你下一步。有问题它会拒绝并明确说出要修什么——AI 助手无法用话术绕过它。
 
-## Why / 为什么需要它
+## Why "Convergent Coding" / 为什么叫"收敛式编码"
 
-Vibe coding is fast and creative — until the project grows. Then docs rot, the assistant drifts from the goal, sessions forget each other, and "done" stops meaning done. Heavyweight spec-driven processes fix this but demand expertise most vibe coders do not have.
+Vibe coding is fast and creative — until the project grows. Then docs rot, the assistant drifts from the goal, sessions forget each other, and "done" stops meaning done. The usual fix is spec-driven development: write the spec first, then build. But that assumes you already know what you want — and vibe coders discover what they want *by building*. Spec-first is not too hard for them; it points the wrong way.
 
-Vibe coding 又快又自由——直到项目变大。然后文档腐烂、助手偏离目标、会话之间互相失忆、"完成"不再意味着真的完成。重型 spec 流程能解决这些，但它要求的工程素养恰恰是 vibe coder 不具备的。
+Vibe coding 又快又自由——直到项目变大。然后文档腐烂、助手偏离目标、会话之间互相失忆、"完成"不再意味着真的完成。常规解法是 spec 驱动开发：先写规格、再动手。但它假设你早就知道自己要什么——而 vibe coder 恰恰是**做出来才知道要什么**。spec 前置对他们不是太难，是方向反了。
 
-CodeRail takes a third path: the discipline runs automatically behind three plain commands. You never write a spec; the tool quietly maintains one for you (goal, task list, decision log, change history) and refuses to let anyone — human or AI — skip verification.
+Convergent Coding inverts the arrow. You explore freely; each time something proves true — a task verified, a decision made, a boundary learned — the tool records it as a constraint the next round of exploration must respect. The spec accumulates behind you instead of blocking the road ahead. Exploration stays free; the project stops oscillating and starts converging. When repeated fixing fails to converge, the tool says so and points one level up: rethink the design, or rethink the goal.
 
-CodeRail 走第三条路：纪律在三个命令背后自动运行。你从不写 spec，工具在背后悄悄替你维护（目标、任务清单、决策记录、变更历史），并且拒绝让任何人——无论人类还是 AI——跳过验证。
+Convergent Coding 把箭头倒过来。你自由探索；每当一件事被证实——一个任务通过验证、一个决策被做出、一条边界被踩明白——工具就把它记录为下一轮探索必须尊重的约束。spec 在你身后累积，而不是挡在你前面。探索依旧自由，项目却不再震荡、开始收敛。当反复修补无法收敛时，工具会直说，并把你的注意力抬高一层：重新想设计，或者重新想目标。
+
+In short: discipline runs automatically behind three plain commands. You never write a spec; the tool quietly maintains one for you (goal, task list, decision log, change history) and refuses to let anyone — human or AI — skip verification.
+
+一句话：纪律在三个命令背后自动运行。你从不写 spec，工具在背后悄悄替你维护（目标、任务清单、决策记录、变更历史），并且拒绝让任何人——无论人类还是 AI——跳过验证。
 
 ## What lives in your repo / 装进仓库的是什么
 
@@ -89,9 +97,9 @@ The three commands are a facade over a deeper kernel: verification gates, TDD ev
 python .coderail/coderail.py --help    # lists advanced commands
 ```
 
-Deep documentation lives in [`references/`](references/). Install details in [`INSTALL.md`](INSTALL.md). Skills for Claude Code / Codex live in [`skills/`](skills/).
+The idea behind the tool — Convergent Coding — is written up in [`references/CONVERGENT_CODING.md`](references/CONVERGENT_CODING.md). Deep documentation lives in [`references/`](references/). Install details in [`INSTALL.md`](INSTALL.md). Skills for Claude Code / Codex live in [`skills/`](skills/).
 
-深度文档见 [`references/`](references/)，安装细节见 [`INSTALL.md`](INSTALL.md)，Claude Code / Codex 的 skills 见 [`skills/`](skills/)。
+工具背后的思想——Convergent Coding（收敛式编码）——完整阐述见 [`references/CONVERGENT_CODING.md`](references/CONVERGENT_CODING.md)。深度文档见 [`references/`](references/)，安装细节见 [`INSTALL.md`](INSTALL.md)，Claude Code / Codex 的 skills 见 [`skills/`](skills/)。
 
 ## License
 
