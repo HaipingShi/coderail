@@ -149,6 +149,172 @@ def print_next_recommendation(root: Path) -> None:
             print("Task list is clear. Start your next task with:  coderail start \"...\"")
 
 
+# ------------------------------------------------- spinning-in-place detection
+#
+# Second-order feedback (Wiener): when first-order feedback (edit -> verify)
+# keeps failing to converge, that is itself a signal that the problem lives
+# one abstraction level up. No intelligence needed - just counting.
+#
+#   level 1 (action -> design):      repeated attempts on the same task
+#   level 2 (design -> architecture): same files churning across recent commits
+#   level 3 (architecture -> intent): repeated blocked/failed tasks
+
+SPIN_ATTEMPTS_DESIGN = 3      # attempts on one task before suggesting design review
+SPIN_ATTEMPTS_INTENT = 5      # attempts before suggesting requirement review
+SPIN_CHURN_COMMITS = 20       # how many recent commits to scan for churn
+SPIN_CHURN_THRESHOLD = 5      # same file in >= N of those commits = oscillation
+SPIN_BLOCKED_THRESHOLD = 2    # blocked/failed tasks before questioning intent
+
+
+def trace_attempts(root: Path, task_id: str) -> tuple[int, int]:
+    """Count (total_verify_attempts, failed_attempts) for a task from TRACELOG.jsonl."""
+    log = root / "docs" / "TRACELOG.jsonl"
+    if not log.exists():
+        return 0, 0
+    import json
+    attempts = failed = 0
+    try:
+        for line in log.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            if entry.get("task") != task_id:
+                continue
+            if entry.get("type") in ("verify", "fix", "change"):
+                attempts += 1
+                if entry.get("harness_result") == "failed" or entry.get("status") == "failed":
+                    failed += 1
+    except OSError:
+        return 0, 0
+    return attempts, failed
+
+
+def spin_state_path(root: Path) -> Path:
+    return root / ".coderail" / "spin.json"
+
+
+def load_spin_state(root: Path) -> dict:
+    import json
+    path = spin_state_path(root)
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return {}
+
+
+def bump_spin_state(root: Path, task_id: str, *, reset: bool = False) -> None:
+    """Count failed `done` attempts per task; reset on success."""
+    import json
+    state = load_spin_state(root)
+    if reset:
+        state.pop(task_id, None)
+    else:
+        state[task_id] = state.get(task_id, 0) + 1
+    path = spin_state_path(root)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def churning_files(root: Path) -> list[tuple[str, int]]:
+    """Files touched in >= SPIN_CHURN_THRESHOLD of the last SPIN_CHURN_COMMITS commits."""
+    try:
+        result = subprocess.run(
+            ["git", "log", f"-{SPIN_CHURN_COMMITS}", "--name-only", "--pretty=format:"],
+            cwd=str(root), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            text=True, encoding="utf-8", errors="replace",
+        )
+    except OSError:
+        return []
+    if result.returncode != 0:
+        return []
+    counts: dict[str, int] = {}
+    for name in result.stdout.splitlines():
+        name = name.strip()
+        if not name or name.startswith("docs/") or name.startswith(".coderail/"):
+            continue
+        counts[name] = counts.get(name, 0) + 1
+    hot = [(f, n) for f, n in counts.items() if n >= SPIN_CHURN_THRESHOLD]
+    hot.sort(key=lambda x: -x[1])
+    return hot[:3]
+
+
+def north_star_line(root: Path) -> str:
+    path = root / "docs" / "NORTH_STAR.md"
+    if not path.exists():
+        return ""
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and not line.startswith("<!--"):
+            return line
+    return ""
+
+
+def spin_report(root: Path, active: str | None, tasks: list[dict]) -> list[str]:
+    """Deterministic escalation hints. Returns plain-language lines (may be empty)."""
+    lines: list[str] = []
+
+    # Level 1 / 3: repeated attempts on the active task.
+    if active:
+        attempts, failed = trace_attempts(root, active)
+        failed_dones = load_spin_state(root).get(active, 0)
+        # Trace entries and the failed-done counter can describe the same
+        # attempt, so take the strongest single signal instead of summing.
+        signal = max(failed, attempts - 1, failed_dones)
+        attempts = max(attempts, failed_dones)  # for honest reporting below
+        if signal >= SPIN_ATTEMPTS_INTENT:
+            lines.append(
+                f"You have circled {active} {attempts} times. Stop repairing. "
+                f"Step two levels up: is this the right thing to build at all?"
+            )
+            star = north_star_line(root)
+            if star:
+                lines.append(f"Project goal for reference: \"{star}\"")
+        elif signal >= SPIN_ATTEMPTS_DESIGN:
+            lines.append(
+                f"{active} has been attempted {attempts} times without closing. "
+                f"Stop fixing the symptom. Step one level up: "
+                f"is the design of this module right?"
+            )
+
+    # Level 2: file churn across recent commits.
+    for filename, n in churning_files(root):
+        lines.append(
+            f"{filename} changed in {n} of the last {SPIN_CHURN_COMMITS} commits. "
+            f"A file that never settles usually means the design around it is wrong, "
+            f"not the code inside it."
+        )
+
+    # Level 3: repeated blocked/failed tasks.
+    blocked = [t for t in tasks if t["status"] == "[!]"]
+    if len(blocked) >= SPIN_BLOCKED_THRESHOLD:
+        ids = ", ".join(t["id"] for t in blocked)
+        lines.append(
+            f"{len(blocked)} tasks are blocked ({ids}). When multiple tasks jam, "
+            f"the requirement itself may be unclear. Re-read docs/NORTH_STAR.md "
+            f"before starting anything new."
+        )
+    return lines
+
+
+def print_spin_report(root: Path, active: str | None, tasks: list[dict]) -> None:
+    hints = spin_report(root, active, tasks)
+    if not hints:
+        return
+    print("\n== Step back ==")
+    for hint in hints:
+        print(f"  ! {hint}")
+    print()
+
+
 def guess_rail(title: str, goal: str, task_type: str) -> str:
     blob = f"{title} {goal} {task_type}".lower()
     if task_type in {"docs", "design", "research", "note"}:
@@ -237,9 +403,12 @@ def cmd_check(args) -> int:
         print(f"Active task: {active}")
     else:
         print("Active task: none (start one with:  coderail start \"...\")")
-    queued = [t for t in list_tasks(text) if t["status"] == "[ ]"]
+    all_tasks = list_tasks(text)
+    queued = [t for t in all_tasks if t["status"] == "[ ]"]
     if queued:
         print(f"Queued: {len(queued)} task(s), next would be {queued[0]['id']} {queued[0]['title']}")
+
+    print_spin_report(root, active, all_tasks)
 
     coord_rc, coord_out = run_script("coordinate_check.py", root, capture=True)
     tdd_rc, tdd_out = run_script("tdd_check.py", root, capture=True)
@@ -279,17 +448,25 @@ def cmd_done(args) -> int:
     if args.no_commit:
         extra += ["--no-auto-commit"]
 
+    task_before = args.task or active_task_id(read_tasks(root))
+
     rc, _ = run_script("finish_task.py", root, extra)
 
     print()
     if rc == 0:
+        if task_before:
+            bump_spin_state(root, task_before, reset=True)
         print("Task closed. Docs updated, checks passed, safe files committed.")
         print_next_recommendation(root)
     elif rc == 3:
         print("This project runs in continuous mode: keep going with the next step above.")
     else:
+        if task_before:
+            bump_spin_state(root, task_before)
         print("Not finished yet - one or more checks did not pass (details above).")
         print("Fix what it points out, then run:  coderail done   again.")
+        text = read_tasks(root)
+        print_spin_report(root, active_task_id(text), list_tasks(text))
     return rc
 
 

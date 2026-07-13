@@ -52,6 +52,24 @@ finished, fix what it points out — do not talk your way around it.
 If you finished part of the work but not all of it, use
 `done --result stage-complete` so the next session knows where to pick up.
 
+## When the tool says "Step back"
+
+`check` and `done` watch for signs that you are going in circles: the same
+task failing repeatedly, the same file changing in commit after commit, or
+multiple tasks getting blocked. When that happens they print a `== Step back ==`
+notice. Treat it as a hard signal, not a suggestion:
+
+- **"Is the design of this module right?"** — stop patching. Re-read the code
+  around the problem and propose a structural change to the user before
+  attempting another fix.
+- **"Is this the right thing to build at all?"** — stop coding. Re-read
+  `docs/NORTH_STAR.md`, explain the tension to the user in plain language,
+  and let them decide before continuing.
+
+The pattern behind this: when repeated fixing does not converge, the bug is
+almost never at the level where you are fixing. It lives one level up — in
+the design, or in the requirement itself.
+
 ## Honesty rules (non-negotiable)
 
 - Do not claim tests passed if you did not run them.

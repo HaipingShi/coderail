@@ -61,6 +61,16 @@ def install_local_entry(target: Path, force: bool = False) -> None:
         print("wrote .coderail/config.json")
     else:
         print("skipped existing .coderail/config.json")
+    # Local working state (e.g. the spinning-in-place counter) must stay out of git.
+    gitignore = target / ".gitignore"
+    ignore_line = ".coderail/spin.json"
+    existing = gitignore.read_text(encoding="utf-8", errors="ignore") if gitignore.exists() else ""
+    if ignore_line not in existing:
+        with gitignore.open("a", encoding="utf-8") as fh:
+            if existing and not existing.endswith("\n"):
+                fh.write("\n")
+            fh.write(ignore_line + "\n")
+        print("updated .gitignore (.coderail/spin.json)")
 
 
 def main(argv=None) -> int:
