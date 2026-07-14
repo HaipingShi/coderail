@@ -1224,7 +1224,10 @@ def test_files_globs_expand_and_accumulate():
         for n in ['director_core.ts', 'director_utils.ts']:
             (root/'src/director'/n).write_text('export {}\n', encoding='utf-8')
         r = cr('start', 'Glob scope task',
-               '--files', 'src/director/director*.ts',
+               # FN-029: a backslash-style pattern must still expand and, more
+               # importantly, must be stored forward-slash - TASKS.md is a
+               # committed artifact matched against git output on every OS.
+               '--files', r'src\director\director*.ts',
                '--files', 'docs/NOTES.md,README.md',
                '--verify', 'true')
         check(r.returncode == 0, r.stdout)
@@ -1232,6 +1235,11 @@ def test_files_globs_expand_and_accumulate():
         for expect in ['src/director/director_core.ts', 'src/director/director_utils.ts',
                        'docs/NOTES.md', 'README.md']:
             check(f'- {expect}' in tasks, f'missing expanded file {expect}: {tasks[-800:]}')
+        # Narrow to THIS task's Allowed scope block (the template's example
+        # task legitimately contains an escaped "\##" heading elsewhere).
+        allowed = tasks[tasks.index('Allowed:'):tasks.index('Forbidden:')]
+        check('\\' not in allowed,
+              f'FN-029: backslash leaked into committed TASKS scope: {allowed!r}')
 
 
 def test_shim_probes_candidate_homes():

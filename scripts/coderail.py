@@ -345,7 +345,7 @@ def write_done_report(root: Path, shown: str, title: str,
         lines += [f"- {w}" for w in tdd_warnings] + [""]
     lines += ["## Full gate output", "", "```", gate_output.rstrip(), "```", ""]
     path.write_text("\n".join(lines), encoding="utf-8")
-    return str(path.relative_to(root))
+    return path.relative_to(root).as_posix()  # FN-029: portable path in TASKS/PROGRESS
 
 
 # ------------------------------------------------- blueprint coverage
@@ -722,9 +722,14 @@ def cmd_start(args) -> int:
         raw_files += [f.strip() for f in chunk.split(",") if f.strip()]
     files: list[str] = []
     for pat in raw_files:
+        # FN-029: TASKS.md is a committed, cross-platform artifact whose paths
+        # are matched against git output (always forward-slash). Normalize the
+        # pattern to forward-slash BEFORE globbing (so a Windows-style
+        # "src\x\*.ts" still expands), and store results forward-slash too.
+        pat = pat.replace("\\", "/")
         if any(ch in pat for ch in "*?["):
             matches = sorted(
-                str(p.relative_to(root)) for p in root.glob(pat) if p.is_file()
+                p.relative_to(root).as_posix() for p in root.glob(pat) if p.is_file()
             )
             files += matches or [pat]
         else:
@@ -1268,7 +1273,7 @@ def cmd_progress(args) -> int:
         else:
             checked = "retroactive entry - no verify commands were registered"
         if matching:
-            checked += f"; surviving report: {matching[-1].relative_to(root)}"
+            checked += f"; surviving report: {matching[-1].relative_to(root).as_posix()}"
 
         next_hint = snap.get("next_hint") or "decide with the user"
         accepted = list(zip(snap.get("accept_items", []),
