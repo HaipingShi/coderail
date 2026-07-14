@@ -49,6 +49,16 @@
       "captured_at": "2026-07-14T22:19:21.852899+00:00",
       "head": "356a433c5e6fc1273df653384ba8d0eaec481e66",
       "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-14T22:24:56.806711+00:00",
+      "files": [
+        {
+          "status": "??",
+          "path": ".coderail/pending_close.json",
+          "fingerprint": "74d2b089b05d561ba78f7312806faaff523c34e60469e12b4ad5b80a1e6f0e9d"
+        }
+      ]
     }
   }
 }
