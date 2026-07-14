@@ -82,6 +82,7 @@ Avoid git add .:
 ```bash
 python .coderail/coderail.py inspect --write
 python .coderail/coderail.py doctor
+python .coderail/coderail.py switch --continue-current
 ```
 
 ## Resume Prompt

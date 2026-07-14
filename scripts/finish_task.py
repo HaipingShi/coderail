@@ -41,7 +41,7 @@ def run_report(label: str, script: str, root: Path, args: list[str] | None = Non
 
 def active_task(root: Path) -> str | None:
     tasks = drive_check.parse_tasks(root)
-    task = next((item for item in tasks if item["status"] == "[~]"), None)
+    task = next((item for item in tasks if item["status"] in {"[~]", "[!]"}), None)
     return task["id"] if task else None
 
 
@@ -137,8 +137,13 @@ def main(argv=None) -> int:
     parser.add_argument("--skip-ci", action="store_true")
     parser.add_argument("--no-auto-commit", action="store_true")
     parser.add_argument("--commit-message", help="Override the auto-commit message")
+    parser.add_argument("--pause-after", action="store_true",
+                        help="After a stage-complete checkpoint, persist the source as [p] paused")
     args = parser.parse_args(argv)
     root = Path(args.target).resolve()
+
+    if args.pause_after and args.task_result != "stage-complete":
+        parser.error("--pause-after requires --task-result stage-complete")
 
     task_id = args.task or active_task(root)
     task_args = ["--task", task_id] if task_id else []
@@ -186,6 +191,10 @@ def main(argv=None) -> int:
                 failures += 1
             else:
                 task_marked_done = bool(task_id)
+    elif args.pause_after:
+        if task_id and not set_task_status(root, task_id, "[p]"):
+            print(f"Could not mark {task_id} paused in docs/TASKS.md", file=sys.stderr)
+            failures += 1
 
     # Drive is evaluated from the task state. Closeout remains the authority for
     # changed-file scope and performs the final task-scoped commit below.

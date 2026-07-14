@@ -20,6 +20,7 @@ if str(SCRIPTS) not in sys.path:
 import coordinate_check  # noqa: E402
 import contract_check  # noqa: E402
 import done_gate  # noqa: E402
+import task_switch  # noqa: E402
 
 
 NON_STOP_STATES = {"CONTINUE", "REPAIR", "ADVANCE"}
@@ -141,7 +142,7 @@ def recommendation_report(
         f"Next Candidate: {next_candidate or '(missing)'}",
     ]
     requires_human = execution_mode != "continuous" or human_gate not in {"", "none"}
-    open_tasks = [task for task in tasks if task["status"] in {"[~]", "[!]", "[ ]", "[r]"}]
+    open_tasks = [task for task in tasks if task["status"] in {"[~]", "[!]", "[p]", "[ ]", "[r]"}]
 
     if mission == "complete":
         if open_tasks:
@@ -384,6 +385,7 @@ def evaluate(
     events = load_events(root)
     tasks = parse_tasks(root)
     active_tasks = [task for task in tasks if task["status"] in {"[~]", "[!]"}]
+    paused_tasks = [task for task in tasks if task["status"] == "[p]"]
     active = active_tasks[0] if active_tasks else None
     active_id = active["id"] if active else None
     ready = ready_tasks(tasks)
@@ -392,6 +394,9 @@ def evaluate(
     no_progress = no_progress_count if no_progress_count is not None else unresolved_event_count(events, active_id, {"no-progress", "no_progress"})
     harness = (harness_result or latest_harness(events, active_id)).strip().lower()
     files = git_changed_files(root) if changed_files is None else changed_files
+    if active_id:
+        unchanged_baseline = task_switch.unchanged_baseline_paths(root, active_id)
+        files = [path for path in files if path not in unchanged_baseline]
     signals = [value for value in (decision_signals or []) if value]
 
     ready_recommendation = ready[0] if ready else None
@@ -440,6 +445,14 @@ def evaluate(
             "Keep exactly one task active or record an explicit task-selection decision before continuing.",
             None,
             [f"active={ids}"],
+        )
+    if not active and paused_tasks:
+        ids = ", ".join(task["id"] for task in paused_tasks)
+        return report(
+            "BLOCKED_DECISION", mode, f"Paused task ownership requires an explicit switch decision: {ids}.",
+            f"Resume one with `coderail switch --to {paused_tasks[0]['id']}` or explicitly switch to another task.",
+            None,
+            [f"paused={ids}"],
         )
     risky_file = decision_file(files)
     if signals or risky_file:

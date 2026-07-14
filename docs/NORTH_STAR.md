@@ -1,7 +1,7 @@
 # North Star
 
 Status: current
-Last reviewed: 2026-07-12
+Last reviewed: 2026-07-15
 Owner: CodeRail maintainers
 
 ## Outcome
@@ -21,8 +21,8 @@ Owner: CodeRail maintainers
 ## Current Slice
 
 - Milestone: M-009 Compatibility and production sync hardening
-- Execution Batch: repair Doctor marker compatibility before downstream sync
-- Active Task: T-002
+- Execution Batch: formalize safe task switching and dirty-baseline ownership
+- Active Task: T-003
 
 ## Non-Goals
 

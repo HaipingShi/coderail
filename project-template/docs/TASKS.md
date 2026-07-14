@@ -5,11 +5,12 @@
 - `[ ]` todo
 - `[~]` doing
 - `[!]` blocked
+- `[p]` paused (non-active; resume explicitly with `coderail switch --to <ID>`)
 - `[x]` done
 - `[f]` failed
 - `[r]` reopened
 
-Task result at closeout may be `done`, `stage-complete`, `blocked`, `failed`, or `deferred`. `stage-complete` usually keeps Status as `[~]`.
+Task result at closeout may be `done`, `stage-complete`, `blocked`, `failed`, or `deferred`. `stage-complete` stays `[~]` unless Task Switch Gate commits it and transitions the source to `[p]`.
 
 ## Task Template
 

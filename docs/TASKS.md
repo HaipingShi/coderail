@@ -5,6 +5,7 @@
 - `[ ]` todo
 - `[~]` doing
 - `[!]` blocked
+- `[p]` paused
 - `[x]` done
 - `[f]` failed
 - `[r]` reopened
@@ -14,6 +15,10 @@
 Status: [x]
 Type: feature
 Rail: full
+Priority: P1
+Autonomy: allowed
+Owner: Codex
+Branch: main
 Priority: P1
 Autonomy: allowed
 Owner: CodeRail maintainers
@@ -190,3 +195,97 @@ Next executable step: Continue in manual mode; no dependency-ready autonomous ta
 Auto commit: requested
 
 Drive decision: BLOCKED_DECISION
+
+## T-003 Task Switch Gate
+
+Status: [x]
+Display id: T-003
+Type: feature
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Make task switches preserve single ownership, safe commits, resumable pause state, and truthful dirty baselines.
+
+T — Task
+- Task Switch Gate
+
+S — Scope
+Allowed:
+  - scripts/coderail.py
+  - scripts/task_switch.py
+  - scripts/closeout_check.py
+  - scripts/coordinate_check.py
+  - scripts/done_gate.py
+  - scripts/doctor.py
+  - scripts/finish_task.py
+  - scripts/drive_check.py
+  - scripts/inspect_state.py
+  - tests/test_structure.py
+  - README.md
+  - project-template/AGENTS.md
+  - project-template/docs/TASKS.md
+  - project-template/docs/HANDOFF.md
+  - project-template/docs/CODERAIL_STATUS.md
+  - references/CLOSEOUT_GATE.md
+  - docs/NORTH_STAR.md
+  - docs/TASKS.md
+  - docs/CONTRACTS.md
+  - docs/DECISIONS.md
+  - docs/HANDOFF.md
+  - docs/HARNESS_SPEC.md
+  - docs/PROGRESS.md
+  - docs/CODERAIL_STATUS.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - .coderail/tasks.json
+Forbidden:
+  - package.json
+  - package-lock.json
+
+V — Verify
+- All switch-matrix lifecycle tests, regression tests, CI, and CodeRail done gate pass without multiple active tasks or automatic push.
+- TDD mode: required
+- Red check: `start --force` created T-002 while T-001 remained `[~]`; lifecycle assertion failed with two active owners.
+- Green check: ten switch/baseline lifecycle tests plus a static no-push guard passed in isolated Git repositories.
+- Refactor check: activation preflight, SHA-256 snapshots, pause/resume, closed ownership, and H3 recovery are centralized in `scripts/task_switch.py`.
+- Regression check: `python3 tests/test_structure.py` passed (88 tests) after runtime integration and root-cause repair.
+- CI check: `npm test` and `npm run ci` passed; Doctor, Blueprint, Contract, TDD, Drive, and whitespace gates passed inside CI.
+- Run: `python3 tests/test_structure.py` (must exit 0)
+- Run: `npm test` (must exit 0)
+- Run: `npm run ci` (must exit 0)
+
+A — Acceptance
+- [x] accepted current task closes and commits before the destination starts
+- [x] verified checkpoint commits then pauses the source before the destination starts
+- [x] uncommittable work writes H3 and requires continue-current or dirty-fork
+- [x] closed-task dirty ownership blocks ordinary start and next --go
+- [x] pre-existing unrelated changes are fingerprinted and excluded from new-task attribution
+- [x] dirty-fork preserves one active task and records the carried baseline
+- [x] no switch or closeout path runs git push
+
+X — Stop
+- Stop if a switch can create multiple active tasks, commit unchanged baseline files, persist file contents, or require automatic push.
+- Stop if compatibility requires package or lockfile changes.
+
+P — Persist
+- TASKS, CONTRACTS, DECISIONS, HANDOFF, HARNESS_SPEC, TRACE, Inspect status, closeout commits
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-003
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested

@@ -24,6 +24,7 @@ import coordinate_check  # noqa: E402
 import trace_doctor  # noqa: E402
 import contract_check  # noqa: E402
 import drive_check  # noqa: E402
+import task_switch  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -124,7 +125,9 @@ def render(root: Path) -> tuple[str, str]:
     enforcement_task, enforced_tasks, historical_tasks, cutoff_issue = legacy_cutoff(ns, tasks)
     drafts = draft_statuses(root)
     active_drafts = [d for d in drafts if d["status"] in drive_check.ACTIVE_DRAFT_STATUSES]
-    active = [t for t in tasks if t["status"] in {"[~]", "[ ]", "[!]"}]
+    active = [t for t in tasks if t["status"] in {"[~]", "[!]"}]
+    paused = [t for t in tasks if t["status"] == "[p]"]
+    closed_pending = task_switch.closed_pending_paths(root)
     events = load_events(root)
     trace_severe, trace_warn = trace_doctor.check(events, docs / "TRACE_INDEX.md", docs / "TRACELOG.jsonl")
     drive = drive_check.evaluate(root)
@@ -147,8 +150,8 @@ def render(root: Path) -> tuple[str, str]:
     drive_warning = drive["mode"] == "continuous" and drive["decision"] == "REVIEW_DIRECTION"
     status = (
         "blocked"
-        if verification_gaps or trace_severe or drive_blocked
-        else ("warning" if trace_gaps or not outcome or active or drive_warning else "healthy")
+        if verification_gaps or trace_severe or drive_blocked or len(active) > 1 or closed_pending
+        else ("warning" if trace_gaps or not outcome or active or paused or drive_warning else "healthy")
     )
 
     lines = []
@@ -204,6 +207,26 @@ def render(root: Path) -> tuple[str, str]:
             lines.append(f"- {t['header']} — {t['status']}")
     else:
         lines.append("- none")
+    lines.append("")
+    lines.append("## Paused Tasks")
+    lines.append("")
+    if paused:
+        for t in paused:
+            lines.append(f"- {t['header']} — [p]; resume with `coderail switch --to {t['id']}`")
+    else:
+        lines.append("- none")
+    lines.append("")
+    lines.append("## Task Switch Gate")
+    lines.append("")
+    lines.append(f"- Active owners: {len(active)}")
+    lines.append(f"- Single-active invariant: {'pass' if len(active) <= 1 else 'blocked'}")
+    if closed_pending:
+        lines.append("- Closed-task uncommitted ownership: blocked")
+        for owner, path in closed_pending:
+            lines.append(f"  - `{path}` (owner {owner})")
+    else:
+        lines.append("- Closed-task uncommitted ownership: none")
+    lines.append("- Automatic push: never")
     lines.append("")
     lines.append("## Draft Contracts")
     lines.append("")
@@ -279,6 +302,8 @@ def render(root: Path) -> tuple[str, str]:
         lines.append(f"- Drive {drive['decision']}: {drive['next_action']}")
     elif active:
         lines.append("- Continue the active task inside S and stop if X triggers.")
+    elif paused:
+        lines.append(f"- Resume or explicitly replace paused task {paused[0]['id']} with `coderail switch --to {paused[0]['id']}`.")
     elif active_drafts:
         lines.append("- Accept, revise, reject, or backlog the active contract draft before coding.")
     else:

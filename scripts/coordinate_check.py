@@ -6,7 +6,7 @@ from pathlib import Path
 
 TASK_HEADER = re.compile(r"^##\s+([A-Z]-\d+[^\n]*)", re.M)
 DONE_MARKERS = {"[x]"}
-STATUS_RE = re.compile(r"Status:\s*(\[[ x~!fr]\])")
+STATUS_RE = re.compile(r"Status:\s*(\[[ x~!frp]\])")
 FIELD_RE = re.compile(r"^([GTSVXP])\s*[—\-:]\s*(Goal|Task|Scope|Verify|Stop|Persist):?\s*$", re.I)
 SUB_RE = re.compile(r"^[-*\s]*(Allowed|Forbidden|Harness|Manual acceptance):\s*$", re.I)
 LIGHT_TYPES = {"docs", "documentation", "design", "research", "adr", "note", "notes", "positioning", "principle", "terminology"}
@@ -92,10 +92,10 @@ def check_task(header: str, body: str, status: str):
     rail = rail_type(header, body)
     coord = parse_coordinate(body)
     if coord is None:
-        if status in {"[ ]", "[~]", "[!]", "[x]"}:
+        if status in {"[ ]", "[~]", "[!]", "[p]", "[x]"}:
             severe.append(f"{tid}: no CodeRail Coordinate block")
         return severe, warnings
-    if not explicit and status in {"[ ]", "[~]", "[!]"}:
+    if not explicit and status in {"[ ]", "[~]", "[!]", "[p]"}:
         severe.append(f"{tid}: Rail missing; write 'Rail: full' or 'Rail: light' explicitly")
     elif rail_meta and not explicit:
         severe.append(f"{tid}: Rail must be full or light")

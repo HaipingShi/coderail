@@ -49,6 +49,27 @@ That is the whole interface. Your AI assistant reads the installed `AGENTS.md` a
 
 **`done`** — 安全网。它验证测试通过（或你明确记录了人工检查）、确认改动没超出承诺的文件、同步文档、只提交安全的任务相关文件，然后告诉你下一步。有问题它会拒绝并明确说出要修什么——AI 助手无法用话术绕过它。
 
+## Switching tasks safely / 安全切换任务
+
+`start` and `next --go` refuse to create ambiguous ownership. Use the explicit
+switch gate when work must branch:
+
+```bash
+python .coderail/coderail.py switch "new task"              # close and commit the accepted source first
+python .coderail/coderail.py switch "new task" --checkpoint # commit a verified checkpoint, then pause it
+python .coderail/coderail.py switch "new task" --dirty-fork # explicit waiver: carry a fingerprinted dirty baseline
+python .coderail/coderail.py switch --to T-012               # resume a paused or queued task
+```
+
+If current work is not safely committable, CodeRail writes an H3 handoff and
+requires `switch --continue-current` or an explicit `--dirty-fork`. Pre-existing
+dirty files are recorded by path, Git state, and SHA-256 fingerprint so unchanged
+work is not attributed to the new task. Auto-commit never means auto-push.
+
+`start` 和 `next --go` 不允许产生模糊归属。切换任务必须经过 `switch`：已验收
+任务先完成并提交；可验证检查点先提交再进入 `[p] paused`；不可提交的改动只写
+H3，必须明确选择继续当前任务或携带指纹化脏基线。自动提交永远不等于自动推送。
+
 ## Why "Convergent Coding" / 为什么叫"收敛式编码"
 
 Vibe coding is fast and creative — until the project grows. Then docs rot, the assistant drifts from the goal, sessions forget each other, and "done" stops meaning done. The usual fix is spec-driven development: write the spec first, then build. But that assumes you already know what you want — and vibe coders discover what they want *by building*. Spec-first is not too hard for them; it points the wrong way.

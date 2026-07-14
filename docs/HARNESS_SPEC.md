@@ -15,6 +15,25 @@ python3 -m pytest
 # task-specific check
 ```
 
+### T-003 Task Switch Gate
+
+```bash
+python3 tests/test_structure.py
+npm test
+npm run ci
+python3 scripts/coderail.py check
+```
+
+Required lifecycle matrix:
+
+- accepted source -> done commit -> destination active
+- verified checkpoint -> stage-complete commit -> source `[p]` -> destination active
+- unsafe source -> H3 -> continue-current or dirty-fork only
+- closed dirty owner -> ordinary activation blocked with exact paths
+- pre-existing dirty path -> path/status/SHA-256 baseline -> unchanged path excluded
+- dirty-fork and paused resume -> exactly one active owner, original ownership restored
+- no CodeRail path runs `git push`
+
 ## Drive Progress Harness
 
 - Progress signal:

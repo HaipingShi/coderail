@@ -21,6 +21,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+import task_switch  # noqa: E402
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
@@ -41,7 +45,7 @@ ADVANCED = {
 }
 
 TASK_HEADER = re.compile(r"^##\s+T-(\d+)", re.M)
-ACTIVE_RE = re.compile(r"^##\s+(T-\d+)[^\n]*\n(?:(?!^##\s).)*?^Status:\s*\[~\]", re.M | re.S)
+ACTIVE_RE = re.compile(r"^##\s+(T-\d+)[^\n]*\n(?:(?!^##\s).)*?^Status:\s*\[(?:~|!)\]", re.M | re.S)
 
 LIGHT_HINTS = ["doc", "readme", "note", "design", "research", "adr", "写文档", "笔记", "调研", "设计稿"]
 
@@ -52,6 +56,7 @@ MINIMAL_TASKS = """# Tasks
 - `[ ]` todo
 - `[~]` doing
 - `[!]` blocked
+- `[p]` paused
 - `[x]` done
 
 """
@@ -99,7 +104,7 @@ def list_tasks(text: str) -> list[dict]:
     tasks = []
     for m in TASK_BLOCK_RE.finditer(text):
         body = m.group(3)
-        status_m = re.search(r"^Status:\s*(\[[ ~!x]\])", body, re.M)
+        status_m = re.search(r"^Status:\s*(\[[ ~!xprf]\])", body, re.M)
         tasks.append({
             "id": m.group(1),
             "title": m.group(2).strip(),
@@ -124,7 +129,7 @@ def activate_task(root: Path, task_id: str) -> bool:
     path = tasks_path(root)
     text = path.read_text(encoding="utf-8")
     block = re.compile(
-        rf"(^##\s+{re.escape(task_id)}\b(?:(?!^##\s).)*?^Status:\s*)\[ \]",
+        rf"(^##\s+{re.escape(task_id)}\b(?:(?!^##\s).)*?^Status:\s*)\[(?: |p|r)\]",
         re.M | re.S,
     )
     new, n = block.subn(r"\g<1>[~]", text)
@@ -169,6 +174,15 @@ def save_meta(root: Path, meta: dict) -> None:
 
 def task_meta(root: Path, task_id: str) -> dict:
     return load_meta(root).get(task_id, {})
+
+
+def record_activation_baseline(root: Path, task_id: str, baseline: dict, dirty_fork: bool = False) -> None:
+    meta = load_meta(root)
+    entry = meta.setdefault(task_id, {})
+    entry["baseline"] = baseline
+    if dirty_fork:
+        entry["dirty_fork"] = True
+    save_meta(root, meta)
 
 
 def fmt_id(task_id: str, meta: dict | None = None) -> str:
@@ -313,6 +327,67 @@ def print_user_report_scaffold(task_id: str, title: str, verified: str) -> None:
     print("== Now tell the user (their language, no jargon, 3-6 sentences) ==")
     print(f"  1. what they can do now  2. how you know it works ({evidence})")
     print("  3. what next / any decision - phrase decisions as clear either/or.")
+
+
+POST_CLOSE_LEDGER_FILES = {
+    ".coderail/tasks.json",
+    "docs/PROGRESS.md",
+    "docs/TASKS.md",
+    "docs/HANDOFF.md",
+    "docs/TRACELOG.jsonl",
+    "docs/TRACE_INDEX.md",
+    "docs/CODERAIL_STATUS.md",
+}
+
+
+def commit_post_close_ledger(root: Path, task_id: str) -> tuple[bool, str]:
+    """Persist state written after finish_task's first safe commit."""
+    changed = [
+        row["path"] for row in task_switch.git_status_entries(root)
+        if row["path"] in POST_CLOSE_LEDGER_FILES and row["status"] != "!!"
+    ]
+    if not changed:
+        return True, "no post-close ledger changes"
+    add = subprocess.run(
+        ["git", "-C", str(root), "add", "--", *changed],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    if add.returncode:
+        return False, add.stdout.strip() or "git add failed"
+    commit = subprocess.run(
+        ["git", "-C", str(root), "commit", "-m", f"chore({task_id}): persist closeout ledger"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    if commit.returncode:
+        return False, commit.stdout.strip() or "git commit failed"
+    return True, ", ".join(changed)
+
+
+def append_switch_trace(root: Path, task_id: str, summary: str, event_type: str = "task") -> bool:
+    rc, output = run_script(
+        "trace_event.py",
+        root,
+        [
+            "--type", event_type,
+            "--task", task_id,
+            "--status", "progress",
+            "--summary", summary,
+            "--coordinate-task", task_id,
+            "--persist", "TASKS,HANDOFF,TRACE",
+        ],
+        capture=True,
+    )
+    if rc:
+        print(output or f"Could not append switch trace for {task_id}.")
+    return rc == 0
 
 
 def write_done_report(root: Path, shown: str, title: str,
@@ -693,11 +768,21 @@ def cmd_start(args) -> int:
     root = Path(args.target).resolve()
     text = read_tasks(root)
 
-    active = active_task_id(text)
-    if active and not args.force:
-        print(f"You already have an active task: {active}.")
-        print(f"Finish it first with:  coderail done")
-        print(f"Or start anyway with: coderail start ... --force")
+    dirty_fork = bool(getattr(args, "dirty_fork", False))
+    preflight = task_switch.activation_preflight(root, text, dirty_fork=dirty_fork)
+    if not preflight["allowed"] and preflight["reason"] == "active-task":
+        active = ", ".join(preflight["active"])
+        print(f"Task Switch Gate blocked start: active owner {active}.")
+        print('Use:  coderail switch "new task"')
+        print("A verified checkpoint may use:  coderail switch \"new task\" --checkpoint")
+        if getattr(args, "force", False):
+            print("NOTE: --force cannot bypass the single-active-task invariant.")
+        return 1
+    if not preflight["allowed"] and preflight["reason"] == "closed-dirty":
+        print("Task Switch Gate blocked start: a closed task still owns uncommitted paths:")
+        for owner, path in preflight["paths"]:
+            print(f"  - {path} (owner {owner})")
+        print("Commit those exact paths, or explicitly carry them with:  --dirty-fork")
         return 1
 
     task_id = next_task_id(text)
@@ -744,6 +829,8 @@ def cmd_start(args) -> int:
     test_files = [t.strip() for t in (args.tests or []) if t.strip()]
     accept_items = [a.strip() for a in (args.accept or []) if a.strip()]
 
+    if dirty_fork and preflight.get("paths"):
+        task_switch.consume_closed_pending(root)
     meta = load_meta(root)
     meta[task_id] = {
         k: v for k, v in {
@@ -751,6 +838,8 @@ def cmd_start(args) -> int:
             "verify": verify_cmds or None,
             "tests": test_files or None,
             "accept": accept_items or None,
+            "baseline": preflight.get("baseline"),
+            "dirty_fork": dirty_fork or None,
         }.items() if v
     }
     save_meta(root, meta)
@@ -932,7 +1021,7 @@ def cmd_done(args) -> int:
     accept_items = meta.get("accept", [])
     accept_statuses: list[str] = []
     deferred_items: list[str] = []
-    if accept_items:
+    if accept_items and args.result == "done":
         raw_parts: list[str] = []
         for chunk in (args.accept_status or []):
             raw_parts += [p.strip() for p in chunk.split(",") if p.strip()]
@@ -1015,6 +1104,8 @@ def cmd_done(args) -> int:
         extra += ["--manual-acceptance", args.manual_acceptance]
     if args.no_commit:
         extra += ["--no-auto-commit"]
+    if getattr(args, "pause_after", False):
+        extra += ["--pause-after"]
     if meta.get("display_id"):
         extra += ["--commit-message",
                   f"chore({meta['display_id']}/{task_before}): "
@@ -1160,6 +1251,13 @@ def cmd_done(args) -> int:
                 ledger_errors.append(
                     "post-close audit: the PROGRESS entry claimed above is NOT on disk")
 
+        if task_before and not ledger_errors and not args.no_commit:
+            committed, detail = commit_post_close_ledger(root, task_before)
+            if committed:
+                print(f"  ledger commit: {detail}")
+            else:
+                ledger_errors.append(f"post-close ledger commit: {detail}")
+
         if ledger_errors:
             print()
             print("LEDGER ERROR: the task WAS closed and committed, but these")
@@ -1297,10 +1395,17 @@ def cmd_next(args) -> int:
     root = Path(args.target).resolve()
     text = read_tasks(root)
 
-    active = active_task_id(text)
-    if active:
-        print(f"You already have an active task: {active}.")
-        print("Finish it first with:  coderail done")
+    dirty_fork = bool(getattr(args, "dirty_fork", False))
+    preflight = task_switch.activation_preflight(root, text, dirty_fork=dirty_fork)
+    if not preflight["allowed"] and preflight["reason"] == "active-task":
+        print(f"Task Switch Gate blocked next --go: active owner {', '.join(preflight['active'])}.")
+        print("Use coderail switch --to <TASK_ID> after closing or checkpointing the current task.")
+        return 1
+    if not preflight["allowed"] and preflight["reason"] == "closed-dirty":
+        print("Task Switch Gate blocked next --go: a closed task still owns uncommitted paths:")
+        for owner, path in preflight["paths"]:
+            print(f"  - {path} (owner {owner})")
+        print("Commit those exact paths, or rerun with --dirty-fork.")
         return 1
 
     todo = next_todo_task(text)
@@ -1314,6 +1419,9 @@ def cmd_next(args) -> int:
         print("Pick it up with:  coderail next --go")
         return 0
 
+    if dirty_fork and preflight.get("paths"):
+        task_switch.consume_closed_pending(root)
+    record_activation_baseline(root, todo["id"], preflight["baseline"], dirty_fork=dirty_fork)
     if activate_task(root, todo["id"]):
         print(f"Now working on {todo['id']}: {todo['title']}")
         print("Details are in docs/TASKS.md. When finished, run:  coderail done")
@@ -1321,6 +1429,127 @@ def cmd_next(args) -> int:
 
     print(f"Could not activate {todo['id']}. Check docs/TASKS.md formatting.")
     return 1
+
+
+# ---------------------------------------------------------------- switch
+
+def cmd_switch(args) -> int:
+    root = Path(args.target).resolve()
+    text = read_tasks(root)
+    active = active_task_id(text)
+
+    if args.continue_current:
+        if not active:
+            print("Task Switch Gate: there is no active task to continue.")
+            return 1
+        print(f"Task Switch Gate: continuing {active}; no task state or Git state changed.")
+        return 0
+
+    if not args.title and not args.to:
+        print('Task Switch Gate needs a destination title or --to TASK_ID.')
+        return 1
+    if args.title and args.to:
+        print("Choose one destination: a new title or --to TASK_ID, not both.")
+        return 1
+    if args.checkpoint and args.dirty_fork:
+        print("Choose one source disposition: --checkpoint or --dirty-fork.")
+        return 1
+
+    destination = args.to or args.title
+    if active:
+        if args.dirty_fork:
+            task_switch.write_h3_handoff(
+                root,
+                active,
+                f"explicit dirty-fork waiver before switching to {destination}",
+            )
+            if not task_switch.pause_task(root, active, "dirty-fork"):
+                print(f"Could not pause {active}; repair docs/TASKS.md before switching.")
+                return 1
+        else:
+            done_args = argparse.Namespace(
+                target=str(root),
+                task=active,
+                result="stage-complete" if args.checkpoint else "done",
+                harness_result=args.harness_result,
+                manual_acceptance=args.manual_acceptance,
+                accept_status=args.accept_status,
+                verbose=args.verbose,
+                next_hint=f"switch to {destination}",
+                no_commit=False,
+                pause_after=args.checkpoint,
+            )
+            rc = cmd_done(done_args)
+            if rc != 0:
+                current = active_task_id(read_tasks(root)) or active
+                task_switch.write_h3_handoff(
+                    root,
+                    current,
+                    f"safe closeout failed before switching to {destination}",
+                )
+                append_switch_trace(
+                    root,
+                    current,
+                    f"switch to {destination} stopped; H3 decision required",
+                    event_type="handoff",
+                )
+                print()
+                print("Task Switch Gate did not activate the destination.")
+                print("Choose one:")
+                print("  coderail switch --continue-current")
+                if args.to:
+                    print(f"  coderail switch --to {args.to} --dirty-fork")
+                else:
+                    print(f'  coderail switch "{args.title}" --dirty-fork')
+                return 1
+
+    if args.to:
+        text = read_tasks(root)
+        dirty_fork = bool(args.dirty_fork)
+        preflight = task_switch.activation_preflight(root, text, dirty_fork=dirty_fork)
+        if not preflight["allowed"]:
+            print(f"Task Switch Gate blocked activation of {args.to}: {preflight['reason']}.")
+            for owner, path in preflight.get("paths", []):
+                print(f"  - {path} (owner {owner})")
+            return 1
+        known = {task["id"]: task for task in list_tasks(text)}
+        target = known.get(args.to)
+        if not target or target["status"] not in {"[ ]", "[p]", "[r]"}:
+            print(f"{args.to} is not a queued, paused, or reopened task.")
+            return 1
+        if dirty_fork and preflight.get("paths"):
+            task_switch.consume_closed_pending(root)
+        if target["status"] != "[p]":
+            record_activation_baseline(root, args.to, preflight["baseline"], dirty_fork=dirty_fork)
+        activated = (
+            task_switch.resume_task(root, args.to)
+            if target["status"] in {"[p]", "[r]"}
+            else activate_task(root, args.to)
+        )
+        if not activated:
+            print(f"Could not activate {args.to}; repair docs/TASKS.md before retrying.")
+            return 1
+        if not append_switch_trace(
+            root,
+            args.to,
+            f"activated {args.to} through Task Switch Gate",
+        ):
+            print(f"{args.to} is active, but its switch trace failed. Repair TRACE before coding.")
+            return 1
+        print(f"Task Switch Gate activated {args.to}; exactly one task now owns new changes.")
+        return 0
+
+    source = active or "none"
+    new_id = next_task_id(read_tasks(root))
+    rc = cmd_start(args)
+    if rc == 0 and not append_switch_trace(
+        root,
+        new_id,
+        f"switched from {source} to {new_id} through Task Switch Gate",
+    ):
+        print(f"{new_id} is active, but its switch trace failed. Repair TRACE before coding.")
+        return 1
+    return rc
 
 
 # ---------------------------------------------------------------- main
@@ -1348,7 +1577,10 @@ def build_parser() -> argparse.ArgumentParser:
                          help="Test file that must appear in the diff (repeatable)")
     p_start.add_argument("--accept", action="append",
                          help="Acceptance item; done requires done/deferred per item (repeatable)")
-    p_start.add_argument("--force", action="store_true", help="Start even if another task is active")
+    p_start.add_argument("--force", action="store_true",
+                         help="Deprecated: cannot bypass the single-active-task invariant")
+    p_start.add_argument("--dirty-fork", action="store_true",
+                         help="Explicitly carry a fingerprinted dirty baseline")
     p_start.add_argument("--target", default=".")
 
     p_check = sub.add_parser("check", help="Am I on track? What's missing?")
@@ -1356,7 +1588,35 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_next = sub.add_parser("next", help="Recommend (or pick up) the next queued task")
     p_next.add_argument("--go", action="store_true", help="Activate the recommended task")
+    p_next.add_argument("--dirty-fork", action="store_true",
+                        help="Explicitly carry closed-task dirty paths as the new baseline")
     p_next.add_argument("--target", default=".")
+
+    p_switch = sub.add_parser("switch", help="Close or pause the current task, then activate one destination")
+    p_switch.add_argument("title", nargs="?", help="New destination task title")
+    p_switch.add_argument("--to", help="Activate an existing queued, paused, or reopened task")
+    p_switch.add_argument("--checkpoint", action="store_true",
+                          help="Commit a verified stage-complete checkpoint and pause the source")
+    p_switch.add_argument("--dirty-fork", action="store_true",
+                          help="Explicitly pause without committing implementation and carry its fingerprinted baseline")
+    p_switch.add_argument("--continue-current", action="store_true",
+                          help="Keep the current task active after a stopped switch")
+    p_switch.add_argument("--goal", help="Why the new task matters")
+    p_switch.add_argument("--files", action="append", help="Files the new task may touch")
+    p_switch.add_argument("--avoid", help="Files/folders the new task must not change")
+    p_switch.add_argument("--done-when", help="How the new task will be accepted")
+    p_switch.add_argument("--type", help="feature | bug | refactor | docs")
+    p_switch.add_argument("--id", help="Business id for a new destination task")
+    p_switch.add_argument("--verify", action="append", help="New-task verify command (repeatable)")
+    p_switch.add_argument("--tests", action="append", help="New-task promised test file (repeatable)")
+    p_switch.add_argument("--accept", action="append", help="New-task acceptance item (repeatable)")
+    p_switch.add_argument("--accept-status", action="append",
+                          help="Source-task acceptance verdicts used during safe closeout")
+    p_switch.add_argument("--harness-result", choices=["passed", "failed", "manual", "skipped"])
+    p_switch.add_argument("--manual-acceptance", help="Source-task manual acceptance evidence")
+    p_switch.add_argument("--verbose", action="store_true")
+    p_switch.add_argument("--target", default=".")
+    p_switch.set_defaults(force=False)
 
     p_bp = sub.add_parser("blueprint", help="Check diagram coverage; --scaffold fills the gaps")
     p_bp.add_argument("--scaffold", action="store_true",
@@ -1410,6 +1670,8 @@ def main(argv=None) -> int:
         return cmd_check(args)
     if args.command == "next":
         return cmd_next(args)
+    if args.command == "switch":
+        return cmd_switch(args)
     if args.command == "blueprint":
         return cmd_blueprint(args)
     if args.command == "done":

@@ -44,6 +44,28 @@ Auto Commit:
   is.
 - `deferred`: work is intentionally paused in favor of another task or batch.
 
+## Task Switch Gate
+
+`[~]` and `[!]` own the current worktree. `[p]` is paused, non-active, and may
+only resume through `coderail switch --to <ID>`. `--force` never creates a
+second active task.
+
+Before `start`, `next --go`, or `switch` activates a destination:
+
+1. an accepted source runs `done` and commits its safe task slice;
+2. a verified partial source runs a `stage-complete` checkpoint and is committed
+   as `[p]` before the destination starts;
+3. an unsafe source stays uncommitted, writes H3, and requires either
+   `switch --continue-current` or explicit `--dirty-fork`;
+4. dirty paths owned by a closed task block activation until their exact repair
+   commit or a dirty-fork waiver;
+5. unrelated paths already dirty at activation are stored as path, Git state,
+   and SHA-256 only; unchanged baseline files are excluded from task commits.
+
+Switches are monotonic: a successful Git commit is never rolled back because a
+later activation step failed. The gate stops with a deterministic recovery
+command and never runs `git push`.
+
 ## Next executable step
 
 The next step must be operational, not aspirational.

@@ -167,7 +167,7 @@ def main(argv=None) -> int:
 
     if (docs / "TASKS.md").exists():
         for header, body, status in coordinate_check.split_tasks(read(docs / "TASKS.md")):
-            if status not in {"[ ]", "[~]", "[!]"}:
+            if status not in {"[ ]", "[~]", "[!]", "[p]"}:
                 continue
             task_kind = coordinate_check.task_type(body)
             rail = coordinate_check.meta_value("Rail", body)

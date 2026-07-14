@@ -13,6 +13,7 @@ if str(SCRIPTS) not in sys.path:
 
 import done_gate  # noqa: E402
 import coordinate_check  # noqa: E402
+import task_switch  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -23,31 +24,20 @@ def read(path: Path) -> str:
 
 
 def git_status_entries(root: Path, include_ignored: bool = True) -> list[tuple[str, str]]:
-    cmd = ["git", "-C", str(root), "status", "--short", "--untracked-files=all"]
-    if include_ignored:
-        cmd.append("--ignored=matching")
-    try:
-        out = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL)
-    except Exception:
-        return []
-    entries = []
-    for raw in out.splitlines():
-        if not raw.strip() or len(raw) < 4:
-            continue
-        code = raw[:2]
-        path = raw[3:].strip()
-        if " -> " in path:
-            path = path.split(" -> ", 1)[1]
-        entries.append((code, path.replace("\\", "/")))
-    return entries
+    return [
+        (row["status"], row["path"])
+        for row in task_switch.git_status_entries(root, include_ignored=include_ignored)
+    ]
 
 
 STATE_FILES = {
+    ".coderail/tasks.json",
     "docs/TASKS.md",
     "docs/TRACELOG.jsonl",
     "docs/TRACE_INDEX.md",
     "docs/CODERAIL_STATUS.md",
     "docs/HANDOFF.md",
+    "docs/PROGRESS.md",
 }
 
 
@@ -56,16 +46,22 @@ def classify(
     allowed: list[str],
     forbidden: list[str],
     include_state: bool = False,
+    unchanged_baseline: set[str] | None = None,
 ) -> dict[str, list[str]]:
     result = {
         "safe": [],
         "outside": [],
         "forbidden": [],
         "ignored": [],
+        "baseline": [],
     }
+    unchanged_baseline = unchanged_baseline or set()
     for code, path in entries:
         if code == "!!":
             result["ignored"].append(path)
+            continue
+        if path in unchanged_baseline:
+            result["baseline"].append(path)
             continue
         if forbidden and done_gate.matches_any(path, forbidden):
             result["forbidden"].append(path)
@@ -178,7 +174,14 @@ def main(argv=None) -> int:
         severe.append(f"{task_id}: S allowed missing")
 
     entries = git_status_entries(root, include_ignored=not args.no_ignored)
-    files = classify(entries, allowed, forbidden, include_state=args.include_state)
+    unchanged_baseline = task_switch.unchanged_baseline_paths(root, task_id)
+    files = classify(
+        entries,
+        allowed,
+        forbidden,
+        include_state=args.include_state,
+        unchanged_baseline=unchanged_baseline,
+    )
     if args.task_result not in {"done", "stage-complete"} and args.include_state:
         # Preserve the blocked/failed evidence without committing an attempted
         # implementation that has not reached a safe task boundary.
@@ -227,6 +230,14 @@ def main(argv=None) -> int:
             auto_action = "skipped"
             auto_detail = "task result does not create an automatic commit boundary"
 
+    if args.task_result == "done" and task_id != "(unknown)":
+        baseline_after = task_switch.unchanged_baseline_paths(root, task_id)
+        remaining = [
+            row for row in task_switch.snapshot_dirty(root)["files"]
+            if row["path"] not in baseline_after and row["status"] != "!!"
+        ]
+        task_switch.record_closed_pending(root, task_id, remaining)
+
     print("# Closeout Check Report\n")
     print(f"Status: {status_out}")
     print(f"Task: {task_id}")
@@ -254,6 +265,8 @@ def main(argv=None) -> int:
     print(bullet(do_not_stage))
     print("\n### Ignored/generated artifacts")
     print(bullet(files["ignored"]))
+    print("\n### Pre-existing unchanged baseline")
+    print(bullet(files["baseline"]))
 
     print("\n## Next")
     if severe:

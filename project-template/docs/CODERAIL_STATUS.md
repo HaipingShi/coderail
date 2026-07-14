@@ -30,6 +30,17 @@ P:
 
 - none
 
+## Paused Tasks
+
+- none
+
+## Task Switch Gate
+
+- Active owners: 0
+- Single-active invariant: pass
+- Closed-task uncommitted ownership: none
+- Automatic push: never
+
 ## Draft Contracts
 
 - none

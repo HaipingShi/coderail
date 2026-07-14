@@ -18,6 +18,7 @@ SCRIPTS = Path(__file__).resolve().parent
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 import coordinate_check  # noqa: E402
+import task_switch  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -36,7 +37,7 @@ def find_task(root: Path, task_id: str | None):
                 return h, b, s
         return None
     for h, b, s in tasks:
-        if s == "[~]":
+        if s in {"[~]", "[!]"}:
             return h, b, s
     for h, b, s in tasks:
         if s == "[ ]" and "Example task" not in h and "Copy template" not in h:
@@ -170,6 +171,8 @@ def main(argv=None) -> int:
             changed = [x.strip() for x in args.changed_files.split(",") if x.strip()]
         else:
             changed = git_changed_files(root)
+        unchanged_baseline = task_switch.unchanged_baseline_paths(root, task_id)
+        changed = [path for path in changed if path not in unchanged_baseline]
         allowed = split_patterns(coord.get("s_allowed", ""))
         forbidden = split_patterns(coord.get("s_forbidden", ""))
         for f in changed:

@@ -40,7 +40,8 @@ progress journal. Register real checks.
    ask the user what they are building and write it down first.
 2. Read `docs/TASKS.md` — what is in flight right now.
 3. Run `git status` — know what is already changed.
-4. If there is no active task for what you are about to do, run `start`.
+4. With no active task, run `start`. To change owners, run `switch`; `--force`
+   never permits multiple active tasks.
 
 ## While you work
 
@@ -64,8 +65,8 @@ python .coderail/coderail.py done
 
 It runs the registered verify commands, checks scope and docs, then commits
 only the safe, task-related files. If it says the task is not finished, fix
-what it points out — do not talk your way around it. For partial work use
-`done --result stage-complete` so the next session knows where to pick up.
+what it points out — do not talk your way around it. For a task change use
+`switch`; add `--checkpoint` only after a verifiable partial boundary.
 
 ## After "done": report in plain language (non-negotiable)
 
