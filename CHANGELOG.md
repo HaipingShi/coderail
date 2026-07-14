@@ -2,11 +2,39 @@
 
 ## Unreleased
 
-Cross-platform path fix (FN-029), caught by the Windows CI matrix that Linux-only local runs had been missing.
+No unreleased changes.
+
+## v0.9.0
+
+Task Switch Gate: CodeRail now treats switching work as an explicit lifecycle transition instead of allowing a second active task to emerge through `--force`. This minor release also hardens closeout ownership and includes the cross-platform scope-path fix from FN-029.
+
+### Safe task switching
+
+- Added the paused task state (`[p]`) and first-class `switch` flows for accepted work, verified checkpoints, unsafe dirty work, and paused-task resume.
+- Accepted work closes through the normal done boundary before the destination task starts. A verified checkpoint is committed as `stage-complete`, then the source task is paused before activation moves to the destination.
+- Unsafe work is not committed automatically. CodeRail writes an H3 handoff and requires an explicit choice between continuing the current task and carrying the dirty baseline into a fork.
+- A closed task that still owns dirty paths blocks ordinary `start`, `next --go`, and switching. Carrying those paths requires an explicit waiver.
+- Pre-existing unrelated changes are recorded as a path, Git status, and SHA-256 baseline. Unchanged baseline paths are not attributed to the new task.
+- Automatic commit remains local-only. No CodeRail start, switch, next, or done path performs `git push`.
+
+### Closeout ledger integrity
+
+- A successful closeout persists the task-scoped source commit first, then records the exact resulting commit in the closeout ledger with a dedicated metadata commit.
+- Closed dirty ownership is audited before activation, preventing an already-finished task from silently lending uncommitted changes to later work.
+- Pausing and resuming preserve a single active owner and restore the original task ownership instead of relying on `--force` to manufacture multiple active tasks.
+
+### Cross-platform scope paths (FN-029)
+
+Caught by the Windows CI matrix that Linux-only local runs had been missing.
 
 - `--files` glob expansion wrote OS-native separators into `docs/TASKS.md` — backslashes on Windows. Because the committed scope block is matched against `git` output (always forward-slash) by the drive-check scope gate, Windows-declared scopes silently failed to match their own changed files, and the committed artifact was not portable across machines.
 - The pattern is now normalized to forward-slash BEFORE globbing (so a Windows-style `src\dir\*.ts` still expands) and every stored path uses `Path.as_posix()`. The done-report backlinks written into `TASKS.md`/`PROGRESS.md` are normalized the same way.
 - The FN-021 regression test now feeds a backslash-style pattern and asserts the committed Allowed-scope block contains no backslash, so the contract is enforced even on Linux-only runs (76 total).
+
+### Verification
+
+- Version consistency covers `VERSION`, package metadata, both plugin manifests, and the README badge; installed launchers are stamped from the same source.
+- The release candidate is gated by the full Python regression suite, npm test and CI entrypoints, and a fresh standard-mode install smoke.
 
 ## v0.8.4
 

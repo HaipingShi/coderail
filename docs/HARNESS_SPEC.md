@@ -34,6 +34,22 @@ Required lifecycle matrix:
 - dirty-fork and paused resume -> exactly one active owner, original ownership restored
 - no CodeRail path runs `git push`
 
+### T-004 v0.9.0 release candidate
+
+```bash
+python3 tests/test_structure.py
+npm test
+npm run ci
+mkdir -p /tmp/coderail-v090-smoke && python3 scripts/init_project.py --target /tmp/coderail-v090-smoke --mode standard --force && rg -q '^SHIM_VERSION = "0\.9\.0"$' /tmp/coderail-v090-smoke/.coderail/coderail.py
+```
+
+Release review requirements:
+
+- `VERSION`, package metadata, both plugin manifests, and the README badge agree on `0.9.0`
+- a fresh installed `.coderail/coderail.py` reports `SHIM_VERSION = "0.9.0"`
+- the changelog covers Task Switch Gate, closeout ledger integrity, and FN-029
+- no package lockfile, release tag, or remote state is created
+
 ## Drive Progress Harness
 
 - Progress signal:

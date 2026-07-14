@@ -289,3 +289,84 @@ Resume anchor: docs/TASKS.md#T-003
 Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
 
 Auto commit: requested
+
+## T-004 Prepare v0.9.0 release
+
+Status: [x]
+Display id: T-004
+Type: release
+Rail: full
+Priority: P1
+Autonomy: allowed
+Owner: Codex
+Branch: main
+
+### CodeRail Coordinate
+
+G — Goal
+- Publish a coherent local v0.9.0 release candidate for Task Switch Gate without creating remote state.
+
+T — Task
+- Prepare v0.9.0 release
+
+S — Scope
+Allowed:
+  - VERSION
+  - package.json
+  - README.md
+  - .claude-plugin/plugin.json
+  - .codex-plugin/plugin.json
+  - CHANGELOG.md
+  - docs/NORTH_STAR.md
+  - docs/TASKS.md
+  - docs/HARNESS_SPEC.md
+  - docs/CODERAIL_STATUS.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - docs/PROGRESS.md
+  - .coderail/tasks.json
+Forbidden:
+  - package-lock.json
+  - node_modules/**
+  - .git/**
+
+V — Verify
+- All version surfaces read 0.9.0, v0.9.0 changelog is complete, install smoke and full CI pass, release diff is committed locally, and no tag or push occurs.
+- Run: `python3 tests/test_structure.py` (must exit 0)
+- Run: `npm test` (must exit 0)
+- Run: `npm run ci` (must exit 0)
+- Run: `mkdir -p /tmp/coderail-v090-smoke && python3 scripts/init_project.py --target /tmp/coderail-v090-smoke --mode standard --force && rg -q '^SHIM_VERSION = "0\.9\.0"$' /tmp/coderail-v090-smoke/.coderail/coderail.py` (must exit 0)
+
+A — Acceptance
+- [ ] VERSION, package metadata, plugin manifests, and README badge agree on 0.9.0
+- [ ] v0.9.0 changelog covers Task Switch Gate, closeout ledger integrity, and FN-029
+- [ ] fresh install smoke reports shim v0.9.0
+- [ ] full regression and CI pass
+- [ ] release review finds no package or lockfile drift
+- [ ] no tag and no push are created
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+- Do not create a release tag or modify remote state without separate authorization.
+- Do not create or modify dependency lockfiles.
+
+P — Persist
+- TASKS, TRACE, PROGRESS, local task-scoped commit
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-004
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested

@@ -20,9 +20,9 @@ Owner: CodeRail maintainers
 
 ## Current Slice
 
-- Milestone: M-009 Compatibility and production sync hardening
-- Execution Batch: formalize safe task switching and dirty-baseline ownership
-- Active Task: T-003
+- Milestone: M-010 v0.9.0 release readiness
+- Execution Batch: align release metadata, notes, install output, and regression evidence
+- Active Task: T-004
 
 ## Non-Goals
 
