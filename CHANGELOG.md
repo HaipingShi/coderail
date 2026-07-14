@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+Cross-platform path fix (FN-029), caught by the Windows CI matrix that Linux-only local runs had been missing.
+
+- `--files` glob expansion wrote OS-native separators into `docs/TASKS.md` — backslashes on Windows. Because the committed scope block is matched against `git` output (always forward-slash) by the drive-check scope gate, Windows-declared scopes silently failed to match their own changed files, and the committed artifact was not portable across machines.
+- The pattern is now normalized to forward-slash BEFORE globbing (so a Windows-style `src\dir\*.ts` still expands) and every stored path uses `Path.as_posix()`. The done-report backlinks written into `TASKS.md`/`PROGRESS.md` are normalized the same way.
+- The FN-021 regression test now feeds a backslash-style pattern and asserts the committed Allowed-scope block contains no backslash, so the contract is enforced even on Linux-only runs (76 total).
+
 ## v0.8.4
 
 Close-before-report ordering fix: closes the fourth round of field findings (FN-027/FN-028) and corrects the root-cause analysis of FN-023. The theme: the closeout ledger runs from a snapshot taken before anything mutates, and every verdict printed matches what actually happened on disk.
