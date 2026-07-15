@@ -1718,6 +1718,76 @@ def test_repository_state_is_the_only_porcelain_parser():
     check(owners == ['scripts/repository_state.py'], f'duplicate porcelain parsers: {owners}')
 
 
+def test_closeout_transaction_is_the_only_success_authority():
+    sys.path.insert(0, str(ROOT/'scripts'))
+    import closeout_transaction
+    tx = closeout_transaction.CloseoutTransaction('T-999')
+    for phase in ['VERIFIED', 'SNAPSHOTTED', 'CLASSIFIED', 'STAGED', 'COMMITTED',
+                  'PERSISTED', 'RESCANNED']:
+        tx.advance(closeout_transaction.Phase[phase])
+        check(not tx.success, f'{phase} declared success early')
+    tx.finalize(inspect_status='healthy', residual_paths=[])
+    check(tx.success and tx.phase is closeout_transaction.Phase.FINALIZED, tx.result())
+
+
+def test_closeout_transaction_failure_suppresses_success_and_keeps_exact_paths():
+    sys.path.insert(0, str(ROOT/'scripts'))
+    import closeout_transaction
+    tx = closeout_transaction.CloseoutTransaction('T-999')
+    tx.advance(closeout_transaction.Phase.VERIFIED)
+    tx.fail(closeout_transaction.Failure.POST_COMMIT_DIRTY, ['lib/residue.ts'])
+    result = tx.result()
+    check(not result.success, result)
+    check(result.failure is closeout_transaction.Failure.POST_COMMIT_DIRTY, result)
+    check(result.paths == ('lib/residue.ts',), result)
+
+
+def test_queued_task_hydrates_verify_and_acceptance_contract():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        tasks = root/'docs/TASKS.md'
+        tasks.write_text(tasks.read_text(encoding='utf-8').rstrip() + '''
+
+## T-001 Queued contract evidence
+
+Status: [ ]
+Type: bug
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Preserve queued verification.
+
+T — Task
+- Queued contract evidence.
+
+S — Scope
+Allowed:
+  - lib/**
+Forbidden:
+  - none
+
+V — Verify
+- Run: `false` (must exit 0)
+
+A — Acceptance
+- [ ] queued acceptance survives activation
+
+X — Stop
+- verification failure
+
+P — Persist
+- TASKS, TRACE
+''', encoding='utf-8')
+        result = cr('next', '--go')
+        check(result.returncode == 0, result.stdout)
+        result = cr('done', '--accept-status', '1=done')
+        check(result.returncode == 1, result.stdout)
+        check('VERIFY FAILED' in result.stdout and 'false' in result.stdout, result.stdout)
+        check('Status: [~]' in tasks.read_text(encoding='utf-8'), result.stdout)
+
+
 def test_shim_probes_candidate_homes():
     # FN-022: config.local.json overrides config.json, and coderail_home may
     # be a list of candidates probed in order.

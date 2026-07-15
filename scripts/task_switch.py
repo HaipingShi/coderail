@@ -13,12 +13,8 @@ import repository_state
 ACTIVE_STATUSES = {"[~]", "[!]"}
 
 
-def _matches(path: str, patterns: list[str]) -> bool:
-    return repository_state.matches_any(path, patterns)
-
-
-def _git(root: Path, args: list[str], *, text: bool = True):
-    return repository_state._git(root, args, text=text)
+_matches = repository_state.matches_any
+fingerprint_path = repository_state.fingerprint_path
 
 
 def git_status_entries(root: Path, include_ignored: bool = False) -> list[dict]:
@@ -26,10 +22,6 @@ def git_status_entries(root: Path, include_ignored: bool = False) -> list[dict]:
     return repository_state.as_legacy_entries(
         repository_state.capture(root, include_ignored=include_ignored)
     )
-
-
-def fingerprint_path(root: Path, relative: str) -> str:
-    return repository_state.fingerprint_path(root, relative)
 
 
 def snapshot_dirty(root: Path) -> dict:
@@ -43,18 +35,17 @@ def snapshot_dirty(root: Path) -> dict:
 
 def build_baseline_adoption(root: Path, allowed: list[str], forbidden: list[str]) -> dict:
     """Record an auditable, content-free manifest for an unborn repository."""
-    head = _git(root, ["rev-parse", "HEAD"])
-    if head.returncode == 0:
+    snapshot = repository_state.capture(root, fingerprints=True)
+    if snapshot.head is not None:
         raise ValueError("--adopt-baseline is only valid before the first Git commit")
     files = []
-    for row in git_status_entries(root):
+    for row in repository_state.as_legacy_entries(snapshot):
         path = row["path"]
         disposition = "allowed" if _matches(path, allowed) else "outside"
         if _matches(path, forbidden):
             disposition = "forbidden"
-        files.append({**row, "fingerprint": fingerprint_path(root, path),
-                      "disposition": disposition})
-    return {"captured_at": datetime.now(timezone.utc).isoformat(), "head": None,
+        files.append({**row, "disposition": disposition})
+    return {"captured_at": snapshot.captured_at, "head": None,
             "files": files}
 
 

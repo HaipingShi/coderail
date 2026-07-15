@@ -27,6 +27,8 @@ if str(SCRIPTS) not in sys.path:
 
 import task_switch  # noqa: E402
 import inspect_state  # noqa: E402
+import closeout_transaction  # noqa: E402
+import repository_state  # noqa: E402
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
@@ -113,6 +115,24 @@ def list_tasks(text: str) -> list[dict]:
             "status": status_m.group(1) if status_m else "[ ]",
         })
     return tasks
+
+
+def task_contract_metadata(text: str, task_id: str | None) -> dict:
+    if not task_id:
+        return {}
+    for match in TASK_BLOCK_RE.finditer(text):
+        if match.group(1) != task_id:
+            continue
+        body = match.group(3)
+        verify = re.findall(r"Run:\s*`([^`]+)`", body)
+        acceptance_section = re.search(
+            r"^A\s+[^\n]*\n(.*?)(?=^X\s+[^\n]*\n|\Z)", body, re.M | re.S,
+        )
+        accept = []
+        if acceptance_section:
+            accept = re.findall(r"^- \[[ x]\]\s+(.+)$", acceptance_section.group(1), re.M)
+        return {"verify": verify, "accept": accept}
+    return {}
 
 
 def next_todo_task(text: str):
@@ -394,10 +414,10 @@ def post_close_consistency(root: Path, task_id: str) -> tuple[bool, list[str], s
     """Prove the final Git state and the same state model used by inspect agree."""
     baseline = task_switch.unchanged_baseline_paths(root, task_id)
     residual = sorted({
-        row["path"] for row in task_switch.git_status_entries(root)
-        if row["status"] != "!!"
-        and row["path"] not in baseline
-        and row["path"] != ".coderail/pending_close.json"
+        row.path for row in repository_state.capture(root).files
+        if row.status != "!!"
+        and row.path not in baseline
+        and row.path != ".coderail/pending_close.json"
     })
     status, _ = inspect_state.render(root)
     owned = [path for owner, path in task_switch.closed_pending_paths(root)
@@ -1030,7 +1050,12 @@ def cmd_done(args) -> int:
 
     tasks_text_before = read_tasks(root)
     task_before = args.task or active_task_id(tasks_text_before)
+    transaction = closeout_transaction.CloseoutTransaction(task_before or "(unknown)")
     meta = task_meta(root, task_before) if task_before else {}
+    contract_meta = task_contract_metadata(tasks_text_before, task_before)
+    for key in ("verify", "accept"):
+        if not meta.get(key) and contract_meta.get(key):
+            meta[key] = contract_meta[key]
     shown = fmt_id(task_before, meta) if task_before else ""
 
     # ---- FN-010: run registered verify commands. This is the gate itself.
@@ -1054,6 +1079,7 @@ def cmd_done(args) -> int:
             text = read_tasks(root)
             print_spin_report(root, active_task_id(text), list_tasks(text))
             return 1
+    transaction.advance(closeout_transaction.Phase.VERIFIED)
 
     # ---- FN-012: acceptance items must each be marked done or deferred.
     # Two input forms (FN-016 improvement): positional "done,deferred,done"
@@ -1128,6 +1154,7 @@ def cmd_done(args) -> int:
             ],
             "stamp": datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S"),
         })
+    transaction.advance(closeout_transaction.Phase.SNAPSHOTTED)
 
     extra = []
     # FN-017-1: ALWAYS pass the resolved task explicitly, so the gate chain
@@ -1173,6 +1200,9 @@ def cmd_done(args) -> int:
             task_before, {}).get("status") != "[x]"
     )
     if rc in (0, 3) or task_closed_fact:
+        transaction.advance(closeout_transaction.Phase.CLASSIFIED)
+        transaction.advance(closeout_transaction.Phase.STAGED)
+        transaction.advance(closeout_transaction.Phase.COMMITTED)
         if rc not in (0, 3):
             print(f"GATE INCONSISTENCY: the gate reported failure (rc={rc}) but")
             print(f"{shown} WAS closed in docs/TASKS.md. Trusting the file: writing")
@@ -1279,6 +1309,7 @@ def cmd_done(args) -> int:
                 ledger_errors.append(f"post-close ledger commit: {detail}")
 
         if ledger_errors:
+            transaction.fail(closeout_transaction.Failure.PERSIST_FAILED)
             print()
             print("LEDGER ERROR: the task WAS closed and committed, but these")
             print("record-keeping steps FAILED and must be repaired now:")
@@ -1288,16 +1319,21 @@ def cmd_done(args) -> int:
             print("(the closeout snapshot is kept in .coderail/pending_close.json)")
             return 1
 
+        transaction.advance(closeout_transaction.Phase.PERSISTED)
+
         # Ledger complete: the snapshot has served its purpose.
         clear_pending_close(root)
 
         if task_before:
             consistent, residue, inspect_status = post_close_consistency(root, closed_id)
-            if not consistent:
+            transaction.advance(closeout_transaction.Phase.RESCANNED)
+            transaction.finalize(inspect_status=inspect_status, residual_paths=residue)
+            if not transaction.success:
                 reopen_after_close_failure(root, closed_id)
                 print()
                 print("POST-CLOSE CONSISTENCY FAILED: the task was reopened and done returns failure.")
                 print(f"Inspect-equivalent status: {inspect_status}")
+                print(f"Transaction failure: {transaction.result().failure.name}")
                 print("Exact unresolved paths:")
                 if residue:
                     for path in residue:

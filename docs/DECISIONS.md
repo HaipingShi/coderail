@@ -48,3 +48,14 @@ Task: T-008
 - Closeout consumes the canonical classifier. Done, inspect, and task switching retain compatibility adapters only at their public/internal call boundaries.
 - Ignored files are classified before forbidden patterns so local generated artifacts cannot become blockers merely because a task forbids their parent source directory.
 - Compatibility projections may translate the canonical dataclasses to legacy dictionaries, but may not re-parse Git or invent a second classification.
+
+## ADR-007 FINALIZED is the only closeout success state
+
+Status: accepted
+Date: 2026-07-15
+Task: T-009
+
+- `closeout_transaction.py` defines ordered phases and explicit failure codes; no intermediate phase has a truthy success result.
+- `coderail done` advances the transaction around the existing compatibility gates, ledger persistence, final repository rescan, and inspect-equivalent evaluation.
+- The user-facing `Done` label is guarded by `transaction.success`, which is possible only after `FINALIZED`.
+- Queued tasks hydrate registered `Run:` verification and acceptance clauses from their task contract when activation metadata does not contain them, preventing a verified queued closeout from being journaled as unverified.

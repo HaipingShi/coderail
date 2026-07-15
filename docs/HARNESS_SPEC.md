@@ -80,3 +80,7 @@ Isolated real Git repositories cover tracked modifications, glob-created files, 
 ### T-008 canonical repository state
 
 Unit characterization proves snapshots are immutable, rename origins survive porcelain parsing, and classification uses the accepted vocabulary. The complete lifecycle matrix then proves the shared parser/classifier preserves all T-007 behavior.
+
+### T-009 closeout transaction authority
+
+State-machine tests prove every phase before `FINALIZED` is unsuccessful and failure results retain exact paths. Existing hook-based failure injection proves commit and post-commit mutation cannot render Done. Real temporary repositories must finish with `inspect: consistent`, `Status: healthy`, and no closed ownership.

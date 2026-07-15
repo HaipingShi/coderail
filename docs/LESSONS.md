@@ -9,3 +9,7 @@ Expanding a task glob only at `start` converts a durable ownership rule into a s
 ## Success text is part of the transaction
 
 Printing `Done` after the first implementation commit is premature when ledger writes, cleanup, hooks, or a second commit can still change Git state. The success label belongs after the last observable mutation and a fresh evaluation using the same state model as inspect.
+
+## Queued task contracts must hydrate runtime evidence
+
+A queued task activated from TASKS can have complete V and A clauses while `.coderail/tasks.json` contains only its baseline. Runtime reporting must fall back to the committed task contract; otherwise a fully exercised closeout can be recorded as unverified.
