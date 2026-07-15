@@ -3,6 +3,20 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Atomic closeout success and post-commit inspect (T-006)
+
+- Done: Atomic closeout success and post-commit inspect
+- Checked by: `python tests/test_structure.py` exit 0; `npm test` exit 0; `npm run ci` exit 0
+- Next: Observe atomic closeout in additional field repositories and consider consolidating the two local closeout commits without weakening recovery
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: tracked modifications, new glob files, deletions and renames close cleanly
+- Acceptance [done]: unborn baseline adoption closes cleanly without ledger-only commits
+- Acceptance [done]: outside, sensitive, generated and ambiguous paths never cause false success
+- Acceptance [done]: post-commit rescan and inspect inconsistency force done failure
+- Acceptance [done]: no implementation or test uses git add .
+
 ## 2026-07-15 - Safe ownership for new files and baseline adoption (T-005)
 
 - Done: Safe ownership for new files and baseline adoption
