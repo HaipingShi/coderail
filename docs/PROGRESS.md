@@ -3,6 +3,12 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Canonical repository snapshot and ownership classifier (T-008)
+
+- Done: Canonical repository snapshot and ownership classifier
+- Checked by: unverified - no verify commands registered
+- Next: Activate T-009 and move closeout sequencing behind one transaction authority
+
 ## 2026-07-15 - Closeout characterization harness and convergence specification (T-007)
 
 - Done: Closeout characterization harness and convergence specification
