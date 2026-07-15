@@ -3,6 +3,16 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Queued task verification evidence hydration (T-010)
+
+- Done: Queued task verification evidence hydration
+- Checked by: `python tests/test_structure.py` exit 0; `npm run ci` exit 0
+- Next: Keep the closeout feature freeze and collect field evidence before any further decomposition
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: queued V commands hydrate without executing prose examples
+- Acceptance [done]: verified queued closeout is not labeled unverified
+
 ## 2026-07-15 - Single closeout transaction authority (T-009)
 
 - Done: Single closeout transaction authority
