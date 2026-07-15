@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Closeout characterization harness and convergence specification (T-007)
+
+- Done: Closeout characterization harness and convergence specification
+- Checked by: `python tests/test_structure.py` exit 0; `npm test` exit 0; `npm run ci` exit 0
+- Next: Activate T-008 and migrate repository facts without changing characterized behavior
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: spec defines invariants, non-goals, state model and migration boundaries
+- Acceptance [done]: characterization matrix covers tracked, glob, adoption, outside, sensitive, generated, rename/delete and post-commit mutation
+- Acceptance [done]: T-008 and T-009 have explicit dependency, scope, verification and stop contracts
+
 ## 2026-07-15 - Atomic closeout success and post-commit inspect (T-006)
 
 - Done: Atomic closeout success and post-commit inspect
