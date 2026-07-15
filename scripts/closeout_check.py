@@ -14,6 +14,7 @@ if str(SCRIPTS) not in sys.path:
 import done_gate  # noqa: E402
 import coordinate_check  # noqa: E402
 import task_switch  # noqa: E402
+import repository_state  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -39,15 +40,6 @@ STATE_FILES = {
     "docs/HANDOFF.md",
     "docs/PROGRESS.md",
 }
-EPHEMERAL_FILES = {".coderail/pending_close.json"}
-
-SENSITIVE_PATTERNS = [
-    ".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx",
-    "*api_key*", "*api-key*", "credentials.*", ".aws/**",
-]
-GENERATED_PATTERNS = ["node_modules/**", "dist/**", "build/**", "coverage/**", ".next/**"]
-
-
 def classify(
     entries: list[tuple[str, str]],
     allowed: list[str],
@@ -55,37 +47,19 @@ def classify(
     include_state: bool = False,
     unchanged_baseline: set[str] | None = None,
 ) -> dict[str, list[str]]:
+    classified = repository_state.classify(
+        tuple(repository_state.FileState(code, path) for code, path in entries),
+        allowed=allowed,
+        forbidden=forbidden,
+        unchanged_baseline=unchanged_baseline or set(),
+        state_files=STATE_FILES,
+        include_state=include_state,
+    )
     result = {
-        "safe": [],
-        "outside": [],
-        "forbidden": [],
-        "ignored": [],
-        "baseline": [],
+        name: list(getattr(classified, name))
+        for name in repository_state.OwnershipClassification.__dataclass_fields__
     }
-    unchanged_baseline = unchanged_baseline or set()
-    for code, path in entries:
-        if path in EPHEMERAL_FILES:
-            result["ignored"].append(path)
-            continue
-        if path in unchanged_baseline:
-            result["baseline"].append(path)
-            continue
-        if done_gate.matches_any(path, SENSITIVE_PATTERNS):
-            result["forbidden"].append(path)
-            continue
-        if forbidden and done_gate.matches_any(path, forbidden):
-            result["forbidden"].append(path)
-            continue
-        if done_gate.matches_any(path, GENERATED_PATTERNS):
-            result["forbidden"].append(path)
-        elif code == "!!":
-            result["ignored"].append(path)
-        elif include_state and path in STATE_FILES:
-            result["safe"].append(path)
-        elif allowed and not done_gate.matches_any(path, allowed):
-            result["outside"].append(path)
-        else:
-            result["safe"].append(path)
+    result["ignored"].extend(result["ephemeral"])
     return result
 
 
@@ -206,8 +180,9 @@ def main(argv=None) -> int:
         implementation_safe = [path for path in files["safe"] if path not in STATE_FILES]
         files["safe"] = state_safe
         files["outside"].extend(implementation_safe)
-    if files["forbidden"]:
-        severe.append(f"{task_id}: forbidden files are changed")
+    unsafe_paths = files["forbidden"] + files["sensitive"] + files["generated"] + files["ambiguous"]
+    if unsafe_paths:
+        severe.append(f"{task_id}: forbidden, sensitive, generated, or ambiguous files are changed")
     if files["outside"]:
         if args.preflight and args.task_result == "done":
             severe.append(f"{task_id}: changed files outside S allowed")
@@ -222,11 +197,11 @@ def main(argv=None) -> int:
             warnings.append("HANDOFF.md should include Auto Commit")
 
     dirty = bool([item for item in entries if item[0] != "!!"])
-    unsafe_add_all = bool(files["forbidden"] or files["outside"] or files["ignored"])
+    unsafe_add_all = bool(unsafe_paths or files["outside"] or files["ignored"])
     auto_commit_allowed = (
         dirty
         and bool(files["safe"])
-        and not files["forbidden"]
+        and not unsafe_paths
         and not severe
         and (args.task_result in {"done", "stage-complete"} or args.include_state)
     )
@@ -240,7 +215,7 @@ def main(argv=None) -> int:
             if auto_action == "failed":
                 severe.append(f"{task_id}: auto commit failed")
                 status_out = "blocked"
-        elif severe or files["forbidden"]:
+        elif severe or unsafe_paths:
             auto_action = "blocked"
             auto_detail = "severe findings or forbidden file changes require resolution before auto-commit"
         elif not files["safe"]:
@@ -281,7 +256,7 @@ def main(argv=None) -> int:
     print("\n### Exact files staged")
     print(bullet(files["safe"] if auto_action == "committed" else []))
     print("\n### Do not stage")
-    do_not_stage = files["forbidden"] + files["outside"]
+    do_not_stage = unsafe_paths + files["outside"]
     print(bullet(do_not_stage))
     print("\n### Ignored/generated artifacts")
     print(bullet(files["ignored"]))

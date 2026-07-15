@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import subprocess
 from pathlib import Path
 from datetime import datetime, timezone
 import sys
@@ -22,6 +21,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 import coordinate_check  # noqa: E402
 import trace_doctor  # noqa: E402
+import repository_state  # noqa: E402
 import contract_check  # noqa: E402
 import drive_check  # noqa: E402
 import task_switch  # noqa: E402
@@ -43,11 +43,14 @@ def first_section_value(text: str, header: str) -> str:
 
 
 def git_status(root: Path) -> str:
-    try:
-        out = subprocess.check_output(["git", "-C", str(root), "status", "--short"], text=True, stderr=subprocess.DEVNULL)
-        return out.strip()
-    except Exception:
+    snapshot = repository_state.capture(root)
+    if not snapshot.available:
         return "git status unavailable"
+    lines = []
+    for row in snapshot.files:
+        path = f"{row.original_path} -> {row.path}" if row.original_path else row.path
+        lines.append(f"{row.status} {path}")
+    return "\n".join(lines)
 
 
 def load_events(root: Path) -> list[dict]:

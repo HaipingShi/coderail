@@ -784,7 +784,7 @@ Next executable step: Continue in manual mode; no dependency-ready autonomous ta
 Auto commit: requested
 ## T-008 Canonical repository snapshot and ownership classifier
 
-Status: [ ]
+Status: [x]
 Type: refactor
 Rail: full
 Priority: P1
@@ -832,6 +832,24 @@ P — Persist
 Depends on:
 - T-007
 
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-008
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested
 ## T-009 Single closeout transaction authority
 
 Status: [ ]

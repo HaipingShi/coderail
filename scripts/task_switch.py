@@ -2,104 +2,42 @@
 """Shared Task Switch Gate state, fingerprint, and recovery helpers."""
 from __future__ import annotations
 
-import hashlib
-import fnmatch
 import json
-import os
 import re
-import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+
+import repository_state
 
 
 ACTIVE_STATUSES = {"[~]", "[!]"}
 
 
 def _matches(path: str, patterns: list[str]) -> bool:
-    normalized = path.replace("\\", "/").lstrip("./")
-    for pattern in patterns:
-        candidate = pattern.replace("\\", "/").lstrip("./").rstrip()
-        if candidate.endswith("/**"):
-            base = candidate[:-3].rstrip("/")
-            if normalized == base or normalized.startswith(base + "/"):
-                return True
-        if normalized == candidate or fnmatch.fnmatch(normalized, candidate):
-            return True
-    return False
+    return repository_state.matches_any(path, patterns)
 
 
 def _git(root: Path, args: list[str], *, text: bool = True):
-    return subprocess.run(
-        ["git", "-C", str(root), *args],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        text=text,
-        encoding="utf-8" if text else None,
-        errors="surrogateescape" if text else None,
-    )
+    return repository_state._git(root, args, text=text)
 
 
 def git_status_entries(root: Path, include_ignored: bool = False) -> list[dict]:
-    """Return unquoted porcelain entries, including paths containing spaces."""
-    args = ["status", "--porcelain=v1", "-z", "--untracked-files=all"]
-    if include_ignored:
-        args.append("--ignored=matching")
-    result = _git(root, args, text=False)
-    if result.returncode != 0:
-        return []
-    records = (result.stdout or b"").split(b"\0")
-    entries: list[dict] = []
-    index = 0
-    while index < len(records):
-        raw = records[index]
-        index += 1
-        if len(raw) < 4:
-            continue
-        status = raw[:2].decode("ascii", errors="replace")
-        path = os.fsdecode(raw[3:]).replace("\\", "/")
-        row = {"status": status, "path": path}
-        if ("R" in status or "C" in status) and index < len(records):
-            original = records[index]
-            index += 1
-            if original:
-                row["original_path"] = os.fsdecode(original).replace("\\", "/")
-        entries.append(row)
-    return entries
+    """Compatibility projection of the canonical repository snapshot."""
+    return repository_state.as_legacy_entries(
+        repository_state.capture(root, include_ignored=include_ignored)
+    )
 
 
 def fingerprint_path(root: Path, relative: str) -> str:
-    path = root / relative
-    if not path.exists() and not path.is_symlink():
-        return "missing"
-    digest = hashlib.sha256()
-    if path.is_symlink():
-        digest.update(b"symlink\0")
-        digest.update(os.readlink(path).encode("utf-8", errors="surrogateescape"))
-        return digest.hexdigest()
-    if path.is_dir():
-        digest.update(b"directory\0")
-        for child in sorted(p.relative_to(path).as_posix() for p in path.rglob("*")):
-            digest.update(child.encode("utf-8", errors="surrogateescape") + b"\0")
-        return digest.hexdigest()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return repository_state.fingerprint_path(root, relative)
 
 
 def snapshot_dirty(root: Path) -> dict:
-    files = []
-    for row in git_status_entries(root):
-        if row["status"] == "!!":
-            continue
-        item = dict(row)
-        item["fingerprint"] = fingerprint_path(root, row["path"])
-        files.append(item)
-    head = _git(root, ["rev-parse", "HEAD"])
+    snapshot = repository_state.capture(root, fingerprints=True)
     return {
-        "captured_at": datetime.now(timezone.utc).isoformat(),
-        "head": head.stdout.strip() if head.returncode == 0 else None,
-        "files": files,
+        "captured_at": snapshot.captured_at,
+        "head": snapshot.head,
+        "files": repository_state.as_legacy_entries(snapshot),
     }
 
 

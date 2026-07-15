@@ -1662,6 +1662,62 @@ def test_closeout_convergence_spec_and_task_sequence_are_registered():
           'convergence dependency chain is incomplete')
 
 
+def test_repository_snapshot_is_immutable_and_preserves_rename_origin():
+    sys.path.insert(0, str(ROOT/'scripts'))
+    import repository_state
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        subprocess.check_call(['git', 'init', '-q'], cwd=td)
+        subprocess.check_call(['git', 'config', 'user.email', 't@t.io'], cwd=td)
+        subprocess.check_call(['git', 'config', 'user.name', 't'], cwd=td)
+        (root/'old.txt').write_text('content\n', encoding='utf-8')
+        subprocess.check_call(['git', 'add', '--', 'old.txt'], cwd=td)
+        subprocess.check_call(['git', 'commit', '-qm', 'fixture'], cwd=td)
+        (root/'old.txt').rename(root/'new.txt')
+        subprocess.check_call(['git', 'add', '--', 'old.txt', 'new.txt'], cwd=td)
+        snapshot = repository_state.capture(root)
+        renamed = next(row for row in snapshot.files if row.path == 'new.txt')
+        check(renamed.original_path == 'old.txt', renamed)
+        try:
+            renamed.path = 'mutated.txt'
+        except Exception:
+            pass
+        else:
+            raise AssertionError('FileState must be immutable')
+
+
+def test_repository_classifier_is_the_single_closeout_vocabulary():
+    sys.path.insert(0, str(ROOT/'scripts'))
+    import repository_state
+    rows = (
+        repository_state.FileState(' M', 'lib/a.ts'),
+        repository_state.FileState('??', '.env.local'),
+        repository_state.FileState('??', 'build/app.js'),
+        repository_state.FileState('??', 'outside.txt'),
+        repository_state.FileState('!!', 'node_modules/'),
+    )
+    result = repository_state.classify(
+        rows, allowed=['lib/**'], forbidden=[], unchanged_baseline=set(),
+        state_files=set(), include_state=False,
+    )
+    check(result.safe == ('lib/a.ts',), result)
+    check(result.sensitive == ('.env.local',), result)
+    check(result.generated == ('build/app.js',), result)
+    check(result.outside == ('outside.txt',), result)
+    check(result.ignored == ('node_modules/',), result)
+
+
+def test_repository_state_is_the_only_porcelain_parser():
+    owners = []
+    for relative in ['scripts/repository_state.py', 'scripts/task_switch.py',
+                     'scripts/closeout_check.py', 'scripts/done_gate.py',
+                     'scripts/inspect_state.py']:
+        source = (ROOT/relative).read_text(encoding='utf-8')
+        if 'status", "--porcelain' in source or "status', '--porcelain" in source:
+            owners.append(relative)
+    check(owners == ['scripts/repository_state.py'], f'duplicate porcelain parsers: {owners}')
+
+
 def test_shim_probes_candidate_homes():
     # FN-022: config.local.json overrides config.json, and coderail_home may
     # be a list of candidates probed in order.

@@ -7,7 +7,6 @@ you; it verifies that verification evidence and persistence links are recorded.
 from __future__ import annotations
 
 import argparse
-import fnmatch
 import json
 import re
 import subprocess
@@ -19,6 +18,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 import coordinate_check  # noqa: E402
 import task_switch  # noqa: E402
+import repository_state  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -46,19 +46,7 @@ def find_task(root: Path, task_id: str | None):
 
 
 def git_changed_files(root: Path) -> list[str]:
-    try:
-        out = subprocess.check_output(["git", "-C", str(root), "status", "--short"], text=True, stderr=subprocess.DEVNULL)
-    except Exception:
-        return []
-    files = []
-    for line in out.splitlines():
-        if not line.strip():
-            continue
-        path = line[3:].strip()
-        if " -> " in path:
-            path = path.split(" -> ", 1)[1]
-        files.append(path)
-    return files
+    return [row.path for row in repository_state.capture(root).files]
 
 
 def split_patterns(value: str) -> list[str]:
@@ -72,18 +60,7 @@ def split_patterns(value: str) -> list[str]:
 
 
 def matches_any(path: str, patterns: list[str]) -> bool:
-    normalized = path.replace("\\", "/").lstrip("./")
-    for pat in patterns:
-        p = pat.rstrip().replace("\\", "/").lstrip("./")
-        if not p:
-            continue
-        if p.endswith("/**"):
-            base = p[:-3].rstrip("/")
-            if normalized == base or normalized.startswith(base + "/"):
-                return True
-        if fnmatch.fnmatch(normalized, p) or normalized == p:
-            return True
-    return False
+    return repository_state.matches_any(path, patterns)
 
 
 def load_events(root: Path) -> list[dict]:

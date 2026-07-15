@@ -76,3 +76,7 @@ The lifecycle harness creates isolated repositories and proves: a file created u
 ### T-006 atomic closeout
 
 Isolated real Git repositories cover tracked modifications, glob-created files, unborn baseline adoption, outside and sensitive paths, deletion, rename, and post-commit mutation. Every successful done is followed immediately by inspect and a clean ownership assertion. A post-commit hook that mutates a task file must force a non-zero result, suppress the `Done` label, list the path, and reopen the task.
+
+### T-008 canonical repository state
+
+Unit characterization proves snapshots are immutable, rename origins survive porcelain parsing, and classification uses the accepted vocabulary. The complete lifecycle matrix then proves the shared parser/classifier preserves all T-007 behavior.
