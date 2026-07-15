@@ -17,17 +17,7 @@
       "pre-existing unrelated changes are fingerprinted and excluded from new-task attribution",
       "dirty-fork preserves one active task and records the carried baseline",
       "no switch or closeout path runs git push"
-    ],
-    "closed_pending": {
-      "recorded_at": "2026-07-14T17:28:35.285356+00:00",
-      "files": [
-        {
-          "status": "??",
-          "path": ".coderail/pending_close.json",
-          "fingerprint": "fb4769875311d14b0183287ae886368e9975610052bf8cb35c5d60aac9777135"
-        }
-      ]
-    }
+    ]
   },
   "T-004": {
     "display_id": "T-004",
@@ -49,16 +39,6 @@
       "captured_at": "2026-07-14T22:19:21.852899+00:00",
       "head": "356a433c5e6fc1273df653384ba8d0eaec481e66",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-14T22:24:56.806711+00:00",
-      "files": [
-        {
-          "status": "??",
-          "path": ".coderail/pending_close.json",
-          "fingerprint": "74d2b089b05d561ba78f7312806faaff523c34e60469e12b4ad5b80a1e6f0e9d"
-        }
-      ]
     }
   },
   "T-005": {
@@ -81,16 +61,6 @@
       "captured_at": "2026-07-15T07:06:14.904046+00:00",
       "head": "9ea8595c07c99ea307fd04b86eb1351f713933a9",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-15T07:30:18.796078+00:00",
-      "files": [
-        {
-          "status": "??",
-          "path": ".coderail/pending_close.json",
-          "fingerprint": "ef86815cb5b568f34879618e0f96065a2d2094599cfea9fcf6ed0b5bb9c388b6"
-        }
-      ]
     }
   }
 }

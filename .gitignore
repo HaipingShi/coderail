@@ -15,3 +15,5 @@ build/
 .coderail-runs/
 .coderail/spin.json
 tmp/coderail-regression/
+.coderail/pending_close.json
+.coderail/reports/

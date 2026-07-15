@@ -3,6 +3,19 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Safe ownership for new files and baseline adoption (T-005)
+
+- Done: Safe ownership for new files and baseline adoption
+- Checked by: `python tests/test_structure.py` exit 0; `npm test` exit 0; `npm run ci` exit 0
+- Next: Review baseline adoption ergonomics and extend sensitive-pattern configuration if field evidence requires it
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: lib/** owns new matching files created after start
+- Acceptance [done]: baseline adoption records fingerprints and excludes unsafe files
+- Acceptance [done]: done blocks ambiguous or forbidden files before closure
+- Acceptance [done]: done followed by inspect has no closed-task ownership
+
 ## 2026-07-14 - Prepare v0.9.0 release (T-004)
 
 - Done: Prepare v0.9.0 release

@@ -31,7 +31,6 @@ def git_status_entries(root: Path, include_ignored: bool = True) -> list[tuple[s
 
 
 STATE_FILES = {
-    ".coderail/pending_close.json",
     ".coderail/tasks.json",
     "docs/TASKS.md",
     "docs/TRACELOG.jsonl",
@@ -40,6 +39,7 @@ STATE_FILES = {
     "docs/HANDOFF.md",
     "docs/PROGRESS.md",
 }
+EPHEMERAL_FILES = {".coderail/pending_close.json"}
 
 SENSITIVE_PATTERNS = [".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx"]
 GENERATED_PATTERNS = ["node_modules/**", "dist/**", "build/**", "coverage/**", ".next/**"]
@@ -61,6 +61,9 @@ def classify(
     }
     unchanged_baseline = unchanged_baseline or set()
     for code, path in entries:
+        if path in EPHEMERAL_FILES:
+            result["ignored"].append(path)
+            continue
         if path in unchanged_baseline:
             result["baseline"].append(path)
             continue
