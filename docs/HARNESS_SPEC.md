@@ -98,3 +98,27 @@ post-commit mutation. Touched closeout runtime lines must decrease from the
 python tests/test_structure.py
 npm run ci
 ```
+
+### T-012 responsibility-focused characterization suite
+
+The suite retains 104 unique test definitions. Every responsibility module is
+independently executable and stays below 650 lines; `test_structure.py` is a
+thin complete-suite aggregator. The split must not change `npm test` or
+`npm run ci`.
+
+TDD evidence:
+
+- Red: the inventory guard failed with `responsibility test modules are incomplete`.
+- Green: independent groups passed with counts `28/29/7/11/15/14`.
+- Full discovery: `python -m pytest -q` passed all 104 tests exactly once.
+
+```bash
+python tests/test_static.py
+python tests/test_drive.py
+python tests/test_inspect.py
+python tests/test_task_switch.py
+python tests/test_lifecycle.py
+python tests/test_closeout.py
+python tests/test_structure.py
+npm run ci
+```

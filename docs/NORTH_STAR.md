@@ -22,7 +22,7 @@ Owner: CodeRail maintainers
 
 - Milestone: M-012 lean implementation convergence
 - Execution Batch: remove compatibility adapters, then split the test monolith
-- Active Task: T-011
+- Active Task: T-012 (final task in this slice)
 
 ## Non-Goals
 

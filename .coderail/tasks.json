@@ -160,5 +160,32 @@
       "head": "e92a9b8023b3201aa9404e7c0f3a4dc24b38089d",
       "files": []
     }
+  },
+  "T-012": {
+    "display_id": "T-012",
+    "verify": [
+      "python tests/test_structure.py",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_structure.py"
+    ],
+    "accept": [
+      "no test module exceeds 650 lines",
+      "all 104 tests remain discoverable exactly once",
+      "responsibility groups run independently",
+      "npm test and npm run ci entry points remain green"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-15T10:25:11.052941+00:00",
+      "head": "59cf2d58852ace72562431f41561be52e6f3e5a0",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md",
+          "fingerprint": "5e3ac52f26c2dc5453bde00337e48a754dcd815df0bac9980db6b1094d33b575"
+        }
+      ]
+    }
   }
 }

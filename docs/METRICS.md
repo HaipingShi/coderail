@@ -25,3 +25,19 @@
 
 T-012 will record per-module lines, unique discovered test names, targeted
 group results, and unchanged full-suite entry points.
+
+### T-012 Result
+
+| Test module | Lines | Tests |
+| --- | ---: | ---: |
+| `test_structure.py` | 37 | aggregator |
+| `test_support.py` | 247 | support |
+| `test_static.py` | 418 | 28 |
+| `test_drive.py` | 292 | 29 |
+| `test_inspect.py` | 98 | 7 |
+| `test_task_switch.py` | 197 | 11 |
+| `test_lifecycle.py` | 337 | 15 |
+| `test_closeout.py` | 273 | 14 |
+
+Inventory: 104 unique tests, zero duplicate names, maximum module size 418
+lines. All six responsibility groups run independently.

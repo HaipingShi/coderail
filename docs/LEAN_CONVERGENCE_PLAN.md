@@ -1,6 +1,6 @@
 # Lean Implementation Convergence
 
-Status: active
+Status: implemented; governance closeout pending
 Date: 2026-07-15
 Milestone: M-012
 
@@ -83,3 +83,12 @@ complete-suite results, CI, and immediate post-done inspect state.
 - Changes to scope, sensitive-file, forbidden-file, or inspect policy.
 - Combining the implementation and ledger commits.
 - Automatic push.
+
+## Results
+
+- T-011 removed all repository-state compatibility adapters and reduced the
+  measured runtime from 3,258 to 3,237 lines.
+- T-012 retained 104 unique tests while reducing the largest test module from
+  1,910 to 418 lines; the complete-suite entry point is 37 lines.
+- Feature scope, package commands, Git staging policy, and inspect semantics
+  did not change.

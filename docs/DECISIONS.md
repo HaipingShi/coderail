@@ -74,3 +74,18 @@ Task: T-011
   classifier are deleted rather than deprecated.
 - Characterization behavior is the compatibility contract. Internal legacy
   shapes are not preserved when they have no external caller.
+
+## ADR-009 Characterization tests are grouped by responsibility
+
+Status: accepted
+Date: 2026-07-15
+Task: T-012
+
+- `test_structure.py` remains the stable complete-suite entry point but owns no
+  lifecycle tests itself.
+- Static, Drive, inspect, task-switch, lifecycle, and closeout tests are
+  independently runnable modules backed by one side-effect-free support file.
+- Suite inventory is a checked invariant: 104 unique test definitions, no
+  duplicates, and no responsibility module above 650 lines.
+- `npm test` and `npm run ci` keep their existing commands; no package or
+  production code changes are required for the split.

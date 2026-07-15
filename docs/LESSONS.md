@@ -21,3 +21,11 @@ projects it back into the old shape. Freeze correct behavior first, migrate
 callers to the canonical dataclasses, and serialize only at durable storage
 boundaries. Treat an adapter with no external consumer as deletion work, not as
 compatibility value.
+
+## Split tests around facts, not around command history
+
+A test monolith becomes safer to split once the behavior count is an explicit
+invariant. Extract shared repository construction once, move whole test
+functions mechanically into responsibility modules, and keep the existing
+suite command as a thin deterministic aggregator. This makes each concern
+runnable alone without changing the product or duplicating fixtures.
