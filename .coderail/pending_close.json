@@ -1,0 +1,34 @@
+{
+  "task": "T-005",
+  "display_id": "T-005",
+  "title": "Safe ownership for new files and baseline adoption",
+  "next_hint": "Review baseline adoption ergonomics and extend sensitive-pattern configuration if field evidence requires it",
+  "accept_items": [
+    "lib/** owns new matching files created after start",
+    "baseline adoption records fingerprints and excludes unsafe files",
+    "done blocks ambiguous or forbidden files before closure",
+    "done followed by inspect has no closed-task ownership"
+  ],
+  "accept_statuses": [
+    "done",
+    "done",
+    "done",
+    "done"
+  ],
+  "manual_acceptance": "",
+  "verify_results": [
+    {
+      "cmd": "python tests/test_structure.py",
+      "exit": 0
+    },
+    {
+      "cmd": "npm test",
+      "exit": 0
+    },
+    {
+      "cmd": "npm run ci",
+      "exit": 0
+    }
+  ],
+  "stamp": "20260715-073649"
+}

@@ -31,6 +31,7 @@ def git_status_entries(root: Path, include_ignored: bool = True) -> list[tuple[s
 
 
 STATE_FILES = {
+    ".coderail/pending_close.json",
     ".coderail/tasks.json",
     "docs/TASKS.md",
     "docs/TRACELOG.jsonl",

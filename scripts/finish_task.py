@@ -234,16 +234,19 @@ def main(argv=None) -> int:
     update_completion(root, task_id, args.task_result, verification, decision, auto_action)
     run("Inspect", "inspect_state.py", root, ["--write"])
 
-    closeout_args = task_args + ["--task-result", args.task_result]
-    if not args.no_auto_commit:
-        closeout_args.append("--auto-commit")
-    if args.commit_message:
-        closeout_args += ["--commit-message", args.commit_message]
-    closeout_args.append("--include-state")
-    closeout_rc, closeout_output = run_report("Closeout", "closeout_check.py", root, closeout_args)
-    failures += bool(closeout_rc)
-    action_match = re.search(r"^- Action: (committed|skipped|blocked|failed|not requested)$", closeout_output, re.M)
-    actual_auto_action = action_match.group(1) if action_match else auto_action
+    if args.task_result != "done" or task_marked_done:
+        closeout_args = task_args + ["--task-result", args.task_result]
+        if not args.no_auto_commit:
+            closeout_args.append("--auto-commit")
+        if args.commit_message:
+            closeout_args += ["--commit-message", args.commit_message]
+        closeout_args.append("--include-state")
+        closeout_rc, closeout_output = run_report("Closeout", "closeout_check.py", root, closeout_args)
+        failures += bool(closeout_rc)
+        action_match = re.search(r"^- Action: (committed|skipped|blocked|failed|not requested)$", closeout_output, re.M)
+        actual_auto_action = action_match.group(1) if action_match else auto_action
+    else:
+        actual_auto_action = "blocked"
 
     print("\n" + drive_check.render_human(decision))
     print("\n# Finish Task Report\n")

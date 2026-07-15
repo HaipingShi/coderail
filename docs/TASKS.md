@@ -373,7 +373,7 @@ Auto commit: requested
 
 ## T-005 Safe ownership for new files and baseline adoption
 
-Status: [~]
+Status: [x]
 Display id: T-005
 Type: bug
 Rail: full
