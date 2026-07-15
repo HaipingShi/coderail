@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Single closeout transaction authority (T-009)
+
+- Done: Single closeout transaction authority
+- Checked by: unverified - no verify commands registered
+- Next: Hold the feature freeze and observe the converged closeout in field repositories
+- Acceptance [done]: only FINALIZED can render Done or return success
+- Acceptance [done]: stage, commit, persistence, rescan, or inspect failure returns an explicit transaction failure
+- Acceptance [done]: provisional closure is compensatingly reopened on late failure
+- Acceptance [done]: duplicate closeout sequencing and success judgments are deleted
+- Acceptance [done]: immediate inspect agrees with every successful done
+
 ## 2026-07-15 - Canonical repository snapshot and ownership classifier (T-008)
 
 - Done: Canonical repository snapshot and ownership classifier
