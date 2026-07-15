@@ -186,6 +186,16 @@ def main(argv=None) -> int:
         )
         failures += bool(done_rc)
         if done_rc == 0:
+            preflight_rc, preflight_output = run_report(
+                "Closeout Preflight", "closeout_check.py", root,
+                task_args + ["--task-result", "done", "--include-state", "--preflight"],
+            )
+            if preflight_rc:
+                print(preflight_output)
+                print("Closeout preflight refused to close the task; resolve the exact paths above.")
+                failures += 1
+                done_rc = preflight_rc
+        if done_rc == 0:
             if task_id and not set_task_status(root, task_id, "[x]"):
                 print(f"Could not mark {task_id} done in docs/TASKS.md", file=sys.stderr)
                 failures += 1

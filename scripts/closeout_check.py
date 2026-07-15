@@ -40,6 +40,9 @@ STATE_FILES = {
     "docs/PROGRESS.md",
 }
 
+SENSITIVE_PATTERNS = [".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx"]
+GENERATED_PATTERNS = ["node_modules/**", "dist/**", "build/**", "coverage/**", ".next/**"]
+
 
 def classify(
     entries: list[tuple[str, str]],
@@ -57,14 +60,19 @@ def classify(
     }
     unchanged_baseline = unchanged_baseline or set()
     for code, path in entries:
-        if code == "!!":
-            result["ignored"].append(path)
-            continue
         if path in unchanged_baseline:
             result["baseline"].append(path)
             continue
+        if done_gate.matches_any(path, SENSITIVE_PATTERNS):
+            result["forbidden"].append(path)
+            continue
         if forbidden and done_gate.matches_any(path, forbidden):
             result["forbidden"].append(path)
+            continue
+        if done_gate.matches_any(path, GENERATED_PATTERNS):
+            result["forbidden"].append(path)
+        elif code == "!!":
+            result["ignored"].append(path)
         elif include_state and path in STATE_FILES:
             result["safe"].append(path)
         elif allowed and not done_gate.matches_any(path, allowed):
@@ -149,6 +157,8 @@ def main(argv=None) -> int:
     )
     ap.add_argument("--commit-message", help="Commit message to use with --auto-commit")
     ap.add_argument("--commit-type", default="chore", help="Commit type for the default auto-commit message")
+    ap.add_argument("--preflight", action="store_true",
+                    help="Validate the final path set before changing task state")
     args = ap.parse_args(argv)
 
     root = Path(args.target).resolve()
@@ -192,7 +202,10 @@ def main(argv=None) -> int:
     if files["forbidden"]:
         severe.append(f"{task_id}: forbidden files are changed")
     if files["outside"]:
-        warnings.append(f"{task_id}: changed files outside S allowed")
+        if args.preflight and args.task_result == "done":
+            severe.append(f"{task_id}: changed files outside S allowed")
+        else:
+            warnings.append(f"{task_id}: changed files outside S allowed")
 
     handoff = read(root / "docs" / "HANDOFF.md")
     if handoff:
@@ -230,7 +243,7 @@ def main(argv=None) -> int:
             auto_action = "skipped"
             auto_detail = "task result does not create an automatic commit boundary"
 
-    if args.task_result == "done" and task_id != "(unknown)":
+    if args.task_result == "done" and task_id != "(unknown)" and not args.preflight:
         baseline_after = task_switch.unchanged_baseline_paths(root, task_id)
         remaining = [
             row for row in task_switch.snapshot_dirty(root)["files"]

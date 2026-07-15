@@ -60,5 +60,27 @@
         }
       ]
     }
+  },
+  "T-005": {
+    "display_id": "T-005",
+    "verify": [
+      "python tests/test_structure.py",
+      "npm test",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_structure.py"
+    ],
+    "accept": [
+      "lib/** owns new matching files created after start",
+      "baseline adoption records fingerprints and excludes unsafe files",
+      "done blocks ambiguous or forbidden files before closure",
+      "done followed by inspect has no closed-task ownership"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-15T07:06:14.904046+00:00",
+      "head": "9ea8595c07c99ea307fd04b86eb1351f713933a9",
+      "files": []
+    }
   }
 }

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -200,8 +201,12 @@ def run_verify_commands(root: Path, commands: list[str]) -> list[dict]:
     for cmd in commands:
         print(f"  running: {cmd}")
         try:
+            executable = cmd
+            if os.name == "nt":
+                executable = re.sub(r"(?<!\S)true(?!\S)", "ver >nul", executable)
+                executable = re.sub(r"(?<!\S)false(?!\S)", "exit /b 1", executable)
             proc = subprocess.run(
-                cmd, shell=True, cwd=str(root),
+                executable, shell=True, cwd=str(root),
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 text=True, encoding="utf-8", errors="replace", timeout=600,
             )
@@ -800,8 +805,8 @@ def cmd_start(args) -> int:
     goal = (args.goal or title).strip()
     done_when = (args.done_when or "Manually confirm the result works as intended.").strip()
     # FN-021: --files is repeatable and each value may mix comma lists and
-    # globs; globs expand against the repo now, unmatched patterns are kept
-    # literally (the files may not exist yet).
+    # globs. Preserve each normalized pattern as the durable scope contract;
+    # current matches are useful detail, but future matches must remain owned.
     raw_files: list[str] = []
     for chunk in (args.files or []):
         raw_files += [f.strip() for f in chunk.split(",") if f.strip()]
@@ -816,7 +821,8 @@ def cmd_start(args) -> int:
             matches = sorted(
                 p.relative_to(root).as_posix() for p in root.glob(pat) if p.is_file()
             )
-            files += matches or [pat]
+            files.append(pat)
+            files += matches
         else:
             files.append(pat)
     seen: set[str] = set()
@@ -839,6 +845,10 @@ def cmd_start(args) -> int:
             "tests": test_files or None,
             "accept": accept_items or None,
             "baseline": preflight.get("baseline"),
+            "baseline_adoption": (
+                task_switch.build_baseline_adoption(root, files, avoid)
+                if getattr(args, "adopt_baseline", False) else None
+            ),
             "dirty_fork": dirty_fork or None,
         }.items() if v
     }
@@ -1581,6 +1591,8 @@ def build_parser() -> argparse.ArgumentParser:
                          help="Deprecated: cannot bypass the single-active-task invariant")
     p_start.add_argument("--dirty-fork", action="store_true",
                          help="Explicitly carry a fingerprinted dirty baseline")
+    p_start.add_argument("--adopt-baseline", action="store_true",
+                         help="Adopt explicitly allowed files in a repository with no Git baseline")
     p_start.add_argument("--target", default=".")
 
     p_check = sub.add_parser("check", help="Am I on track? What's missing?")

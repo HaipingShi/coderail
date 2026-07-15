@@ -68,3 +68,7 @@ For correctness-sensitive work, record the Red check, Green check, Refactor chec
 ## Rule
 
 No task is done until V passes or manual acceptance is recorded.
+
+### T-005 ownership and baseline adoption
+
+The lifecycle harness creates isolated repositories and proves: a file created under `lib/**` after start is committed; an unborn repository can explicitly adopt allowed files using fingerprint-only evidence; `.env` blocks done; ignored dependencies and unchanged build output are not staged; post-done inspect is healthy; and closeout contains no `git add .` path.

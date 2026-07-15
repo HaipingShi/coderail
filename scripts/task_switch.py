@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import fnmatch
 import json
 import os
 import re
@@ -12,6 +13,19 @@ from pathlib import Path
 
 
 ACTIVE_STATUSES = {"[~]", "[!]"}
+
+
+def _matches(path: str, patterns: list[str]) -> bool:
+    normalized = path.replace("\\", "/").lstrip("./")
+    for pattern in patterns:
+        candidate = pattern.replace("\\", "/").lstrip("./").rstrip()
+        if candidate.endswith("/**"):
+            base = candidate[:-3].rstrip("/")
+            if normalized == base or normalized.startswith(base + "/"):
+                return True
+        if normalized == candidate or fnmatch.fnmatch(normalized, candidate):
+            return True
+    return False
 
 
 def _git(root: Path, args: list[str], *, text: bool = True):
@@ -89,6 +103,23 @@ def snapshot_dirty(root: Path) -> dict:
     }
 
 
+def build_baseline_adoption(root: Path, allowed: list[str], forbidden: list[str]) -> dict:
+    """Record an auditable, content-free manifest for an unborn repository."""
+    head = _git(root, ["rev-parse", "HEAD"])
+    if head.returncode == 0:
+        raise ValueError("--adopt-baseline is only valid before the first Git commit")
+    files = []
+    for row in git_status_entries(root):
+        path = row["path"]
+        disposition = "allowed" if _matches(path, allowed) else "outside"
+        if _matches(path, forbidden):
+            disposition = "forbidden"
+        files.append({**row, "fingerprint": fingerprint_path(root, path),
+                      "disposition": disposition})
+    return {"captured_at": datetime.now(timezone.utc).isoformat(), "head": None,
+            "files": files}
+
+
 def _meta_path(root: Path) -> Path:
     return root / ".coderail" / "tasks.json"
 
@@ -109,10 +140,19 @@ def save_meta(root: Path, meta: dict) -> None:
 def unchanged_baseline_paths(root: Path, task_id: str | None) -> set[str]:
     if not task_id:
         return set()
-    baseline = load_meta(root).get(task_id, {}).get("baseline", {}).get("files", [])
+    entry = load_meta(root).get(task_id, {})
+    baseline = entry.get("baseline", {}).get("files", [])
+    adoption_files = entry.get("baseline_adoption", {}).get("files", [])
+    adopted = {row.get("path") for row in adoption_files
+               if row.get("disposition") == "allowed"}
+    adoption_sensitive = {row.get("path") for row in adoption_files
+                          if _matches(row.get("path", ""),
+                                      [".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx"])}
     current = {row["path"]: row for row in git_status_entries(root)}
     unchanged = set()
     for original in baseline:
+        if original.get("path") in adopted or original.get("path") in adoption_sensitive:
+            continue
         row = current.get(original.get("path"))
         if not row or row.get("status") != original.get("status"):
             continue

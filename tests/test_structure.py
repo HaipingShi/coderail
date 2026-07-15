@@ -1273,7 +1273,8 @@ Rail: full
         r = cr('next', '--go')
         check(r.returncode == 1, r.stdout)
         check('leftover.txt' in r.stdout and 'closed task' in r.stdout.lower(), r.stdout)
-        check('Status: [ ]' in tasks.read_text(encoding='utf-8'), tasks.read_text())
+        check('Status: [ ]' in tasks.read_text(encoding='utf-8'),
+              tasks.read_text(encoding='utf-8'))
 
 
 def test_task_switch_implementation_has_no_git_push_path():
@@ -1454,9 +1455,78 @@ def test_files_globs_expand_and_accumulate():
             check(f'- {expect}' in tasks, f'missing expanded file {expect}: {tasks[-800:]}')
         # Narrow to THIS task's Allowed scope block (the template's example
         # task legitimately contains an escaped "\##" heading elsewhere).
-        allowed = tasks[tasks.index('Allowed:'):tasks.index('Forbidden:')]
+        task_block = tasks[tasks.rindex('## T-001 Glob scope task'):]
+        allowed = task_block[task_block.index('Allowed:'):task_block.index('Forbidden:')]
         check('\\' not in allowed,
               f'FN-029: backslash leaked into committed TASKS scope: {allowed!r}')
+        check('- src/director/director*.ts' in allowed,
+              f'glob intent was lost after expansion: {allowed!r}')
+
+
+def test_done_commits_file_created_after_start_under_glob_and_inspect_is_healthy():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Own future library files', '--files', 'lib/**',
+               '--verify', f'"{sys.executable}" -c "pass"')
+        check(r.returncode == 0, r.stdout)
+        (root/'lib/audio').mkdir(parents=True)
+        (root/'lib/audio/mock-wav.ts').write_text('export const wav = true;\n', encoding='utf-8')
+        r = cr('done')
+        check(r.returncode == 0, r.stdout)
+        tracked = subprocess.check_output(
+            ['git', '-C', td, 'ls-files', 'lib/audio/mock-wav.ts'], text=True).strip()
+        check(tracked == 'lib/audio/mock-wav.ts', tracked)
+        inspect = cr('inspect', '--no-write')
+        check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
+        check('Closed-task uncommitted ownership: none' in inspect.stdout, inspect.stdout)
+
+
+def test_unborn_repository_baseline_adoption_is_audited_and_safe():
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        subprocess.check_call(['git', 'init', '-q'], cwd=td)
+        subprocess.check_call(['git', 'config', 'user.email', 't@t.io'], cwd=td)
+        subprocess.check_call(['git', 'config', 'user.name', 't'], cwd=td)
+        subprocess.run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        (root/'lib').mkdir()
+        (root/'lib/app.ts').write_text('export {};\n', encoding='utf-8')
+        (root/'.env').write_text('TOKEN=secret\n', encoding='utf-8')
+        (root/'node_modules/pkg').mkdir(parents=True)
+        (root/'node_modules/pkg/index.js').write_text('generated\n', encoding='utf-8')
+        (root/'dist').mkdir()
+        (root/'dist/app.js').write_text('built\n', encoding='utf-8')
+
+        def cr(*args):
+            return subprocess.run([sys.executable, str(ROOT/'scripts/coderail.py'), *args,
+                                   '--target', td], capture_output=True, text=True)
+
+        r = cr('start', 'Adopt existing baseline', '--files', 'lib/**',
+               '--files', '.coderail/**,docs/**,AGENTS.md,CLAUDE.md',
+               '--adopt-baseline', '--verify', f'"{sys.executable}" -c "pass"')
+        check(r.returncode == 0, r.stdout + r.stderr)
+        meta = json.loads((root/'.coderail/tasks.json').read_text(encoding='utf-8'))['T-001']
+        adoption = meta.get('baseline_adoption', {})
+        check(adoption.get('head') is None and adoption.get('files'), adoption)
+        check(all('fingerprint' in row and 'content' not in row for row in adoption['files']), adoption)
+        r = cr('done')
+        check(r.returncode == 1 and '.env' in r.stdout, r.stdout)
+        check('Status: [~]' in (root/'docs/TASKS.md').read_text(encoding='utf-8'), r.stdout)
+        (root/'.env').unlink()
+        r = cr('done')
+        check(r.returncode == 0, r.stdout)
+        tracked = set(subprocess.check_output(['git', '-C', td, 'ls-files'], text=True).splitlines())
+        check('lib/app.ts' in tracked, tracked)
+        check('.env' not in tracked and not any(p.startswith('node_modules/') for p in tracked), tracked)
+        check(not any(p.startswith('dist/') for p in tracked), tracked)
+        inspect = cr('inspect', '--no-write')
+        check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
+
+
+def test_closeout_implementation_never_uses_git_add_dot():
+    source = (ROOT/'scripts/closeout_check.py').read_text(encoding='utf-8')
+    check('["add", "."]' not in source and "['add', '.']" not in source,
+          'closeout must stage an explicit audited path list')
 
 
 def test_shim_probes_candidate_homes():
