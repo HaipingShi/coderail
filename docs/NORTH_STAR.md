@@ -20,9 +20,9 @@ Owner: CodeRail maintainers
 
 ## Current Slice
 
-- Milestone: M-011 closeout convergence
-- Execution Batch: characterize behavior, unify repository facts, then unify transaction authority
-- Active Task: T-007
+- Milestone: M-012 lean implementation convergence
+- Execution Batch: remove compatibility adapters, then split the test monolith
+- Active Task: T-011
 
 ## Non-Goals
 
@@ -34,7 +34,8 @@ Owner: CodeRail maintainers
 
 ## Decision Debt
 
-- None for this slice.
+- T-012 must preserve the existing `npm test` and `npm run ci` entry points
+  while making responsibility groups independently runnable.
 
 ## Legacy Cutoff
 

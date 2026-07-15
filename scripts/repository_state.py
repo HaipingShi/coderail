@@ -169,15 +169,3 @@ def classify(
         else:
             buckets["safe"].append(path)
     return OwnershipClassification(**{key: tuple(value) for key, value in buckets.items()})
-
-
-def as_legacy_entries(snapshot: RepositorySnapshot) -> list[dict]:
-    rows = []
-    for item in snapshot.files:
-        row = {"status": item.status, "path": item.path}
-        if item.original_path:
-            row["original_path"] = item.original_path
-        if item.fingerprint is not None:
-            row["fingerprint"] = item.fingerprint
-        rows.append(row)
-    return rows

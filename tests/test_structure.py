@@ -1718,6 +1718,21 @@ def test_repository_state_is_the_only_porcelain_parser():
     check(owners == ['scripts/repository_state.py'], f'duplicate porcelain parsers: {owners}')
 
 
+def test_runtime_has_no_repository_state_compatibility_adapters():
+    task_switch = (ROOT/'scripts/task_switch.py').read_text(encoding='utf-8')
+    closeout = (ROOT/'scripts/closeout_check.py').read_text(encoding='utf-8')
+    coderail = (ROOT/'scripts/coderail.py').read_text(encoding='utf-8')
+    repository = (ROOT/'scripts/repository_state.py').read_text(encoding='utf-8')
+    check('def git_status_entries' not in task_switch,
+          'task_switch still projects canonical snapshots into legacy status rows')
+    check('def git_status_entries' not in closeout,
+          'closeout_check still owns a status compatibility adapter')
+    check('as_legacy_entries' not in repository + task_switch,
+          'repository snapshot legacy projection still exists')
+    check('task_switch.git_status_entries' not in closeout + coderail,
+          'runtime callers still consume task_switch status compatibility rows')
+
+
 def test_closeout_transaction_is_the_only_success_authority():
     sys.path.insert(0, str(ROOT/'scripts'))
     import closeout_transaction

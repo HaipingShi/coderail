@@ -83,7 +83,8 @@ compensating reopen; it never converts a failed transaction into a warning.
 - `coderail.py`: CLI parsing, application-service call, compact rendering.
 - `closeout_transaction.py`: the only closeout sequencing and success authority.
 - `repository_state.py`: Git observation, fingerprints, scope and ownership.
-- `finish_task.py`: compatibility adapter for advanced callers.
+- `finish_task.py`: advanced closeout application service pending a later
+  responsibility-boundary review; it does not own repository-state adapters.
 - `closeout_check.py`: read-only preflight/report adapter.
 - `inspect_state.py`: read-only projection of the canonical snapshot.
 - `task_switch.py`: ownership transfer and pause/resume metadata only.
@@ -104,6 +105,18 @@ time. Compatibility adapters may remain temporarily, but new parsing is forbidde
 
 Move sequencing and final success into one transaction service. CLI and legacy
 entry points become adapters, then duplicate state transitions are deleted.
+
+### T-011 Delete repository-state adapters
+
+Move every runtime caller to `RepositorySnapshot` and `FileState`, delete
+legacy status projections, and restrict dictionary serialization to persisted
+task metadata. This completes the temporary adapter allowance from T-008.
+
+### T-012 Split characterization tests
+
+Keep characterization behavior fixed while extracting shared Git fixtures and
+responsibility-focused modules. Test discovery count and command entry points
+are invariants during the move.
 
 ## Non-Goals
 

@@ -59,3 +59,18 @@ Task: T-009
 - `coderail done` advances the transaction around the existing compatibility gates, ledger persistence, final repository rescan, and inspect-equivalent evaluation.
 - The user-facing `Done` label is guarded by `transaction.success`, which is possible only after `FINALIZED`.
 - Queued tasks hydrate registered `Run:` verification and acceptance clauses from their task contract when activation metadata does not contain them, preventing a verified queued closeout from being journaled as unverified.
+
+## ADR-008 Canonical state has no runtime compatibility projection
+
+Status: accepted
+Date: 2026-07-15
+Task: T-011
+
+- Runtime closeout, ledger, and task-switch code consumes `RepositorySnapshot`
+  and `FileState` directly.
+- Dictionary conversion is permitted only at the `.coderail/tasks.json`
+  persistence boundary; it is not a second repository-state API.
+- `git_status_entries`, `as_legacy_entries`, and the duplicate closeout
+  classifier are deleted rather than deprecated.
+- Characterization behavior is the compatibility contract. Internal legacy
+  shapes are not preserved when they have no external caller.

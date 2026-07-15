@@ -139,5 +139,26 @@
       "head": "0fc1a4658691dcc8bb5ac0fee0f02f6d58745769",
       "files": []
     }
+  },
+  "T-011": {
+    "display_id": "T-011",
+    "verify": [
+      "python tests/test_structure.py",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_structure.py"
+    ],
+    "accept": [
+      "no runtime caller uses task_switch git-status or snapshot compatibility adapters",
+      "closeout, inspect, done and switch consume FileState or RepositorySnapshot",
+      "runtime code in touched closeout modules is net-negative",
+      "done and inspect behavior remains characterized and healthy"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-15T10:04:55.830592+00:00",
+      "head": "e92a9b8023b3201aa9404e7c0f3a4dc24b38089d",
+      "files": []
+    }
   }
 }

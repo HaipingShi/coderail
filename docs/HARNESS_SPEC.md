@@ -84,3 +84,17 @@ Unit characterization proves snapshots are immutable, rename origins survive por
 ### T-009 closeout transaction authority
 
 State-machine tests prove every phase before `FINALIZED` is unsuccessful and failure results retain exact paths. Existing hook-based failure injection proves commit and post-commit mutation cannot render Done. Real temporary repositories must finish with `inspect: consistent`, `Status: healthy`, and no closed ownership.
+
+### T-011 repository-state adapter removal
+
+The structural harness rejects `git_status_entries`, `as_legacy_entries`, and
+runtime calls through task-switch status projections. Lifecycle
+characterization still covers tracked changes, glob-created files, baseline
+adoption, ignored and sensitive paths, delete/rename, commit failure, and
+post-commit mutation. Touched closeout runtime lines must decrease from the
+3,258-line pre-task baseline.
+
+```bash
+python tests/test_structure.py
+npm run ci
+```

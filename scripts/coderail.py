@@ -384,8 +384,8 @@ POST_CLOSE_LEDGER_FILES = {
 def commit_post_close_ledger(root: Path, task_id: str) -> tuple[bool, str]:
     """Persist state written after finish_task's first safe commit."""
     changed = [
-        row["path"] for row in task_switch.git_status_entries(root)
-        if row["path"] in POST_CLOSE_LEDGER_FILES and row["status"] != "!!"
+        item.path for item in repository_state.capture(root).files
+        if item.path in POST_CLOSE_LEDGER_FILES and item.status != "!!"
     ]
     if not changed:
         return True, "no post-close ledger changes"

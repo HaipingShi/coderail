@@ -14,22 +14,24 @@ ACTIVE_STATUSES = {"[~]", "[!]"}
 
 
 _matches = repository_state.matches_any
-fingerprint_path = repository_state.fingerprint_path
 
 
-def git_status_entries(root: Path, include_ignored: bool = False) -> list[dict]:
-    """Compatibility projection of the canonical repository snapshot."""
-    return repository_state.as_legacy_entries(
-        repository_state.capture(root, include_ignored=include_ignored)
-    )
+def _file_record(item: repository_state.FileState) -> dict:
+    """Serialize canonical state only at the tasks.json persistence boundary."""
+    row = {"status": item.status, "path": item.path}
+    if item.original_path:
+        row["original_path"] = item.original_path
+    if item.fingerprint is not None:
+        row["fingerprint"] = item.fingerprint
+    return row
 
 
-def snapshot_dirty(root: Path) -> dict:
+def snapshot_metadata(root: Path) -> dict:
     snapshot = repository_state.capture(root, fingerprints=True)
     return {
         "captured_at": snapshot.captured_at,
         "head": snapshot.head,
-        "files": repository_state.as_legacy_entries(snapshot),
+        "files": [_file_record(item) for item in snapshot.files],
     }
 
 
@@ -39,7 +41,8 @@ def build_baseline_adoption(root: Path, allowed: list[str], forbidden: list[str]
     if snapshot.head is not None:
         raise ValueError("--adopt-baseline is only valid before the first Git commit")
     files = []
-    for row in repository_state.as_legacy_entries(snapshot):
+    for item in snapshot.files:
+        row = _file_record(item)
         path = row["path"]
         disposition = "allowed" if _matches(path, allowed) else "outside"
         if _matches(path, forbidden):
@@ -77,16 +80,19 @@ def unchanged_baseline_paths(root: Path, task_id: str | None) -> set[str]:
     adoption_sensitive = {row.get("path") for row in adoption_files
                           if _matches(row.get("path", ""),
                                       [".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx"])}
-    current = {row["path"]: row for row in git_status_entries(root)}
+    current = {
+        item.path: item
+        for item in repository_state.capture(root, fingerprints=True).files
+    }
     unchanged = set()
     for original in baseline:
         if original.get("path") in adopted or original.get("path") in adoption_sensitive:
             continue
         row = current.get(original.get("path"))
-        if not row or row.get("status") != original.get("status"):
+        if not row or row.status != original.get("status"):
             continue
-        if fingerprint_path(root, row["path"]) == original.get("fingerprint"):
-            unchanged.add(row["path"])
+        if row.fingerprint == original.get("fingerprint"):
+            unchanged.add(row.path)
     return unchanged
 
 
@@ -103,7 +109,10 @@ def active_task_ids(tasks_text: str) -> list[str]:
 
 
 def closed_pending_paths(root: Path) -> list[tuple[str, str]]:
-    current = {row["path"] for row in git_status_entries(root) if row["status"] != "!!"}
+    current = {
+        item.path for item in repository_state.capture(root).files
+        if item.status != "!!"
+    }
     pending = []
     for owner, entry in load_meta(root).items():
         for row in entry.get("closed_pending", {}).get("files", []):
@@ -135,7 +144,7 @@ def activation_preflight(root: Path, tasks_text: str, dirty_fork: bool = False) 
         "reason": "dirty-fork" if pending else "clean-owner",
         "active": [],
         "paths": pending,
-        "baseline": snapshot_dirty(root),
+        "baseline": snapshot_metadata(root),
     }
 
 
@@ -158,14 +167,16 @@ def clear_closed_pending(root: Path, task_id: str) -> None:
         save_meta(root, meta)
 
 
-def record_closed_pending(root: Path, task_id: str, files: list[dict]) -> None:
+def record_closed_pending(
+    root: Path, task_id: str, files: list[repository_state.FileState]
+) -> None:
     if not files:
         return
     meta = load_meta(root)
     entry = meta.setdefault(task_id, {})
     entry["closed_pending"] = {
         "recorded_at": datetime.now(timezone.utc).isoformat(),
-        "files": files,
+        "files": [_file_record(item) for item in files],
     }
     save_meta(root, meta)
 
@@ -218,7 +229,7 @@ def resume_task(root: Path, task_id: str) -> bool:
 
 
 def write_h3_handoff(root: Path, task_id: str, reason: str) -> None:
-    dirty = snapshot_dirty(root)["files"]
+    dirty = snapshot_metadata(root)["files"]
     paths = "\n".join(f"- `{row['path']}` ({row['status']})" for row in dirty) or "- none"
     text = f"""# Handoff
 

@@ -13,8 +13,8 @@ if str(SCRIPTS) not in sys.path:
 
 import done_gate  # noqa: E402
 import coordinate_check  # noqa: E402
-import task_switch  # noqa: E402
 import repository_state  # noqa: E402
+import task_switch  # noqa: E402
 
 
 def read(path: Path) -> str:
@@ -22,13 +22,6 @@ def read(path: Path) -> str:
         return path.read_text(encoding="utf-8", errors="ignore")
     except FileNotFoundError:
         return ""
-
-
-def git_status_entries(root: Path, include_ignored: bool = True) -> list[tuple[str, str]]:
-    return [
-        (row["status"], row["path"])
-        for row in task_switch.git_status_entries(root, include_ignored=include_ignored)
-    ]
 
 
 STATE_FILES = {
@@ -40,27 +33,6 @@ STATE_FILES = {
     "docs/HANDOFF.md",
     "docs/PROGRESS.md",
 }
-def classify(
-    entries: list[tuple[str, str]],
-    allowed: list[str],
-    forbidden: list[str],
-    include_state: bool = False,
-    unchanged_baseline: set[str] | None = None,
-) -> dict[str, list[str]]:
-    classified = repository_state.classify(
-        tuple(repository_state.FileState(code, path) for code, path in entries),
-        allowed=allowed,
-        forbidden=forbidden,
-        unchanged_baseline=unchanged_baseline or set(),
-        state_files=STATE_FILES,
-        include_state=include_state,
-    )
-    result = {
-        name: list(getattr(classified, name))
-        for name in repository_state.OwnershipClassification.__dataclass_fields__
-    }
-    result["ignored"].extend(result["ephemeral"])
-    return result
 
 
 def bullet(items: list[str], limit: int = 20) -> str:
@@ -164,15 +136,23 @@ def main(argv=None) -> int:
     if coord and not allowed:
         severe.append(f"{task_id}: S allowed missing")
 
-    entries = git_status_entries(root, include_ignored=not args.no_ignored)
+    snapshot = repository_state.capture(
+        root, include_ignored=not args.no_ignored
+    )
     unchanged_baseline = task_switch.unchanged_baseline_paths(root, task_id)
-    files = classify(
-        entries,
-        allowed,
-        forbidden,
+    classified = repository_state.classify(
+        snapshot.files,
+        allowed=allowed,
+        forbidden=forbidden,
         include_state=args.include_state,
         unchanged_baseline=unchanged_baseline,
+        state_files=STATE_FILES,
     )
+    files = {
+        name: list(getattr(classified, name))
+        for name in repository_state.OwnershipClassification.__dataclass_fields__
+    }
+    files["ignored"].extend(files["ephemeral"])
     if args.task_result not in {"done", "stage-complete"} and args.include_state:
         # Preserve the blocked/failed evidence without committing an attempted
         # implementation that has not reached a safe task boundary.
@@ -196,7 +176,7 @@ def main(argv=None) -> int:
         if "Auto Commit" not in handoff:
             warnings.append("HANDOFF.md should include Auto Commit")
 
-    dirty = bool([item for item in entries if item[0] != "!!"])
+    dirty = any(item.status != "!!" for item in snapshot.files)
     unsafe_add_all = bool(unsafe_paths or files["outside"] or files["ignored"])
     auto_commit_allowed = (
         dirty
@@ -228,8 +208,8 @@ def main(argv=None) -> int:
     if args.task_result == "done" and task_id != "(unknown)" and not args.preflight:
         baseline_after = task_switch.unchanged_baseline_paths(root, task_id)
         remaining = [
-            row for row in task_switch.snapshot_dirty(root)["files"]
-            if row["path"] not in baseline_after and row["status"] != "!!"
+            item for item in repository_state.capture(root).files
+            if item.path not in baseline_after and item.status != "!!"
         ]
         task_switch.record_closed_pending(root, task_id, remaining)
 
