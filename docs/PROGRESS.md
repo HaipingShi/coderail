@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Delete repository-state compatibility adapters (T-011)
+
+- Done: Delete repository-state compatibility adapters
+- Checked by: `python tests/test_structure.py` exit 0; `npm run ci` exit 0
+- Next: Start T-012 and split the test monolith by responsibility without changing suite entry points.
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: no runtime caller uses task_switch git-status or snapshot compatibility adapters
+- Acceptance [done]: closeout, inspect, done and switch consume FileState or RepositorySnapshot
+- Acceptance [done]: runtime code in touched closeout modules is net-negative
+- Acceptance [done]: done and inspect behavior remains characterized and healthy
+
 ## 2026-07-15 - Queued task verification evidence hydration (T-010)
 
 - Done: Queued task verification evidence hydration
