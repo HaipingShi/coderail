@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-15 - Split characterization test monolith (T-012)
+
+- Done: Split characterization test monolith
+- Checked by: `python tests/test_structure.py` exit 0; `npm run ci` exit 0
+- Next: Keep the feature freeze; use the split suite to diagnose real lifecycle defects before authorizing any new gate.
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: no test module exceeds 650 lines
+- Acceptance [done]: all 104 tests remain discoverable exactly once
+- Acceptance [done]: responsibility groups run independently
+- Acceptance [done]: npm test and npm run ci entry points remain green
+
 ## 2026-07-15 - Delete repository-state compatibility adapters (T-011)
 
 - Done: Delete repository-state compatibility adapters
