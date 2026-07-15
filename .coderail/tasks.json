@@ -120,5 +120,24 @@
       "head": "16d1875e22a2797c03bbe58f4af881fddf99b22a",
       "files": []
     }
+  },
+  "T-010": {
+    "display_id": "T-010",
+    "verify": [
+      "python tests/test_structure.py",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_structure.py"
+    ],
+    "accept": [
+      "queued V commands hydrate without executing prose examples",
+      "verified queued closeout is not labeled unverified"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-15T09:12:58.252298+00:00",
+      "head": "0fc1a4658691dcc8bb5ac0fee0f02f6d58745769",
+      "files": []
+    }
   }
 }

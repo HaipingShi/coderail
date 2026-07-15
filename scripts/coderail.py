@@ -124,7 +124,22 @@ def task_contract_metadata(text: str, task_id: str | None) -> dict:
         if match.group(1) != task_id:
             continue
         body = match.group(3)
-        verify = re.findall(r"Run:\s*`([^`]+)`", body)
+        verify_section = re.search(
+            r"^V\s+[^\n]*\n(.*?)(?=^A\s+[^\n]*\n|^X\s+[^\n]*\n|\Z)",
+            body,
+            re.M | re.S,
+        )
+        verify = []
+        if verify_section:
+            executables = {
+                "python", "python3", "pytest", "node", "npm", "pnpm", "yarn",
+                "ruff", "mypy", "go", "cargo", "dotnet", "mvn", "gradle",
+                "bash", "sh", "powershell", "pwsh", "true", "false",
+            }
+            for candidate in re.findall(r"`([^`]+)`", verify_section.group(1)):
+                first = candidate.strip().split(maxsplit=1)[0].lower() if candidate.strip() else ""
+                if first in executables:
+                    verify.append(candidate.strip())
         acceptance_section = re.search(
             r"^A\s+[^\n]*\n(.*?)(?=^X\s+[^\n]*\n|\Z)", body, re.M | re.S,
         )

@@ -12,4 +12,4 @@ Printing `Done` after the first implementation commit is premature when ledger w
 
 ## Queued task contracts must hydrate runtime evidence
 
-A queued task activated from TASKS can have complete V and A clauses while `.coderail/tasks.json` contains only its baseline. Runtime reporting must fall back to the committed task contract; otherwise a fully exercised closeout can be recorded as unverified.
+A queued task activated from TASKS can have complete V and A clauses while `.coderail/tasks.json` contains only its baseline. Runtime reporting must fall back to the committed task contract; otherwise a fully exercised closeout can be recorded as unverified. Only executable-looking backtick spans inside V are hydrated; prose examples and lifecycle arrows remain documentation, not commands.

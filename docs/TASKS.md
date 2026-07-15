@@ -920,3 +920,94 @@ Resume anchor: docs/TASKS.md#T-009
 Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
 
 Auto commit: requested
+
+## T-010 Queued task verification evidence hydration
+
+Status: [x]
+Display id: T-010
+Type: bug
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Prevent queued tasks with committed verification commands from being journaled as unverified
+
+T — Task
+- Queued task verification evidence hydration
+
+S — Scope
+Allowed:
+  - scripts/coderail.py
+  - tests/**
+  - tests/__pycache__/test_structure.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_structure.cpython-313.pyc
+  - tests/test_structure.py
+  - docs/**
+  - docs/ASSETS.md
+  - docs/BLUEPRINTS.md
+  - docs/CLOSEOUT_CONVERGENCE.md
+  - docs/CODERAIL_STATUS.md
+  - docs/CONTRACTS.md
+  - docs/DECISIONS.md
+  - docs/DRIVE_LOOP_DESIGN.md
+  - docs/HANDOFF.md
+  - docs/HARNESS_SPEC.md
+  - docs/LESSONS.md
+  - docs/METRICS.md
+  - docs/NORTH_STAR.md
+  - docs/PROGRESS.md
+  - docs/REGRESSION_OBSERVE.md
+  - docs/RELEASE_CHECKLIST.md
+  - docs/RUNLOG.md
+  - docs/TASKS.md
+  - docs/TASK_GRAPH.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - .coderail/**
+  - .coderail/coderail.py
+  - .coderail/config.json
+  - .coderail/reports/done-20260715-073852-T-005.md
+  - .coderail/reports/done-20260715-080654-T-006.md
+  - .coderail/reports/done-20260715-085402-T-007.md
+  - .coderail/reports/done-20260715-090436-T-008.md
+  - .coderail/reports/done-20260715-091212-T-009.md
+  - .coderail/spin.json
+  - .coderail/tasks.json
+Forbidden:
+  - .git/**
+  - package.json
+  - project-template/**
+
+V — Verify
+- Queued task verification commands are hydrated deterministically and T-008/T-009 evidence is recorded truthfully
+- Run: `python tests/test_structure.py` (must exit 0)
+- Run: `npm run ci` (must exit 0)
+
+A — Acceptance
+- [ ] queued V commands hydrate without executing prose examples
+- [ ] verified queued closeout is not labeled unverified
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-010
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested

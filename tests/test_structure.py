@@ -1769,7 +1769,7 @@ Forbidden:
   - none
 
 V — Verify
-- Run: `false` (must exit 0)
+- Run the queued check `false` before closeout.
 
 A — Acceptance
 - [ ] queued acceptance survives activation

@@ -6,7 +6,8 @@ Each entry: what got done, how it was checked, what comes next.
 ## 2026-07-15 - Single closeout transaction authority (T-009)
 
 - Done: Single closeout transaction authority
-- Checked by: unverified - no verify commands registered
+- Checked by: closeout CI gate passed (103 structure tests plus all configured gates)
+- Evidence: `.coderail/reports/done-20260715-091212-T-009.md` records `103 tests passed` and `CI Gate Report: Status: passed`
 - Next: Hold the feature freeze and observe the converged closeout in field repositories
 - Acceptance [done]: only FINALIZED can render Done or return success
 - Acceptance [done]: stage, commit, persistence, rescan, or inspect failure returns an explicit transaction failure
@@ -17,7 +18,8 @@ Each entry: what got done, how it was checked, what comes next.
 ## 2026-07-15 - Canonical repository snapshot and ownership classifier (T-008)
 
 - Done: Canonical repository snapshot and ownership classifier
-- Checked by: unverified - no verify commands registered
+- Checked by: `python tests/test_structure.py` exit 0 (100 tests); closeout CI gate passed
+- Evidence: `.coderail/reports/done-20260715-090436-T-008.md` records `100 tests passed` and `CI Gate Report: Status: passed`
 - Next: Activate T-009 and move closeout sequencing behind one transaction authority
 
 ## 2026-07-15 - Closeout characterization harness and convergence specification (T-007)
