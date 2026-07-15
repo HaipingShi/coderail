@@ -235,3 +235,13 @@ Decision: proceed
 
 Notes:
 - Accepted public shape: `coderail switch "new task"` for an automatic safe switch, plus explicit `--continue-current` and `--dirty-fork` decisions when the gate stops.
+## CD-004 Closeout Convergence
+
+Status: accepted
+Task: T-007 through T-009
+
+- Authorized outcome: preserve the three-command product while reducing closeout to one snapshot, classifier, and success authority.
+- Specification: `docs/CLOSEOUT_CONVERGENCE.md`.
+- Migration order: characterize first, unify facts second, unify authority third.
+- Human gate: any public command, task schema, persistence, security, or push-policy change.
+- Stop: do not add gates or weaken inspect to make migration tests pass.

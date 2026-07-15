@@ -675,3 +675,212 @@ Resume anchor: docs/TASKS.md#T-006
 Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
 
 Auto commit: requested
+
+## T-007 Closeout characterization harness and convergence specification
+
+Status: [x]
+Display id: T-007
+Type: refactor
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Freeze the verified closeout contract before migrating internal authority
+
+T — Task
+- Closeout characterization harness and convergence specification
+
+S — Scope
+Allowed:
+  - tests/**
+  - tests/__pycache__/test_structure.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_structure.cpython-313.pyc
+  - tests/test_structure.py
+  - docs/**
+  - docs/ASSETS.md
+  - docs/BLUEPRINTS.md
+  - docs/CODERAIL_STATUS.md
+  - docs/CONTRACTS.md
+  - docs/DECISIONS.md
+  - docs/DRIVE_LOOP_DESIGN.md
+  - docs/HANDOFF.md
+  - docs/HARNESS_SPEC.md
+  - docs/LESSONS.md
+  - docs/METRICS.md
+  - docs/NORTH_STAR.md
+  - docs/PROGRESS.md
+  - docs/REGRESSION_OBSERVE.md
+  - docs/RELEASE_CHECKLIST.md
+  - docs/RUNLOG.md
+  - docs/TASKS.md
+  - docs/TASK_GRAPH.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - references/**
+  - references/ADOPTION_GATE.md
+  - references/BLUEPRINT_STANDARD.md
+  - references/CLOSEOUT_GATE.md
+  - references/CODERAIL_COORDINATE.md
+  - references/CONTRACT_DRAFT.md
+  - references/CONVERGENT_CODING.md
+  - references/DONE_GATE.md
+  - references/DRIVE_LOOP.md
+  - references/EXAMPLES.md
+  - references/KERNEL.md
+  - references/LOOP_ENGINEERING.md
+  - references/MODES.md
+  - references/RUNTIME_STATE_INSPECT.md
+  - references/TDD_GATE.md
+  - references/TOOL_NATIVE_ENFORCEMENT.md
+  - references/TRACE_GRAPH.md
+  - references/VALIDATION_HIERARCHY.md
+  - .coderail/**
+  - .coderail/coderail.py
+  - .coderail/config.json
+  - .coderail/reports/done-20260715-073852-T-005.md
+  - .coderail/reports/done-20260715-080654-T-006.md
+  - .coderail/spin.json
+  - .coderail/tasks.json
+Forbidden:
+  - .git/**
+  - package.json
+  - node_modules/**
+
+V — Verify
+- The convergence specification is accepted, T-008/T-009 are queued, and black-box tests cover every closeout success and failure contract
+- Run: `python tests/test_structure.py` (must exit 0)
+- Run: `npm test` (must exit 0)
+- Run: `npm run ci` (must exit 0)
+
+A — Acceptance
+- [ ] spec defines invariants, non-goals, state model and migration boundaries
+- [ ] characterization matrix covers tracked, glob, adoption, outside, sensitive, generated, rename/delete and post-commit mutation
+- [ ] T-008 and T-009 have explicit dependency, scope, verification and stop contracts
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-007
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested
+## T-008 Canonical repository snapshot and ownership classifier
+
+Status: [ ]
+Type: refactor
+Rail: full
+Priority: P1
+
+### CodeRail Coordinate
+
+G — Goal
+- Give done, inspect, and task switching one immutable observation and one path classification vocabulary.
+
+T — Task
+- Introduce `repository_state.py` and migrate Git status parsing, fingerprints, baseline comparison, and closeout classification without changing external behavior.
+
+S — Scope
+Allowed:
+  - scripts/repository_state.py
+  - scripts/task_switch.py
+  - scripts/closeout_check.py
+  - scripts/inspect_state.py
+  - scripts/done_gate.py
+  - tests/**
+  - docs/**
+  - references/**
+  - .coderail/**
+Forbidden:
+  - package.json
+  - project-template/**
+  - public command changes
+  - automatic push
+
+V — Verify
+- Run all closeout characterization tests, `python tests/test_structure.py`, `npm test`, and `npm run ci`.
+
+A — Acceptance
+- [ ] one canonical Git status parser and immutable snapshot model
+- [ ] one ownership classifier used by closeout and inspect ownership projection
+- [ ] unchanged baseline, rename, ignored, sensitive, generated, and ephemeral semantics preserved
+- [ ] duplicate readers removed rather than wrapped indefinitely
+
+X — Stop
+- Stop if migration requires a task-file schema change, weakens inspect, or changes characterized behavior.
+
+P — Persist
+- TASKS, DECISIONS, HARNESS, TRACE, closeout commits
+
+Depends on:
+- T-007
+
+## T-009 Single closeout transaction authority
+
+Status: [ ]
+Type: refactor
+Rail: full
+Priority: P1
+
+### CodeRail Coordinate
+
+G — Goal
+- Make one transaction service the only authority that can declare closeout success.
+
+T — Task
+- Introduce a closeout transaction state machine, move sequencing and final consistency into it, and reduce CLI/finish/check modules to adapters.
+
+S — Scope
+Allowed:
+  - scripts/closeout_transaction.py
+  - scripts/repository_state.py
+  - scripts/coderail.py
+  - scripts/finish_task.py
+  - scripts/closeout_check.py
+  - scripts/inspect_state.py
+  - scripts/task_switch.py
+  - tests/**
+  - docs/**
+  - references/**
+  - .coderail/**
+Forbidden:
+  - package.json
+  - project-template/**
+  - new gates or public commands
+  - automatic push
+
+V — Verify
+- Run the full characterization matrix, failure-injection tests, `python tests/test_structure.py`, `npm test`, `npm run ci`, and a real temporary `start -> change -> done -> inspect` flow.
+
+A — Acceptance
+- [ ] only FINALIZED can render Done or return success
+- [ ] stage, commit, persistence, rescan, or inspect failure returns an explicit transaction failure
+- [ ] provisional closure is compensatingly reopened on late failure
+- [ ] duplicate closeout sequencing and success judgments are deleted
+- [ ] immediate inspect agrees with every successful done
+
+X — Stop
+- Stop if a second success authority remains, recovery becomes less deterministic, or compatibility requires weakening a characterization test.
+
+P — Persist
+- TASKS, DECISIONS, HARNESS, TRACE, closeout commits
+
+Depends on:
+- T-008

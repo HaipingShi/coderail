@@ -85,5 +85,26 @@
       "head": "3b1fc2db52b6adf8f0bc961f70cdd1f58e692c54",
       "files": []
     }
+  },
+  "T-007": {
+    "display_id": "T-007",
+    "verify": [
+      "python tests/test_structure.py",
+      "npm test",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_structure.py"
+    ],
+    "accept": [
+      "spec defines invariants, non-goals, state model and migration boundaries",
+      "characterization matrix covers tracked, glob, adoption, outside, sensitive, generated, rename/delete and post-commit mutation",
+      "T-008 and T-009 have explicit dependency, scope, verification and stop contracts"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-15T08:22:42.991601+00:00",
+      "head": "467bdf9556a174597c23a18051254b814b15a12d",
+      "files": []
+    }
   }
 }

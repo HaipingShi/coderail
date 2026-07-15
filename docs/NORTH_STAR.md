@@ -20,9 +20,9 @@ Owner: CodeRail maintainers
 
 ## Current Slice
 
-- Milestone: M-010 v0.9.0 release readiness
-- Execution Batch: align release metadata, notes, install output, and regression evidence
-- Active Task: T-004
+- Milestone: M-011 closeout convergence
+- Execution Batch: characterize behavior, unify repository facts, then unify transaction authority
+- Active Task: T-007
 
 ## Non-Goals
 

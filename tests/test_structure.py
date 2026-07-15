@@ -1630,6 +1630,38 @@ def test_atomic_done_fails_and_reopens_when_post_commit_status_changes():
         check('Status: [!]' in tasks, tasks)
 
 
+def test_atomic_done_reopens_when_closeout_commit_fails():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Commit failure contract', '--files', 'lib/**',
+               '--verify', f'"{sys.executable}" -c "pass"')
+        check(r.returncode == 0, r.stdout)
+        (root/'lib').mkdir()
+        (root/'lib/owned.ts').write_text('safe\n', encoding='utf-8')
+        hook = root/'.git/hooks/pre-commit'
+        hook.write_text('#!/bin/sh\nexit 1\n', encoding='utf-8')
+        hook.chmod(0o755)
+        result = cr('done')
+        check(result.returncode == 1, result.stdout)
+        check('auto commit failed' in result.stdout.lower(), result.stdout)
+        check('== Done:' not in result.stdout, result.stdout)
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Status: [!]' in tasks, tasks)
+        check((root/'lib/owned.ts').exists(), 'failed commit must preserve the work')
+
+
+def test_closeout_convergence_spec_and_task_sequence_are_registered():
+    spec = (ROOT/'docs/CLOSEOUT_CONVERGENCE.md').read_text(encoding='utf-8')
+    for term in ['RepositorySnapshot', 'owned-safe', 'FINALIZED', 'Non-Goals',
+                 'T-007', 'T-008', 'T-009']:
+        check(term in spec, f'convergence spec missing {term}')
+    tasks = (ROOT/'docs/TASKS.md').read_text(encoding='utf-8')
+    positions = [tasks.index(f'## T-00{number}') for number in [7, 8, 9]]
+    check(positions == sorted(positions), f'convergence tasks out of order: {positions}')
+    check('Depends on:\n- T-007' in tasks and 'Depends on:\n- T-008' in tasks,
+          'convergence dependency chain is incomplete')
+
+
 def test_shim_probes_candidate_homes():
     # FN-022: config.local.json overrides config.json, and coderail_home may
     # be a list of candidates probed in order.
