@@ -25,3 +25,15 @@ Task: T-005
 - A successful `done` requires a path-safety preflight before the task status changes; the final closeout stages only its audited explicit path list.
 - `--adopt-baseline` is explicit and valid only before the first commit. It records path, porcelain status, SHA-256, and disposition without file contents.
 - Sensitive paths block closure. Unchanged non-adopted baseline and ignored local artifacts remain unstaged; generated paths are never automatically adopted merely because they exist.
+
+## ADR-005 Done is an atomic completion boundary
+
+Status: accepted
+Date: 2026-07-15
+Task: T-006
+
+CodeRail 的 done 是原子化完成边界。成功返回意味着验证、范围判断、安全提交、状态持久化和提交后 inspect 一致性全部成立。
+
+- The word `Done` is emitted only after the closeout commit, ledger commit, final Git rescan, and inspect-equivalent evaluation succeed.
+- A failure after `[x]` is written compensates by reopening the task as `[!]`; a post-commit mutation also clears closed ownership for that now-active task and reports exact residual paths.
+- This strengthens done/finish/closeout. Inspect keeps the same blocking rules and is not taught to hide residue.

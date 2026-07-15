@@ -525,3 +525,153 @@ Resume anchor: docs/TASKS.md#T-005
 Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
 
 Auto commit: requested
+
+## T-006 Atomic closeout success and post-commit inspect
+
+Status: [x]
+Display id: T-006
+Type: bug
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Make successful done an atomic boundary whose post-commit Git state and inspect result agree
+
+T — Task
+- Atomic closeout success and post-commit inspect
+
+S — Scope
+Allowed:
+  - scripts/**
+  - scripts/__pycache__/blueprint_check.cpython-313.pyc
+  - scripts/__pycache__/closeout_check.cpython-313.pyc
+  - scripts/__pycache__/contract_check.cpython-313.pyc
+  - scripts/__pycache__/coordinate_check.cpython-313.pyc
+  - scripts/__pycache__/doctor.cpython-313.pyc
+  - scripts/__pycache__/done_gate.cpython-313.pyc
+  - scripts/__pycache__/drive_check.cpython-313.pyc
+  - scripts/__pycache__/finish_task.cpython-313.pyc
+  - scripts/__pycache__/hook_guard.cpython-313.pyc
+  - scripts/__pycache__/init_project.cpython-313.pyc
+  - scripts/__pycache__/inspect_state.cpython-313.pyc
+  - scripts/__pycache__/local_entry.cpython-313.pyc
+  - scripts/__pycache__/task_switch.cpython-313.pyc
+  - scripts/__pycache__/tdd_check.cpython-313.pyc
+  - scripts/__pycache__/trace_doctor.cpython-313.pyc
+  - scripts/__pycache__/trace_index.cpython-313.pyc
+  - scripts/blueprint_check.py
+  - scripts/ci_gate.py
+  - scripts/closeout_check.py
+  - scripts/coderail.py
+  - scripts/contract_check.py
+  - scripts/coordinate_check.py
+  - scripts/doctor.py
+  - scripts/done_gate.py
+  - scripts/drift_check.py
+  - scripts/drive_check.py
+  - scripts/drive_observe.py
+  - scripts/finish_task.py
+  - scripts/hook_guard.py
+  - scripts/init_project.py
+  - scripts/inspect_state.py
+  - scripts/local_entry.py
+  - scripts/regression_observe.py
+  - scripts/run_python.js
+  - scripts/task_switch.py
+  - scripts/tdd_check.py
+  - scripts/trace_doctor.py
+  - scripts/trace_event.py
+  - scripts/trace_index.py
+  - tests/**
+  - tests/__pycache__/test_structure.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_structure.cpython-313.pyc
+  - tests/test_structure.py
+  - docs/**
+  - docs/ASSETS.md
+  - docs/BLUEPRINTS.md
+  - docs/CODERAIL_STATUS.md
+  - docs/CONTRACTS.md
+  - docs/DECISIONS.md
+  - docs/DRIVE_LOOP_DESIGN.md
+  - docs/HANDOFF.md
+  - docs/HARNESS_SPEC.md
+  - docs/LESSONS.md
+  - docs/METRICS.md
+  - docs/NORTH_STAR.md
+  - docs/PROGRESS.md
+  - docs/REGRESSION_OBSERVE.md
+  - docs/RELEASE_CHECKLIST.md
+  - docs/RUNLOG.md
+  - docs/TASKS.md
+  - docs/TASK_GRAPH.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - references/**
+  - references/ADOPTION_GATE.md
+  - references/BLUEPRINT_STANDARD.md
+  - references/CLOSEOUT_GATE.md
+  - references/CODERAIL_COORDINATE.md
+  - references/CONTRACT_DRAFT.md
+  - references/CONVERGENT_CODING.md
+  - references/DONE_GATE.md
+  - references/DRIVE_LOOP.md
+  - references/EXAMPLES.md
+  - references/KERNEL.md
+  - references/LOOP_ENGINEERING.md
+  - references/MODES.md
+  - references/RUNTIME_STATE_INSPECT.md
+  - references/TDD_GATE.md
+  - references/TOOL_NATIVE_ENFORCEMENT.md
+  - references/TRACE_GRAPH.md
+  - references/VALIDATION_HIERARCHY.md
+  - .coderail/**
+  - .coderail/coderail.py
+  - .coderail/config.json
+  - .coderail/reports/done-20260715-073852-T-005.md
+  - .coderail/spin.json
+  - .coderail/tasks.json
+  - .gitignore
+Forbidden:
+  - .git/**
+  - node_modules/**
+  - dist/**
+  - build/**
+  - package-lock.json
+
+V — Verify
+- Done returns success only after final persistence commit and post-commit inspect prove no task-owned residue
+- Run: `python tests/test_structure.py` (must exit 0)
+- Run: `npm test` (must exit 0)
+- Run: `npm run ci` (must exit 0)
+
+A — Acceptance
+- [ ] tracked modifications, new glob files, deletions and renames close cleanly
+- [ ] unborn baseline adoption closes cleanly without ledger-only commits
+- [ ] outside, sensitive, generated and ambiguous paths never cause false success
+- [ ] post-commit rescan and inspect inconsistency force done failure
+- [ ] no implementation or test uses git add .
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-006
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested

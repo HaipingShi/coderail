@@ -221,6 +221,14 @@ def consume_closed_pending(root: Path) -> None:
         save_meta(root, meta)
 
 
+def clear_closed_pending(root: Path, task_id: str) -> None:
+    meta = load_meta(root)
+    entry = meta.get(task_id, {})
+    if "closed_pending" in entry:
+        del entry["closed_pending"]
+        save_meta(root, meta)
+
+
 def record_closed_pending(root: Path, task_id: str, files: list[dict]) -> None:
     if not files:
         return

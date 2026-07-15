@@ -41,7 +41,10 @@ STATE_FILES = {
 }
 EPHEMERAL_FILES = {".coderail/pending_close.json"}
 
-SENSITIVE_PATTERNS = [".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx"]
+SENSITIVE_PATTERNS = [
+    ".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx",
+    "*api_key*", "*api-key*", "credentials.*", ".aws/**",
+]
 GENERATED_PATTERNS = ["node_modules/**", "dist/**", "build/**", "coverage/**", ".next/**"]
 
 

@@ -72,3 +72,7 @@ No task is done until V passes or manual acceptance is recorded.
 ### T-005 ownership and baseline adoption
 
 The lifecycle harness creates isolated repositories and proves: a file created under `lib/**` after start is committed; an unborn repository can explicitly adopt allowed files using fingerprint-only evidence; `.env` blocks done; ignored dependencies and unchanged build output are not staged; post-done inspect is healthy; and closeout contains no `git add .` path.
+
+### T-006 atomic closeout
+
+Isolated real Git repositories cover tracked modifications, glob-created files, unborn baseline adoption, outside and sensitive paths, deletion, rename, and post-commit mutation. Every successful done is followed immediately by inspect and a clean ownership assertion. A post-commit hook that mutates a task file must force a non-zero result, suppress the `Done` label, list the path, and reopen the task.

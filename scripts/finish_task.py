@@ -13,6 +13,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import drive_check  # noqa: E402
+import task_switch  # noqa: E402
 
 
 def run(label: str, script: str, root: Path, args: list[str] | None = None) -> int:
@@ -247,6 +248,12 @@ def main(argv=None) -> int:
         actual_auto_action = action_match.group(1) if action_match else auto_action
     else:
         actual_auto_action = "blocked"
+
+    if failures and task_marked_done and task_id:
+        set_task_status(root, task_id, "[!]")
+        task_switch.clear_closed_pending(root, task_id)
+        task_marked_done = False
+        print(f"Atomic closeout compensation: reopened {task_id} as [!] because a post-mark step failed.")
 
     print("\n" + drive_check.render_human(decision))
     print("\n# Finish Task Report\n")

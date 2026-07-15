@@ -62,5 +62,28 @@
       "head": "9ea8595c07c99ea307fd04b86eb1351f713933a9",
       "files": []
     }
+  },
+  "T-006": {
+    "display_id": "T-006",
+    "verify": [
+      "python tests/test_structure.py",
+      "npm test",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_structure.py"
+    ],
+    "accept": [
+      "tracked modifications, new glob files, deletions and renames close cleanly",
+      "unborn baseline adoption closes cleanly without ledger-only commits",
+      "outside, sensitive, generated and ambiguous paths never cause false success",
+      "post-commit rescan and inspect inconsistency force done failure",
+      "no implementation or test uses git add ."
+    ],
+    "baseline": {
+      "captured_at": "2026-07-15T07:43:17.434388+00:00",
+      "head": "3b1fc2db52b6adf8f0bc961f70cdd1f58e692c54",
+      "files": []
+    }
   }
 }

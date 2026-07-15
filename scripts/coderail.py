@@ -26,6 +26,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import task_switch  # noqa: E402
+import inspect_state  # noqa: E402
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
@@ -374,6 +375,35 @@ def commit_post_close_ledger(root: Path, task_id: str) -> tuple[bool, str]:
     if commit.returncode:
         return False, commit.stdout.strip() or "git commit failed"
     return True, ", ".join(changed)
+
+
+def reopen_after_close_failure(root: Path, task_id: str) -> None:
+    path = tasks_path(root)
+    text = path.read_text(encoding="utf-8")
+    pattern = re.compile(
+        rf"(^##\s+{re.escape(task_id)}\b(?:(?!^##\s).)*?^Status:\s*)\[x\]",
+        re.M | re.S,
+    )
+    updated, count = pattern.subn(r"\g<1>[!]", text, count=1)
+    if count:
+        path.write_text(updated, encoding="utf-8")
+    task_switch.clear_closed_pending(root, task_id)
+
+
+def post_close_consistency(root: Path, task_id: str) -> tuple[bool, list[str], str]:
+    """Prove the final Git state and the same state model used by inspect agree."""
+    baseline = task_switch.unchanged_baseline_paths(root, task_id)
+    residual = sorted({
+        row["path"] for row in task_switch.git_status_entries(root)
+        if row["status"] != "!!"
+        and row["path"] not in baseline
+        and row["path"] != ".coderail/pending_close.json"
+    })
+    status, _ = inspect_state.render(root)
+    owned = [path for owner, path in task_switch.closed_pending_paths(root)
+             if owner == task_id]
+    paths = sorted(set(residual + owned))
+    return not paths and status != "blocked", paths, status
 
 
 def append_switch_trace(root: Path, task_id: str, summary: str, event_type: str = "task") -> bool:
@@ -1212,26 +1242,6 @@ def cmd_done(args) -> int:
             except Exception as e:  # noqa: BLE001
                 ledger_errors.append(f"progress journal (docs/PROGRESS.md): {e}")
 
-            # FN-018: <= 15 lines, unambiguous verdict first.
-            print(f"== Done: {shown} - {title or '(untitled)'} ==")
-            if verify_results:
-                ok = sum(1 for r in verify_results if r["exit"] == 0)
-                print(f"  verify:      {ok}/{len(verify_results)} command(s) passed")
-            else:
-                print("  verify:      none registered - closed as unverified")
-            if accepted_pairs:
-                n_done = sum(1 for _, s in accepted_pairs if s == "done")
-                n_def = len(accepted_pairs) - n_done
-                print(f"  acceptance:  {n_done} done, {n_def} deferred")
-            print(f"  warnings:    {len(tdd_warnings)}")
-            print(f"  committed:   {'no (--no-commit)' if args.no_commit else 'yes (safe task files)'}")
-            if not any("PROGRESS" in e for e in ledger_errors):
-                print(f"  journal:     docs/PROGRESS.md updated")
-            if report_path:
-                print(f"  full report: {report_path}")
-        else:
-            print("Task closed. Docs updated, checks passed, safe files committed.")
-
         # Ledger step 3 (FN-012): deferred acceptance items become queued tasks.
         if deferred_items:
             try:
@@ -1281,6 +1291,42 @@ def cmd_done(args) -> int:
         # Ledger complete: the snapshot has served its purpose.
         clear_pending_close(root)
 
+        if task_before:
+            consistent, residue, inspect_status = post_close_consistency(root, closed_id)
+            if not consistent:
+                reopen_after_close_failure(root, closed_id)
+                print()
+                print("POST-CLOSE CONSISTENCY FAILED: the task was reopened and done returns failure.")
+                print(f"Inspect-equivalent status: {inspect_status}")
+                print("Exact unresolved paths:")
+                if residue:
+                    for path in residue:
+                        print(f"  - {path}")
+                else:
+                    print("  - none; inspect reported a blocking project-state inconsistency")
+                print("Resolve these paths, verify task ownership, then run coderail done again.")
+                return 1
+
+            # FN-018: the success word is emitted only after the final rescan.
+            print(f"== Done: {shown} - {title or '(untitled)'} ==")
+            if verify_results:
+                ok = sum(1 for r in verify_results if r["exit"] == 0)
+                print(f"  verify:      {ok}/{len(verify_results)} command(s) passed")
+            else:
+                print("  verify:      none registered - closed as unverified")
+            if accepted_pairs:
+                n_done = sum(1 for _, s in accepted_pairs if s == "done")
+                n_def = len(accepted_pairs) - n_done
+                print(f"  acceptance:  {n_done} done, {n_def} deferred")
+            print(f"  warnings:    {len(tdd_warnings)}")
+            print(f"  committed:   {'no (--no-commit)' if args.no_commit else 'yes (safe task files)'}")
+            print("  inspect:     consistent")
+            print("  journal:     docs/PROGRESS.md updated")
+            if report_path:
+                print(f"  full report: {report_path}")
+        else:
+            print("Task closed. Docs updated, checks passed, safe files committed.")
+
         print_blueprint_notice(root)
         print_next_recommendation(root)
         if task_before:
@@ -1299,7 +1345,7 @@ def cmd_done(args) -> int:
         # "no active task" and is actively misleading.
         still_open = bool(
             task_before
-            and after_by_id_fact.get(task_before, {}).get("status") in ("[~]", "[ ]")
+            and after_by_id_fact.get(task_before, {}).get("status") in ("[~]", "[!]", "[ ]")
         )
         print("Not finished yet - one or more checks did not pass (details above).")
         if still_open or not task_before:

@@ -1499,7 +1499,8 @@ def test_unborn_repository_baseline_adoption_is_audited_and_safe():
 
         def cr(*args):
             return subprocess.run([sys.executable, str(ROOT/'scripts/coderail.py'), *args,
-                                   '--target', td], capture_output=True, text=True)
+                                   '--target', td], capture_output=True, text=True,
+                                  encoding='utf-8', errors='replace')
 
         r = cr('start', 'Adopt existing baseline', '--files', 'lib/**',
                '--files', '.coderail/**,docs/**,AGENTS.md,CLAUDE.md',
@@ -1527,6 +1528,106 @@ def test_closeout_implementation_never_uses_git_add_dot():
     source = (ROOT/'scripts/closeout_check.py').read_text(encoding='utf-8')
     check('["add", "."]' not in source and "['add', '.']" not in source,
           'closeout must stage an explicit audited path list')
+
+
+def _assert_done_inspect_consistent(root, cr, expected_paths):
+    result = cr('done')
+    check(result.returncode == 0, result.stdout)
+    check('== Done:' in result.stdout, result.stdout)
+    inspect = cr('inspect', '--no-write')
+    check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
+    check('Closed-task uncommitted ownership: none' in inspect.stdout, inspect.stdout)
+    status = subprocess.check_output(['git', '-C', str(root), 'status', '--porcelain'], text=True)
+    check(not status.strip(), status)
+    committed = set(subprocess.check_output(
+        ['git', '-C', str(root), 'show', '--pretty=', '--name-status', 'HEAD~2..HEAD'],
+        text=True, encoding='utf-8').splitlines())
+    for path in expected_paths:
+        check(any(path in row for row in committed), f'{path} missing from closeout commits: {committed}')
+
+
+def test_atomic_done_handles_tracked_delete_and_rename_then_inspect_is_healthy():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        (root/'lib').mkdir()
+        (root/'lib/modify.ts').write_text('old\n', encoding='utf-8')
+        (root/'lib/delete.ts').write_text('delete\n', encoding='utf-8')
+        (root/'lib/old-name.ts').write_text('rename\n', encoding='utf-8')
+        subprocess.check_call(['git', '-C', td, 'add', '--', 'lib/modify.ts',
+                               'lib/delete.ts', 'lib/old-name.ts'])
+        subprocess.check_call(['git', '-C', td, 'commit', '-qm', 'fixture'])
+        r = cr('start', 'Atomic tracked lifecycle', '--files', 'lib/**',
+               '--verify', f'"{sys.executable}" -c "pass"')
+        check(r.returncode == 0, r.stdout)
+        (root/'lib/modify.ts').write_text('new\n', encoding='utf-8')
+        (root/'lib/delete.ts').unlink()
+        (root/'lib/old-name.ts').rename(root/'lib/new-name.ts')
+        _assert_done_inspect_consistent(
+            root, cr, ['lib/modify.ts', 'lib/delete.ts', 'lib/old-name.ts', 'lib/new-name.ts'])
+
+
+def test_atomic_done_refuses_outside_and_sensitive_paths_without_closing():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Narrow atomic task', '--files', 'lib/**',
+               '--verify', f'"{sys.executable}" -c "pass"')
+        check(r.returncode == 0, r.stdout)
+        (root/'lib').mkdir()
+        (root/'lib/owned.ts').write_text('safe\n', encoding='utf-8')
+        (root/'outside.txt').write_text('ambiguous\n', encoding='utf-8')
+        (root/'.env.local').write_text('API_KEY=secret\n', encoding='utf-8')
+        (root/'api_key.txt').write_text('secret\n', encoding='utf-8')
+        result = cr('done')
+        check(result.returncode == 1, result.stdout)
+        check(all(path in result.stdout for path in ['outside.txt', '.env.local', 'api_key.txt']),
+              result.stdout)
+        check('== Done:' not in result.stdout, result.stdout)
+        check('Status: [~]' in (root/'docs/TASKS.md').read_text(encoding='utf-8'), result.stdout)
+        tracked = subprocess.check_output(['git', '-C', td, 'ls-files'], text=True).splitlines()
+        check('outside.txt' not in tracked and '.env.local' not in tracked, tracked)
+
+
+def test_atomic_done_excludes_ignored_generated_and_local_state():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Generated artifact boundary', '--files', 'lib/**',
+               '--verify', f'"{sys.executable}" -c "pass"')
+        check(r.returncode == 0, r.stdout)
+        (root/'lib').mkdir()
+        (root/'lib/owned.ts').write_text('safe\n', encoding='utf-8')
+        for path in ['node_modules/pkg/index.js', 'build/app.js', '.coderail/reports/local.md']:
+            target = root/path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text('generated\n', encoding='utf-8')
+        result = cr('done')
+        check(result.returncode == 1, result.stdout)
+        check('build/app.js' in result.stdout and 'node_modules/pkg/index.js' in result.stdout,
+              result.stdout)
+        check('== Done:' not in result.stdout, result.stdout)
+        tracked = subprocess.check_output(['git', '-C', td, 'ls-files'], text=True).splitlines()
+        check(not any(p.startswith(('node_modules/', 'build/', '.coderail/reports/'))
+                      for p in tracked), tracked)
+
+
+def test_atomic_done_fails_and_reopens_when_post_commit_status_changes():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Detect post commit mutation', '--files', 'lib/**',
+               '--verify', f'"{sys.executable}" -c "pass"')
+        check(r.returncode == 0, r.stdout)
+        (root/'lib').mkdir()
+        owned = root/'lib/owned.ts'
+        owned.write_text('before\n', encoding='utf-8')
+        hook = root/'.git/hooks/post-commit'
+        hook.write_text('#!/bin/sh\nprintf "after\\n" >> lib/owned.ts\n', encoding='utf-8')
+        hook.chmod(0o755)
+        result = cr('done')
+        check(result.returncode == 1, result.stdout)
+        check('POST-CLOSE CONSISTENCY FAILED' in result.stdout, result.stdout)
+        check('lib/owned.ts' in result.stdout, result.stdout)
+        check('== Done:' not in result.stdout, result.stdout)
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Status: [!]' in tasks, tasks)
 
 
 def test_shim_probes_candidate_homes():

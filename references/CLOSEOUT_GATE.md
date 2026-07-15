@@ -134,3 +134,8 @@ Handoff is event-triggered, but the check is mandatory.
 
 If the task is not done but has useful stage-complete output, write a resume
 anchor and next executable step even when HANDOFF remains H0.
+## Atomic success invariant
+
+`done` is successful only after verification, a fresh scope scan, explicit staging, the implementation closeout commit, state and ledger persistence, a final Git rescan, and an inspect-equivalent state evaluation. Any ambiguity, forbidden or sensitive path, staging failure, commit failure, residual task-owned path, or blocked final inspect prevents the success verdict.
+
+If a failure happens after the task status was provisionally written as closed, CodeRail compensates by reopening it as blocked. It reports the exact residual paths and never relies on weakening inspect or staging the repository wholesale.
