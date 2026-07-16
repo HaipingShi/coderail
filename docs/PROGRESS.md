@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-16 - Codify defect-only stabilization freeze (T-013)
+
+- Done: Codify defect-only stabilization freeze
+- Checked by: `python tests/test_static.py` exit 0; `python scripts/coderail.py check` exit 0
+- Next: Observe current workflows and create no implementation task until a defect is reproduced with exact evidence.
+- Evidence: `python tests/test_static.py` -> exit 0
+- Evidence: `python scripts/coderail.py check` -> exit 0
+- Acceptance [done]: feature freeze and non-goals are explicit
+- Acceptance [done]: defect candidates require reproducible evidence before implementation
+- Acceptance [done]: accepted fixes require failing characterization or regression coverage
+- Acceptance [done]: policy adds no runtime command or gate
+
 ## 2026-07-15 - Split characterization test monolith (T-012)
 
 - Done: Split characterization test monolith
