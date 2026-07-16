@@ -1,7 +1,7 @@
 # North Star
 
 Status: current
-Last reviewed: 2026-07-15
+Last reviewed: 2026-07-16
 Owner: CodeRail maintainers
 
 ## Outcome
@@ -20,13 +20,15 @@ Owner: CodeRail maintainers
 
 ## Current Slice
 
-- Milestone: M-012 lean implementation convergence
-- Execution Batch: remove compatibility adapters, then split the test monolith
-- Active Task: T-012 (final task in this slice)
+- Milestone: M-013 stabilization freeze
+- Execution Batch: observe real workflows; admit only reproducible defects
+- Active Task: T-013 policy closeout; no implementation candidate admitted
 
 ## Non-Goals
 
 - CodeRail is not a hosted CI service, issue tracker, scheduler, or model runtime.
+- No new command, gate, lifecycle state, integration, or convenience behavior
+  is authorized during the stabilization freeze.
 
 ## Known Unknowns
 
@@ -34,8 +36,8 @@ Owner: CodeRail maintainers
 
 ## Decision Debt
 
-- T-012 must preserve the existing `npm test` and `npm run ci` entry points
-  while making responsibility groups independently runnable.
+- None. Unreproduced observations are not decision debt and do not enter the
+  implementation queue.
 
 ## Legacy Cutoff
 
@@ -45,8 +47,9 @@ Owner: CodeRail maintainers
 
 - Mode: manual
 - Next-task mode: recommend
-- Terminal condition: all changes in the current slice are verified and committed
-- Progress signal: tests pass and closeout state is persisted
+- Terminal condition: admitted defects are verified and committed, or no
+  reproduced defect is awaiting action
+- Progress signal: reproduced defect count decreases without feature-freeze exceptions
 - Retry budget: 3
 - No-progress limit: 2
 - Human gates: changes to public APIs, security, privacy, payment, persistence, or release policy
@@ -64,3 +67,5 @@ Every active task must map to this North Star through its G field.
 - A code change has no task or trace link.
 - Verification fails or a required decision is missing.
 - A done task lacks a verify trace or closeout commit.
+- A proposed implementation lacks a current deterministic reproduction.
+- A bug fix requires new product behavior rather than restoring an accepted invariant.

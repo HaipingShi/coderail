@@ -41,3 +41,14 @@ group results, and unchanged full-suite entry points.
 
 Inventory: 104 unique tests, zero duplicate names, maximum module size 418
 lines. All six responsibility groups run independently.
+
+## M-013 Stabilization Freeze
+
+- observations awaiting reproduction: 0 known
+- reproduced defects awaiting a numbered task: 0
+- fixes requiring scope expansion: 0
+- regressions found after successful `done`: 0
+- explicitly approved feature-freeze exceptions: 0
+
+These are observation measures, not activity targets. Do not create tasks to
+improve an empty counter.

@@ -122,3 +122,15 @@ python tests/test_closeout.py
 python tests/test_structure.py
 npm run ci
 ```
+
+### T-013 stabilization freeze policy
+
+This documentation-only task verifies that the existing static harness remains
+green and `coderail check` accepts the active coordinate. It adds no runtime
+gate. Future bug tasks must place their exact reproduction in the relevant
+responsibility module before changing production code.
+
+```bash
+python tests/test_static.py
+python scripts/coderail.py check
+```

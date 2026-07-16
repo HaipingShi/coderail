@@ -1,6 +1,6 @@
 # Lean Implementation Convergence
 
-Status: implemented; governance closeout pending
+Status: complete
 Date: 2026-07-15
 Milestone: M-012
 
@@ -92,3 +92,6 @@ complete-suite results, CI, and immediate post-done inspect state.
   1,910 to 418 lines; the complete-suite entry point is 37 lines.
 - Feature scope, package commands, Git staging policy, and inspect semantics
   did not change.
+
+The next operating mode is the defect-only stabilization freeze defined in
+`docs/STABILIZATION_FREEZE.md`; this plan does not authorize further cleanup.

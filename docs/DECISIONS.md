@@ -89,3 +89,18 @@ Task: T-012
   duplicates, and no responsibility module above 650 lines.
 - `npm test` and `npm run ci` keep their existing commands; no package or
   production code changes are required for the split.
+
+## ADR-010 Feature work is frozen until a defect is reproduced
+
+Status: accepted
+Date: 2026-07-16
+Task: T-013
+
+- Only defects reproduced against the current repository state may authorize
+  implementation work.
+- Expected behavior must already follow from an invariant, contract, or
+  supported workflow; a desired new behavior is a proposal, not a bug.
+- Each admitted defect begins with a failing characterization or regression
+  using the real scenario, followed by the smallest root-cause fix.
+- The freeze is an intake policy, not a CLI gate. Ending it requires an
+  explicit North Star decision.

@@ -1258,3 +1258,98 @@ Resume anchor: docs/TASKS.md#T-012
 Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
 
 Auto commit: requested
+
+## T-013 Codify defect-only stabilization freeze
+
+Status: [x]
+Display id: T-013
+Type: docs
+Rail: light
+
+### CodeRail Coordinate
+
+G — Goal
+- Keep CodeRail feature-frozen and authorize implementation only for reproducible defects
+
+T — Task
+- Codify defect-only stabilization freeze
+
+S — Scope
+Allowed:
+  - docs/**
+  - docs/ASSETS.md
+  - docs/BLUEPRINTS.md
+  - docs/CLOSEOUT_CONVERGENCE.md
+  - docs/CODERAIL_STATUS.md
+  - docs/CONTRACTS.md
+  - docs/DECISIONS.md
+  - docs/DRIVE_LOOP_DESIGN.md
+  - docs/HANDOFF.md
+  - docs/HARNESS_SPEC.md
+  - docs/LEAN_CONVERGENCE_PLAN.md
+  - docs/LESSONS.md
+  - docs/METRICS.md
+  - docs/NORTH_STAR.md
+  - docs/PROGRESS.md
+  - docs/REGRESSION_OBSERVE.md
+  - docs/RELEASE_CHECKLIST.md
+  - docs/RUNLOG.md
+  - docs/TASKS.md
+  - docs/TASK_GRAPH.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - .coderail/**
+  - .coderail/coderail.py
+  - .coderail/config.json
+  - .coderail/reports/done-20260715-073852-T-005.md
+  - .coderail/reports/done-20260715-080654-T-006.md
+  - .coderail/reports/done-20260715-085402-T-007.md
+  - .coderail/reports/done-20260715-090436-T-008.md
+  - .coderail/reports/done-20260715-091212-T-009.md
+  - .coderail/reports/done-20260715-092227-T-010.md
+  - .coderail/reports/done-20260715-102434-T-011.md
+  - .coderail/reports/done-20260715-104159-T-012.md
+  - .coderail/spin.json
+  - .coderail/tasks.json
+Forbidden:
+  - .git/**
+  - scripts/**
+  - tests/**
+  - package.json
+  - project-template/**
+  - node_modules/**
+
+V — Verify
+- Manually confirm the result works as intended.
+- Run: `python tests/test_static.py` (must exit 0)
+- Run: `python scripts/coderail.py check` (must exit 0)
+
+A — Acceptance
+- [ ] feature freeze and non-goals are explicit
+- [ ] defect candidates require reproducible evidence before implementation
+- [ ] accepted fixes require failing characterization or regression coverage
+- [ ] policy adds no runtime command or gate
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-013
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested
