@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-16 - Measure synthetic task context growth (T-014)
+
+- Done: Measure synthetic task context growth
+- Checked by: `python tests/test_static.py` exit 0; `python tests/observe_context_growth.py --tasks 3` exit 0
+- Next: Decide whether the 3000-token hot-context limit and zero closed-history growth become accepted invariants before creating a bug task.
+- Evidence: `python tests/test_static.py` -> exit 0
+- Evidence: `python tests/observe_context_growth.py --tasks 3` -> exit 0
+- Acceptance [done]: a disposable standard project completes 10 sequential start check done cycles
+- Acceptance [done]: the report separates active queued paused and closed task bytes
+- Acceptance [done]: the report includes median and P95 for start check done and startup proxy
+- Acceptance [done]: the experiment changes no production runtime or external repository
+
 ## 2026-07-16 - Codify defect-only stabilization freeze (T-013)
 
 - Done: Codify defect-only stabilization freeze
