@@ -218,6 +218,7 @@ Allowed:
   - docs/TRACE_INDEX.md
   - docs/CODERAIL_STATUS.md
   - docs/METRICS.md
+  - tests/test_closeout.py
   - .coderail/tasks.json
   - .coderail/pending_close.json
 Forbidden:
@@ -226,6 +227,8 @@ Forbidden:
 V — Verify
 - Manually confirm the result works as intended.
 - Run: `python scripts/coderail.py check` (must exit 0)
+- Run: `python tests/test_closeout.py` (must exit 0)
+- Run: `python tests/test_structure.py` (must exit 0)
 
 A — Acceptance
 - [ ] legacy T-001 and T-002 receive honest retroactive PROGRESS authority

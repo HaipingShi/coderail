@@ -266,7 +266,12 @@
   },
   "T-016": {
     "verify": [
-      "python scripts/coderail.py check"
+      "python scripts/coderail.py check",
+      "python tests/test_closeout.py",
+      "python tests/test_structure.py"
+    ],
+    "tests": [
+      "tests/test_closeout.py"
     ],
     "accept": [
       "legacy T-001 and T-002 receive honest retroactive PROGRESS authority",

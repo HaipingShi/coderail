@@ -169,11 +169,13 @@ def test_closeout_convergence_spec_and_task_sequence_are_registered():
     for term in ['RepositorySnapshot', 'owned-safe', 'FINALIZED', 'Non-Goals',
                  'T-007', 'T-008', 'T-009']:
         check(term in spec, f'convergence spec missing {term}')
-    tasks = (ROOT/'docs/TASKS.md').read_text(encoding='utf-8')
-    positions = [tasks.index(f'## T-00{number}') for number in [7, 8, 9]]
+    positions = [spec.index(f'### T-00{number}') for number in [7, 8, 9]]
     check(positions == sorted(positions), f'convergence tasks out of order: {positions}')
-    check('Depends on:\n- T-007' in tasks and 'Depends on:\n- T-008' in tasks,
-          'convergence dependency chain is incomplete')
+    progress = (ROOT/'docs/PROGRESS.md').read_text(encoding='utf-8')
+    trace = (ROOT/'docs/TRACELOG.jsonl').read_text(encoding='utf-8')
+    for task_id in ['T-007', 'T-008', 'T-009']:
+        check(f'({task_id})' in progress, f'PROGRESS authority missing {task_id}')
+        check(f'"task": "{task_id}"' in trace, f'TRACE authority missing {task_id}')
 
 def test_repository_snapshot_is_immutable_and_preserves_rename_origin():
     sys.path.insert(0, str(ROOT/'scripts'))
