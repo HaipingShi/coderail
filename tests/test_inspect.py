@@ -66,6 +66,45 @@ def test_inspect_without_legacy_cutoff_preserves_existing_behavior():
         check('T-001: done task has weak V evidence' in result.stdout, result.stdout)
         check('- Enforcement starts at: none (all tasks enforced)' in result.stdout, result.stdout)
 
+def test_compacted_history_uses_progress_and_trace_for_legacy_cutoff():
+    scripts = str(ROOT/'scripts')
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import inspect_state
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root/'docs').mkdir()
+        (root/'docs/TASKS.md').write_text('# Tasks\n', encoding='utf-8')
+        (root/'docs/PROGRESS.md').write_text('''# Progress
+
+## 2026-07-16 - Current verified task (T-002)
+
+- Checked by: `pytest` exit 0
+
+## 2026-07-16 - Legacy weak task (T-001)
+
+- Checked by: unverified - no verify commands registered
+''', encoding='utf-8')
+        events = [
+            {'type': 'verify', 'task': 'T-001', 'harness_result': 'skipped'},
+            {'type': 'verify', 'task': 'T-002', 'harness_result': 'passed'},
+        ]
+        (root/'docs/TRACELOG.jsonl').write_text(
+            ''.join(json.dumps(event) + '\n' for event in events), encoding='utf-8'
+        )
+        tasks = inspect_state.task_statuses(root)
+        check([task['id'] for task in tasks] == ['T-001', 'T-002'], tasks)
+        _, enforced, historical, issue = inspect_state.legacy_cutoff(
+            '## Legacy Cutoff\n\n- Enforcement starts at: T-002\n', tasks
+        )
+        check(not issue, issue)
+        check([task['id'] for task in enforced] == ['T-002'], enforced)
+        check([task['id'] for task in historical] == ['T-001'], historical)
+        check(not inspect_state.weak_verification_gaps(enforced), enforced)
+        check('T-001: done task has weak V evidence'
+              in inspect_state.weak_verification_gaps(historical), historical)
+
 def test_inspect_surfaces_drive_decision():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)

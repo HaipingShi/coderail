@@ -255,7 +255,7 @@ def test_runtime_has_no_repository_state_compatibility_adapters():
         tree = ast.parse(source)
         names.extend(node.name for node in tree.body
                      if isinstance(node, ast.FunctionDef) and node.name.startswith('test_'))
-    check(len(names) == 105 and len(names) == len(set(names)),
+    check(len(names) == 108 and len(names) == len(set(names)),
           f'test inventory changed or contains duplicates: {len(names)}/{len(set(names))}')
 
 def test_closeout_transaction_is_the_only_success_authority():

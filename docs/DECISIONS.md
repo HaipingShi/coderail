@@ -104,3 +104,24 @@ Task: T-013
   using the real scenario, followed by the smallest root-cause fix.
 - The freeze is an intake policy, not a CLI gate. Ending it requires an
   explicit North Star decision.
+
+## ADR-011 TASKS is the hot ownership view, not completed-history storage
+
+Status: accepted
+Date: 2026-07-16
+Task: T-015
+
+- `docs/TASKS.md` persists only active, queued, paused, blocked, or reopened
+  work. A completed body is transient until its ledger commit succeeds.
+- `docs/PROGRESS.md` plus a verify fact in `docs/TRACELOG.jsonl` are the
+  repository-tracked authority for compacted completed history. Reports and
+  `.coderail/tasks.json` are supplemental recovery detail, never the sole
+  authority.
+- Compaction happens after PROGRESS and TRACE exist and inside the ledger
+  commit. If that commit fails, the full closed body and pending snapshot are
+  restored so `progress --repair` can retry the durable boundary.
+- Task numbering scans hot TASKS, PROGRESS, TRACE, and metadata. Removing
+  completed bodies can therefore never reuse an internal task ID.
+- Inspect reconstructs compacted completed rows from the same PROGRESS and
+  TRACE facts; legacy cutoff and verification-debt evaluation do not depend on
+  closed bodies remaining hot.

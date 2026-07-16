@@ -6,116 +6,19 @@
 - `[~]` doing
 - `[!]` blocked
 - `[p]` paused (non-active; resume explicitly with `coderail switch --to <ID>`)
-- `[x]` done
-- `[f]` failed
+- `[x]` done (transient until the closeout ledger commits)
+- `[f]` failed (transient until the closeout ledger commits)
 - `[r]` reopened
 
 Task result at closeout may be `done`, `stage-complete`, `blocked`, `failed`, or `deferred`. `stage-complete` stays `[~]` unless Task Switch Gate commits it and transitions the source to `[p]`.
-
-## Task Template
-
-Copy this block and rename the heading to `\## T-001 Short task title` when creating a real task.
-
-```markdown
-\## T-001 Short task title
-
-Status: [ ]
-Type: feature | bug | refactor | docs | harness | chore
-Rail: full | light
-Priority: P1 | P2 | P3
-Autonomy: allowed | human-gated
-Owner:
-Branch:
-
-### CodeRail Coordinate
-
-G — Goal:
-- North Star:
-- Outcome served:
-
-T — Task:
-- 
-
-S — Scope:
-- Allowed:
-  - 
-- Forbidden:
-  - none
-
-V — Verify:
-- TDD mode: required | optional | waived
-- Red check:
-- Green check:
-- Refactor check:
-- Regression check:
-- CI check:
-- Waiver reason:
-- Harness:
-  - 
-- Manual acceptance:
-  - 
-
-X — Stop:
-- forbidden files needed
-- harness fails twice with unclear root cause
-
-P — Persist:
-- TASKS:
-- HANDOFF:
-- DECISIONS:
-- LESSONS:
-- ASSETS:
-- TRACE:
-
-### Task Contract
-
-Depends on:
-- 
-
-Blocks:
-- 
-
-Acceptance:
-- [ ] 
-- [ ] 
-
-### Critical Check
-
-- [ ] G maps to `docs/NORTH_STAR.md`.
-- [ ] Changes stayed inside S.
-- [ ] V can verify the change or manual acceptance is explicit.
-- [ ] P was synced, at least TASKS and TRACE.
-
-### Completion
-
-Task result: done | stage-complete | blocked | failed | deferred
-Done gate: pass | blocked | warning
-Completed at:
-Commit:
-Harness result:
-Manual acceptance:
-Handoff level: H0 | H1 | H2 | H3
-Handoff updated: yes | no
-Trace:
-Inspect status:
-Drive decision:
-Resume anchor:
-Next executable step:
-Auto commit:
-- Eligible: yes | no
-- Action: committed | skipped | blocked | failed
-- Commit:
-- Exact files staged:
-- Safe to stage:
-- Do not stage:
-- Ignored/generated artifacts:
-- Avoid git add .: yes | no
-Notes:
-```
+Generated task coordinates declare `Rail: full | light` and
+`Autonomy: allowed | human-gated` explicitly.
 
 ## Compact summary policy
 
-When a completed chain becomes long, keep only status, key result, completion
-evidence, and trace backlink in TASKS. Move detailed logs, failed attempts,
-terminal output, and long rationale to TRACE_INDEX, RUNLOG, DECISIONS, or an
-archive. TASKS should stay fast to scan during recovery.
+TASKS is the hot ownership view and persists only active, queued, paused,
+blocked, or reopened work. `coderail start` writes the full coordinate, so no
+copyable task body lives here while idle. After a successful closeout ledger
+commit, completed bodies leave TASKS; `docs/PROGRESS.md` plus
+`docs/TRACELOG.jsonl` are the repository-tracked completed-history authority.
+Done reports and `.coderail/tasks.json` are supplemental recovery detail only.

@@ -226,5 +226,42 @@
       "head": "f33d14aa5db20925f1d67b40e811865b0e9b66f3",
       "files": []
     }
+  },
+  "T-015": {
+    "display_id": "T-015",
+    "verify": [
+      "python tests/observe_context_growth.py --tasks 10 --startup-runs 10 --assert-thresholds",
+      "python tests/test_static.py",
+      "python tests/test_lifecycle.py",
+      "python tests/test_inspect.py",
+      "python tests/test_task_switch.py",
+      "python tests/test_closeout.py",
+      "python tests/test_structure.py",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/observe_context_growth.py",
+      "tests/test_closeout.py",
+      "tests/test_static.py",
+      "tests/test_lifecycle.py",
+      "tests/test_inspect.py",
+      "tests/test_task_switch.py"
+    ],
+    "accept": [
+      "required context files ceil bytes over four estimate and 3000 token limit remain fixed",
+      "closes two through ten add zero bytes to required context and TASKS",
+      "TASKS persists only open work while PROGRESS plus TRACE authoritatively retain completed history",
+      "reports and metadata are supplemental rather than sole history",
+      "ten task IDs are unique and strictly increasing with ten PROGRESS and TRACE facts",
+      "compaction follows durable close evidence and ledger failure remains recoverable",
+      "legacy cutoff verification debt progress repair task switch and paused resume remain correct",
+      "active queued paused ownership and glob intent remain resumable",
+      "done followed by inspect remains healthy with no closed ownership"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-16T07:10:06.621557+00:00",
+      "head": "489fa8da7aebbd0c5b13fda714eac6ee6ad773a9",
+      "files": []
+    }
   }
 }

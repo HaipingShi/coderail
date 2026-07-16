@@ -41,7 +41,9 @@ group results, and unchanged full-suite entry points.
 
 T-012 retained 104 unique tests with zero duplicate names and a maximum module
 size of 418 lines. T-014 adds one observer contract test, bringing the current
-inventory to 105. All six responsibility groups remain independently runnable.
+inventory to 105. T-015 adds three authority, threshold, and recovery
+regressions, bringing the current inventory to 108. All six responsibility
+groups remain independently runnable.
 
 ## M-013 Stabilization Freeze
 
@@ -70,3 +72,19 @@ improve an empty counter.
 
 Outcome: linear closed-history context growth is reproduced. Eager imports are
 observable but remain below the provisional admission threshold.
+
+## M-015 Bounded Hot Context
+
+| Measure | T-014 baseline | T-015 result |
+| --- | ---: | ---: |
+| final required-read bytes after 10 closes | 20,320 | 10,330 |
+| final estimated tokens | 5,080 | 2,583 |
+| TASKS growth after closes 2-10 | linear | 0 bytes |
+| required-read growth after closes 2-10 | linear | 0 bytes |
+| closed-history TASKS growth/task | 814.955 bytes | 0 bytes |
+| unique increasing task IDs | not asserted | 10 / 10 |
+| PROGRESS / TRACE task evidence | not asserted | 10 / 10 each |
+
+The runtime line count remains a maintenance observation, not a context proxy.
+The accepted regression boundary is the fixed five-file read set and its
+byte-based threshold.

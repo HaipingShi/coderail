@@ -416,6 +416,17 @@ def test_drift_check_requires_active_task_for_active_slice():
 
 def test_context_growth_observer_classifies_task_bytes_and_latency():
     import observe_context_growth
+    check(observe_context_growth.REQUIRED_CONTEXT == (
+        'AGENTS.md',
+        'docs/NORTH_STAR.md',
+        'docs/TASKS.md',
+        'docs/HANDOFF.md',
+        'docs/CODERAIL_STATUS.md',
+    ), 'required governance context must not be weakened with the implementation')
+    check(observe_context_growth.TOKEN_ESTIMATE_BYTES_PER_TOKEN == 4,
+          'token estimate must remain ceil(UTF-8 bytes / 4)')
+    check(observe_context_growth.ESTIMATED_TOKEN_LIMIT == 3000,
+          'the accepted hot-context limit must remain 3000 tokens')
     tasks = '''# Tasks
 
 ## T-001 Active
@@ -444,6 +455,27 @@ closed historical body with more evidence
     check(sizes['historical'] == sizes['closed'], sizes)
     latency = observe_context_growth.latency_summary(list(range(1, 21)))
     check(latency == {'count': 20, 'median_ms': 10.5, 'p95_ms': 19.0}, latency)
+
+def test_context_growth_thresholds_fail_the_recorded_growing_baseline():
+    import observe_context_growth
+    report = {
+        'final': {'estimated_tokens': 5080},
+        'cycles': [
+            {'task_id': f'T-{number:03d}', 'after_done': {
+                'required_read_bytes': 10958 + number * 936,
+                'tasks_bytes': 2317 + number * 870,
+            }}
+            for number in range(1, 11)
+        ],
+        'history': {
+            'progress_task_ids': [f'T-{number:03d}' for number in range(1, 11)],
+            'trace_task_ids': [f'T-{number:03d}' for number in range(1, 11)],
+        },
+    }
+    failures = observe_context_growth.threshold_failures(report)
+    check(any('3000' in item for item in failures), failures)
+    check(any('required_read_bytes' in item for item in failures), failures)
+    check(any('TASKS.md' in item for item in failures), failures)
 
 if __name__ == "__main__":
     run_module(globals())

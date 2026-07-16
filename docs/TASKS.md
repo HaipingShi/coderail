@@ -1474,3 +1474,97 @@ Resume anchor: docs/TASKS.md#T-014
 Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
 
 Auto commit: requested
+
+## T-015 Bound governance hot context growth
+
+Status: [x]
+Display id: T-015
+Type: bug
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Keep routine governance context at or below 3000 estimated tokens and stop closed tasks from growing the hot read path
+
+T — Task
+- Bound governance hot context growth
+
+S — Scope
+Allowed:
+  - scripts/coderail.py
+  - scripts/inspect_state.py
+  - scripts/task_switch.py
+  - tests/observe_context_growth.py
+  - tests/test_closeout.py
+  - tests/test_inspect.py
+  - tests/test_lifecycle.py
+  - tests/test_static.py
+  - tests/test_task_switch.py
+  - project-template/AGENTS.md
+  - project-template/docs/TASKS.md
+  - docs/CODERAIL_STATUS.md
+  - docs/DECISIONS.md
+  - docs/HARNESS_SPEC.md
+  - docs/LESSONS.md
+  - docs/METRICS.md
+  - docs/PROGRESS.md
+  - docs/STABILIZATION_FREEZE.md
+  - docs/TASKS.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - .coderail/tasks.json
+  - .coderail/pending_close.json
+Forbidden:
+  - .git/**
+  - node_modules/**
+  - package.json
+  - package-lock.json
+  - pnpm-lock.yaml
+  - yarn.lock
+
+V — Verify
+- Characterization first: the threshold observer must fail against the recorded growing baseline before runtime changes.
+- Run: `python tests/observe_context_growth.py --tasks 10 --startup-runs 10 --assert-thresholds` (must exit 0)
+- Run: `python tests/test_static.py` (must exit 0)
+- Run: `python tests/test_lifecycle.py` (must exit 0)
+- Run: `python tests/test_inspect.py` (must exit 0)
+- Run: `python tests/test_task_switch.py` (must exit 0)
+- Run: `python tests/test_closeout.py` (must exit 0)
+- Run: `python tests/test_structure.py` (must exit 0)
+- Run: `npm run ci` (must exit 0)
+
+A — Acceptance
+- [ ] REQUIRED_CONTEXT remains AGENTS, NORTH_STAR, TASKS, HANDOFF, STATUS; token estimate remains ceil(total UTF-8 bytes / 4); limit remains 3000
+- [ ] after closes 2 through 10, required_read_bytes and TASKS.md bytes are constant, not merely free of `[x]` task bodies
+- [ ] TASKS persists only active, queued, and paused tasks; PROGRESS plus TRACE are the repository-tracked authority for completed history
+- [ ] reports and .coderail metadata remain supplemental and cannot be the sole completed-history authority
+- [ ] ten observed task IDs are unique and strictly increasing, with ten distinct PROGRESS entries and ten TRACE close/verify facts
+- [ ] compaction occurs only after close evidence is written and as part of a successful ledger commit; ledger failure leaves the task recoverable
+- [ ] legacy cutoff, historical verification debt, progress repair, task switch, and paused resume remain correct after compaction
+- [ ] active, queued, and paused ownership and glob intent remain resumable
+- [ ] done followed by inspect remains healthy with no closed ownership
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-015
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested

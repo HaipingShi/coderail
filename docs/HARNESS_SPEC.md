@@ -155,3 +155,39 @@ TDD evidence:
 python tests/observe_context_growth.py --tasks 10 --startup-runs 20 \
   --output docs/observations/context-growth-20260716.json
 ```
+
+### T-015 bounded hot-context contract
+
+The measurement contract is characterized independently: required reads are
+exactly AGENTS, NORTH_STAR, TASKS, HANDOFF, and CODERAIL_STATUS; token estimate
+is `ceil(UTF-8 bytes / 4)`; the limit is 3,000 tokens. With
+`--assert-thresholds`, the observer returns non-zero if the limit fails, if
+either required-read bytes or TASKS bytes changes after closes 2 through 10,
+if internal task IDs are not unique and strictly increasing, or if PROGRESS
+and TRACE do not each contain all ten task IDs.
+
+Lifecycle characterization additionally proves that a successful ledger
+removes the closed body, a rejected ledger commit restores it and retains the
+pending snapshot, and `progress --repair` later commits and compacts it.
+Inspect characterization rebuilds compacted history and preserves legacy
+cutoff and historical verification debt. Existing checkpoint, dirty-fork, and
+paused-resume tests protect hot ownership behavior.
+
+TDD evidence:
+
+- Red: static characterization failed because the fixed estimator constants
+  did not exist; lifecycle characterization then failed because `[x]` bodies
+  still accumulated in TASKS.
+- Green targeted: 79 lifecycle/static/inspect/switch/closeout tests passed.
+- Synthetic: ten sequential tasks ended at 10,330 required bytes / 2,583
+  estimated tokens; closes 2 through 10 were byte-stable and all ten IDs were
+  present in both PROGRESS and TRACE.
+
+```bash
+python tests/observe_context_growth.py --tasks 10 --startup-runs 10 --assert-thresholds
+python tests/test_static.py
+python tests/test_lifecycle.py
+python tests/test_inspect.py
+python tests/test_task_switch.py
+python tests/test_closeout.py
+```

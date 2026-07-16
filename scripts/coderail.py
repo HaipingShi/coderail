@@ -88,8 +88,55 @@ def read_tasks(root: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def next_task_id(text: str) -> str:
-    numbers = [int(n) for n in TASK_HEADER.findall(text)]
+def progress_task_ids(root: Path) -> set[str]:
+    return set(progress_history(root))
+
+
+def progress_history(root: Path) -> dict[str, str]:
+    path = root / "docs" / "PROGRESS.md"
+    if not path.exists():
+        return {}
+    history = {}
+    for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        if not line.startswith("## "):
+            continue
+        found = re.findall(r"T-\d+", line)
+        if found:
+            title_match = re.match(r"##\s+\d{4}-\d{2}-\d{2}\s+-\s+(.*?)\s+\(", line)
+            history[found[-1]] = title_match.group(1) if title_match else found[-1]
+    return history
+
+
+def trace_verified_task_ids(root: Path) -> set[str]:
+    path = root / "docs" / "TRACELOG.jsonl"
+    if not path.exists():
+        return set()
+    ids = set()
+    for raw in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        try:
+            event = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        task_id = event.get("task")
+        if event.get("type") == "verify" and re.fullmatch(r"T-\d+", task_id or ""):
+            ids.add(task_id)
+    return ids
+
+
+def metadata_task_ids(root: Path) -> set[str]:
+    path = root / ".coderail" / "tasks.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()
+    return {task_id for task_id in data if re.fullmatch(r"T-\d+", task_id)}
+
+
+def next_task_id(text: str, root: Path | None = None) -> str:
+    ids = {f"T-{int(number):03d}" for number in TASK_HEADER.findall(text)}
+    if root is not None:
+        ids |= progress_task_ids(root) | trace_verified_task_ids(root) | metadata_task_ids(root)
+    numbers = [int(task_id.split("-", 1)[1]) for task_id in ids]
     return f"T-{(max(numbers) + 1) if numbers else 1:03d}"
 
 
@@ -115,6 +162,42 @@ def list_tasks(text: str) -> list[dict]:
             "status": status_m.group(1) if status_m else "[ ]",
         })
     return tasks
+
+
+def compact_persisted_closed_tasks(root: Path) -> tuple[str, list[str]]:
+    """Remove only closed bodies already represented by both tracked ledgers."""
+    text = read_tasks(root)
+    durable = progress_task_ids(root) & trace_verified_task_ids(root)
+    removed = []
+
+    def keep_or_remove(match: re.Match) -> str:
+        task_id = match.group(1)
+        body = match.group(3)
+        status = re.search(r"^Status:\s*(\[[^]]+\])", body, re.M)
+        if status and status.group(1) in {"[x]", "[f]"} and task_id in durable:
+            removed.append(task_id)
+            return ""
+        return match.group(0)
+
+    compacted = TASK_BLOCK_RE.sub(keep_or_remove, text).rstrip() + "\n"
+    if removed:
+        tasks_path(root).write_text(compacted, encoding="utf-8")
+    return text, removed
+
+
+def restore_tasks_after_failed_ledger(root: Path, text: str) -> tuple[bool, str]:
+    tasks_path(root).write_text(text, encoding="utf-8")
+    result = subprocess.run(
+        ["git", "-C", str(root), "add", "--", "docs/TASKS.md"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    if result.returncode:
+        return False, result.stdout.strip() or "failed to restage restored TASKS"
+    return True, "restored full TASKS body"
 
 
 def task_contract_metadata(text: str, task_id: str | None) -> dict:
@@ -412,7 +495,7 @@ def commit_post_close_ledger(root: Path, task_id: str) -> tuple[bool, str]:
     return True, ", ".join(changed)
 
 
-def reopen_after_close_failure(root: Path, task_id: str) -> None:
+def reopen_after_close_failure(root: Path, task_id: str, source_text: str = "") -> None:
     path = tasks_path(root)
     text = path.read_text(encoding="utf-8")
     pattern = re.compile(
@@ -420,6 +503,16 @@ def reopen_after_close_failure(root: Path, task_id: str) -> None:
         re.M | re.S,
     )
     updated, count = pattern.subn(r"\g<1>[!]", text, count=1)
+    if not count and source_text:
+        source = next(
+            (match.group(0) for match in TASK_BLOCK_RE.finditer(source_text)
+             if match.group(1) == task_id),
+            "",
+        )
+        if source:
+            reopened = re.sub(r"^Status:\s*\[x\]", "Status: [!]", source, count=1, flags=re.M)
+            updated = text.rstrip() + "\n\n" + reopened.strip() + "\n"
+            count = 1
     if count:
         path.write_text(updated, encoding="utf-8")
     task_switch.clear_closed_pending(root, task_id)
@@ -855,7 +948,7 @@ def cmd_start(args) -> int:
         print("Commit those exact paths, or explicitly carry them with:  --dirty-fork")
         return 1
 
-    task_id = next_task_id(text)
+    task_id = next_task_id(text, root)
     title = args.title.strip()
 
     # FN-011: bind the user's business id. Explicit --id wins; otherwise a
@@ -1293,7 +1386,7 @@ def cmd_done(args) -> int:
                 text_now = read_tasks(root)
                 blocks = ""
                 for item in deferred_items:
-                    new_id = next_task_id(text_now + blocks)
+                    new_id = next_task_id(text_now + blocks, root)
                     blocks += (
                         f"\n## {new_id} {item}\n\nStatus: [ ]\nType: feature\nRail: full\n\n"
                         f"### CodeRail Coordinate\n\nG — Goal\n- Deferred from {shown}: {item}\n\n"
@@ -1316,11 +1409,22 @@ def cmd_done(args) -> int:
                 ledger_errors.append(
                     "post-close audit: the PROGRESS entry claimed above is NOT on disk")
 
+        tasks_before_compaction = ""
+        compacted_ids: list[str] = []
         if task_before and not ledger_errors and not args.no_commit:
+            tasks_before_compaction, compacted_ids = compact_persisted_closed_tasks(root)
             committed, detail = commit_post_close_ledger(root, task_before)
             if committed:
                 print(f"  ledger commit: {detail}")
+                if compacted_ids:
+                    print(f"  hot TASKS:    compacted {', '.join(compacted_ids)}")
             else:
+                if tasks_before_compaction:
+                    restored, restore_detail = restore_tasks_after_failed_ledger(
+                        root, tasks_before_compaction
+                    )
+                    if not restored:
+                        detail += f"; TASKS restore failed: {restore_detail}"
                 ledger_errors.append(f"post-close ledger commit: {detail}")
 
         if ledger_errors:
@@ -1344,7 +1448,7 @@ def cmd_done(args) -> int:
             transaction.advance(closeout_transaction.Phase.RESCANNED)
             transaction.finalize(inspect_status=inspect_status, residual_paths=residue)
             if not transaction.success:
-                reopen_after_close_failure(root, closed_id)
+                reopen_after_close_failure(root, closed_id, tasks_before_compaction)
                 print()
                 print("POST-CLOSE CONSISTENCY FAILED: the task was reopened and done returns failure.")
                 print(f"Inspect-equivalent status: {inspect_status}")
@@ -1418,18 +1522,40 @@ def ledger_gaps(root: Path) -> list[tuple[str, str, dict]]:
     progress_file = root / "docs" / "PROGRESS.md"
     progress_text = progress_file.read_text(encoding="utf-8") if progress_file.exists() else ""
 
-    missing = []
+    history = progress_history(root)
+    candidates = {}
     for t in list_tasks(read_tasks(root)):
-        if t["status"] in ("[ ]", "[~]") or "Example task" in t["title"]:
+        if t["status"] not in ("[x]", "[f]") or "Example task" in t["title"]:
             continue
-        tid = t["id"]
+        candidates[t["id"]] = t["title"]
+    for task_id in trace_verified_task_ids(root):
+        candidates.setdefault(task_id, history.get(task_id, task_id))
+
+    missing = []
+    for tid, title in sorted(candidates.items()):
         m = task_meta(root, tid)
         display = m.get("display_id")
         if f"({tid})" in progress_text or f"internal {tid})" in progress_text \
                 or (display and f"({display}" in progress_text):
             continue
-        missing.append((tid, t["title"], m))
+        missing.append((tid, title, m))
     return missing
+
+
+def persist_repaired_ledger(root: Path, pending: dict) -> tuple[bool, str]:
+    task_id = pending.get("task", "")
+    if not task_id:
+        return False, "closeout snapshot does not identify a task"
+    original, compacted = compact_persisted_closed_tasks(root)
+    committed, detail = commit_post_close_ledger(root, task_id)
+    if not committed:
+        restored, restore_detail = restore_tasks_after_failed_ledger(root, original)
+        if not restored:
+            detail += f"; TASKS restore failed: {restore_detail}"
+        return False, detail
+    clear_pending_close(root)
+    suffix = f"; compacted {', '.join(compacted)}" if compacted else ""
+    return True, detail + suffix
 
 
 def cmd_progress(args) -> int:
@@ -1438,8 +1564,16 @@ def cmd_progress(args) -> int:
     (e.g. closes that predate the transactional fix)."""
     root = Path(args.target).resolve()
     missing = ledger_gaps(root)
+    pending = load_pending_close(root)
 
     if not missing:
+        if args.repair and pending:
+            committed, detail = persist_repaired_ledger(root, pending)
+            if not committed:
+                print(f"Ledger repair commit failed: {detail}")
+                return 1
+            print(f"Ledger repaired and committed: {detail}")
+            return 0
         print("Ledger is complete: every closed task has a PROGRESS.md entry.")
         return 0
 
@@ -1453,8 +1587,6 @@ def cmd_progress(args) -> int:
     # FN-028: if the interrupted close left its snapshot behind, restore the
     # REAL --next text, acceptance verdicts, and verify evidence from it
     # instead of falling back to default copy.
-    pending = load_pending_close(root)
-
     for tid, title, m in missing:
         shown = fmt_id(tid, m)
         snap = pending if pending.get("task") == tid else {}
@@ -1488,11 +1620,15 @@ def cmd_progress(args) -> int:
                         accepted=accepted,
                         warnings=["this entry was written by progress --repair, "
                                   "after the close itself skipped the journal"])
-        if snap:
-            clear_pending_close(root)
-            pending = {}
         print(f"  repaired: {shown}")
-    print("Ledger repaired. Review docs/PROGRESS.md and commit it.")
+    if pending:
+        committed, detail = persist_repaired_ledger(root, pending)
+        if not committed:
+            print(f"Ledger entries repaired, but the repair commit failed: {detail}")
+            return 1
+        print(f"Ledger repaired and committed: {detail}")
+    else:
+        print("Ledger repaired. Review docs/PROGRESS.md and commit it.")
     return 0
 
 
@@ -1647,7 +1783,7 @@ def cmd_switch(args) -> int:
         return 0
 
     source = active or "none"
-    new_id = next_task_id(read_tasks(root))
+    new_id = next_task_id(read_tasks(root), root)
     rc = cmd_start(args)
     if rc == 0 and not append_switch_trace(
         root,

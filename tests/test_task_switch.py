@@ -86,7 +86,7 @@ def test_task_switch_accepted_source_closes_before_destination_starts():
         r = cr('switch', 'Accepted destination', '--verify', 'true')
         check(r.returncode == 0, r.stdout)
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
-        check('## T-001 Accepted source\n\nStatus: [x]' in tasks, tasks)
+        check('Accepted source' not in tasks and 'Status: [x]' not in tasks, tasks)
         check('## T-002 Accepted destination\n\nStatus: [~]' in tasks, tasks)
         check(tasks.count('Status: [~]') == 1, tasks)
         committed = subprocess.check_output(
@@ -132,7 +132,7 @@ def test_task_switch_dirty_fork_pauses_source_and_preserves_resume_ownership():
         check(r.returncode == 0, r.stdout)
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check('## T-001 Dirty source\n\nStatus: [~]' in tasks, tasks)
-        check('## T-002 Fork destination\n\nStatus: [x]' in tasks, tasks)
+        check('Fork destination' not in tasks and 'Status: [x]' not in tasks, tasks)
         meta = json.loads((root/'.coderail/tasks.json').read_text(encoding='utf-8'))
         check(meta['T-001']['baseline'] == source_baseline, meta['T-001'])
         status = subprocess.check_output(

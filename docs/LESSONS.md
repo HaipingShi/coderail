@@ -38,3 +38,11 @@ set. A controlled ten-task run kept the project file count constant and still
 added about 897 bytes to that set per closed task, while the eager-import proxy
 was only about 16% of median check latency. Optimize the reproduced context
 growth first; do not use runtime line count as a token proxy.
+
+## Compact only after the replacement authority is durable
+
+Deleting completed task bodies is safe only when the tracked replacement facts
+already exist and the deletion shares their successful ledger commit. A failed
+commit must restore the old readable body rather than leave history dependent
+on an ignored report or an uncommitted index. Readers such as inspect, repair,
+legacy cutoff, and ID allocation must migrate before writers compact.

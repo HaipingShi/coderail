@@ -69,15 +69,70 @@ def load_events(root: Path) -> list[dict]:
     return events
 
 
+def progress_history(root: Path) -> dict[str, dict]:
+    text = read(root / "docs" / "PROGRESS.md")
+    history = {}
+    for match in re.finditer(r"^##\s+([^\n]+)\n(.*?)(?=^##\s+|\Z)", text, re.M | re.S):
+        heading, body = match.groups()
+        ids = re.findall(r"T-\d+", heading)
+        if not ids:
+            continue
+        task_id = ids[-1]
+        title_match = re.match(r"\d{4}-\d{2}-\d{2}\s+-\s+(.*?)\s+\(", heading)
+        checked = re.search(r"^- Checked by:\s*(.*)$", body, re.M)
+        history[task_id] = {
+            "title": title_match.group(1) if title_match else task_id,
+            "verification": checked.group(1) if checked else "",
+        }
+    return history
+
+
 def task_statuses(root: Path):
     text = read(root / "docs" / "TASKS.md")
     rows = []
+    progress = progress_history(root)
+    trace_events = {
+        event.get("task"): event for event in load_events(root)
+        if event.get("type") == "verify" and re.fullmatch(r"T-\d+", event.get("task") or "")
+    }
+    trace_ids = set(trace_events)
     for header, body, status in coordinate_check.split_tasks(text):
         if "Example task" in header or "Copy template" in header:
             continue
         coord = coordinate_check.parse_coordinate(body) or {}
-        rows.append({"id": header.split()[0], "header": header, "body": body, "status": status, "coord": coord})
-    return rows
+        task_id = header.split()[0]
+        if status in {"[x]", "[f]"} and task_id in trace_ids:
+            checked = progress.get(task_id, {}).get("verification", "")
+            if checked:
+                harness = trace_events[task_id].get("harness_result", "")
+                suffix = "; TRACE harness passed" if harness == "passed" else ""
+                coord = {**coord, "v": checked + suffix}
+        rows.append({
+            "id": task_id, "header": header, "body": body, "status": status,
+            "coord": coord,
+            "authority": None,
+        })
+
+    present = {row["id"] for row in rows}
+    for task_id in sorted(trace_ids | set(progress), key=lambda value: int(value.split("-")[1])):
+        if task_id in present:
+            continue
+        entry = progress.get(task_id, {})
+        title = entry.get("title", task_id)
+        harness = trace_events.get(task_id, {}).get("harness_result", "")
+        suffix = "; TRACE harness passed" if harness == "passed" else ""
+        rows.append({
+            "id": task_id,
+            "header": f"{task_id} {title}",
+            "body": "",
+            "status": "[x]",
+            "coord": {"v": entry.get("verification", "") + suffix},
+            "authority": {
+                "progress": task_id in progress,
+                "trace": task_id in trace_ids,
+            },
+        })
+    return sorted(rows, key=lambda row: int(row["id"].split("-")[1]))
 
 
 def draft_statuses(root: Path):
@@ -112,6 +167,13 @@ def weak_verification_gaps(tasks: list[dict]) -> list[str]:
     gaps = []
     for task in tasks:
         verification = (task["coord"].get("v") or "").lower()
+        authority = task.get("authority", {})
+        if task["status"] in {"[x]", "[f]"} and authority:
+            missing = [name.upper() for name in ("progress", "trace") if not authority.get(name)]
+            if missing:
+                gaps.append(
+                    f"{task['id']}: completed history missing {' + '.join(missing)} authority"
+                )
         if task["status"] == "[x]" and not any(
             marker in verification for marker in ["passed", "manual", "pytest", "test", "harness"]
         ):

@@ -261,7 +261,7 @@ def test_done_next_flag_sets_journal_next():
 
 def test_done_produces_all_four_artifacts_end_to_end():
     # FN-027: the real done flow (no mocks) must leave all four artifacts at
-    # once - PROGRESS entry, on-disk report, TASKS closed, commit made - and
+    # once - PROGRESS entry, TRACE fact, hot TASKS compacted, commit made - and
     # the captured Done Gate Report must not be blocked. Two consecutive
     # tasks, per the field acceptance criteria.
     with tempfile.TemporaryDirectory() as td:
@@ -278,15 +278,22 @@ def test_done_produces_all_four_artifacts_end_to_end():
             reports = list((root/'.coderail/reports').glob('done-*.md'))
             check(len(reports) == n, f'(2/4) report count {len(reports)} != {n}')
             body = sorted(reports)[-1].read_text(encoding='utf-8')
-            check('Status: blocked' not in body,
-                  f'(FN-027b) Done Gate blocked inside a passing close: {body}')
+            check('# Done Gate Report\n\nStatus: pass' in body,
+                  f'(FN-027b) Done Gate did not pass inside closeout: {body}')
             tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
-            check(tasks.count('Status: [x]') == n, f'(3/4) TASKS close count != {n}: {tasks}')
+            check('Status: [x]' not in tasks and title not in tasks,
+                  f'(3/4) completed history leaked into hot TASKS: {tasks}')
+            trace = (root/'docs/TRACELOG.jsonl').read_text(encoding='utf-8')
+            check(trace.count('"type": "verify"') == n,
+                  f'(3/4) TRACE verify count != {n}: {trace}')
             log = subprocess.run(['git', 'log', '--oneline'], cwd=td,
                                  capture_output=True, text=True).stdout
             check(f'chore({biz}/' in log, f'(4/4) commit missing for {biz}: {log}')
             check(not (root/'.coderail/pending_close.json').exists(),
                   'snapshot must be cleared after a fully-ledgered close')
+            inspect = cr('inspect', '--no-write')
+            check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout,
+                  f'final inspect disagrees with successful done: {inspect.stdout}')
         r = cr('progress')
         check(r.returncode == 0 and 'complete' in r.stdout,
               f'built-in audit disagrees with artifacts: {r.stdout}')
@@ -307,6 +314,9 @@ def test_snapshot_survives_ledger_failure_and_repair_restores_params():
         check(r.returncode == 1 and 'LEDGER ERROR' in r.stdout, r.stdout)
         check((root/'.coderail/pending_close.json').exists(),
               'snapshot must survive a failed ledger (FN-028)')
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Snapshot recovery task' in tasks and 'Status: [x]' in tasks,
+              'failed ledger must retain the closed task body for repair')
         (root/'docs/PROGRESS.md').rmdir()
         r = cr('progress', '--repair')
         check(r.returncode == 0, r.stdout)
@@ -319,6 +329,39 @@ def test_snapshot_survives_ledger_failure_and_repair_restores_params():
               f'deferred verdict not restored: {progress}')
         check(not (root/'.coderail/pending_close.json').exists(),
               'snapshot must be consumed by repair')
+
+def test_ledger_commit_failure_restores_hot_task_until_repair_commits():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Rejected ledger commit', '--verify', 'true')
+        check(r.returncode == 0, r.stdout)
+        hook = root/'.git/hooks/post-commit'
+        hook.write_text(
+            '#!/bin/sh\n'
+            'printf "#!/bin/sh\\nexit 1\\n" > .git/hooks/pre-commit\n'
+            'chmod +x .git/hooks/pre-commit\n',
+            encoding='utf-8',
+        )
+        hook.chmod(0o755)
+        subprocess.check_call(
+            ['git', '-C', td, 'config', 'core.hooksPath', str(root/'.git/hooks')]
+        )
+        r = cr('done')
+        check(r.returncode == 1 and 'LEDGER ERROR' in r.stdout, r.stdout)
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Rejected ledger commit' in tasks and 'Status: [x]' in tasks,
+              'failed commit must restore the full closed body for recovery')
+        check((root/'.coderail/pending_close.json').exists(),
+              'failed ledger commit must retain closeout snapshot')
+        hook.unlink()
+        (root/'.git/hooks/pre-commit').unlink()
+        r = cr('progress', '--repair')
+        check(r.returncode == 0, r.stdout)
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Rejected ledger commit' not in tasks and 'Status: [x]' not in tasks,
+              'successful repair must compact the now-durable completed body')
+        check(not (root/'.coderail/pending_close.json').exists(),
+              'successful repair must consume the closeout snapshot')
 
 def test_failed_done_on_open_task_still_says_rerun():
     # FN-027: "run done again" is only printed when the task is genuinely

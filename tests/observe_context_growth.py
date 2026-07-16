@@ -23,6 +23,8 @@ REQUIRED_CONTEXT = (
     "docs/HANDOFF.md",
     "docs/CODERAIL_STATUS.md",
 )
+TOKEN_ESTIMATE_BYTES_PER_TOKEN = 4
+ESTIMATED_TOKEN_LIMIT = 3000
 TASK_BLOCK = re.compile(r"^##\s+T-\d+\b.*?(?=^##\s+T-\d+\b|\Z)", re.M | re.S)
 STATUS = re.compile(r"^Status:\s*(\[[^]]+\])", re.M)
 
@@ -90,7 +92,7 @@ def context_snapshot(root: Path) -> dict:
     non_tasks = required_bytes - tasks_bytes
     return {
         "required_read_bytes": required_bytes,
-        "estimated_tokens": math.ceil(required_bytes / 4),
+        "estimated_tokens": math.ceil(required_bytes / TOKEN_ESTIMATE_BYTES_PER_TOKEN),
         "logical_hot_bytes": non_tasks + task_overhead + states["hot"],
         "tasks_bytes": tasks_bytes,
         "tasks_lines": len(tasks.splitlines()),
@@ -200,6 +202,14 @@ def run_experiment(task_count: int, startup_runs: int) -> dict:
             require_ok(result, f"cycle {number} start")
             command_times["start"].append(elapsed)
             after_start = context_snapshot(target)
+            active = re.search(
+                r"^##\s+(T-\d+)\b(?:(?!^##\s).)*?^Status:\s*\[~\]",
+                (target / "docs" / "TASKS.md").read_text(encoding="utf-8"),
+                re.M | re.S,
+            )
+            if not active:
+                raise RuntimeError(f"cycle {number} start did not persist an active task")
+            task_id = active.group(1)
 
             (target / "src" / "state.txt").write_text(
                 f"cycle {number}\n", encoding="utf-8"
@@ -228,6 +238,7 @@ def run_experiment(task_count: int, startup_runs: int) -> dict:
 
             cycles.append({
                 "task": number,
+                "task_id": task_id,
                 "after_start": after_start,
                 "after_done": context_snapshot(target),
                 "elapsed_ms": {name: command_times[name][-1] for name in command_times},
@@ -244,6 +255,24 @@ def run_experiment(task_count: int, startup_runs: int) -> dict:
         }
         startup = startup_observation(startup_runs)
         final = done_snapshots[-1]
+        progress_ids = set()
+        for line in (target / "docs" / "PROGRESS.md").read_text(
+            encoding="utf-8", errors="replace"
+        ).splitlines():
+            if line.startswith("## "):
+                found = re.findall(r"T-\d+", line)
+                if found:
+                    progress_ids.add(found[-1])
+        trace_ids = set()
+        for raw in (target / "docs" / "TRACELOG.jsonl").read_text(
+            encoding="utf-8", errors="replace"
+        ).splitlines():
+            try:
+                event = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            if event.get("type") == "verify" and re.fullmatch(r"T-\d+", event.get("task", "")):
+                trace_ids.add(event["task"])
         return {
             "schema_version": 1,
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -270,13 +299,51 @@ def run_experiment(task_count: int, startup_runs: int) -> dict:
             },
             "latency": latency,
             "startup": startup,
+            "history": {
+                "progress_task_ids": sorted(progress_ids),
+                "trace_task_ids": sorted(trace_ids),
+            },
             "thresholds": {
-                "estimated_tokens_limit": 3000,
+                "estimated_tokens_limit": ESTIMATED_TOKEN_LIMIT,
                 "final_estimated_tokens": final["estimated_tokens"],
-                "within_token_limit": final["estimated_tokens"] <= 3000,
+                "within_token_limit": final["estimated_tokens"] <= ESTIMATED_TOKEN_LIMIT,
                 "closed_history_growth_is_zero": linear_slope(closed_values) == 0,
             },
         }
+
+
+def threshold_failures(report: dict) -> list[str]:
+    failures = []
+    cycles = report.get("cycles", [])
+    if len(cycles) < 10:
+        failures.append("threshold assertion requires at least 10 completed tasks")
+    final_tokens = report["final"]["estimated_tokens"]
+    if final_tokens > ESTIMATED_TOKEN_LIMIT:
+        failures.append(
+            f"final estimated context {final_tokens} exceeds {ESTIMATED_TOKEN_LIMIT} tokens"
+        )
+
+    completed = cycles[1:10]
+    required = [item["after_done"]["required_read_bytes"] for item in completed]
+    tasks = [item["after_done"]["tasks_bytes"] for item in completed]
+    if len(set(required)) > 1:
+        failures.append("required_read_bytes grows after closes 2 through 10")
+    if len(set(tasks)) > 1:
+        failures.append("TASKS.md bytes grow after closes 2 through 10")
+
+    task_ids = [item.get("task_id", "") for item in cycles]
+    numeric = [int(task_id.split("-")[1]) for task_id in task_ids if re.fullmatch(r"T-\d+", task_id)]
+    if len(numeric) != len(task_ids) or len(set(task_ids)) != len(task_ids) \
+            or any(right <= left for left, right in zip(numeric, numeric[1:])):
+        failures.append("observed task IDs are not unique and strictly increasing")
+
+    expected = set(task_ids)
+    history = report.get("history", {})
+    if set(history.get("progress_task_ids", [])) != expected:
+        failures.append("PROGRESS does not contain one authoritative entry per observed task")
+    if set(history.get("trace_task_ids", [])) != expected:
+        failures.append("TRACE does not contain one verify fact per observed task")
+    return failures
 
 
 def print_summary(report: dict) -> None:
@@ -286,8 +353,11 @@ def print_summary(report: dict) -> None:
     print(f"Tasks: {report['experiment']['task_count']}")
     print(f"Final required context: {final['required_read_bytes']} bytes")
     print(f"Estimated tokens: {final['estimated_tokens']}")
+    print(f"Required context growth/task: {growth['required_read_bytes_per_closed_task']} bytes")
     print(f"TASKS growth/task: {growth['tasks_bytes_per_closed_task']} bytes")
     print(f"Closed history growth/task: {growth['closed_history_bytes_per_task']} bytes")
+    failures = threshold_failures(report)
+    print(f"Threshold contract: {'pass' if not failures else 'fail'}")
     for command in ("start", "check", "done"):
         item = report["latency"][command]
         print(f"{command}: median {item['median_ms']} ms; P95 {item['p95_ms']} ms")
@@ -302,6 +372,10 @@ def main(argv=None) -> int:
     parser.add_argument("--tasks", type=int, default=10)
     parser.add_argument("--startup-runs", type=int, default=10)
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--assert-thresholds", action="store_true",
+        help="return non-zero unless the bounded-context contract is satisfied",
+    )
     args = parser.parse_args(argv)
     if args.tasks < 1 or args.startup_runs < 1:
         parser.error("--tasks and --startup-runs must be positive")
@@ -312,6 +386,12 @@ def main(argv=None) -> int:
             json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
     print_summary(report)
+    failures = threshold_failures(report)
+    if args.assert_thresholds and failures:
+        print("Threshold failures:")
+        for failure in failures:
+            print(f"- {failure}")
+        return 1
     return 0
 
 
