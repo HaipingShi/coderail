@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-16 - Migrate legacy closed history out of hot TASKS (T-016)
+
+- Done: Migrate legacy closed history out of hot TASKS
+- Checked by: `python scripts/coderail.py check` exit 0; `python tests/test_closeout.py` exit 0; `python tests/test_structure.py` exit 0
+- Next: observe real production tasks during the stabilization freeze
+- Evidence: `python scripts/coderail.py check` -> exit 0
+- Evidence: `python tests/test_closeout.py` -> exit 0
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Acceptance [done]: legacy T-001 and T-002 receive honest retroactive PROGRESS authority
+- Acceptance [done]: successful closeout compacts every closed body from TASKS
+- Acceptance [done]: immediate inspect is healthy and hot context is at most 3000 estimated tokens
+
 ## 2026-07-16 - Doctor generated-marker compatibility (T-002)
 
 - Done: Doctor generated-marker compatibility
