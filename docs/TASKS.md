@@ -195,3 +195,63 @@ Next executable step: Continue in manual mode; no dependency-ready autonomous ta
 Auto commit: requested
 
 Drive decision: BLOCKED_DECISION
+
+## T-016 Migrate legacy closed history out of hot TASKS
+
+Status: [x]
+Type: bug
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Complete T-015 migration so TASKS contains only open work while legacy T-001 and T-002 remain auditable in PROGRESS plus TRACE
+
+T — Task
+- Migrate legacy closed history out of hot TASKS
+
+S — Scope
+Allowed:
+  - docs/TASKS.md
+  - docs/PROGRESS.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - docs/CODERAIL_STATUS.md
+  - docs/METRICS.md
+  - .coderail/tasks.json
+  - .coderail/pending_close.json
+Forbidden:
+  - none
+
+V — Verify
+- Manually confirm the result works as intended.
+- Run: `python scripts/coderail.py check` (must exit 0)
+
+A — Acceptance
+- [ ] legacy T-001 and T-002 receive honest retroactive PROGRESS authority
+- [ ] successful closeout compacts every closed body from TASKS
+- [ ] immediate inspect is healthy and hot context is at most 3000 estimated tokens
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-016
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested

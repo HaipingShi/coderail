@@ -88,3 +88,7 @@ observable but remain below the provisional admission threshold.
 The runtime line count remains a maintenance observation, not a context proxy.
 The accepted regression boundary is the fixed five-file read set and its
 byte-based threshold.
+
+Legacy migration note: T-016 backfilled honest retroactive PROGRESS entries
+for T-001 and T-002 before removing their closed bodies. This makes the
+repository itself obey the same hot-view contract as newly installed projects.

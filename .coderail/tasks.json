@@ -263,5 +263,20 @@
       "head": "489fa8da7aebbd0c5b13fda714eac6ee6ad773a9",
       "files": []
     }
+  },
+  "T-016": {
+    "verify": [
+      "python scripts/coderail.py check"
+    ],
+    "accept": [
+      "legacy T-001 and T-002 receive honest retroactive PROGRESS authority",
+      "successful closeout compacts every closed body from TASKS",
+      "immediate inspect is healthy and hot context is at most 3000 estimated tokens"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-16T08:50:52.628329+00:00",
+      "head": "b655fdcf15d6e25faa7b95da0c3210cbeb3f0052",
+      "files": []
+    }
   }
 }

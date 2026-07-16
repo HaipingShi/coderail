@@ -3,6 +3,20 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-16 - Doctor generated-marker compatibility (T-002)
+
+- Done: Doctor generated-marker compatibility
+- Checked by: retroactive entry - no verify commands were registered
+- Next: decide with the user
+- Warning: this entry was written by progress --repair, after the close itself skipped the journal
+
+## 2026-07-16 - Self-bootstrap CodeRail execution boundary (T-001)
+
+- Done: Self-bootstrap CodeRail execution boundary
+- Checked by: retroactive entry - no verify commands were registered
+- Next: decide with the user
+- Warning: this entry was written by progress --repair, after the close itself skipped the journal
+
 ## 2026-07-16 - Bound governance hot context growth (T-015)
 
 - Done: Bound governance hot context growth
