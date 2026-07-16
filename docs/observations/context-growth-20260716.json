@@ -1,0 +1,668 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-16T06:56:30.136284+00:00",
+  "candidate": {
+    "commit": "f33d14aa5db20925f1d67b40e811865b0e9b66f3",
+    "python": "3.13.5",
+    "platform": "win32"
+  },
+  "experiment": {
+    "task_count": 10,
+    "project": "disposable standard CodeRail template with one stable source file",
+    "scope": "src/**",
+    "verify": "current Python interpreter exits zero"
+  },
+  "initial": {
+    "required_read_bytes": 10958,
+    "estimated_tokens": 2740,
+    "logical_hot_bytes": 10958,
+    "tasks_bytes": 2317,
+    "tasks_lines": 121,
+    "task_overhead_bytes": 2317,
+    "task_state_bytes": {
+      "active": 0,
+      "queued": 0,
+      "paused": 0,
+      "closed": 0,
+      "unknown": 0,
+      "hot": 0,
+      "historical": 0
+    },
+    "file_bytes": {
+      "AGENTS.md": 5856,
+      "docs/NORTH_STAR.md": 79,
+      "docs/TASKS.md": 2317,
+      "docs/HANDOFF.md": 1138,
+      "docs/CODERAIL_STATUS.md": 1568
+    }
+  },
+  "final": {
+    "required_read_bytes": 20320,
+    "estimated_tokens": 5080,
+    "logical_hot_bytes": 12171,
+    "tasks_bytes": 11078,
+    "tasks_lines": 611,
+    "task_overhead_bytes": 2929,
+    "task_state_bytes": {
+      "active": 0,
+      "queued": 0,
+      "paused": 0,
+      "closed": 8149,
+      "unknown": 0,
+      "hot": 0,
+      "historical": 8149
+    },
+    "file_bytes": {
+      "AGENTS.md": 5856,
+      "docs/NORTH_STAR.md": 79,
+      "docs/TASKS.md": 11078,
+      "docs/HANDOFF.md": 1138,
+      "docs/CODERAIL_STATUS.md": 2169
+    }
+  },
+  "cycles": [
+    {
+      "task": 1,
+      "after_start": {
+        "required_read_bytes": 11610,
+        "estimated_tokens": 2903,
+        "logical_hot_bytes": 11610,
+        "tasks_bytes": 2969,
+        "tasks_lines": 152,
+        "task_overhead_bytes": 2470,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 0,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 0
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 2969,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 1568
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 12544,
+        "estimated_tokens": 3136,
+        "logical_hot_bytes": 11730,
+        "tasks_bytes": 3302,
+        "tasks_lines": 170,
+        "task_overhead_bytes": 2488,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 814,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 814
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 3302,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 366.057,
+        "check": 414.171,
+        "done": 4045.588
+      }
+    },
+    {
+      "task": 2,
+      "after_start": {
+        "required_read_bytes": 13075,
+        "estimated_tokens": 3269,
+        "logical_hot_bytes": 12260,
+        "tasks_bytes": 3833,
+        "tasks_lines": 201,
+        "task_overhead_bytes": 2519,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 815,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 815
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 3833,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 13408,
+        "estimated_tokens": 3352,
+        "logical_hot_bytes": 11779,
+        "tasks_bytes": 4166,
+        "tasks_lines": 219,
+        "task_overhead_bytes": 2537,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 1629,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 1629
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 4166,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 327.377,
+        "check": 441.074,
+        "done": 4040.51
+      }
+    },
+    {
+      "task": 3,
+      "after_start": {
+        "required_read_bytes": 13939,
+        "estimated_tokens": 3485,
+        "logical_hot_bytes": 12309,
+        "tasks_bytes": 4697,
+        "tasks_lines": 250,
+        "task_overhead_bytes": 2568,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 1630,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 1630
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 4697,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 14272,
+        "estimated_tokens": 3568,
+        "logical_hot_bytes": 11828,
+        "tasks_bytes": 5030,
+        "tasks_lines": 268,
+        "task_overhead_bytes": 2586,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 2444,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 2444
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 5030,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 324.849,
+        "check": 440.844,
+        "done": 4059.559
+      }
+    },
+    {
+      "task": 4,
+      "after_start": {
+        "required_read_bytes": 14803,
+        "estimated_tokens": 3701,
+        "logical_hot_bytes": 12358,
+        "tasks_bytes": 5561,
+        "tasks_lines": 299,
+        "task_overhead_bytes": 2617,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 2445,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 2445
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 5561,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 15136,
+        "estimated_tokens": 3784,
+        "logical_hot_bytes": 11877,
+        "tasks_bytes": 5894,
+        "tasks_lines": 317,
+        "task_overhead_bytes": 2635,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 3259,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 3259
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 5894,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 329.741,
+        "check": 432.306,
+        "done": 4173.385
+      }
+    },
+    {
+      "task": 5,
+      "after_start": {
+        "required_read_bytes": 15667,
+        "estimated_tokens": 3917,
+        "logical_hot_bytes": 12407,
+        "tasks_bytes": 6425,
+        "tasks_lines": 348,
+        "task_overhead_bytes": 2666,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 3260,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 3260
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 6425,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 16000,
+        "estimated_tokens": 4000,
+        "logical_hot_bytes": 11926,
+        "tasks_bytes": 6758,
+        "tasks_lines": 366,
+        "task_overhead_bytes": 2684,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 4074,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 4074
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 6758,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 325.606,
+        "check": 430.679,
+        "done": 4073.674
+      }
+    },
+    {
+      "task": 6,
+      "after_start": {
+        "required_read_bytes": 16531,
+        "estimated_tokens": 4133,
+        "logical_hot_bytes": 12456,
+        "tasks_bytes": 7289,
+        "tasks_lines": 397,
+        "task_overhead_bytes": 2715,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 4075,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 4075
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 7289,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 16864,
+        "estimated_tokens": 4216,
+        "logical_hot_bytes": 11975,
+        "tasks_bytes": 7622,
+        "tasks_lines": 415,
+        "task_overhead_bytes": 2733,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 4889,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 4889
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 7622,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 316.647,
+        "check": 452.047,
+        "done": 4064.561
+      }
+    },
+    {
+      "task": 7,
+      "after_start": {
+        "required_read_bytes": 17395,
+        "estimated_tokens": 4349,
+        "logical_hot_bytes": 12505,
+        "tasks_bytes": 8153,
+        "tasks_lines": 446,
+        "task_overhead_bytes": 2764,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 4890,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 4890
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 8153,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 17728,
+        "estimated_tokens": 4432,
+        "logical_hot_bytes": 12024,
+        "tasks_bytes": 8486,
+        "tasks_lines": 464,
+        "task_overhead_bytes": 2782,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 5704,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 5704
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 8486,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 318.115,
+        "check": 446.045,
+        "done": 4053.787
+      }
+    },
+    {
+      "task": 8,
+      "after_start": {
+        "required_read_bytes": 18259,
+        "estimated_tokens": 4565,
+        "logical_hot_bytes": 12554,
+        "tasks_bytes": 9017,
+        "tasks_lines": 495,
+        "task_overhead_bytes": 2813,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 5705,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 5705
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 9017,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 18592,
+        "estimated_tokens": 4648,
+        "logical_hot_bytes": 12073,
+        "tasks_bytes": 9350,
+        "tasks_lines": 513,
+        "task_overhead_bytes": 2831,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 6519,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 6519
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 9350,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 327.553,
+        "check": 440.568,
+        "done": 4103.128
+      }
+    },
+    {
+      "task": 9,
+      "after_start": {
+        "required_read_bytes": 19123,
+        "estimated_tokens": 4781,
+        "logical_hot_bytes": 12603,
+        "tasks_bytes": 9881,
+        "tasks_lines": 544,
+        "task_overhead_bytes": 2862,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 6520,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 6520
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 9881,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 19456,
+        "estimated_tokens": 4864,
+        "logical_hot_bytes": 12122,
+        "tasks_bytes": 10214,
+        "tasks_lines": 562,
+        "task_overhead_bytes": 2880,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 7334,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 7334
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 10214,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 324.782,
+        "check": 460.261,
+        "done": 4036.563
+      }
+    },
+    {
+      "task": 10,
+      "after_start": {
+        "required_read_bytes": 19987,
+        "estimated_tokens": 4997,
+        "logical_hot_bytes": 12652,
+        "tasks_bytes": 10745,
+        "tasks_lines": 593,
+        "task_overhead_bytes": 2911,
+        "task_state_bytes": {
+          "active": 499,
+          "queued": 0,
+          "paused": 0,
+          "closed": 7335,
+          "unknown": 0,
+          "hot": 499,
+          "historical": 7335
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 10745,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "after_done": {
+        "required_read_bytes": 20320,
+        "estimated_tokens": 5080,
+        "logical_hot_bytes": 12171,
+        "tasks_bytes": 11078,
+        "tasks_lines": 611,
+        "task_overhead_bytes": 2929,
+        "task_state_bytes": {
+          "active": 0,
+          "queued": 0,
+          "paused": 0,
+          "closed": 8149,
+          "unknown": 0,
+          "hot": 0,
+          "historical": 8149
+        },
+        "file_bytes": {
+          "AGENTS.md": 5856,
+          "docs/NORTH_STAR.md": 79,
+          "docs/TASKS.md": 11078,
+          "docs/HANDOFF.md": 1138,
+          "docs/CODERAIL_STATUS.md": 2169
+        }
+      },
+      "elapsed_ms": {
+        "start": 315.688,
+        "check": 471.84,
+        "done": 4054.647
+      }
+    }
+  ],
+  "growth": {
+    "tasks_bytes_total_delta": 8761,
+    "tasks_bytes_per_closed_task": 869.5,
+    "required_read_bytes_total_delta": 9362,
+    "required_read_bytes_per_closed_task": 896.818,
+    "closed_history_bytes_per_task": 814.955
+  },
+  "latency": {
+    "start": {
+      "count": 10,
+      "median_ms": 325.227,
+      "p95_ms": 366.057
+    },
+    "check": {
+      "count": 10,
+      "median_ms": 440.959,
+      "p95_ms": 471.84
+    },
+    "done": {
+      "count": 10,
+      "median_ms": 4057.103,
+      "p95_ms": 4173.385
+    }
+  },
+  "startup": {
+    "python_process": {
+      "count": 20,
+      "median_ms": 74.008,
+      "p95_ms": 77.45
+    },
+    "coderail_help": {
+      "count": 20,
+      "median_ms": 144.195,
+      "p95_ms": 147.789
+    },
+    "eager_import_proxy_median_ms": 70.187
+  },
+  "thresholds": {
+    "estimated_tokens_limit": 3000,
+    "final_estimated_tokens": 5080,
+    "within_token_limit": false,
+    "closed_history_growth_is_zero": false
+  }
+}

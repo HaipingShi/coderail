@@ -22,7 +22,7 @@ Owner: CodeRail maintainers
 
 - Milestone: M-013 stabilization freeze
 - Execution Batch: observe real workflows; admit only reproducible defects
-- Active Task: T-013 policy closeout; no implementation candidate admitted
+- Active Task: T-014 synthetic observation; no implementation candidate admitted
 
 ## Non-Goals
 

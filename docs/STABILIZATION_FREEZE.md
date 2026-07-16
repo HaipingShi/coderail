@@ -93,4 +93,6 @@ the numbers:
 - regressions found after `done`;
 - feature-freeze exceptions approved explicitly.
 
-Current baseline: zero known reproduced defects and zero approved exceptions.
+Current baseline: one reproduced context-growth observation, zero admitted bug
+tasks, and zero approved exceptions. See
+`docs/observations/context-growth-20260716.md`.

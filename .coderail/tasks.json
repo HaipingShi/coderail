@@ -205,5 +205,26 @@
       "head": "a226c6aa0e98a26be2adb4187dd3f8a5c71d1565",
       "files": []
     }
+  },
+  "T-014": {
+    "display_id": "T-014",
+    "verify": [
+      "python tests/test_static.py",
+      "python tests/observe_context_growth.py --tasks 3"
+    ],
+    "tests": [
+      "tests/test_static.py"
+    ],
+    "accept": [
+      "a disposable standard project completes 10 sequential start check done cycles",
+      "the report separates active queued paused and closed task bytes",
+      "the report includes median and P95 for start check done and startup proxy",
+      "the experiment changes no production runtime or external repository"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-16T06:52:01.428542+00:00",
+      "head": "f33d14aa5db20925f1d67b40e811865b0e9b66f3",
+      "files": []
+    }
   }
 }

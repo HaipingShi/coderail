@@ -134,3 +134,24 @@ responsibility module before changing production code.
 python tests/test_static.py
 python scripts/coderail.py check
 ```
+
+### T-014 synthetic context-growth observation
+
+The harness installs the standard template into a disposable Git repository,
+keeps the project file count constant, and completes sequential real lifecycle
+commands. It records required-read bytes, estimated tokens, task-state bytes,
+growth slopes, command latency, and a fresh-process eager-import proxy. Every
+done must be followed by healthy inspect, no closed ownership, and a clean
+worktree.
+
+TDD evidence:
+
+- Red: observer contract failed with `ModuleNotFoundError: observe_context_growth`.
+- Green: task-state classification and median/P95 contract passed.
+- Targeted: three-cycle smoke observation completed successfully.
+- Full: the split complete-suite entry point passed all 105 tests.
+
+```bash
+python tests/observe_context_growth.py --tasks 10 --startup-runs 20 \
+  --output docs/observations/context-growth-20260716.json
+```

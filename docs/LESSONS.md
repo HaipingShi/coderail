@@ -29,3 +29,12 @@ invariant. Extract shared repository construction once, move whole test
 functions mechanically into responsibility modules, and keep the existing
 suite command as a thin deterministic aggregator. This makes each concern
 runnable alone without changing the product or duplicating fixtures.
+
+## Measure required reads separately from runtime size
+
+Python module lines affect maintenance and process startup, but they are not
+automatically model context. The required governance files are the hot read
+set. A controlled ten-task run kept the project file count constant and still
+added about 897 bytes to that set per closed task, while the eager-import proxy
+was only about 16% of median check latency. Optimize the reproduced context
+growth first; do not use runtime line count as a token proxy.

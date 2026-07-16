@@ -1353,3 +1353,124 @@ Resume anchor: docs/TASKS.md#T-013
 Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
 
 Auto commit: requested
+
+## T-014 Measure synthetic task context growth
+
+Status: [x]
+Display id: T-014
+Type: docs
+Rail: light
+
+### CodeRail Coordinate
+
+G — Goal
+- Quantify governance hot-context growth and command latency before admitting any optimization defect
+
+T — Task
+- Measure synthetic task context growth
+
+S — Scope
+Allowed:
+  - tests/**
+  - tests/__pycache__/test_closeout.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_closeout.cpython-313.pyc
+  - tests/__pycache__/test_drive.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_drive.cpython-313.pyc
+  - tests/__pycache__/test_inspect.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_inspect.cpython-313.pyc
+  - tests/__pycache__/test_lifecycle.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_lifecycle.cpython-313.pyc
+  - tests/__pycache__/test_static.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_static.cpython-313.pyc
+  - tests/__pycache__/test_structure.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_structure.cpython-313.pyc
+  - tests/__pycache__/test_support.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_support.cpython-313.pyc
+  - tests/__pycache__/test_task_switch.cpython-313-pytest-8.4.1.pyc
+  - tests/__pycache__/test_task_switch.cpython-313.pyc
+  - tests/test_closeout.py
+  - tests/test_drive.py
+  - tests/test_inspect.py
+  - tests/test_lifecycle.py
+  - tests/test_static.py
+  - tests/test_structure.py
+  - tests/test_support.py
+  - tests/test_task_switch.py
+  - docs/**
+  - docs/ASSETS.md
+  - docs/BLUEPRINTS.md
+  - docs/CLOSEOUT_CONVERGENCE.md
+  - docs/CODERAIL_STATUS.md
+  - docs/CONTRACTS.md
+  - docs/DECISIONS.md
+  - docs/DRIVE_LOOP_DESIGN.md
+  - docs/HANDOFF.md
+  - docs/HARNESS_SPEC.md
+  - docs/LEAN_CONVERGENCE_PLAN.md
+  - docs/LESSONS.md
+  - docs/METRICS.md
+  - docs/NORTH_STAR.md
+  - docs/PROGRESS.md
+  - docs/REGRESSION_OBSERVE.md
+  - docs/RELEASE_CHECKLIST.md
+  - docs/RUNLOG.md
+  - docs/STABILIZATION_FREEZE.md
+  - docs/TASKS.md
+  - docs/TASK_GRAPH.md
+  - docs/TRACELOG.jsonl
+  - docs/TRACE_INDEX.md
+  - .coderail/**
+  - .coderail/coderail.py
+  - .coderail/config.json
+  - .coderail/reports/done-20260715-073852-T-005.md
+  - .coderail/reports/done-20260715-080654-T-006.md
+  - .coderail/reports/done-20260715-085402-T-007.md
+  - .coderail/reports/done-20260715-090436-T-008.md
+  - .coderail/reports/done-20260715-091212-T-009.md
+  - .coderail/reports/done-20260715-092227-T-010.md
+  - .coderail/reports/done-20260715-102434-T-011.md
+  - .coderail/reports/done-20260715-104159-T-012.md
+  - .coderail/reports/done-20260716-063430-T-013.md
+  - .coderail/spin.json
+  - .coderail/tasks.json
+Forbidden:
+  - .git/**
+  - scripts/**
+  - package.json
+  - project-template/**
+  - node_modules/**
+
+V — Verify
+- Manually confirm the result works as intended.
+- Run: `python tests/test_static.py` (must exit 0)
+- Run: `python tests/observe_context_growth.py --tasks 3` (must exit 0)
+
+A — Acceptance
+- [ ] a disposable standard project completes 10 sequential start check done cycles
+- [ ] the report separates active queued paused and closed task bytes
+- [ ] the report includes median and P95 for start check done and startup proxy
+- [ ] the experiment changes no production runtime or external repository
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+Task result: done
+
+Harness result: passed
+
+Handoff level: H0
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-014
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: requested

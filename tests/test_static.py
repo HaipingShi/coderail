@@ -414,5 +414,36 @@ def test_drift_check_requires_active_task_for_active_slice():
         check(result.returncode == 1, result.stdout)
         check('Current Slice active requires a non-empty Active Task' in result.stdout, result.stdout)
 
+def test_context_growth_observer_classifies_task_bytes_and_latency():
+    import observe_context_growth
+    tasks = '''# Tasks
+
+## T-001 Active
+
+Status: [~]
+active body
+
+## T-002 Queued
+
+Status: [ ]
+queued body
+
+## T-003 Paused
+
+Status: [p]
+paused body
+
+## T-004 Closed
+
+Status: [x]
+closed historical body with more evidence
+'''
+    sizes = observe_context_growth.task_state_bytes(tasks)
+    check(all(sizes[name] > 0 for name in ['active', 'queued', 'paused', 'closed']), sizes)
+    check(sizes['hot'] == sizes['active'] + sizes['queued'], sizes)
+    check(sizes['historical'] == sizes['closed'], sizes)
+    latency = observe_context_growth.latency_summary(list(range(1, 21)))
+    check(latency == {'count': 20, 'median_ms': 10.5, 'p95_ms': 19.0}, latency)
+
 if __name__ == "__main__":
     run_module(globals())
