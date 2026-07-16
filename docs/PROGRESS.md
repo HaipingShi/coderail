@@ -3,6 +3,29 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-16 - Bound governance hot context growth (T-015)
+
+- Done: Bound governance hot context growth
+- Checked by: `python tests/observe_context_growth.py --tasks 10 --startup-runs 10 --assert-thresholds` exit 0; `python tests/test_static.py` exit 0; `python tests/test_lifecycle.py` exit 0; `python tests/test_inspect.py` exit 0; `python tests/test_task_switch.py` exit 0; `python tests/test_closeout.py` exit 0; `python tests/test_structure.py` exit 0; `npm run ci` exit 0
+- Next: observe real production tasks during the stabilization freeze
+- Evidence: `python tests/observe_context_growth.py --tasks 10 --startup-runs 10 --assert-thresholds` -> exit 0
+- Evidence: `python tests/test_static.py` -> exit 0
+- Evidence: `python tests/test_lifecycle.py` -> exit 0
+- Evidence: `python tests/test_inspect.py` -> exit 0
+- Evidence: `python tests/test_task_switch.py` -> exit 0
+- Evidence: `python tests/test_closeout.py` -> exit 0
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: required context files ceil bytes over four estimate and 3000 token limit remain fixed
+- Acceptance [done]: closes two through ten add zero bytes to required context and TASKS
+- Acceptance [done]: TASKS persists only open work while PROGRESS plus TRACE authoritatively retain completed history
+- Acceptance [done]: reports and metadata are supplemental rather than sole history
+- Acceptance [done]: ten task IDs are unique and strictly increasing with ten PROGRESS and TRACE facts
+- Acceptance [done]: compaction follows durable close evidence and ledger failure remains recoverable
+- Acceptance [done]: legacy cutoff verification debt progress repair task switch and paused resume remain correct
+- Acceptance [done]: active queued paused ownership and glob intent remain resumable
+- Acceptance [done]: done followed by inspect remains healthy with no closed ownership
+
 ## 2026-07-16 - Measure synthetic task context growth (T-014)
 
 - Done: Measure synthetic task context growth
