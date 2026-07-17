@@ -3,6 +3,19 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-17 - Accept Markdown code-formatted scope paths (T-017)
+
+- Done: Accept Markdown code-formatted scope paths
+- Checked by: `python tests/test_static.py` exit 0; `python tests/test_closeout.py` exit 0; `python tests/test_structure.py` exit 0; `npm run ci` exit 0
+- Next: decide with the user
+- Evidence: `python tests/test_static.py` -> exit 0
+- Evidence: `python tests/test_closeout.py` -> exit 0
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: Inline-code allowed paths are accepted as their plain path equivalents
+- Acceptance [done]: Inline-code forbidden paths retain blocking behavior
+- Acceptance [done]: Plain path behavior remains compatible
+
 ## 2026-07-16 - Migrate legacy closed history out of hot TASKS (T-016)
 
 - Done: Migrate legacy closed history out of hot TASKS
