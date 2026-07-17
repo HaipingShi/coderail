@@ -283,5 +283,28 @@
       "head": "b655fdcf15d6e25faa7b95da0c3210cbeb3f0052",
       "files": []
     }
+  },
+  "T-017": {
+    "display_id": "T-017",
+    "verify": [
+      "python tests/test_static.py",
+      "python tests/test_closeout.py",
+      "python tests/test_structure.py",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_static.py",
+      "tests/test_closeout.py"
+    ],
+    "accept": [
+      "Inline-code allowed paths are accepted as their plain path equivalents",
+      "Inline-code forbidden paths retain blocking behavior",
+      "Plain path behavior remains compatible"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-17T06:08:16.340768+00:00",
+      "head": "9d3c6e5b0afbad2e5a73c5f232b5ae9d9d472447",
+      "files": []
+    }
   }
 }

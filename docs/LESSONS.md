@@ -46,3 +46,11 @@ already exist and the deletion shares their successful ledger commit. A failed
 commit must restore the old readable body rather than leave history dependent
 on an ignored report or an uncommitted index. Readers such as inspect, repair,
 legacy cutoff, and ID allocation must migrate before writers compact.
+
+## Normalize presentation syntax before applying scope policy
+
+Repository paths shown as Markdown inline code are still path patterns, not
+literal names containing backticks. Remove only an exact outer inline-code
+wrapper at the scope parsing boundary, then pass the normalized value through
+the unchanged ownership and safety classifier. Do not make the matcher broadly
+punctuation-tolerant; malformed or annotated entries must remain visible.

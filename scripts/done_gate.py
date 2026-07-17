@@ -55,6 +55,9 @@ def split_patterns(value: str) -> list[str]:
         line = line.strip().lstrip("-* ").strip()
         if not line or line.lower() in {"none", "n/a"}:
             continue
+        inline_code = re.fullmatch(r"`([^`\r\n]+)`", line)
+        if inline_code:
+            line = inline_code.group(1).strip()
         out.append(line)
     return out
 

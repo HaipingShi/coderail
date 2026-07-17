@@ -18,6 +18,51 @@ def test_done_commits_file_created_after_start_under_glob_and_inspect_is_healthy
         check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
         check('Closed-task uncommitted ownership: none' in inspect.stdout, inspect.stdout)
 
+def test_done_accepts_inline_code_formatted_allowed_glob():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        result = cr('start', 'Formatted allowed scope', '--files', 'lib/**',
+                    '--verify', f'"{sys.executable}" -c "pass"')
+        check(result.returncode == 0, result.stdout)
+        tasks = root/'docs/TASKS.md'
+        tasks.write_text(
+            tasks.read_text(encoding='utf-8').replace('  - lib/**', '  - `lib/**`'),
+            encoding='utf-8',
+        )
+        (root/'lib').mkdir()
+        (root/'lib/new-file.ts').write_text('export const value = 1;\n', encoding='utf-8')
+
+        result = cr('done')
+        check(result.returncode == 0, result.stdout)
+        tracked = subprocess.check_output(
+            ['git', '-C', td, 'ls-files', 'lib/new-file.ts'], text=True).strip()
+        check(tracked == 'lib/new-file.ts', tracked)
+        inspect = cr('inspect', '--no-write')
+        check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
+
+def test_done_keeps_inline_code_formatted_forbidden_path_blocking():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        result = cr('start', 'Formatted forbidden scope', '--files', 'lib/**',
+                    '--avoid', 'lib/secret.ts',
+                    '--verify', f'"{sys.executable}" -c "pass"')
+        check(result.returncode == 0, result.stdout)
+        tasks = root/'docs/TASKS.md'
+        text = tasks.read_text(encoding='utf-8')
+        text = text.replace('  - lib/**', '  - `lib/**`')
+        text = text.replace('  - lib/secret.ts', '  - `lib/secret.ts`')
+        tasks.write_text(text, encoding='utf-8')
+        (root/'lib').mkdir()
+        (root/'lib/secret.ts').write_text('export const token = "secret";\n', encoding='utf-8')
+
+        result = cr('done')
+        check(result.returncode == 1, result.stdout)
+        check('lib/secret.ts' in result.stdout, result.stdout)
+        check('== Done:' not in result.stdout, result.stdout)
+        tracked = subprocess.check_output(
+            ['git', '-C', td, 'ls-files', 'lib/secret.ts'], text=True).strip()
+        check(not tracked, tracked)
+
 def test_unborn_repository_baseline_adoption_is_audited_and_safe():
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
@@ -257,7 +302,7 @@ def test_runtime_has_no_repository_state_compatibility_adapters():
         tree = ast.parse(source)
         names.extend(node.name for node in tree.body
                      if isinstance(node, ast.FunctionDef) and node.name.startswith('test_'))
-    check(len(names) == 108 and len(names) == len(set(names)),
+    check(len(names) == 111 and len(names) == len(set(names)),
           f'test inventory changed or contains duplicates: {len(names)}/{len(set(names))}')
 
 def test_closeout_transaction_is_the_only_success_authority():

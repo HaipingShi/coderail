@@ -1,6 +1,17 @@
 from test_support import *
 from test_support import _assert_done_inspect_consistent, _lifecycle_env
 
+def test_scope_patterns_treat_exact_inline_code_as_presentation_only():
+    sys.path.insert(0, str(ROOT/'scripts'))
+    import done_gate
+
+    check(done_gate.split_patterns('lib/**') == ['lib/**'],
+          'plain scope patterns must remain unchanged')
+    check(done_gate.split_patterns('`lib/**`') == ['lib/**'],
+          'exact Markdown inline-code wrappers must be removed')
+    check(done_gate.split_patterns('`lib/**` note') == ['`lib/**` note'],
+          'only an exact inline-code wrapper may be normalized')
+
 def test_manifests_exist():
     check((ROOT/'.claude-plugin/plugin.json').exists(), 'missing claude manifest')
     check((ROOT/'.codex-plugin/plugin.json').exists(), 'missing codex manifest')

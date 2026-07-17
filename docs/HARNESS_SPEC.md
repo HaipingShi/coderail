@@ -191,3 +191,25 @@ python tests/test_inspect.py
 python tests/test_task_switch.py
 python tests/test_closeout.py
 ```
+
+### T-017 Markdown-formatted scope paths
+
+The parser contract proves that plain patterns are unchanged, an exact pair of
+Markdown inline-code delimiters is presentation only, and annotated or
+malformed values are not silently rewritten. Real temporary repositories prove
+that an inline-code-formatted allowed glob commits a newly created matching
+file and finishes with healthy inspect, while an equivalently formatted
+forbidden path still blocks done and remains untracked.
+
+TDD evidence:
+
+- Red: `test_scope_patterns_treat_exact_inline_code_as_presentation_only`
+  failed because `` `lib/**` `` retained its backticks.
+- Red lifecycle: done classified `lib/new-file.ts` outside the formatted
+  allowed glob and refused closeout.
+- Green: all 31 static tests and all 16 closeout tests passed.
+
+```bash
+python tests/test_static.py
+python tests/test_closeout.py
+```
