@@ -139,6 +139,19 @@ def main(argv=None) -> int:
     snapshot = repository_state.capture(
         root, include_ignored=not args.no_ignored
     )
+    scope_conflicts = repository_state.find_scope_contradictions(
+        [*allowed, *(item.path for item in snapshot.files)], allowed, forbidden
+    )
+    for conflict in scope_conflicts:
+        severe.append(
+            f"{task_id}: SCOPE_CONTRADICTION path={conflict.path} "
+            f"allowed={conflict.allowed_pattern} forbidden={conflict.forbidden_pattern}"
+        )
+    if scope_conflicts:
+        severe.append(
+            f"{task_id}: narrow the forbidden glob to production files; "
+            "Allowed does not override Forbidden"
+        )
     unchanged_baseline = task_switch.unchanged_baseline_paths(root, task_id)
     classified = repository_state.classify(
         snapshot.files,

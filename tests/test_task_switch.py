@@ -12,6 +12,28 @@ def test_task_switch_force_cannot_create_multiple_active_tasks():
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check(tasks.count('Status: [~]') == 1, tasks)
 
+def test_task_switch_rejects_destination_scope_contradiction_before_source_close():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        result = cr('start', 'Source owner', '--files', 'source.txt', '--verify', 'true')
+        check(result.returncode == 0, result.stdout)
+        tasks_path = root/'docs/TASKS.md'
+        meta_path = root/'.coderail/tasks.json'
+        trace_path = root/'docs/TRACELOG.jsonl'
+        before = (tasks_path.read_bytes(), meta_path.read_bytes(), trace_path.read_bytes())
+        allowed = 'lib/memory/__tests__/memory-write-effect-gate.test.ts'
+        forbidden = 'lib/memory/**'
+        result = cr('switch', 'Contradictory destination', '--files', allowed,
+                    '--avoid', forbidden, '--verify', 'true')
+        check(result.returncode == 1, result.stdout)
+        for expected in ['SCOPE_CONTRADICTION', allowed, forbidden]:
+            check(expected in result.stdout, result.stdout)
+        check((tasks_path.read_bytes(), meta_path.read_bytes(), trace_path.read_bytes()) == before,
+              'switch mutated source or destination state before rejecting scope')
+        tasks = tasks_path.read_text(encoding='utf-8')
+        check(tasks.count('Status: [~]') == 1 and 'Contradictory destination' not in tasks,
+              tasks)
+
 def test_task_start_records_preexisting_dirty_fingerprint():
     with tempfile.TemporaryDirectory() as td:
         root, cr = _lifecycle_env(td)

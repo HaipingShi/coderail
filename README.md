@@ -49,6 +49,28 @@ That is the whole interface. Your AI assistant reads the installed `AGENTS.md` a
 
 **`done`** — 安全网。它验证测试通过（或你明确记录了人工检查）、确认改动没超出承诺的文件、同步文档、只提交安全的任务相关文件，然后告诉你下一步。有问题它会拒绝并明确说出要修什么——AI 助手无法用话术绕过它。
 
+Task scope is fail-closed. If one path matches both an Allowed rule and a
+Forbidden rule, `start`, `switch`, or closeout reports `SCOPE_CONTRADICTION`
+with the exact path and both rules. Allowed never silently overrides Forbidden;
+narrow the forbidden glob before continuing.
+
+任务范围采用 fail-closed：同一路径同时命中 Allowed 与 Forbidden 时，`start`、
+`switch` 或 closeout 会输出 `SCOPE_CONTRADICTION`、精确路径以及两条冲突规则。
+Allowed 不会静默覆盖 Forbidden；继续前必须收窄禁止规则。
+
+If verification passes but the exact Git commit cannot run, CodeRail preserves
+the complete safe-file snapshot as `verified-commit-pending`. Restore Git
+permission and run `coderail done --resume`, or manually commit only the exact
+files printed by CodeRail and then run the same resume command. Use
+`coderail done --no-commit` to choose this manual mode from the beginning.
+Resume never reruns verification or duplicates PROGRESS/TRACE entries.
+
+如果验证已通过但精确 Git 提交因权限等原因无法执行，CodeRail 会保留完整 safe-file
+snapshot，并进入 `verified-commit-pending`。权限恢复后运行
+`coderail done --resume`；也可以只按输出的精确文件清单人工提交，再运行同一恢复命令。
+若从一开始就选择人工提交，使用 `coderail done --no-commit`。恢复不会重跑验证，也不会
+重复写入 PROGRESS/TRACE。
+
 ## Switching tasks safely / 安全切换任务
 
 `start` and `next --go` refuse to create ambiguous ownership. Use the explicit

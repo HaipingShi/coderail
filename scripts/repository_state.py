@@ -50,6 +50,13 @@ class OwnershipClassification:
     ambiguous: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class ScopeContradiction:
+    path: str
+    allowed_pattern: str
+    forbidden_pattern: str
+
+
 def _git(root: Path, args: list[str], *, text: bool = True):
     return subprocess.run(
         ["git", "-C", str(root), *args],
@@ -119,10 +126,52 @@ def capture(
     )
 
 
-def matches_any(path: str, patterns: list[str] | tuple[str, ...]) -> bool:
-    normalized = path.replace("\\", "/").lstrip("./")
+def normalize_pattern(pattern: str) -> str:
+    return pattern.replace("\\", "/").lstrip("./").rstrip()
+
+
+def normalize_patterns(patterns: list[str] | tuple[str, ...]) -> list[str]:
+    normalized = []
     for pattern in patterns:
-        candidate = pattern.replace("\\", "/").lstrip("./").rstrip()
+        candidate = normalize_pattern(pattern)
+        if candidate and candidate.lower() not in {"none", "n/a"}:
+            normalized.append(candidate)
+    return list(dict.fromkeys(normalized))
+
+
+def matching_patterns(path: str, patterns: list[str] | tuple[str, ...]) -> list[str]:
+    normalized = normalize_pattern(path)
+    matches = []
+    for pattern in normalize_patterns(patterns):
+        if normalized == pattern or matches_any(normalized, [pattern]):
+            matches.append(pattern)
+    return matches
+
+
+def find_scope_contradictions(
+    paths: list[str] | tuple[str, ...],
+    allowed: list[str] | tuple[str, ...],
+    forbidden: list[str] | tuple[str, ...],
+) -> tuple[ScopeContradiction, ...]:
+    contradictions = []
+    seen = set()
+    for raw_path in paths:
+        path = normalize_pattern(raw_path)
+        if not path:
+            continue
+        for allowed_pattern in matching_patterns(path, allowed):
+            for forbidden_pattern in matching_patterns(path, forbidden):
+                key = (path, allowed_pattern, forbidden_pattern)
+                if key not in seen:
+                    seen.add(key)
+                    contradictions.append(ScopeContradiction(*key))
+    return tuple(contradictions)
+
+
+def matches_any(path: str, patterns: list[str] | tuple[str, ...]) -> bool:
+    normalized = normalize_pattern(path)
+    for pattern in patterns:
+        candidate = normalize_pattern(pattern)
         if not candidate:
             continue
         if candidate.endswith("/**"):

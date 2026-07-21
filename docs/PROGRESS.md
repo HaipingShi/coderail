@@ -3,6 +3,25 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-21 - Fix scope contradiction and recoverable closeout commit pending (T-018)
+
+- Done: Fix scope contradiction and recoverable closeout commit pending
+- Checked by: `python3 tests/test_closeout.py` exit 0; `python3 tests/test_lifecycle.py` exit 0; `python3 tests/test_task_switch.py` exit 0; `python3 tests/test_structure.py` exit 0; `npm run ci` exit 0
+- Next: decide with the user
+- Evidence: `python3 tests/test_closeout.py` -> exit 0
+- Evidence: `python3 tests/test_lifecycle.py` -> exit 0
+- Evidence: `python3 tests/test_task_switch.py` -> exit 0
+- Evidence: `python3 tests/test_structure.py` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: start and switch reject scope contradictions without partial task state
+- Acceptance [done]: narrow forbidden production paths allow declared tests through closeout
+- Acceptance [done]: commit permission failure preserves verification and exact safe files as commit-pending
+- Acceptance [done]: manual exact commit plus resume finalizes without CodeRail residue
+- Acceptance [done]: explicit no-commit classifies all generated closeout files in one snapshot
+- Acceptance [done]: unrelated dirty files remain untouched during recovery
+- Acceptance [done]: resume is idempotent without duplicate progress, trace, or commits
+- Acceptance [done]: existing auto-commit, scope, Task Switch Gate, and manual Drive regressions pass
+
 ## 2026-07-17 - Accept Markdown code-formatted scope paths (T-017)
 
 - Done: Accept Markdown code-formatted scope paths

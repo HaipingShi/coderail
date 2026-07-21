@@ -69,6 +69,15 @@ def load_events(root: Path) -> list[dict]:
     return events
 
 
+def verified_commit_pending(root: Path) -> dict:
+    path = root / ".coderail" / "pending_close.json"
+    try:
+        pending = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return {}
+    return pending if pending.get("state") == "verified-commit-pending" else {}
+
+
 def progress_history(root: Path) -> dict[str, dict]:
     text = read(root / "docs" / "PROGRESS.md")
     history = {}
@@ -192,7 +201,13 @@ def render(root: Path) -> tuple[str, str]:
     active_drafts = [d for d in drafts if d["status"] in drive_check.ACTIVE_DRAFT_STATUSES]
     active = [t for t in tasks if t["status"] in {"[~]", "[!]"}]
     paused = [t for t in tasks if t["status"] == "[p]"]
-    closed_pending = task_switch.closed_pending_paths(root)
+    commit_pending = verified_commit_pending(root)
+    pending_safe = set(commit_pending.get("safe_files", []))
+    pending_task = commit_pending.get("task")
+    closed_pending = [
+        (owner, path) for owner, path in task_switch.closed_pending_paths(root)
+        if not (owner == pending_task and path in pending_safe)
+    ]
     events = load_events(root)
     trace_severe, trace_warn = trace_doctor.check(events, docs / "TRACE_INDEX.md", docs / "TRACELOG.jsonl")
     drive = drive_check.evaluate(root)
@@ -216,7 +231,11 @@ def render(root: Path) -> tuple[str, str]:
     status = (
         "blocked"
         if verification_gaps or trace_severe or drive_blocked or len(active) > 1 or closed_pending
-        else ("warning" if trace_gaps or not outcome or active or paused or drive_warning else "healthy")
+        else (
+            "warning"
+            if trace_gaps or not outcome or active or paused or drive_warning or commit_pending
+            else "healthy"
+        )
     )
 
     lines = []
@@ -293,6 +312,17 @@ def render(root: Path) -> tuple[str, str]:
         lines.append("- Closed-task uncommitted ownership: none")
     lines.append("- Automatic push: never")
     lines.append("")
+    lines.append("## Closeout Pending")
+    lines.append("")
+    if commit_pending:
+        lines.append("- State: verified-commit-pending")
+        lines.append(f"- Task: {pending_task or '(unknown)'}")
+        lines.append(f"- Safe files: {len(pending_safe)}")
+        lines.append("- Activation blocked until finalized: yes")
+        lines.append("- Resume: `coderail done --resume`")
+    else:
+        lines.append("- none")
+    lines.append("")
     lines.append("## Draft Contracts")
     lines.append("")
     if drafts:
@@ -357,7 +387,9 @@ def render(root: Path) -> tuple[str, str]:
     lines.append("")
     lines.append("## Recommended Next Action")
     lines.append("")
-    if verification_gaps:
+    if commit_pending:
+        lines.append("- Resume the verified closeout with `coderail done --resume`; do not rerun verification or use `git add .`.")
+    elif verification_gaps:
         lines.append("- Run `/coderail:done-gate` and fix verification gaps before marking done.")
     elif drive["mode"] == "continuous" and drive["decision"] in drive_check.NON_STOP_STATES:
         lines.append(f"- Drive {drive['decision']}: {drive['next_action']}")

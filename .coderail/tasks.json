@@ -306,5 +306,116 @@
       "head": "9d3c6e5b0afbad2e5a73c5f232b5ae9d9d472447",
       "files": []
     }
+  },
+  "T-018": {
+    "display_id": "T-018",
+    "verify": [
+      "python3 tests/test_closeout.py",
+      "python3 tests/test_lifecycle.py",
+      "python3 tests/test_task_switch.py",
+      "python3 tests/test_structure.py",
+      "npm run ci"
+    ],
+    "tests": [
+      "tests/test_closeout.py",
+      "tests/test_lifecycle.py",
+      "tests/test_task_switch.py"
+    ],
+    "accept": [
+      "start and switch reject scope contradictions without partial task state",
+      "narrow forbidden production paths allow declared tests through closeout",
+      "commit permission failure preserves verification and exact safe files as commit-pending",
+      "manual exact commit plus resume finalizes without CodeRail residue",
+      "explicit no-commit classifies all generated closeout files in one snapshot",
+      "unrelated dirty files remain untouched during recovery",
+      "resume is idempotent without duplicate progress, trace, or commits",
+      "existing auto-commit, scope, Task Switch Gate, and manual Drive regressions pass"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-17T14:55:21.229322+00:00",
+      "head": "9d3c6e5b0afbad2e5a73c5f232b5ae9d9d472447",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-21T06:42:00.774778+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "README.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/CLOSEOUT_CONVERGENCE.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/DECISIONS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/HARNESS_SPEC.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/NORTH_STAR.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "scripts/closeout_check.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/closeout_transaction.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/coderail.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/done_gate.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/inspect_state.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/repository_state.py"
+        },
+        {
+          "status": " M",
+          "path": "tests/test_closeout.py"
+        },
+        {
+          "status": " M",
+          "path": "tests/test_lifecycle.py"
+        },
+        {
+          "status": " M",
+          "path": "tests/test_task_switch.py"
+        }
+      ]
+    }
   }
 }

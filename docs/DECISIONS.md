@@ -125,3 +125,30 @@ Task: T-015
 - Inspect reconstructs compacted completed rows from the same PROGRESS and
   TRACE facts; legacy cutoff and verification-debt evaluation do not depend on
   closed bodies remaining hot.
+
+## ADR-012 Scope contradictions and commit-pending are explicit states
+
+Status: accepted
+Date: 2026-07-17
+Task: T-018
+
+- Scope normalization happens before `start` or `switch` writes task state and
+  again before closeout changes task status. Any concrete path matching both
+  Allowed and Forbidden is `SCOPE_CONTRADICTION`; diagnostics name the path and
+  both rules. Allowed never overrides Forbidden, and no implicit exception
+  syntax exists.
+- The facade prepares implementation plus TASKS, PROGRESS, TRACE, STATUS, and
+  metadata as one classified closeout snapshot before attempting its exact Git
+  commit. This refines ADR-011: compaction may be prepared in the worktree, but
+  it becomes durable only with that snapshot commit.
+- `COMMIT_PENDING` preserves successful verification without claiming success.
+  The snapshot records task id, evidence, exact safe files and fingerprints,
+  full state-file classification, expected message, pre-commit HEAD, mode,
+  failure detail, and resume command.
+- `done --no-commit` selects manual commit mode from the beginning.
+  `done --resume` either retries exact staging/commit after permission recovery
+  or verifies that a manual commit contains every safe file. It never stages an
+  unrelated dirty path and is idempotent after finalization.
+- Only `FINALIZED` renders `Done`. Commit permission failure is recoverable
+  pending state, not `[!]`; scope, sensitive-file, manual Drive, and no-push
+  invariants remain unchanged.

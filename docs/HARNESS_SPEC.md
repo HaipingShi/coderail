@@ -65,6 +65,29 @@ progress consumes the no-progress budget in `docs/NORTH_STAR.md`.
 
 For correctness-sensitive work, record the Red check, Green check, Refactor check, Regression check, and CI check in the task's `V -- Verify` section.
 
+## T-018 Scope contradiction and recoverable closeout
+
+```bash
+python3 tests/test_closeout.py
+python3 tests/test_lifecycle.py
+python3 tests/test_task_switch.py
+python3 tests/test_structure.py
+npm run ci
+git diff --check
+```
+
+Required matrix:
+
+- contradictory Allowed child + Forbidden parent -> start/switch rejected before state writes
+- legacy contradictory task -> closeout rejected before status transition with exact rules/path
+- narrowed production Forbidden -> declared test path closes normally
+- commit/index-lock failure -> `verified-commit-pending`, evidence and exact safe files retained
+- explicit `--no-commit` -> one classified snapshot, no `POST_COMMIT_DIRTY`
+- manual exact commit or permission recovery -> `done --resume` reaches `FINALIZED`
+- unrelated dirty baseline -> never staged, committed, or rewritten
+- repeated resume -> no duplicate commit, PROGRESS entry, or verify trace
+- existing auto-commit, Task Switch Gate, manual Drive, sensitive-file, and no-push tests remain green
+
 ## Rule
 
 No task is done until V passes or manual acceptance is recorded.

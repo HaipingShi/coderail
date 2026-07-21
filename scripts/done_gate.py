@@ -155,8 +155,22 @@ def main(argv=None) -> int:
         changed = [path for path in changed if path not in unchanged_baseline]
         allowed = split_patterns(coord.get("s_allowed", ""))
         forbidden = split_patterns(coord.get("s_forbidden", ""))
+        scope_conflicts = repository_state.find_scope_contradictions(
+            [*allowed, *changed], allowed, forbidden
+        )
+        conflicted_paths = {conflict.path for conflict in scope_conflicts}
+        for conflict in scope_conflicts:
+            severe.append(
+                f"{task_id}: SCOPE_CONTRADICTION path={conflict.path} "
+                f"allowed={conflict.allowed_pattern} forbidden={conflict.forbidden_pattern}"
+            )
+        if scope_conflicts:
+            severe.append(
+                f"{task_id}: narrow the forbidden glob to production files; "
+                "Allowed does not override Forbidden"
+            )
         for f in changed:
-            if forbidden and matches_any(f, forbidden):
+            if f not in conflicted_paths and forbidden and matches_any(f, forbidden):
                 severe.append(f"{task_id}: changed forbidden file {f}")
             if allowed and not matches_any(f, allowed):
                 warnings.append(f"{task_id}: changed file outside allowed scope: {f}")

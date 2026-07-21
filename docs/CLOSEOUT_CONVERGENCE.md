@@ -37,8 +37,14 @@ done success
 - Unchanged pre-task dirty files are not attributed to the task.
 - Outside, forbidden, sensitive, generated, ephemeral, or ambiguous paths are
   excluded or block before success.
+- A path that matches both Allowed and Forbidden is a `SCOPE_CONTRADICTION`;
+  activation and closeout stop with the exact path and both matching rules.
+  Neither rule silently overrides the other.
 - Stage, commit, persistence, or post-commit consistency failure returns non-zero,
   suppresses `Done`, reports exact paths, and leaves a resumable task.
+- Git staging or commit unavailability after verification enters the non-success
+  `verified-commit-pending` state. It preserves verification evidence, the exact
+  safe-file list, expected commit message, scope classification, and resume step.
 - No path uses `git add .` or automatically pushes.
 
 ## Canonical Snapshot
@@ -64,9 +70,17 @@ status independently.
 ## Closeout State Machine
 
 ```text
-CREATED -> VERIFIED -> SNAPSHOTTED -> CLASSIFIED -> STAGED
-        -> COMMITTED -> PERSISTED -> RESCANNED -> FINALIZED
+CREATED -> VERIFIED -> SNAPSHOTTED -> CLASSIFIED
+        -> STAGED -> COMMITTED -> PERSISTED -> RESCANNED -> FINALIZED
+             \-> COMMIT_PENDING -> STAGED/COMMITTED
+        CLASSIFIED -> COMMIT_PENDING
 ```
+
+`COMMIT_PENDING` has preserved verification but is not success. It is entered
+either by explicit `done --no-commit` or when exact staging/commit cannot run.
+`done --resume` consumes the saved snapshot, retries only its exact safe files
+or verifies an already-created manual commit, then continues to `FINALIZED`
+without writing duplicate ledger facts.
 
 Failure results are explicit:
 
@@ -77,6 +91,8 @@ PERSIST_FAILED | POST_COMMIT_DIRTY | INSPECT_INCONSISTENT
 
 Only `FINALIZED` may render `Done`. A failure after provisional closure uses a
 compensating reopen; it never converts a failed transaction into a warning.
+Recoverable Git permission failure is not a business failure and therefore does
+not compensate to `[!]`; it remains an explicit pending commit boundary.
 
 ## Target Responsibilities
 
@@ -88,6 +104,11 @@ compensating reopen; it never converts a failed transaction into a warning.
 - `closeout_check.py`: read-only preflight/report adapter.
 - `inspect_state.py`: read-only projection of the canonical snapshot.
 - `task_switch.py`: ownership transfer and pause/resume metadata only.
+
+The facade prepares implementation and every generated closeout state file in
+one canonical classification before attempting the exact commit. This removes
+the former source-commit/ledger-commit failure window while keeping legacy
+`progress --repair` support for older interrupted closeouts.
 
 ## Migration
 

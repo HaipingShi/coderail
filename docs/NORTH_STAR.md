@@ -21,8 +21,8 @@ Owner: CodeRail maintainers
 ## Current Slice
 
 - Milestone: M-013 stabilization freeze
-- Execution Batch: observe real workflows; admit only reproducible defects
-- Active Task: T-014 synthetic observation; no implementation candidate admitted
+- Execution Batch: repair reproduced scope-contract and closeout commit recovery defects
+- Active Task: T-018
 
 ## Non-Goals
 

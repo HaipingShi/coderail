@@ -12,6 +12,7 @@ class Phase(Enum):
     SNAPSHOTTED = auto()
     CLASSIFIED = auto()
     STAGED = auto()
+    COMMIT_PENDING = auto()
     COMMITTED = auto()
     PERSISTED = auto()
     RESCANNED = auto()
@@ -29,16 +30,16 @@ class Failure(Enum):
     INSPECT_INCONSISTENT = auto()
 
 
-ORDER = (
-    Phase.CREATED,
-    Phase.VERIFIED,
-    Phase.SNAPSHOTTED,
-    Phase.CLASSIFIED,
-    Phase.STAGED,
-    Phase.COMMITTED,
-    Phase.PERSISTED,
-    Phase.RESCANNED,
-)
+TRANSITIONS = {
+    Phase.CREATED: {Phase.VERIFIED},
+    Phase.VERIFIED: {Phase.SNAPSHOTTED},
+    Phase.SNAPSHOTTED: {Phase.CLASSIFIED},
+    Phase.CLASSIFIED: {Phase.STAGED, Phase.COMMIT_PENDING},
+    Phase.STAGED: {Phase.COMMITTED, Phase.COMMIT_PENDING},
+    Phase.COMMIT_PENDING: {Phase.STAGED, Phase.COMMITTED},
+    Phase.COMMITTED: {Phase.PERSISTED},
+    Phase.PERSISTED: {Phase.RESCANNED},
+}
 
 
 @dataclass(frozen=True)
@@ -66,10 +67,26 @@ class CloseoutTransaction:
     def advance(self, phase: Phase) -> None:
         if self.phase in {Phase.FAILED, Phase.FINALIZED}:
             raise ValueError(f"cannot advance terminal transaction from {self.phase.name}")
-        expected = ORDER[ORDER.index(self.phase) + 1]
-        if phase is not expected:
-            raise ValueError(f"expected {expected.name}, got {phase.name}")
+        expected = TRANSITIONS.get(self.phase, set())
+        if phase not in expected:
+            names = ", ".join(item.name for item in sorted(expected, key=lambda item: item.value))
+            raise ValueError(f"expected one of {names or 'none'}, got {phase.name}")
         self.phase = phase
+
+    def mark_commit_pending(self, paths: list[str] | tuple[str, ...]) -> None:
+        if self.phase not in {Phase.CLASSIFIED, Phase.STAGED}:
+            raise ValueError(f"cannot mark commit pending from {self.phase.name}")
+        self.paths = tuple(sorted(set(paths)))
+        self.phase = Phase.COMMIT_PENDING
+
+    @classmethod
+    def from_commit_pending(
+        cls, task_id: str, paths: list[str] | tuple[str, ...]
+    ) -> "CloseoutTransaction":
+        transaction = cls(task_id)
+        transaction.phase = Phase.COMMIT_PENDING
+        transaction.paths = tuple(sorted(set(paths)))
+        return transaction
 
     def fail(self, failure: Failure, paths: list[str] | tuple[str, ...] = ()) -> None:
         if self.phase is Phase.FINALIZED:

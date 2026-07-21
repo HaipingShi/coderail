@@ -16,6 +16,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -29,6 +30,8 @@ import task_switch  # noqa: E402
 import inspect_state  # noqa: E402
 import closeout_transaction  # noqa: E402
 import repository_state  # noqa: E402
+import coordinate_check  # noqa: E402
+import done_gate  # noqa: E402
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
@@ -925,6 +928,70 @@ def guess_rail(title: str, goal: str, task_type: str) -> str:
     return "full"
 
 
+def normalize_scope_inputs(
+    root: Path, file_chunks: list[str] | None, avoid_text: str | None
+) -> tuple[list[str], list[str]]:
+    raw_files = []
+    for chunk in file_chunks or []:
+        raw_files.extend(f.strip() for f in chunk.split(",") if f.strip())
+    files = []
+    for raw_pattern in raw_files:
+        pattern = repository_state.normalize_pattern(raw_pattern)
+        if any(char in pattern for char in "*?["):
+            files.append(pattern)
+            files.extend(
+                sorted(
+                    path.relative_to(root).as_posix()
+                    for path in root.glob(pattern)
+                    if path.is_file()
+                )
+            )
+        else:
+            files.append(pattern)
+    allowed = list(dict.fromkeys(files))
+    forbidden = repository_state.normalize_patterns(
+        [item.strip() for item in (avoid_text or "").split(",") if item.strip()]
+    )
+    return allowed, forbidden
+
+
+def print_scope_contradictions(
+    contradictions: tuple[repository_state.ScopeContradiction, ...]
+) -> None:
+    print("SCOPE_CONTRADICTION: one or more paths are both allowed and forbidden.")
+    for conflict in contradictions:
+        print(f"  - matching path: {conflict.path}")
+        print(f"    allowed rule: {conflict.allowed_pattern}")
+        print(f"    forbidden rule: {conflict.forbidden_pattern}")
+    print("Fix: narrow the forbidden glob to production files that must not change.")
+    print("Do not rely on Allowed overriding Forbidden; no exception was granted.")
+
+
+def validate_scope(
+    allowed: list[str], forbidden: list[str], *, paths: list[str] | None = None
+) -> bool:
+    contradictions = repository_state.find_scope_contradictions(
+        paths or allowed, allowed, forbidden
+    )
+    if contradictions:
+        print_scope_contradictions(contradictions)
+        return False
+    return True
+
+
+def validate_task_scope(text: str, task_id: str, root: Path) -> bool:
+    allowed, forbidden = task_scope_patterns(text, task_id)
+    candidates = list(allowed)
+    for pattern in allowed:
+        if any(char in pattern for char in "*?["):
+            candidates.extend(
+                path.relative_to(root).as_posix()
+                for path in root.glob(pattern)
+                if path.is_file()
+            )
+    return validate_scope(allowed, forbidden, paths=list(dict.fromkeys(candidates)))
+
+
 # ---------------------------------------------------------------- start
 
 def cmd_start(args) -> int:
@@ -965,27 +1032,10 @@ def cmd_start(args) -> int:
     # FN-021: --files is repeatable and each value may mix comma lists and
     # globs. Preserve each normalized pattern as the durable scope contract;
     # current matches are useful detail, but future matches must remain owned.
-    raw_files: list[str] = []
-    for chunk in (args.files or []):
-        raw_files += [f.strip() for f in chunk.split(",") if f.strip()]
-    files: list[str] = []
-    for pat in raw_files:
-        # FN-029: TASKS.md is a committed, cross-platform artifact whose paths
-        # are matched against git output (always forward-slash). Normalize the
-        # pattern to forward-slash BEFORE globbing (so a Windows-style
-        # "src\x\*.ts" still expands), and store results forward-slash too.
-        pat = pat.replace("\\", "/")
-        if any(ch in pat for ch in "*?["):
-            matches = sorted(
-                p.relative_to(root).as_posix() for p in root.glob(pat) if p.is_file()
-            )
-            files.append(pat)
-            files += matches
-        else:
-            files.append(pat)
-    seen: set[str] = set()
-    files = [f for f in files if not (f in seen or seen.add(f))]
-    avoid = [f.strip() for f in (args.avoid or "").split(",") if f.strip()]
+    # FN-021/FN-029: preserve normalized glob intent and current matches.
+    files, avoid = normalize_scope_inputs(root, args.files, args.avoid)
+    if not validate_scope(files, avoid):
+        return 1
     task_type = (args.type or "feature").strip().lower()
     rail = guess_rail(title, goal, task_type)
 
@@ -1153,8 +1203,262 @@ def clear_pending_close(root: Path) -> None:
         pass
 
 
+PENDING_EXIT = 2
+
+
+def task_scope_patterns(text: str, task_id: str) -> tuple[list[str], list[str]]:
+    for match in TASK_BLOCK_RE.finditer(text):
+        if match.group(1) != task_id:
+            continue
+        coordinate = coordinate_check.parse_coordinate(match.group(3)) or {}
+        return (
+            repository_state.normalize_patterns(
+                done_gate.split_patterns(coordinate.get("s_allowed", ""))
+            ),
+            repository_state.normalize_patterns(
+                done_gate.split_patterns(coordinate.get("s_forbidden", ""))
+            ),
+        )
+    return [], []
+
+
+def classify_pending_closeout(
+    root: Path, tasks_text: str, task_id: str
+) -> tuple[repository_state.RepositorySnapshot, repository_state.OwnershipClassification]:
+    allowed, forbidden = task_scope_patterns(tasks_text, task_id)
+    snapshot = repository_state.capture(root, include_ignored=True, fingerprints=True)
+    classified = repository_state.classify(
+        snapshot.files,
+        allowed=allowed,
+        forbidden=forbidden,
+        unchanged_baseline=task_switch.unchanged_baseline_paths(root, task_id),
+        state_files=POST_CLOSE_LEDGER_FILES,
+        include_state=True,
+    )
+    return snapshot, classified
+
+
+def pending_safe_rows(
+    snapshot: repository_state.RepositorySnapshot, safe_files: list[str]
+) -> list[dict]:
+    safe = set(safe_files)
+    return [
+        {
+            "status": row.status,
+            "path": row.path,
+            "fingerprint": row.fingerprint,
+        }
+        for row in snapshot.files
+        if row.path in safe
+    ]
+
+
+def closeout_scope_classification(
+    classified: repository_state.OwnershipClassification,
+) -> dict[str, str]:
+    dispositions = {}
+    for disposition in repository_state.OwnershipClassification.__dataclass_fields__:
+        for path in getattr(classified, disposition):
+            dispositions[path] = disposition
+    for path in POST_CLOSE_LEDGER_FILES:
+        dispositions.setdefault(path, "clean")
+    return dict(sorted(dispositions.items()))
+
+
+def persist_commit_pending(
+    root: Path,
+    *,
+    task_id: str,
+    closed_id: str,
+    safe_files: list[str],
+    snapshot: repository_state.RepositorySnapshot,
+    commit_message: str,
+    closeout_mode: str,
+    scope_classification: dict[str, str],
+    commit_error: str = "",
+) -> dict:
+    pending = load_pending_close(root)
+    pending.update({
+        "state": "verified-commit-pending",
+        "phase": closeout_transaction.Phase.COMMIT_PENDING.name,
+        "task": task_id,
+        "closed_id": closed_id,
+        "closeout_mode": closeout_mode,
+        "safe_files": sorted(set(safe_files)),
+        "safe_file_states": pending_safe_rows(snapshot, safe_files),
+        "scope_classification": scope_classification,
+        "expected_commit_message": commit_message,
+        "pre_commit_head": snapshot.head,
+        "commit_error": commit_error,
+        "resume_command": "coderail done --resume",
+        "next_step": (
+            "commit the exact safe files manually, then run coderail done --resume; "
+            "or restore Git commit permission and run coderail done --resume"
+        ),
+    })
+    write_pending_close(root, pending)
+    return pending
+
+
+def print_commit_pending(pending: dict) -> None:
+    safe_files = pending.get("safe_files", [])
+    message = pending.get("expected_commit_message", "")
+    print("Closeout state: verified-commit-pending")
+    print(f"Task: {pending.get('task', '(unknown)')}")
+    print("Verification evidence and closeout ledger are preserved.")
+    if pending.get("commit_error"):
+        print(f"Auto commit failed: {pending['commit_error']}")
+    print("Exact safe files:")
+    for path in safe_files:
+        print(f"  - {path}")
+    add_command = shell_join(["git", "add", "--", *safe_files])
+    commit_command = shell_join(["git", "commit", "-m", message])
+    print("Manual recovery (never use git add .):")
+    print(f"  {add_command}")
+    print(f"  {commit_command}")
+    print("  coderail done --resume")
+    print("Or restore Git commit permission and run:  coderail done --resume")
+
+
+def shell_join(parts: list[str]) -> str:
+    return subprocess.list2cmdline(parts) if os.name == "nt" else shlex.join(parts)
+
+
+def stage_exact_files(root: Path, safe_files: list[str]) -> tuple[bool, str]:
+    result = subprocess.run(
+        ["git", "-C", str(root), "add", "--", *safe_files],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return result.returncode == 0, result.stdout.strip()
+
+
+def commit_staged(root: Path, message: str) -> tuple[bool, str]:
+    result = subprocess.run(
+        ["git", "-C", str(root), "commit", "-m", message],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return result.returncode == 0, result.stdout.strip()
+
+
+def changed_paths_between(root: Path, before: str, after: str) -> set[str]:
+    result = subprocess.run(
+        ["git", "-C", str(root), "diff", "--name-only", "-z", before, after],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    if result.returncode:
+        return set()
+    return {
+        os.fsdecode(path).replace("\\", "/")
+        for path in (result.stdout or b"").split(b"\0")
+        if path
+    }
+
+
+def finalize_resumed_closeout(root: Path, pending: dict) -> int:
+    task_id = pending.get("task", "")
+    closed_id = pending.get("closed_id") or task_id
+    safe_files = list(pending.get("safe_files", []))
+    expected_message = pending.get("expected_commit_message", "")
+    pre_commit_head = pending.get("pre_commit_head")
+    transaction = closeout_transaction.CloseoutTransaction.from_commit_pending(
+        task_id or "(unknown)", safe_files
+    )
+    current_snapshot = repository_state.capture(root, fingerprints=True)
+    current = {row.path: row for row in current_snapshot.files}
+    saved = {row.get("path"): row for row in pending.get("safe_file_states", [])}
+    present = [path for path in safe_files if path in current]
+    current_head = current_snapshot.head
+
+    drifted = [
+        path for path in present
+        if saved.get(path, {}).get("fingerprint") != current[path].fingerprint
+    ]
+    if drifted:
+        print("PENDING_COMMIT_DRIFT: safe files changed after closeout verification:")
+        for path in drifted:
+            print(f"  - {path}")
+        print("Do not stage automatically; review the drift and start a new verified closeout.")
+        return 1
+
+    if present:
+        if current_head != pre_commit_head and pre_commit_head:
+            print("PENDING_COMMIT_DRIFT: HEAD advanced while verified safe files remain dirty.")
+            print("Review the intervening commit; CodeRail did not stage or commit anything.")
+            return 1
+        staged, detail = stage_exact_files(root, safe_files)
+        if not staged:
+            pending["commit_error"] = detail or "git add failed"
+            write_pending_close(root, pending)
+            print_commit_pending(pending)
+            return PENDING_EXIT
+        transaction.advance(closeout_transaction.Phase.STAGED)
+        committed, detail = commit_staged(root, expected_message)
+        if not committed:
+            pending["commit_error"] = detail or "git commit failed"
+            write_pending_close(root, pending)
+            transaction.mark_commit_pending(safe_files)
+            print_commit_pending(pending)
+            return PENDING_EXIT
+        transaction.advance(closeout_transaction.Phase.COMMITTED)
+    else:
+        if not pre_commit_head or current_head == pre_commit_head:
+            print("PENDING_COMMIT_MISSING: safe files are clean but no commit advanced HEAD.")
+            print("Restore the verified files or review the snapshot before retrying.")
+            return 1
+        committed_paths = changed_paths_between(root, pre_commit_head, current_head or "HEAD")
+        missing = sorted(set(safe_files) - committed_paths)
+        if missing:
+            print("PENDING_COMMIT_INCOMPLETE: the manual commit omitted verified safe files:")
+            for path in missing:
+                print(f"  - {path}")
+            return 1
+        transaction.advance(closeout_transaction.Phase.COMMITTED)
+
+    transaction.advance(closeout_transaction.Phase.PERSISTED)
+    saved_pending = dict(pending)
+    clear_pending_close(root)
+    consistent, residue, inspect_status = post_close_consistency(root, closed_id)
+    transaction.advance(closeout_transaction.Phase.RESCANNED)
+    transaction.finalize(inspect_status=inspect_status, residual_paths=residue)
+    if not transaction.success:
+        write_pending_close(root, saved_pending)
+        print("POST-CLOSE CONSISTENCY FAILED: commit succeeded but finalization is pending.")
+        for path in residue:
+            print(f"  - {path}")
+        return 1
+
+    title = pending.get("title") or task_id
+    verify_results = pending.get("verify_results", [])
+    print(f"== Done: {fmt_id(task_id, task_meta(root, task_id))} - {title} ==")
+    print(f"  verify:      {len(verify_results)}/{len(verify_results)} command(s) preserved")
+    print("  committed:   yes (exact snapshot safe files)")
+    print("  inspect:     consistent")
+    print("  journal:     already persisted; no duplicate entry written")
+    return 0
+
+
 def cmd_done(args) -> int:
     root = Path(args.target).resolve()
+
+    existing_pending = load_pending_close(root)
+    if existing_pending.get("state") == "verified-commit-pending":
+        if getattr(args, "resume", False):
+            return finalize_resumed_closeout(root, existing_pending)
+        print("A verified closeout is already waiting for its exact commit.")
+        print_commit_pending(existing_pending)
+        return PENDING_EXIT
+    if getattr(args, "resume", False):
+        print("Closeout already finalized; no verified-commit-pending snapshot remains.")
+        return 0
 
     tasks_text_before = read_tasks(root)
     task_before = args.task or active_task_id(tasks_text_before)
@@ -1277,14 +1581,16 @@ def cmd_done(args) -> int:
         extra += ["--harness-result", harness]
     if args.manual_acceptance:
         extra += ["--manual-acceptance", args.manual_acceptance]
-    if args.no_commit:
-        extra += ["--no-auto-commit"]
+    # The facade owns the single final commit after every ledger artifact has
+    # been prepared. finish_task remains the state/gate adapter only.
+    extra += ["--no-auto-commit"]
     if getattr(args, "pause_after", False):
         extra += ["--pause-after"]
-    if meta.get("display_id"):
-        extra += ["--commit-message",
-                  f"chore({meta['display_id']}/{task_before}): "
-                  + ("complete task" if args.result == "done" else f"{args.result} checkpoint")]
+    expected_commit_message = (
+        f"chore({meta['display_id']}/{task_before}): "
+        if meta.get("display_id") else f"chore({task_before}): "
+    ) + ("complete task" if args.result == "done" else f"{args.result} checkpoint")
+    extra += ["--commit-message", expected_commit_message]
 
     # FN-018: capture the full gate output instead of dumping 100+ lines.
     rc, gate_output = run_script("finish_task.py", root, extra, capture=True)
@@ -1309,8 +1615,6 @@ def cmd_done(args) -> int:
     )
     if rc in (0, 3) or task_closed_fact:
         transaction.advance(closeout_transaction.Phase.CLASSIFIED)
-        transaction.advance(closeout_transaction.Phase.STAGED)
-        transaction.advance(closeout_transaction.Phase.COMMITTED)
         if rc not in (0, 3):
             print(f"GATE INCONSISTENCY: the gate reported failure (rc={rc}) but")
             print(f"{shown} WAS closed in docs/TASKS.md. Trusting the file: writing")
@@ -1411,21 +1715,10 @@ def cmd_done(args) -> int:
 
         tasks_before_compaction = ""
         compacted_ids: list[str] = []
-        if task_before and not ledger_errors and not args.no_commit:
+        if task_before and not ledger_errors:
             tasks_before_compaction, compacted_ids = compact_persisted_closed_tasks(root)
-            committed, detail = commit_post_close_ledger(root, task_before)
-            if committed:
-                print(f"  ledger commit: {detail}")
-                if compacted_ids:
-                    print(f"  hot TASKS:    compacted {', '.join(compacted_ids)}")
-            else:
-                if tasks_before_compaction:
-                    restored, restore_detail = restore_tasks_after_failed_ledger(
-                        root, tasks_before_compaction
-                    )
-                    if not restored:
-                        detail += f"; TASKS restore failed: {restore_detail}"
-                ledger_errors.append(f"post-close ledger commit: {detail}")
+            if compacted_ids:
+                print(f"  hot TASKS:    compacted {', '.join(compacted_ids)}")
 
         if ledger_errors:
             transaction.fail(closeout_transaction.Failure.PERSIST_FAILED)
@@ -1438,9 +1731,62 @@ def cmd_done(args) -> int:
             print("(the closeout snapshot is kept in .coderail/pending_close.json)")
             return 1
 
+        final_snapshot, final_classification = classify_pending_closeout(
+            root, tasks_text_before, closed_id
+        )
+        unsafe = sorted(set(
+            final_classification.outside
+            + final_classification.forbidden
+            + final_classification.sensitive
+            + final_classification.generated
+            + final_classification.ambiguous
+        ))
+        if unsafe:
+            transaction.fail(closeout_transaction.Failure.BLOCKED_SCOPE, unsafe)
+            reopen_after_close_failure(root, closed_id, tasks_before_compaction)
+            print("FINAL SCOPE CLASSIFICATION FAILED before commit:")
+            for path in unsafe:
+                print(f"  - {path}")
+            print("No commit was created. Repair scope ownership and rerun done.")
+            return 1
+
+        safe_files = list(final_classification.safe)
+        pending = persist_commit_pending(
+            root,
+            task_id=task_before,
+            closed_id=closed_id,
+            safe_files=safe_files,
+            snapshot=final_snapshot,
+            commit_message=expected_commit_message,
+            closeout_mode="manual" if args.no_commit else "auto",
+            scope_classification=closeout_scope_classification(final_classification),
+        )
+
+        if args.no_commit:
+            transaction.mark_commit_pending(safe_files)
+            print_commit_pending(pending)
+            return PENDING_EXIT
+
+        staged, detail = stage_exact_files(root, safe_files)
+        if not staged:
+            pending["commit_error"] = detail or "git add failed"
+            write_pending_close(root, pending)
+            transaction.mark_commit_pending(safe_files)
+            print_commit_pending(pending)
+            return PENDING_EXIT
+        transaction.advance(closeout_transaction.Phase.STAGED)
+        committed, detail = commit_staged(root, expected_commit_message)
+        if not committed:
+            pending["commit_error"] = detail or "git commit failed"
+            write_pending_close(root, pending)
+            transaction.mark_commit_pending(safe_files)
+            print_commit_pending(pending)
+            return PENDING_EXIT
+        transaction.advance(closeout_transaction.Phase.COMMITTED)
         transaction.advance(closeout_transaction.Phase.PERSISTED)
 
-        # Ledger complete: the snapshot has served its purpose.
+        # The exact source + ledger snapshot is durable. Only now may the
+        # ignored recovery record be consumed.
         clear_pending_close(root)
 
         if task_before:
@@ -1662,6 +2008,10 @@ def cmd_next(args) -> int:
         print("Pick it up with:  coderail next --go")
         return 0
 
+    if not validate_task_scope(text, todo["id"], root):
+        print(f"Task Switch Gate did not activate {todo['id']}.")
+        return 1
+
     if dirty_fork and preflight.get("paths"):
         task_switch.consume_closed_pending(root)
     record_activation_baseline(root, todo["id"], preflight["baseline"], dirty_fork=dirty_fork)
@@ -1698,6 +2048,18 @@ def cmd_switch(args) -> int:
         print("Choose one source disposition: --checkpoint or --dirty-fork.")
         return 1
 
+    if args.title:
+        destination_allowed, destination_forbidden = normalize_scope_inputs(
+            root, args.files, args.avoid
+        )
+        if not validate_scope(destination_allowed, destination_forbidden):
+            print("Task Switch Gate left the source and destination unchanged.")
+            return 1
+    elif args.to:
+        if not validate_task_scope(text, args.to, root):
+            print("Task Switch Gate left the source and destination unchanged.")
+            return 1
+
     destination = args.to or args.title
     if active:
         if args.dirty_fork:
@@ -1720,6 +2082,7 @@ def cmd_switch(args) -> int:
                 verbose=args.verbose,
                 next_hint=f"switch to {destination}",
                 no_commit=False,
+                resume=False,
                 pause_after=args.checkpoint,
             )
             rc = cmd_done(done_args)
@@ -1885,6 +2248,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_done.add_argument("--next", dest="next_hint",
                         help="The real next step, written to the journal's Next field (FN-020)")
     p_done.add_argument("--no-commit", action="store_true", help="Do not auto-commit")
+    p_done.add_argument(
+        "--resume", action="store_true",
+        help="Resume an exact verified-commit-pending closeout without rerunning verification",
+    )
     p_done.add_argument("--target", default=".")
 
     p_prog = sub.add_parser("progress", help="Audit or repair the progress journal")

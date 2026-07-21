@@ -171,6 +171,53 @@ def test_files_globs_expand_and_accumulate():
         check('- src/director/director*.ts' in allowed,
               f'glob intent was lost after expansion: {allowed!r}')
 
+def test_start_rejects_scope_contradiction_without_partial_state():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        tasks_path = root/'docs/TASKS.md'
+        meta_path = root/'.coderail/tasks.json'
+        trace_path = root/'docs/TRACELOG.jsonl'
+        before = {
+            'tasks': tasks_path.read_bytes(),
+            'meta': meta_path.read_bytes() if meta_path.exists() else None,
+            'trace': trace_path.read_bytes(),
+        }
+        allowed = 'lib/memory/__tests__/memory-write-effect-gate.test.ts'
+        forbidden = 'lib/memory/**'
+        result = cr('start', 'Contradictory scope', '--files', allowed,
+                    '--avoid', forbidden, '--verify', 'true')
+        check(result.returncode == 1, result.stdout)
+        for expected in ['SCOPE_CONTRADICTION', allowed, forbidden]:
+            check(expected in result.stdout, result.stdout)
+        check('narrow the forbidden' in result.stdout.lower(), result.stdout)
+        check(tasks_path.read_bytes() == before['tasks'],
+              'contradictory start partially wrote TASKS')
+        meta_after = meta_path.read_bytes() if meta_path.exists() else None
+        check(meta_after == before['meta'],
+              'contradictory start partially wrote task metadata')
+        check(trace_path.read_bytes() == before['trace'],
+              'contradictory start partially wrote TRACE')
+        check('Status: [~]' not in tasks_path.read_text(encoding='utf-8'),
+              'contradictory task became active')
+
+def test_exact_production_forbidden_rule_allows_declared_test_scope():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        allowed = 'lib/memory/__tests__/memory-write-effect-gate.test.ts'
+        forbidden = 'lib/memory/memory-store.ts'
+        result = cr('start', 'Narrow memory test', '--files', allowed,
+                    '--avoid', forbidden, '--verify', 'true')
+        check(result.returncode == 0, result.stdout)
+        target = root/allowed
+        target.parent.mkdir(parents=True)
+        target.write_text('test\n', encoding='utf-8')
+        result = cr('done')
+        check(result.returncode == 0, result.stdout)
+        check('== Done:' in result.stdout, result.stdout)
+        tracked = subprocess.check_output(
+            ['git', '-C', td, 'ls-files', allowed], text=True).strip()
+        check(tracked == allowed, tracked)
+
 def test_closeout_transaction_failure_suppresses_success_and_keeps_exact_paths():
     sys.path.insert(0, str(ROOT/'scripts'))
     import closeout_transaction
@@ -330,7 +377,7 @@ def test_snapshot_survives_ledger_failure_and_repair_restores_params():
         check(not (root/'.coderail/pending_close.json').exists(),
               'snapshot must be consumed by repair')
 
-def test_ledger_commit_failure_restores_hot_task_until_repair_commits():
+def test_single_snapshot_commit_eliminates_post_source_ledger_failure_window():
     with tempfile.TemporaryDirectory() as td:
         root, cr = _lifecycle_env(td)
         r = cr('start', 'Rejected ledger commit', '--verify', 'true')
@@ -347,21 +394,18 @@ def test_ledger_commit_failure_restores_hot_task_until_repair_commits():
             ['git', '-C', td, 'config', 'core.hooksPath', str(root/'.git/hooks')]
         )
         r = cr('done')
-        check(r.returncode == 1 and 'LEDGER ERROR' in r.stdout, r.stdout)
-        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
-        check('Rejected ledger commit' in tasks and 'Status: [x]' in tasks,
-              'failed commit must restore the full closed body for recovery')
-        check((root/'.coderail/pending_close.json').exists(),
-              'failed ledger commit must retain closeout snapshot')
-        hook.unlink()
-        (root/'.git/hooks/pre-commit').unlink()
-        r = cr('progress', '--repair')
-        check(r.returncode == 0, r.stdout)
+        check(r.returncode == 0 and '== Done:' in r.stdout, r.stdout)
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check('Rejected ledger commit' not in tasks and 'Status: [x]' not in tasks,
-              'successful repair must compact the now-durable completed body')
+              'single snapshot commit must persist and compact the completed body')
         check(not (root/'.coderail/pending_close.json').exists(),
-              'successful repair must consume the closeout snapshot')
+              'successful single commit must consume the closeout snapshot')
+        check((root/'.git/hooks/pre-commit').exists(),
+              'post-commit fixture did not install the second-commit rejection hook')
+        progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
+        trace = (root/'docs/TRACELOG.jsonl').read_text(encoding='utf-8')
+        check('Rejected ledger commit' in progress and '"type": "verify"' in trace,
+              'source and ledger facts were not persisted atomically')
 
 def test_failed_done_on_open_task_still_says_rerun():
     # FN-027: "run done again" is only printed when the task is genuinely
