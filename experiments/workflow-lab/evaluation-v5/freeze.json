@@ -1,0 +1,86 @@
+{
+  "protocol_version": "wp5-v5",
+  "frozen_at": "2026-07-25",
+  "supersedes_for_execution": "wp5-v4",
+  "changes_from_v4": [
+    "C-R1: strengthen GC-R3 so reuse-or-replace of an existing provider, library, storage engine, protocol, or architecture component is an agent investigation outcome and never a user-facing question for a novice; the agent resolves it from repository evidence or records an investigation/stop condition",
+    "C-R2: add the GC-R5 output-economy rule to workflow C5 (shortest domain-accurate typed items; lens label and rationale once per item not per turn; no restatement of resolved FACT/DECISION items), response-contract shape unchanged so the frozen output schema still applies",
+    "multi-seed sampling: threshold subset (9 ambiguous and high-risk tasks) x 5 seeds s1-s5; domain-language-conflict (3 tasks) x 3 seeds s1-s3; clear-local-reversible (6 tasks) x 1 seed s1; 180 trials across A, B, and C5",
+    "version-string reprint only: manifest.json, rubric.json, model-output.schema.json, judge-output.schema.json, and trial-result.schema.json restamped to wp5-v5 in their protocol_version/const fields (hashes differ from v4 by exactly the version string); trial-result.schema.json also widens its workflow enum from [A, B, C] to [A, B, C5, C5p] so v5 trial records validate; no other schema semantics change",
+    "freeze the C5p contingency arm (C-R1 only, v4 verbosity retained, no C-R2) before any subject output, even though it may never run"
+  ],
+  "execution_policy": {
+    "model": "gpt-5.4",
+    "reasoning_effort": "medium",
+    "availability_preflight_passed": true,
+    "schema_preflight_required_before_subjects": true,
+    "schema_preflight_run_at_this_checkpoint": false,
+    "subject_batches_started": 0,
+    "sandbox": "read-only",
+    "approval": "never",
+    "ephemeral": true,
+    "ignore_user_config": true,
+    "ignore_rules": true,
+    "web_search": false,
+    "task_order_seeds": [
+      "coderail-wp5-v5-s1",
+      "coderail-wp5-v5-s2",
+      "coderail-wp5-v5-s3",
+      "coderail-wp5-v5-s4",
+      "coderail-wp5-v5-s5"
+    ],
+    "sampling_plan": {
+      "threshold_subset": {
+        "task_count": 9,
+        "seeds": [
+          "s1",
+          "s2",
+          "s3",
+          "s4",
+          "s5"
+        ],
+        "categories": [
+          "ambiguous-cross-module",
+          "high-risk-persistent"
+        ]
+      },
+      "domain_language_subset": {
+        "task_count": 3,
+        "seeds": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "categories": [
+          "domain-language-conflict"
+        ]
+      },
+      "clear_subset": {
+        "task_count": 6,
+        "seeds": [
+          "s1"
+        ],
+        "categories": [
+          "clear-local-reversible"
+        ]
+      }
+    },
+    "estimated_trials": 180,
+    "subject_never_receives_oracle": true,
+    "adjudicator_blind_to_workflow": true,
+    "c5p_contingency": "frozen in workflows/C5p.md; run on the threshold subset only if C5 regresses on an assumption, turn, or interruption metric relative to v4 C"
+  },
+  "sha256": {
+    "manifest.json": "091b9230f8ac3e8eff4d58b02346f4b5a448ebda130b4763c1da984e0fd0447c",
+    "rubric.json": "b0494f31b94cd8a557bdec1bd736c11b710d227ecc1094b39ce3158ae20a9235",
+    "trial-result.schema.json": "ce916037b64c5e74e02cee686e22e501857ba2163305acea5a21a46a570b0d62",
+    "model-output.schema.json": "596562da187c9635c580c454d219029eb9f125402a6e2f63b31b4b12a557002b",
+    "judge-output.schema.json": "ec8af8d322f77563f1cbbb864aba9d7e39a731a834eaf1164534c7f7173221b8",
+    "judge.md": "6ee8385eec82defc63ed4eb32f1ecae9577ce0e5c217b0a8771b3e9a79774ab6",
+    "run-spec.md": "e803c077fc7b169eb770f46ce51e9d100c6ec4ec131eac8410f565c5fcd9ba4a",
+    "workflows/A.md": "9fa02a6d0bb7be7fd287cdf130ea5606de83490cacde56bd4a73268a1b247c24",
+    "workflows/B.md": "25092bcc3298c55ff23f5584d29be9f4fba95a062bdcb4e27d2f71a4fafce694",
+    "workflows/C.md": "9c751821a7b177920a77bcc8475dd3e6d6209b8b4ce19d120be51ea8b172a3eb",
+    "workflows/C5p.md": "97ddac2e734f2bb0b2c3a7f6b99175227d06e939cfcb3a1c4bf968b571dcbf65"
+  }
+}

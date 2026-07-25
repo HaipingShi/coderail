@@ -213,3 +213,49 @@ The aggregate decision remains `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
 Implementation corrections, scope edits, CodeRail closeout, post-close defects,
 and promotion reversals remain null. Nothing in v4 authorizes native
 integration.
+
+## v5 freeze checkpoint
+
+The `wp5-v5` pretrial inputs are frozen in `evaluation-v5/` before any subject
+output. This checkpoint applies the three v4 disposition items only: the C-R1
+provider-question elimination, the C-R2 output-economy rule, and a multi-seed
+sampling plan for attribution. The aggregate decision remains
+`INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
+
+Version stamping follows the v3-to-v4 precedent. `manifest.json`,
+`rubric.json`, `model-output.schema.json`, `judge-output.schema.json`, and
+`trial-result.schema.json` are restamped to `wp5-v5` in their
+`protocol_version`/`const` fields, so their hashes differ from v4 by exactly
+the version string; `trial-result.schema.json` additionally widens its workflow
+enum from `[A, B, C]` to `[A, B, C5, C5p]` so v5 trial records validate. The
+18 task packets, hidden oracles, rubric content, judge prompt, and workflows A
+and B remain byte-identical to v4. The C5 arm (`workflows/C.md`) is v4 C plus
+the strengthened GC-R3 and the new GC-R5 output-economy rule. The C5p
+contingency (`workflows/C5p.md`) is v4 C plus the strengthened GC-R3 only,
+retaining v4 verbosity; it is frozen here even though it may never run.
+
+Key SHA-256 (`evaluation-v5/freeze.json`):
+
+- `workflows/C.md` (C5): `9c751821a7b177920a77bcc8475dd3e6d6209b8b4ce19d120be51ea8b172a3eb`
+- `workflows/C5p.md` (contingency): `97ddac2e734f2bb0b2c3a7f6b99175227d06e939cfcb3a1c4bf968b571dcbf65`
+- `manifest.json`: `091b9230f8ac3e8eff4d58b02346f4b5a448ebda130b4763c1da984e0fd0447c`
+- `trial-result.schema.json`: `ce916037b64c5e74e02cee686e22e501857ba2163305acea5a21a46a570b0d62`
+- `run-spec.md`: `e803c077fc7b169eb770f46ce51e9d100c6ec4ec131eac8410f565c5fcd9ba4a`
+
+Byte-identical to v4: `workflows/A.md` (`9fa02a6d...`), `workflows/B.md`
+(`25092bcc...`), and `judge.md` (`6ee8385e...`).
+
+Sampling plan: threshold subset (9 ambiguous and high-risk tasks) x 5 seeds,
+domain-language-conflict (3 tasks) x 3 seeds, clear-local-reversible (6 tasks)
+x 1 seed, for 180 trials across A, B, and C5. The domain-language subset is
+sampled because it drove the v4 token excess; without it the token gate has no
+measurement surface. Gate 4 is evaluated on pooled subject tokens per category
+across that category's seeds, C5 versus A.
+
+This checkpoint records no subject output, no judge output, and no schema
+preflight; `subject_batches_started` is 0 and
+`schema_preflight_run_at_this_checkpoint` is false. The freeze is protocol and
+service-compatibility preparation only. It is not a trial, it constitutes no
+evidence that C improved, and it does not authorize ADOPT. The schema preflight
+with zero task or oracle payloads precedes the first subject batch at the next
+stage.
