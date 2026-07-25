@@ -245,6 +245,8 @@ WP4 result:
 
 ### WP5 - Run comparative evaluation
 
+Status: pretrial protocol frozen; trials pending
+
 Compare:
 
 ```text
@@ -297,6 +299,25 @@ Acceptance threshold for a native-pack proposal:
 - Median human interruptions do not increase for clear tasks.
 
 These thresholds authorize a proposal, not automatic integration.
+
+WP5 frozen baseline:
+
+- `evaluation/manifest.json` contains 18 tasks: 6 clear/local/reversible,
+  6 ambiguous/cross-module, 3 high-risk/persistent, and 3 domain-language
+  conflicts.
+- `evaluation/workflows/A.md`, `B.md`, and `C.md` isolate the three treatments
+  behind one response contract.
+- `evaluation/rubric.json` defines independent observation rules for every
+  planned metric and preserves the original adoption thresholds.
+- `evaluation/trial-result.schema.json` separates raw model response references
+  from adjudicated observations; missing implementation evidence stays null.
+- `evaluation/freeze.json` pins all pretrial content hashes and the model,
+  reasoning, sandbox, configuration, ordering, and blinding policy.
+- `scripts/score_evaluation.py` aggregates only adjudicated result fields.
+
+No trial result existed when the hashes were frozen. Any later edit to a
+pretrial input creates a new protocol version instead of silently changing
+`wp5-v1`.
 
 ### WP6 - Review adoption
 

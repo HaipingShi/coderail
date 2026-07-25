@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Freeze Guided Convergence evaluation protocol (T-023)
+
+- Done: Freeze Guided Convergence evaluation protocol
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Run wp5-v1 contract-phase A/B/C trials against the frozen hashes without modifying pretrial inputs
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: manifest contains exactly 18 balanced tasks and both novice and expert inputs
+- Acceptance [done]: A/B/C prompts share one output contract while preserving their workflow differences
+- Acceptance [done]: rubric maps every planned metric to objective fields and adoption thresholds
+- Acceptance [done]: freeze hashes and deterministic scorer pass tests before any result file exists
+
 ## 2026-07-25 - Compose guided contract orchestration (T-022)
 
 - Done: Compose guided contract orchestration

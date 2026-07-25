@@ -83,16 +83,20 @@ routing, and invocation policy from the fixtures.
 
 ## Evaluation
 
-Run the pack only in disposable or explicitly selected projects. Compare it
-with baseline CodeRail on:
+WP5 freezes its pretrial inputs under `evaluation/` before recording results:
 
-- first-pass `done` success;
-- turns to a red-capable reproduction;
-- out-of-scope edits;
-- reopened tasks or post-close defects;
-- human decision interruptions;
-- review findings that cause real corrections;
-- required governance-context size.
+- `manifest.json`: 18 balanced task packets and hidden scoring oracles.
+- `workflows/A.md`: baseline CodeRail contract drafting.
+- `workflows/B.md`: expert grilling with immediate documentation.
+- `workflows/C.md`: Guided Convergence.
+- `rubric.json` and `trial-result.schema.json`: blind observation rules.
+- `freeze.json`: SHA-256 hashes and fixed model execution settings.
+- `scripts/score_evaluation.py`: deterministic aggregation that never accepts
+  model self-scoring as observation.
+
+Contract-phase and implementation-phase evidence remain distinct. A contract
+trial may measure route, questions, assumptions, interruptions, and tokens, but
+unobserved implementation fields remain `null` and cannot authorize adoption.
 
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Guided Convergence Trial Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "task_id",
+    "workflow",
+    "model",
+    "response",
+    "observation"
+  ],
+  "properties": {
+    "protocol_version": {
+      "const": "wp5-v1"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "workflow": {
+      "enum": ["A", "B", "C"]
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "reasoning_effort"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "reasoning_effort": {
+          "type": "string"
+        },
+        "cli_version": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw_path"],
+      "properties": {
+        "raw_path": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "turns_before_readiness",
+        "useful_questions",
+        "user_visible_technical_choices",
+        "unsupported_assumptions",
+        "post_start_contract_corrections",
+        "out_of_scope_edits",
+        "first_pass_done",
+        "reopened_or_post_close_defects",
+        "promotion_reversals",
+        "total_tokens",
+        "human_interruptions",
+        "quick_path_correct"
+      ],
+      "properties": {
+        "turns_before_readiness": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "useful_questions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "user_visible_technical_choices": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unsupported_assumptions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "post_start_contract_corrections": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "out_of_scope_edits": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "first_pass_done": {
+          "type": ["boolean", "null"]
+        },
+        "reopened_or_post_close_defects": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "promotion_reversals": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "human_interruptions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "quick_path_correct": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -673,5 +673,93 @@
         }
       ]
     }
+  },
+  "T-023": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_protocol.py"
+    ],
+    "accept": [
+      "manifest contains exactly 18 balanced tasks and both novice and expert inputs",
+      "A/B/C prompts share one output contract while preserving their workflow differences",
+      "rubric maps every planned metric to objective fields and adoption thresholds",
+      "freeze hashes and deterministic scorer pass tests before any result file exists"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T05:39:20.907852+00:00",
+      "head": "fc6f35e2dc7a09bd2bda3eb7ebe2d01a2df93323",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-25T05:54:35.552930+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation/freeze.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation/manifest.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation/rubric.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation/trial-result.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation/workflows/A.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation/workflows/B.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation/workflows/C.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/scripts/score_evaluation.py"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_protocol.py"
+        }
+      ]
+    }
   }
 }
