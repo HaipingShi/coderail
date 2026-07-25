@@ -335,9 +335,123 @@
       "captured_at": "2026-07-17T14:55:21.229322+00:00",
       "head": "9d3c6e5b0afbad2e5a73c5f232b5ae9d9d472447",
       "files": []
+    }
+  },
+  "T-019": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_guided_convergence_protocol.py"
+    ],
+    "accept": [
+      "Contract Draft fixture distinguishes FACT ASSUMPTION DECISION and UNKNOWN",
+      "Draft Delta contains only changed item references",
+      "Four initial scenarios encode expected route and at most one first question",
+      "Readiness and glossary ADR promotion invariants are executable"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T03:34:58.192754+00:00",
+      "head": "a02d7f95ec24a117f7a38a0e988e5ddc0f58e6a3",
+      "files": []
     },
+    "pause": {
+      "reason": "dirty-fork",
+      "paused_at": "2026-07-25T04:00:18.952054+00:00",
+      "resume": "coderail switch --to T-019"
+    }
+  },
+  "T-020": {
+    "verify": [
+      "python tests/test_closeout.py"
+    ],
+    "tests": [
+      "tests/test_closeout.py"
+    ],
+    "accept": [
+      "A tracked path reported M with an empty unstaged diff is omitted",
+      "Real staged and unstaged modifications remain classified",
+      "The Windows commit-pending regression passes"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T04:00:19.154417+00:00",
+      "head": "a02d7f95ec24a117f7a38a0e988e5ddc0f58e6a3",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json",
+          "fingerprint": "b6e636588626a000080c6f5f73e30ed23c87aac7f7fc3a200d30360ae1990ec8"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md",
+          "fingerprint": "8e1e3795332eec3ec4aac3f76c845378a4cc838f7ed65d15eb64e9edfa6a6290"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md",
+          "fingerprint": "a7b0de975412b7e7bc69a6e9235a4f3cbee1c1f29b1eed1bcf12694a7a462f3c"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md",
+          "fingerprint": "158b4f6e4f382ba3f89b32ede8e7a2e13bd8e8f21fed1bacc335350774ad08a1"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl",
+          "fingerprint": "c5548969414d128bec4f4f013a2c1f5a5dcc8287935c1b831c35e7c0dee9559a"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md",
+          "fingerprint": "eec44e8df6cbc05ee295d0b51347ac036d3f574245d18bcb3c028e9be4f445e1"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md",
+          "fingerprint": "514b5b41610b05545f5479dbfc8d9497ea6de0b1b2c4033eaad80c93c4493ec9"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md",
+          "fingerprint": "4734229d8616f90673b8b1736f5c6c28f5a0163823cd2ccdf126111e03d1499f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/contract-draft.md",
+          "fingerprint": "1d629ec3e975ec4f149e8a24ab653bcf76c9131b0b5ddd033798d667d7bf1dc0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/draft-delta.md",
+          "fingerprint": "53c38d33aedd90e6499af08d4f59b419f94d94bd8311761b2008fddf44e413c9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/promotion-cases.json",
+          "fingerprint": "dcb8ac4037d6b995d48af408ca55dffc6a14ff528267df10931b09b889bfb9de"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/protocol.json",
+          "fingerprint": "ed0a20c04520c05f846898a4fee516bb43f905fc38e2c206637dfe3a21c2a715"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/scenarios.json",
+          "fingerprint": "0175f4d9ee996f42380b6d42f4c819a6201cb8a2c59b181c35b553a37cf9a82f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_guided_convergence_protocol.py",
+          "fingerprint": "63f1aa6d02bb7757f46b7330cc71c1a7f63eed0827384108134d8e15eeeb1d44"
+        }
+      ]
+    },
+    "dirty_fork": true,
     "closed_pending": {
-      "recorded_at": "2026-07-21T06:42:00.774778+00:00",
+      "recorded_at": "2026-07-25T04:13:51.044672+00:00",
       "files": [
         {
           "status": " M",
@@ -345,27 +459,7 @@
         },
         {
           "status": " M",
-          "path": "README.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/CLOSEOUT_CONVERGENCE.md"
-        },
-        {
-          "status": " M",
           "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/DECISIONS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/HARNESS_SPEC.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/NORTH_STAR.md"
         },
         {
           "status": " M",
@@ -381,39 +475,11 @@
         },
         {
           "status": " M",
-          "path": "scripts/closeout_check.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/closeout_transaction.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/coderail.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/done_gate.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/inspect_state.py"
-        },
-        {
-          "status": " M",
           "path": "scripts/repository_state.py"
         },
         {
           "status": " M",
           "path": "tests/test_closeout.py"
-        },
-        {
-          "status": " M",
-          "path": "tests/test_lifecycle.py"
-        },
-        {
-          "status": " M",
-          "path": "tests/test_task_switch.py"
         }
       ]
     }

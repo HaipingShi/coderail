@@ -68,6 +68,21 @@ def _git(root: Path, args: list[str], *, text: bool = True):
     )
 
 
+def _diff_names(root: Path, *, cached: bool) -> set[str] | None:
+    args = ["diff"]
+    if cached:
+        args.append("--cached")
+    args += ["--name-only", "-z", "--"]
+    result = _git(root, args, text=False)
+    if result.returncode != 0:
+        return None
+    return {
+        os.fsdecode(raw).replace("\\", "/")
+        for raw in (result.stdout or b"").split(b"\0")
+        if raw
+    }
+
+
 def fingerprint_path(root: Path, relative: str) -> str:
     path = root / relative
     if not path.exists() and not path.is_symlink():
@@ -94,6 +109,10 @@ def capture(
     include_ignored: bool = False,
     fingerprints: bool = False,
 ) -> RepositorySnapshot:
+    # Refresh stat metadata before reading porcelain. Git can otherwise retain
+    # a Windows line-ending rewrite as modified even when the normalized blob
+    # has no content diff.
+    _git(root, ["update-index", "-q", "--refresh"])
     args = ["status", "--porcelain=v1", "-z", "--untracked-files=all"]
     if include_ignored:
         args.append("--ignored=matching")
@@ -117,6 +136,40 @@ def capture(
                     original_path = os.fsdecode(original).replace("\\", "/")
             fingerprint = fingerprint_path(root, path) if fingerprints else None
             files.append(FileState(status, path, original_path, fingerprint))
+
+        # On Windows with core.autocrlf=true, porcelain can retain an `M`
+        # whose normalized content has no diff. Do not turn that stat-cache
+        # artifact into task ownership. Fail closed if either diff query fails.
+        index_modified = any(row.status[0] == "M" for row in files)
+        worktree_modified = any(row.status[1] == "M" for row in files)
+        staged_names = _diff_names(root, cached=True) if index_modified else None
+        unstaged_names = _diff_names(root, cached=False) if worktree_modified else None
+        normalized: list[FileState] = []
+        for row in files:
+            index_status, worktree_status = row.status
+            if (
+                index_status == "M"
+                and staged_names is not None
+                and row.path not in staged_names
+            ):
+                index_status = " "
+            if (
+                worktree_status == "M"
+                and unstaged_names is not None
+                and row.path not in unstaged_names
+            ):
+                worktree_status = " "
+            status = index_status + worktree_status
+            if status != "  ":
+                normalized.append(
+                    FileState(
+                        status,
+                        row.path,
+                        row.original_path,
+                        row.fingerprint,
+                    )
+                )
+        files = normalized
     head = _git(root, ["rev-parse", "HEAD"])
     return RepositorySnapshot(
         datetime.now(timezone.utc).isoformat(),

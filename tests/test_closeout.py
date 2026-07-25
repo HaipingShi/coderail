@@ -1,5 +1,27 @@
 from test_support import *
-from test_support import _assert_done_inspect_consistent, _lifecycle_env
+from test_support import _lifecycle_env
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from scripts import repository_state
+
+
+def _assert_done_inspect_consistent(root, cr, expected_paths):
+    result = cr('done')
+    check(result.returncode == 0, result.stdout)
+    check('== Done:' in result.stdout, result.stdout)
+    inspect = cr('inspect', '--no-write')
+    check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
+    check('Closed-task uncommitted ownership: none' in inspect.stdout, inspect.stdout)
+    snapshot = repository_state.capture(root)
+    check(not snapshot.files, snapshot)
+    committed = set(subprocess.check_output(
+        ['git', '-C', str(root), 'show', '--pretty=', '--name-status', 'HEAD~2..HEAD'],
+        text=True, encoding='utf-8').splitlines())
+    for path in expected_paths:
+        check(any(path in row for row in committed),
+              f'{path} missing from closeout commits: {committed}')
+
 
 def _pending_close(root):
     return json.loads((root/'.coderail/pending_close.json').read_text(encoding='utf-8'))
@@ -9,6 +31,39 @@ def _commit_pending_files(root, pending):
     subprocess.check_call([
         'git', '-C', str(root), 'commit', '-qm', pending['expected_commit_message']
     ])
+
+
+def test_repository_snapshot_omits_phantom_m_but_keeps_real_modifications():
+    def fake_git(root, args, *, text=True):
+        if args[0] == 'update-index':
+            return SimpleNamespace(returncode=0, stdout='')
+        if args[0] == 'status':
+            return SimpleNamespace(
+                returncode=0,
+                stdout=(
+                    b' M docs/TASKS.md\0'
+                    b' M real-worktree.txt\0'
+                    b'M  real-staged.txt\0'
+                ),
+            )
+        if args[:2] == ['diff', '--cached']:
+            return SimpleNamespace(returncode=0, stdout=b'real-staged.txt\0')
+        if args[0] == 'diff':
+            return SimpleNamespace(returncode=0, stdout=b'real-worktree.txt\0')
+        if args[:2] == ['rev-parse', 'HEAD']:
+            return SimpleNamespace(returncode=0, stdout='abc123\n')
+        raise AssertionError(args)
+
+    with patch.object(repository_state, '_git', side_effect=fake_git):
+        snapshot = repository_state.capture(Path('.'))
+
+    check(
+        [(row.status, row.path) for row in snapshot.files] == [
+            (' M', 'real-worktree.txt'),
+            ('M ', 'real-staged.txt'),
+        ],
+        snapshot,
+    )
 
 def test_done_commits_file_created_after_start_under_glob_and_inspect_is_healthy():
     with tempfile.TemporaryDirectory() as td:
@@ -304,9 +359,8 @@ def test_manual_exact_commit_then_resume_finalizes_without_coderail_residue():
         check(result.returncode == 0 and '== Done:' in result.stdout, result.stdout)
         check(not (root/'.coderail/pending_close.json').exists(),
               'finalize must consume the pending snapshot')
-        status = subprocess.check_output(
-            ['git', '-C', td, 'status', '--porcelain'], text=True).strip()
-        check(not status, status)
+        snapshot = repository_state.capture(root)
+        check(not snapshot.files, snapshot)
         inspect = cr('inspect', '--no-write')
         check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
 
@@ -330,9 +384,10 @@ def test_permission_recovery_resume_retries_only_exact_pending_files():
             text=True, encoding='utf-8').splitlines())
         check(committed == set(pending['safe_files']),
               f'resume commit differs from exact safe snapshot: {committed} != {pending["safe_files"]}')
-        check(not subprocess.check_output(
-            ['git', '-C', td, 'status', '--porcelain'], text=True).strip(),
-            'permission recovery left closeout residue')
+        check(
+            not repository_state.capture(root).files,
+            'permission recovery left closeout residue',
+        )
 
 def test_explicit_no_commit_snapshots_all_generated_closeout_files_without_post_dirty():
     with tempfile.TemporaryDirectory() as td:
@@ -377,9 +432,12 @@ def test_pending_recovery_never_stages_or_rewrites_unrelated_dirty_files():
         check(result.returncode == 0, result.stdout)
         check(unrelated.read_text(encoding='utf-8') == 'user-owned\n',
               'resume rewrote unrelated content')
-        status = subprocess.check_output(
-            ['git', '-C', td, 'status', '--short'], text=True)
-        check(status.strip() == '?? notes.txt', status)
+        snapshot = repository_state.capture(root)
+        check(
+            [(row.status, row.path) for row in snapshot.files]
+            == [('??', 'notes.txt')],
+            snapshot,
+        )
         tracked = subprocess.check_output(
             ['git', '-C', td, 'ls-files', 'notes.txt'], text=True).strip()
         check(not tracked, tracked)
@@ -506,7 +564,7 @@ def test_runtime_has_no_repository_state_compatibility_adapters():
         tree = ast.parse(source)
         names.extend(node.name for node in tree.body
                      if isinstance(node, ast.FunctionDef) and node.name.startswith('test_'))
-    check(len(names) == 121 and len(names) == len(set(names)),
+    check(len(names) == 122 and len(names) == len(set(names)),
           f'test inventory changed or contains duplicates: {len(names)}/{len(set(names))}')
 
 def test_closeout_transaction_is_the_only_success_authority():

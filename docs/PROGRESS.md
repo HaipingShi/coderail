@@ -3,6 +3,16 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Ignore phantom Git modifications on Windows (T-020)
+
+- Done: Ignore phantom Git modifications on Windows
+- Checked by: `python tests/test_closeout.py` exit 0
+- Next: Resume T-019 and close the Guided Convergence WP1 fixtures
+- Evidence: `python tests/test_closeout.py` -> exit 0
+- Acceptance [done]: A tracked path reported M with an empty unstaged diff is omitted
+- Acceptance [done]: Real staged and unstaged modifications remain classified
+- Acceptance [done]: The Windows commit-pending regression passes
+
 ## 2026-07-21 - Fix scope contradiction and recoverable closeout commit pending (T-018)
 
 - Done: Fix scope contradiction and recoverable closeout commit pending
