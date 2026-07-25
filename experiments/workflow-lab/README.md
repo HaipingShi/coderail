@@ -98,6 +98,13 @@ Contract-phase and implementation-phase evidence remain distinct. A contract
 trial may measure route, questions, assumptions, interruptions, and tokens, but
 unobserved implementation fields remain `null` and cannot authorize adoption.
 
+The `wp5-v1` availability preflight stopped before any subject trial:
+`gpt-5.6-terra` requires a newer local Codex version, and the frozen schema also
+made `promotion_reversals` non-nullable despite being unobservable in a
+contract-only trial. Both findings are recorded under
+`evaluation/results/wp5-v1`; no silent model substitution or false zero was
+accepted. A corrected `wp5-v2` must be frozen before execution.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 

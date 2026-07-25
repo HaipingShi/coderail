@@ -1,0 +1,24 @@
+{
+  "protocol_version": "wp5-v1",
+  "status": "aborted-before-trials",
+  "subject_trials_started": 0,
+  "frozen_model": "gpt-5.6-terra",
+  "reasoning_effort": "medium",
+  "observed_error": {
+    "http_status": 400,
+    "message": "The gpt-5.6-terra model requires a newer version of Codex.",
+    "stage": "model availability preflight"
+  },
+  "fallback_preflight": {
+    "model": "gpt-5.4",
+    "reasoning_effort": "medium",
+    "status": "available",
+    "used_for_subject_trial": false
+  },
+  "protocol_defect": {
+    "field": "promotion_reversals",
+    "problem": "wp5-v1 requires an integer even though a contract-only trial cannot observe later reversal.",
+    "required_fix": "A new protocol version must allow null for unobserved follow-through metrics."
+  },
+  "decision": "Do not substitute a model or alter a metric after freezing. Create wp5-v2 before running subjects."
+}

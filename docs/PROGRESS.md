@@ -3,6 +3,13 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Run frozen wp5-v1 comparative trials (T-024)
+
+- Done: Run frozen wp5-v1 comparative trials
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Freeze wp5-v2 with gpt-5.4 and nullable follow-through metrics, then run contract-phase trials
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+
 ## 2026-07-25 - Freeze Guided Convergence evaluation protocol (T-023)
 
 - Done: Freeze Guided Convergence evaluation protocol

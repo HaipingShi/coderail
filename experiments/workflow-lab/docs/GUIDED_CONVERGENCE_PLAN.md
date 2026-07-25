@@ -245,7 +245,7 @@ WP4 result:
 
 ### WP5 - Run comparative evaluation
 
-Status: pretrial protocol frozen; trials pending
+Status: wp5-v1 preflight aborted before trials; wp5-v2 correction required
 
 Compare:
 
@@ -318,6 +318,17 @@ WP5 frozen baseline:
 No trial result existed when the hashes were frozen. Any later edit to a
 pretrial input creates a new protocol version instead of silently changing
 `wp5-v1`.
+
+WP5 preflight:
+
+- The installed Codex CLI cannot run the frozen `gpt-5.6-terra` model; the
+  service returned HTTP 400 before a subject response.
+- `gpt-5.4` at medium reasoning passed a separate availability probe but was
+  not substituted into `wp5-v1`.
+- Preflight review found that `promotion_reversals` must allow null in
+  contract-only trials, just like unobserved implementation fields.
+- `evaluation/results/wp5-v1/preflight.jsonl` records both facts. Subject trial
+  count remains zero and all frozen hashes remain intact.
 
 ### WP6 - Review adoption
 
