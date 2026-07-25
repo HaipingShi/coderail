@@ -124,3 +124,62 @@ P — Persist
 - TASKS, TRACE
 Pause reason: dirty-fork
 Resume command: coderail switch --to T-028
+
+## T-030 Run frozen wp5-v3 contract trials
+
+Status: [p]
+Type: docs
+Rail: light
+
+### CodeRail Coordinate
+
+G — Goal
+- Execute the schema-preflighted 18-task A/B/C contract simulation with blind judging and report only observed evidence
+
+T — Task
+- Run frozen wp5-v3 contract trials
+
+S — Scope
+Allowed:
+  - experiments/workflow-lab/evaluation-v3/results/**
+  - experiments/workflow-lab/scripts/run_evaluation.py
+  - experiments/workflow-lab/tests/test_evaluation_v3_results.py
+  - experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md
+  - experiments/workflow-lab/README.md
+  - experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md
+Forbidden:
+  - scripts
+  - project-template
+  - skills
+  - references
+  - experiments/workflow-lab/skills
+  - experiments/workflow-lab/evaluation
+  - experiments/workflow-lab/evaluation-v2
+  - experiments/workflow-lab/evaluation-v3/manifest.json
+  - experiments/workflow-lab/evaluation-v3/rubric.json
+  - experiments/workflow-lab/evaluation-v3/trial-result.schema.json
+  - experiments/workflow-lab/evaluation-v3/model-output.schema.json
+  - experiments/workflow-lab/evaluation-v3/judge-output.schema.json
+  - experiments/workflow-lab/evaluation-v3/freeze.json
+  - experiments/workflow-lab/evaluation-v3/workflows
+  - experiments/workflow-lab/evaluation-v3/judge.md
+  - experiments/workflow-lab/evaluation-v3/run-spec.md
+  - experiments/workflow-lab/evaluation-v3/preflight
+
+V — Verify
+- 12 subject batches and 4 blind judge batches cover all 54 cells, aggregate contract metrics, and preserve null follow-through evidence
+- Run: `python -m unittest discover -s experiments/workflow-lab/tests -v` (must exit 0)
+
+A — Acceptance
+- [ ] all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
+- [ ] all v3 pretrial hashes remain unchanged
+- [ ] workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
+- [ ] report states contract-phase limitations and does not make an adoption decision from null implementation evidence
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+Pause reason: dirty-fork
+Resume command: coderail switch --to T-030

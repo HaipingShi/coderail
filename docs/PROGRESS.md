@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Finalize wp5-v3 results and lifecycle assertions (T-031)
+
+- Done: Finalize wp5-v3 results and lifecycle assertions
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Revise Guided Convergence treatment C around audit boundaries, decision dependencies, and novice technical choices before a v4 rerun
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: all 54 cells and 16 batches remain complete and unchanged
+- Acceptance [done]: preflight assertions verify historical metadata rather than forbidding later results
+- Acceptance [done]: frozen hashes and workflow-masked judge inputs pass
+- Acceptance [done]: report records the unfavorable C metrics and withholds adoption
+
 ## 2026-07-25 - Record v2 preflight and freeze service-compatible v3 (T-029)
 
 - Done: Record v2 preflight and freeze service-compatible v3

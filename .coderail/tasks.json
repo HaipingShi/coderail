@@ -646,9 +646,876 @@
         }
       ]
     },
+    "dirty_fork": true
+  },
+  "T-030": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v3_results.py"
+    ],
+    "accept": [
+      "all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures",
+      "all v3 pretrial hashes remain unchanged",
+      "workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence",
+      "report states contract-phase limitations and does not make an adoption decision from null implementation evidence"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T07:12:26.453847+00:00",
+      "head": "35a78dc9ffa3c5a8b63a58b437ed56be0fc048f5",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md",
+          "fingerprint": "6b886c0b15c32dd4993632006d8dca5d968e94c97788618465fba2a3cbf2659c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/events/subject-A-ambiguous-cross-module.jsonl",
+          "fingerprint": "6c471168ac7cef69a1c4983d05c0b63fcfc39f5920677e8c078bb93ee84c2328"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/preflight.jsonl",
+          "fingerprint": "9aeab1cfba09a91d7909d18cbcd4965dea1ffc22cc5a9e3cdc446ecfc266fe22"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/run-metadata.json",
+          "fingerprint": "ec1bc1b486b69d49329e8b9dc2147ccd9ddb436c9fd73b48efd40821760b9e3a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v2_results.py",
+          "fingerprint": "7c41eed4a7a0d442e863f243cedd10fe5983bfbb6223815bcf201f9987b4bafa"
+        }
+      ]
+    },
+    "pause": {
+      "reason": "dirty-fork",
+      "paused_at": "2026-07-25T07:30:17.083785+00:00",
+      "resume": "coderail switch --to T-030"
+    }
+  },
+  "T-031": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v3_results.py",
+      "experiments/workflow-lab/tests/test_evaluation_v3_protocol.py"
+    ],
+    "accept": [
+      "all 54 cells and 16 batches remain complete and unchanged",
+      "preflight assertions verify historical metadata rather than forbidding later results",
+      "frozen hashes and workflow-masked judge inputs pass",
+      "report records the unfavorable C metrics and withholds adoption"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T07:30:17.570685+00:00",
+      "head": "35a78dc9ffa3c5a8b63a58b437ed56be0fc048f5",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json",
+          "fingerprint": "df32650e11001c7ce157a19590c6c196c13eccb7c9ab1f03122e4cad4c1690e8"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md",
+          "fingerprint": "33a1dd4ea5c94ee813f7a1f5de168dbd2616bc7f1de9942a66299cbcf19c1e3f"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md",
+          "fingerprint": "281346620f0963a4bc79b3ca0ca3fff9f97c43c08727bc529a9bf792b0587813"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md",
+          "fingerprint": "87b079be41bd408357bc6e23f353ad94d652b1796838314a0dc5673915221ad4"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md",
+          "fingerprint": "323966914216f5f42222c0e2e33517bb9c7fc6eebd3895fb21acf18d1401a704"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md",
+          "fingerprint": "835782bd55bde80dc07ecb30c5031c4e8c318811f3edb8655719ffb409789590"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/scripts/run_evaluation.py",
+          "fingerprint": "4031a1516bf37a704f4450da9db86d760d867d0fc63b81a6720bd89333373cbf"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/events/subject-A-ambiguous-cross-module.jsonl",
+          "fingerprint": "6c471168ac7cef69a1c4983d05c0b63fcfc39f5920677e8c078bb93ee84c2328"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/preflight.jsonl",
+          "fingerprint": "9aeab1cfba09a91d7909d18cbcd4965dea1ffc22cc5a9e3cdc446ecfc266fe22"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/run-metadata.json",
+          "fingerprint": "ec1bc1b486b69d49329e8b9dc2147ccd9ddb436c9fd73b48efd40821760b9e3a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/aggregate.json",
+          "fingerprint": "6ce9f144d5a7ef8bee45619c7943e632761ce1bedf8e5ed80ea529ec539be53f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/judge-ambiguous-cross-module.jsonl",
+          "fingerprint": "b56bd19c2f6aaf6cb8ddcd6923933078cf612d75298da64209a29a31593fab54"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/judge-clear-local-reversible.jsonl",
+          "fingerprint": "c65498db9c618e4e062fb796721404e0a3dec353094e7af60e9d69b8330ff314"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/judge-domain-language-conflict.jsonl",
+          "fingerprint": "67440d0bda565bd24249b947cae7f8dc4e5b4b25b9f08da074c47a956ad0e416"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/judge-high-risk-persistent.jsonl",
+          "fingerprint": "6f06d33bdbfb4835611977aecaf57cd6977bce196e1e6b6dcd0b482a4e39fa66"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-A-ambiguous-cross-module.jsonl",
+          "fingerprint": "ec3f499320995623bf235d06cdb797459f5025d4ecd9ce82e4233e2ba0813768"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-A-clear-local-reversible.jsonl",
+          "fingerprint": "0ce0dad50c52b716d9a2da593af248744c17b668db273f658702592370f47f18"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-A-domain-language-conflict.jsonl",
+          "fingerprint": "f25916386faf95e2ed3dbe73b9e4fd9679ba630951b66e893210f7ed71a566cb"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-A-high-risk-persistent.jsonl",
+          "fingerprint": "6b99524a6b8c2670f52e9a69d0783eefba684ebffead102dbe15b5617e34950e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-B-ambiguous-cross-module.jsonl",
+          "fingerprint": "05cfa3b6a8121da7b06da64c2ae55877b94f4e26c1ba69b7b1b025d2a6c8f27b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-B-clear-local-reversible.jsonl",
+          "fingerprint": "1a9f2720e29151ac12731920e55db4b1c38e40130e88d4e08705d2f04a56e24f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-B-domain-language-conflict.jsonl",
+          "fingerprint": "859a8776c89ad4070679451916235a496b4e511bbdce1b1b077477e9f1303c22"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-B-high-risk-persistent.jsonl",
+          "fingerprint": "31adb32007f632f87cde82a7550e817366ad66796b7a2852b484503658e98d76"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-C-ambiguous-cross-module.jsonl",
+          "fingerprint": "96399199cabacb2349246d6c818958d976e1ae7a48d123aa0bb3a7fd63adb0dc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-C-clear-local-reversible.jsonl",
+          "fingerprint": "63b54dd53e413559eb67f2114f845d4edc74e79c6379115c9cb393552e79b074"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-C-domain-language-conflict.jsonl",
+          "fingerprint": "21809e44c3ba566ecab65f11f81180aee05611e1569892a5e79b9a3fe85a1e2f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/events/subject-C-high-risk-persistent.jsonl",
+          "fingerprint": "0da6a175ecbe25d1c7ce2bd256236b3a5db9ba9cec097ac9c9d90a7b285a2fe5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-inputs/ambiguous-cross-module.json",
+          "fingerprint": "2841190e7a272e4c9769d6cd31b1e4483439fe45996941383fa69fe9fb4607dc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-inputs/clear-local-reversible.json",
+          "fingerprint": "3ca56d115858296aed52848503885ec0d2da5634ad274f1ef63e0bf0f57f94bc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-inputs/domain-language-conflict.json",
+          "fingerprint": "b18c9f940148ea2ea029402fe280972886124a77a5e37683694aa5d0eb90bf06"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-inputs/high-risk-persistent.json",
+          "fingerprint": "2325b501316bb56207b84c0d738bf151c571965d3a6223140df926a755de0e10"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-ambiguous-01-login-audience.json",
+          "fingerprint": "e2bcab92e1a75751ab27255383c4def6586743624537f2f045dd4a2c92d6ae8a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-ambiguous-02-notification-channel.json",
+          "fingerprint": "2236e1d1b480a81de46d4654dc808ae2cbb55cd8991b172d5cb9ea2a301db3b9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "8e2a426f239fd58872488c124ec1f6e9749d44281f8ccee8a612d662a1238253"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-ambiguous-04-team-invitations.json",
+          "fingerprint": "7f417e4271cb1ac44aac882e8346ca1984905612c8acde52d3c987ce32b5d871"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-ambiguous-05-search-filter.json",
+          "fingerprint": "ff0257649abdd933e1fda04463bfb8e1683184542ce0340029899c53a6c4a8ea"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-ambiguous-06-offline-mode.json",
+          "fingerprint": "c8db8854a6fe489c6ddccf2f6f73fc0ca8241a99bde0281f0c6dbb2077926535"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-clear-01-toolbar-label.json",
+          "fingerprint": "594506c93f139447853bd0973329aa655e33231693a76872d37a8a44d2622785"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-clear-02-empty-state-copy.json",
+          "fingerprint": "262089700f54654175ac167dac223b544b861d4a1988d53430a141ce50ff8072"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-clear-03-report-export.json",
+          "fingerprint": "05e7454de36156ec682e879aee26e7095c90747cf8bf7a12be8f782f393ac94b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-clear-04-cli-alias.json",
+          "fingerprint": "15d21cdf83e8c013d662bacac5f54d2ccdc1cf8ee2a3724ffb79d45a22840774"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-clear-05-timeout-default.json",
+          "fingerprint": "4e162b73ac8a7b47276703b886f3b90f0cfd6f1b2600ae6e40442b5e6387a644"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-clear-06-tooltip.json",
+          "fingerprint": "e6c33fbab24542bd575a38b0793ca3d13bd8f700a82ded90a69de64acfe07dbe"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-domain-01-account.json",
+          "fingerprint": "0263bad53e974e94e57645b6291215c3c21a6d21e37ccca3648f95427771cd12"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-domain-02-workspace.json",
+          "fingerprint": "6e1401d0ce678e033a26824381a3ed9a37a0515d5035cce81f7dc1d905ac83c2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-domain-03-materialization.json",
+          "fingerprint": "ca9b35c0db6befa5ecce8e5c2f2a51fc829b9d09f45e1b8846b0575998e3c3e3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-risk-01-local-only-files.json",
+          "fingerprint": "9452b103b5b782a05164dc572888caef8d4d94d807a4e305714c12e4a2f0319b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-risk-02-refund-authority.json",
+          "fingerprint": "0d92f5ff8c95dfa2b96eb0b8dcd478f42304e1d40d46af601438859990b3d27c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/A-risk-03-data-retention.json",
+          "fingerprint": "6c76fe4bea04c21c07c6678541fca5249e46a67e6f6bfb717d2617d9052c6d14"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-ambiguous-01-login-audience.json",
+          "fingerprint": "ce4db1674e2946f54960240f6892607a9e7d6a5ee3a7a4436364c9be67d2fced"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-ambiguous-02-notification-channel.json",
+          "fingerprint": "d34d44d9fbcfc187e865c46f4189801350b8530f339d3cdbc351271006ca2d61"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "bc0c6b26a44218c064b4d8e6c1786c62a5e87c183093c41e2a480ac34d7f3bc6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-ambiguous-04-team-invitations.json",
+          "fingerprint": "466ab6cf948fdf0b6ba20936f2d55787bb0215069f055bd71262ecd5ef5683d0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-ambiguous-05-search-filter.json",
+          "fingerprint": "23e1fb38bff75917a5e7840cc570332f28a02e39f79c178b199e6187ed448547"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-ambiguous-06-offline-mode.json",
+          "fingerprint": "5bcec06a39ee7ccd109175eced61ebc45b2a35e72f32991dd2bdf687b5239455"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-clear-01-toolbar-label.json",
+          "fingerprint": "7c3d5dd13514c063f237521fe19ad7a7eb4d428ad0792bb4cc781b82248c96fa"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-clear-02-empty-state-copy.json",
+          "fingerprint": "4d46335bc22bcc85e86b4a0563717ff1319c8e28b779a14464494337d4a83c42"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-clear-03-report-export.json",
+          "fingerprint": "d8066f5f8cfbec8bc6afc5aedc5fcfa09ba5742e7283fb2a4d8f796f90a82d74"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-clear-04-cli-alias.json",
+          "fingerprint": "be0e619f89c01bd01e55828811b6447479a5b87acd464c8bf1c5bb5c25225fb9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-clear-05-timeout-default.json",
+          "fingerprint": "c41a8446d4151205177ab3ca805582dc29ea505cc56d6bf5f78df4a44e39ebd8"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-clear-06-tooltip.json",
+          "fingerprint": "7ee6d3df7c95fbbc6b999371b054f098a7a8aecd98d9a15f28b6e553a3cf77a7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-domain-01-account.json",
+          "fingerprint": "36a4d55661bbe0f10ec656c23805ae9520cdace61c1ae271a0b9b49096c20d79"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-domain-02-workspace.json",
+          "fingerprint": "25815c3f104159814d0a67490e8418f92092b30b6f7e63b495d793bc08691200"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-domain-03-materialization.json",
+          "fingerprint": "3f23d4ddbf4884784d175f84bb2b7780f4446599a2e323bd1798bc6766167720"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-risk-01-local-only-files.json",
+          "fingerprint": "dcc7ab54b16cc1b4d668de46da93e98bec2d434cd9cb78fda2a57c3dca887471"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-risk-02-refund-authority.json",
+          "fingerprint": "242c01784effc7e5f3f8514f8a31536a32c90b00a727e1e02ec23ea703f33a09"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/B-risk-03-data-retention.json",
+          "fingerprint": "5e075b6d35a2194f922a88060116833e623639c702a8632b4a8d1ccf87150dc8"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-ambiguous-01-login-audience.json",
+          "fingerprint": "c6191dc750e0b7e99b6a39515d32c5bc76156383463d381bd23bfef3c444fd04"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-ambiguous-02-notification-channel.json",
+          "fingerprint": "99468477d1a8692bc73f367ecca72a69eeb086fb19de20a8fab7b15e2a5151dd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "3e1f1afa57160dbc56ad1dc1dfa78cfbe8dee73b6133a8a98ff3c24c1a3d88c6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-ambiguous-04-team-invitations.json",
+          "fingerprint": "88f85e60d7ed57f0fe537ed4497ef28a721fd7b00b169ad3ded654bbfd4b7756"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-ambiguous-05-search-filter.json",
+          "fingerprint": "ade868d4013c550b1a9b5429bdc1c348ff76891f9dc75e4f5d2dfcea27dbc70a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-ambiguous-06-offline-mode.json",
+          "fingerprint": "77cb3fe7bdcc7740dfadfb52d980438f62c6647381e165569637859f772236f9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-clear-01-toolbar-label.json",
+          "fingerprint": "21c23f9983580e936765e485c21833c03f0d911b9a7277e6e5fc3fe49b35891c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-clear-02-empty-state-copy.json",
+          "fingerprint": "571d0d35ad1dcb879d088b01cdd4edadcf1a182f8d658bdf97084743f0d6b7b6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-clear-03-report-export.json",
+          "fingerprint": "46d313b4f5483a6b68c952c5de5157ee36e64f25bee7d9355182416a85d389e0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-clear-04-cli-alias.json",
+          "fingerprint": "06253d33eb2deaa5187b62d05191ce9bb19db7179a5b0408283b26c3d304033b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-clear-05-timeout-default.json",
+          "fingerprint": "3225086ba2eb90c1215ada9d41827c02decdd34d8281f7e5fbb57a9c9b7aecd2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-clear-06-tooltip.json",
+          "fingerprint": "fdb79e5e070496b3ee113dbcabd334bdf2bb2bd45eb6d103d46c2be23222be13"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-domain-01-account.json",
+          "fingerprint": "7ee5d38204186b5c6cf966b60a401bbdeaaaee13b72a293fb6465e8b31a58374"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-domain-02-workspace.json",
+          "fingerprint": "07954a2d98f3630eac9592e866ae219b20cfd5c9a441add013e8ea9d68cf407a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-domain-03-materialization.json",
+          "fingerprint": "95e770ff8daed52ad4c0d083ad7758c8583eff045be0c02eae58842f94db54d4"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-risk-01-local-only-files.json",
+          "fingerprint": "c17e963948c0a369da4f38a5640bc4595f3b63277366c6f5458c743d10c42745"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-risk-02-refund-authority.json",
+          "fingerprint": "c3eb42a90e85efeecac3f028559e87abee0acf78bd50c5370955a07703eb91a9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/judge-notes/C-risk-03-data-retention.json",
+          "fingerprint": "ffe0521e8f94edb9d47ce472cccec9ee08636d2e194cbf4f53a76c51f3631a27"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/opaque-map.json",
+          "fingerprint": "b808416335245cb49151ecda8dc00ec1129a3c651f45f7b34d8d729590b49ac3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/judge-ambiguous-cross-module.json",
+          "fingerprint": "babf1b005204c755f91228d74f3ec0df896bf3cf6830d9a0ffe27dba24f1b932"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/judge-clear-local-reversible.json",
+          "fingerprint": "2214bb902c4361a462bb0eadd66f80677e0ad717c2c9b8a5094beac5ca8b09e7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/judge-domain-language-conflict.json",
+          "fingerprint": "0dfe5022ef0ce0b306834502f3dc2355404563ca889577f7728e837df6f29b27"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/judge-high-risk-persistent.json",
+          "fingerprint": "6d7c0da4ab46acb0b50c83e2eedbb35c870990e60cb430441ee48c4a1632a726"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-A-ambiguous-cross-module.json",
+          "fingerprint": "23df866604df9ea861933ea036e2176f279b54388449023a76b8820570e0df75"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-A-clear-local-reversible.json",
+          "fingerprint": "936745d691db320f2f3d79db5aa3a5f29f41a333d0e1d5334be45d76ad057618"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-A-domain-language-conflict.json",
+          "fingerprint": "95b1cc1d9e3b5affe3f5d71029c026885bbe77c34fc0378564ae321834d40518"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-A-high-risk-persistent.json",
+          "fingerprint": "564230cd9b69f25fac4526aa7c481d635c0413c11ffc1a2b6a339e69772ad6ab"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-B-ambiguous-cross-module.json",
+          "fingerprint": "c732d77eeb036fd384b5418b57c8c4202698fab48c5cb4213ea1f63203924551"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-B-clear-local-reversible.json",
+          "fingerprint": "5053b1f1bf9e3af3dc974b821ea3b41c5a899bfed16e85043de07a33ae5b3079"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-B-domain-language-conflict.json",
+          "fingerprint": "32a974015c6b82dc3d86ced118b1a621afb35da4714ef09302a3910612e1d430"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-B-high-risk-persistent.json",
+          "fingerprint": "f0bc3df71144836d5bdda58b372418d99c48ad934d77451b8f1366f19ede48f5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-C-ambiguous-cross-module.json",
+          "fingerprint": "a138f74ab5997f011f8789f024c1779b09b9ff25cfc328f974ea2f9229cc6899"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-C-clear-local-reversible.json",
+          "fingerprint": "ccb6461f1dbd75df6ee4dd4d08b541ec9036b5a2e207bd42b454e4db41d5a9aa"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-C-domain-language-conflict.json",
+          "fingerprint": "9846dd139f9df285abe08d76eeb73a035aa1262b4655433f6df87e6aacfa433a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/raw/subject-C-high-risk-persistent.json",
+          "fingerprint": "5403a1e186741eb7af746d8b920aa165a1eb5418a9a284663a4c59d385514838"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/run-metadata.json",
+          "fingerprint": "3e9d34f1d2105da589754c1ff0af3c166b118f38539b840561f78dcfdf2573da"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-ambiguous-01-login-audience.json",
+          "fingerprint": "e2a4eaed39837f6e3f8fa0fc718e048b1d6daa2c2bf4f8467981c67ea452726c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-ambiguous-02-notification-channel.json",
+          "fingerprint": "cbe2a9021368112524cb014bfbc4124f562192a7b10892dfa24824dc2fbbafad"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "4269c3f141617c60bd08654a90a2a30fecb0b48b47e282907e6b4fe98a48e680"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-ambiguous-04-team-invitations.json",
+          "fingerprint": "26f4bf4f86e918df50ee80bb335914873dff79c0dc8214f4f0cb79ba6b9d1098"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-ambiguous-05-search-filter.json",
+          "fingerprint": "a5eaa647d24f678dcd7a1159f8ce69404e46ef9c915cf50fdd5266e8fe8797d5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-ambiguous-06-offline-mode.json",
+          "fingerprint": "78082457cf38be161da11030249c2ded3078cc853be8be6e7a0cce0191b27186"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-clear-01-toolbar-label.json",
+          "fingerprint": "efd058d60f12e43648da6c2c7cdef094bc1970cb626af9f3bb2b2a68d6f8c3c7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-clear-02-empty-state-copy.json",
+          "fingerprint": "8b24a71a81560f87be357de92c0d8ee0302c9e04a76ffe63e3aec4997bb1ffb9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-clear-03-report-export.json",
+          "fingerprint": "99893c9b6a4f6701a80968ef6b4e9a365b9388b4d3366391f3c7b3977655069b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-clear-04-cli-alias.json",
+          "fingerprint": "de10e57f7c873511972cab1ebc55dc9e95069b7a7096f944c4adb4f59e6e8e8c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-clear-05-timeout-default.json",
+          "fingerprint": "bc7eb151d16e1c87744d559f0eda955304613cf9dec175d18ebd20f20ebcf149"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-clear-06-tooltip.json",
+          "fingerprint": "13725f58f8261acab806cac4150223d0d8de1b8d320120ad649354adda4e3526"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-domain-01-account.json",
+          "fingerprint": "27c3d2ab6ccb97946c813b1485e09a4acec1611895a8e788bd15d0d4f58dbf22"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-domain-02-workspace.json",
+          "fingerprint": "627467fdd5d0aa01c527f68fda38dadee7af8ff45f3105ff3dda577a82aa608d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-domain-03-materialization.json",
+          "fingerprint": "da51332c2d558e20b19c72aeec2ac6c19c69f154092dcf50a7c15efd5f0170b7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-risk-01-local-only-files.json",
+          "fingerprint": "d8237af7d4f12b2cdec837429511407142f41f7b5d6bc5311a0fd5dad4433837"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-risk-02-refund-authority.json",
+          "fingerprint": "0de4bccab806fadc79bcc97514b3542284b85f7494fdc2134acbb5b968f6de64"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/A-risk-03-data-retention.json",
+          "fingerprint": "b65338ca6a645461a534c34ffca848f05d3cb2623758c66125f6b665908d327b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-ambiguous-01-login-audience.json",
+          "fingerprint": "33247199ba3cfb2a9d985305a90366fc52b60b339acafbd33313618963ba9f6e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-ambiguous-02-notification-channel.json",
+          "fingerprint": "e387c70c3ca50221a3a3efcd9f3f0b87dfeedbc2170701dc2313796c6c7f43da"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "2a2b2768649e14503ffd5b4b39230b3585e02d125c185082883b99ba911916be"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-ambiguous-04-team-invitations.json",
+          "fingerprint": "54c91ad352298418043a2b1f7b4cc180b83d095e17b7e97d1c3c69407f28986a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-ambiguous-05-search-filter.json",
+          "fingerprint": "49c56310cb36037a2bada6c3ad77468a6245145be02ea23a0a8ed69c0e0fb555"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-ambiguous-06-offline-mode.json",
+          "fingerprint": "b487f1ce6e46d71bce1c6ce957072ebcbed9a99d231e3b3a7daee256c63276c6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-clear-01-toolbar-label.json",
+          "fingerprint": "8b370007938349fe9c34dd0b9bf95c564cf2f3f33381ffc8e4934c1e4fc55b91"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-clear-02-empty-state-copy.json",
+          "fingerprint": "521c17338290ec5f3d84509e4ede09e65616fc21156dab43ffd94b472782771f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-clear-03-report-export.json",
+          "fingerprint": "a14ee2942c9db32e5473f571dcf4fb10c82b4f03d1be467e8cb0aabb898f0d29"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-clear-04-cli-alias.json",
+          "fingerprint": "04b1af694e5c27daa124ca52786bcd6bc598c7dc4ad46b31b1d0a512d43acf62"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-clear-05-timeout-default.json",
+          "fingerprint": "d4cab877e122852c77ac7744a958da279c23e296baa05ba38f39a33a3e0c83e0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-clear-06-tooltip.json",
+          "fingerprint": "b0f44b5e2185a8e7eb7f24d8b30be79842a72562c9be9d5e6ee287f147122986"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-domain-01-account.json",
+          "fingerprint": "475324826461beb3fae5c56b4c65ae2c9adeae3bd0609502c200b3f122d071af"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-domain-02-workspace.json",
+          "fingerprint": "e859e5b272a2155771fdc011d74c53afc381a98bd67fa9e8f76bb4c59404bdb1"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-domain-03-materialization.json",
+          "fingerprint": "8da61d6a1ffdad259a0c5acd3fce2fcb04607f4ea669749a18f4827b8248ef31"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-risk-01-local-only-files.json",
+          "fingerprint": "2d19586c821eaf80e944304fd2a514330397fe6c41b02fd9887e9affe6f3aa08"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-risk-02-refund-authority.json",
+          "fingerprint": "255befebc785a74b1e4f8c843dfe74ee1e8e29cc93f565eb5560f2a863489ce9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/B-risk-03-data-retention.json",
+          "fingerprint": "124a52699c79c2e451ea7e5186f3cf28f851a52aa3d32019287c45095d2d1b8b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-ambiguous-01-login-audience.json",
+          "fingerprint": "762b730a85ac9d08dde75371b7636a5e3f0b68d7def99435fd05c1d2534c4c16"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-ambiguous-02-notification-channel.json",
+          "fingerprint": "6881eb0af4b8bee9d27234338118f8ff4687b744b0e526be37070169cdfd9192"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "0de7b309e705870849705d55bde27ff4df51c9973ffeedbebbb580b096b386dc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-ambiguous-04-team-invitations.json",
+          "fingerprint": "a74ba9085f764a420d530491b70dcefa9fc809f1f35ab54a3ddab694679275e5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-ambiguous-05-search-filter.json",
+          "fingerprint": "93fb43839122ee98ca542329d02e2961ea6285d03997edb9aed1f84bc6584487"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-ambiguous-06-offline-mode.json",
+          "fingerprint": "b11cf69574a49e07d20d3db06c468cd64a119b8b4adeca462f8c0320a70b4cb3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-clear-01-toolbar-label.json",
+          "fingerprint": "0203f2e7c2d84328b84c090643a566942a0fc6c39eee65fa6cb9f701a232b413"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-clear-02-empty-state-copy.json",
+          "fingerprint": "0d36ee442d02f0224a5656257258457376c4745431fb4947a337268aa22f855c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-clear-03-report-export.json",
+          "fingerprint": "46814a4c7b8bf14d3dd450be524fce01d7cfc02920314d9010686a56eef203c2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-clear-04-cli-alias.json",
+          "fingerprint": "b4326a17f477408dc999da7dfc9f61bea1775a83cd30ceb1dab244d4b1c2960e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-clear-05-timeout-default.json",
+          "fingerprint": "3d96487d06790387923d9c6a78697bb1af4f62f3b183b2d5a94ffebdd5b5142a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-clear-06-tooltip.json",
+          "fingerprint": "a412ca3e7cbc9e1794c9f74d163224088bceba6f5a871d7eb428953a601119e9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-domain-01-account.json",
+          "fingerprint": "a49e38c40eca82a5d83f54572184b0c0b4dd5d2ce6aa2f8e17e6a178ea3888ae"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-domain-02-workspace.json",
+          "fingerprint": "7a413f5844c6c595ffa0eb6fd9cadb993119d78007207b2e9d512aaed7df48c3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-domain-03-materialization.json",
+          "fingerprint": "775a24d05c7baad7bf3add110a57f0e5a322e3a8bc3a3a3ae74fc238179eb52c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-risk-01-local-only-files.json",
+          "fingerprint": "8afe51145010c2cf44d57e3c9ff508d9f41faa7cd4a272dab0ec69f8e67bb9a3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-risk-02-refund-authority.json",
+          "fingerprint": "7b32d91e79b78c71a59e1ee7172182c101d29a89fe5bcf4827cd752d46993379"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/results/trials/C-risk-03-data-retention.json",
+          "fingerprint": "358746f266ba2ab3e13eb066979e77a93efea409f2a5b01eea1c3bde4c4ec7ee"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v2_results.py",
+          "fingerprint": "7c41eed4a7a0d442e863f243cedd10fe5983bfbb6223815bcf201f9987b4bafa"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v3_results.py",
+          "fingerprint": "c8085d84c4bd355ec2d078aa01ea65a4fdcc82d46cb0b98736736c27cfb6b34c"
+        }
+      ]
+    },
     "dirty_fork": true,
     "closed_pending": {
-      "recorded_at": "2026-07-25T07:12:10.801036+00:00",
+      "recorded_at": "2026-07-25T07:41:16.948546+00:00",
       "files": [
         {
           "status": " M",
@@ -672,78 +1539,6 @@
         },
         {
           "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/tests/test_evaluation_v2_protocol.py"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/freeze.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/judge-output.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/judge.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/manifest.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/model-output.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/preflight/schema-compatibility.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/preflight/schema-output.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/rubric.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/run-spec.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/trial-result.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/workflows/A.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/workflows/B.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v3/workflows/C.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/scripts/run_evaluation.py"
-        },
-        {
-          "status": "??",
           "path": "experiments/workflow-lab/tests/test_evaluation_v3_protocol.py"
         }
       ]

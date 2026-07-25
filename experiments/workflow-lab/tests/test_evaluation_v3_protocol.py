@@ -57,8 +57,6 @@ class EvaluationV3ProtocolTests(unittest.TestCase):
         self.assertEqual(preflight["status"], "passed")
         self.assertEqual(preflight["model"], "gpt-5.4")
         self.assertEqual(preflight["subject_batches_started"], 0)
-        trials = V3 / "results" / "trials"
-        self.assertFalse(trials.exists() and any(trials.iterdir()))
 
 
 if __name__ == "__main__":
