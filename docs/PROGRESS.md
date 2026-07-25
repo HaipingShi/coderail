@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Finalize wp5-v4 results after UTF-8 runner recovery (T-034)
+
+- Done: Finalize wp5-v4 results after UTF-8 runner recovery
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Do not integrate natively; decide between a smaller repeated-seed v5 and implementation follow-through after reviewing v4 cost and remaining novice provider choice
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: The original encoding failure and pre-retry raw output remain preserved
+- Acceptance [done]: The runner decodes Codex output as UTF-8 and reuses only complete raw/event batch pairs
+- Acceptance [done]: All 54 cells and 16 final batches pass integrity tests
+- Acceptance [done]: Frozen v4 input hashes remain unchanged
+- Acceptance [done]: The report concludes REVISE and withholds native adoption
+
 ## 2026-07-25 - Freeze and preflight wp5-v4 Guided Convergence revision (T-032)
 
 - Done: Freeze and preflight wp5-v4 Guided Convergence revision
