@@ -76,16 +76,23 @@ samples cannot support causal attribution, so v5 repeats sampling.
   (A, B, C5). Seed identifiers: `coderail-wp5-v5-s1` through
   `coderail-wp5-v5-s5`, used for task-order shuffling and recorded in the
   manifest.
+- **Domain-language subset (token-economy measurement):** the 3
+  domain-language-conflict tasks are run with **3 seeds** (s1-s3) per
+  workflow. This category drove the v4 token excess (C 37,313 versus A
+  18,059), so it is the primary measurement surface for C-R2 and gate 4.
+  Without it the token gate would have no denominator.
 - **Clear-task subset (verification only):** the 6 clear/local/reversible
-  tasks are run with **1 seed** per workflow. The quick path held at 100%
-  across v3 and v4 for all workflows; this arm guards against a C-R2
+  tasks are run with **1 seed** (s1) per workflow. The quick path held at
+  100% across v3 and v4 for all workflows; this arm guards against a C-R2
   regression on GC-R4, it is not a variance-estimation arm.
 - **Judge:** workflow-masked judging as in v4, one judge batch per category
   per seed. The judge receives no workflow labels and no seed identifiers.
 
-Estimated subject volume: 5 x 3 x 9 + 1 x 3 x 6 = 153 trials, versus 54 in
-v4. Per-trial token cost for C5 is expected to drop under C-R2; A and B
-per-trial costs should match v4 within sampling noise.
+Estimated subject volume: 5 x 3 x 9 + 3 x 3 x 3 + 1 x 3 x 6 = 180 trials,
+versus 54 in v4. Per-trial token cost for C5 is expected to drop under C-R2;
+A and B per-trial costs should match v4 within sampling noise. Gate 4 is
+evaluated on pooled subject tokens per category across that category's seeds
+(C5 versus A), with batch-allocation labeling as in v4.
 
 ## 4. The baseline-floor problem
 
@@ -119,8 +126,8 @@ implementation-phase planning.
 2. threshold-subset unsupported assumptions: C5 <= A on pooled means, and the
    25% relative gate passes whenever it is testable under section 4;
 3. quick-path correctness = 100% on the clear-task arm (GC-R4 preserved);
-4. C5 total tokens per full-matrix-equivalent run <= +15% versus A in the
-   same seed (C-R2 effective; v4 was +32.07%);
+4. C5 pooled subject tokens per category across that category's seeds <=
+   +15% versus A pooled the same way (C-R2 effective; v4 was +32.07%);
 5. no regression versus v4 C on turns before readiness or human
    interruptions.
 
@@ -155,6 +162,13 @@ implementation-phase planning.
   the first subject output, including the C5p contingency text even though it
   may never run. Freezing the contingency prevents mid-run authoring under
   outcome knowledge.
+- Version stamping follows the v3-to-v4 precedent: `manifest.json` and all
+  schema files are re-stamped to `wp5-v5` in their `protocol_version`/`const`
+  fields, so their hashes differ from v4 by exactly those strings.
+  `trial-result.schema.json` additionally widens its workflow enum from
+  ["A", "B", "C"] to ["A", "B", "C5", "C5p"] so v5 trial records validate;
+  no other schema semantics change. Task packets, oracles, rubric content,
+  judge prompt, and workflows A/B remain byte-identical to v4.
 
 ## 7. Metrics and nullability
 
