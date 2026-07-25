@@ -1,7 +1,40 @@
 {
   "protocol_version": "wp5-v5",
   "trial_design": {
-    "workflows": ["A", "B", "C"],
+    "workflows": ["A", "B", "C5"],
+    "contingency_workflows": ["C5p"],
+    "task_order_seeds": [
+      "coderail-wp5-v5-s1",
+      "coderail-wp5-v5-s2",
+      "coderail-wp5-v5-s3",
+      "coderail-wp5-v5-s4",
+      "coderail-wp5-v5-s5"
+    ],
+    "sampling_plan": {
+      "ambiguous-cross-module": [
+        "coderail-wp5-v5-s1",
+        "coderail-wp5-v5-s2",
+        "coderail-wp5-v5-s3",
+        "coderail-wp5-v5-s4",
+        "coderail-wp5-v5-s5"
+      ],
+      "high-risk-persistent": [
+        "coderail-wp5-v5-s1",
+        "coderail-wp5-v5-s2",
+        "coderail-wp5-v5-s3",
+        "coderail-wp5-v5-s4",
+        "coderail-wp5-v5-s5"
+      ],
+      "domain-language-conflict": [
+        "coderail-wp5-v5-s1",
+        "coderail-wp5-v5-s2",
+        "coderail-wp5-v5-s3"
+      ],
+      "clear-local-reversible": [
+        "coderail-wp5-v5-s1"
+      ]
+    },
+    "expected_primary_trials": 180,
     "task_order": "deterministically shuffled per workflow",
     "answers_are_withheld_until_questioned": true,
     "oracle_is_hidden_from_subject": true,

@@ -1,9 +1,10 @@
 # WP5 V5 Experiment Design
 
-Status: design draft; no pretrial input frozen; no subject trial started
-Protocol: `wp5-v5` (planned)
+Status: frozen before subject output; no schema preflight or trial started
+Protocol: `wp5-v5`
 Supersedes for execution: `wp5-v4`
-Date: 2026-07-25
+Originally frozen: 2026-07-25
+Contract repair and refreeze: 2026-07-26
 
 ## 1. Purpose
 
@@ -162,13 +163,14 @@ implementation-phase planning.
   the first subject output, including the C5p contingency text even though it
   may never run. Freezing the contingency prevents mid-run authoring under
   outcome knowledge.
-- Version stamping follows the v3-to-v4 precedent: `manifest.json` and all
-  schema files are re-stamped to `wp5-v5` in their `protocol_version`/`const`
-  fields, so their hashes differ from v4 by exactly those strings.
-  `trial-result.schema.json` additionally widens its workflow enum from
-  ["A", "B", "C"] to ["A", "B", "C5", "C5p"] so v5 trial records validate;
-  no other schema semantics change. Task packets, oracles, rubric content,
-  judge prompt, and workflows A/B remain byte-identical to v4.
+- Version stamping follows the v3-to-v4 precedent for rubric and subject/judge
+  output schemas. The v5 machine contract additionally changes
+  `manifest.json.trial_design` to name primary workflows ["A", "B", "C5"],
+  isolate ["C5p"] as a contingency, and record the canonical category-to-seed
+  plan. `trial-result.schema.json` widens its workflow enum to
+  ["A", "B", "C5", "C5p"] and requires one canonical seed identifier on every
+  trial record. Task packets, oracles, rubric content, judge prompt, and
+  workflows A/B remain byte-identical to v4.
 
 ## 7. Metrics and nullability
 

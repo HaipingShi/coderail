@@ -7,6 +7,7 @@
     "protocol_version",
     "task_id",
     "workflow",
+    "seed",
     "model",
     "response",
     "observation"
@@ -21,6 +22,15 @@
     },
     "workflow": {
       "enum": ["A", "B", "C5", "C5p"]
+    },
+    "seed": {
+      "enum": [
+        "coderail-wp5-v5-s1",
+        "coderail-wp5-v5-s2",
+        "coderail-wp5-v5-s3",
+        "coderail-wp5-v5-s4",
+        "coderail-wp5-v5-s5"
+      ]
     },
     "model": {
       "type": "object",

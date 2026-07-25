@@ -16,6 +16,11 @@ tasks with the deterministic seed for that run (`coderail-wp5-v5-s1` through
 `coderail-wp5-v5-s5`). The subject receives its workflow prompt and task packets
 without each task's oracle.
 
+`manifest.json.trial_design` is the machine-readable authority for primary
+workflows, contingency workflows, category-to-seed allocation, and the expected
+180 primary trial records. The primary `C5` treatment reads `workflows/C.md`;
+`C5p` reads `workflows/C5p.md` only if its frozen contingency trigger fires.
+
 Each task packet includes scripted answers for offline contract-convergence
 simulation. Instruct the subject to treat an answer as unavailable until it
 asks a materially matching question and to record the consumed answer index.
@@ -34,7 +39,7 @@ sampled at a different seed depth.
 | Clear | clear-local-reversible | 6 | s1 | 6 |
 
 Seed identifiers are `coderail-wp5-v5-s1` through `coderail-wp5-v5-s5`, used for
-task-order shuffling and recorded in the trial record. The domain-language
+task-order shuffling and required in every trial record. The domain-language
 subset is sampled because it drove the v4 token excess (C 37,313 versus A
 18,059); without it the token gate has no measurement surface. The clear subset
 guards against a C-R2 regression on GC-R4 and is not a variance-estimation arm.

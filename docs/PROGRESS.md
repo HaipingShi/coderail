@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Repair and refreeze wp5-v5 machine contracts (T-035)
+
+- Done: Repair and refreeze wp5-v5 machine contracts
+- Checked by: `python3 -m unittest discover -s experiments/workflow-lab/tests -v` exit 0; `npm run ci` exit 0
+- Next: Keep v5 schema preflight, subject, and judge execution paused until separately authorized
+- Evidence: `python3 -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Acceptance [done]: Every v5 trial record requires an auditable seed identifier
+- Acceptance [done]: Manifest and schemas consistently name A, B, C5, with C5p only as a contingency
+- Acceptance [done]: Automated tests enforce v5 hashes, allowed v4 differences, sampling math, and contract consistency
+- Acceptance [done]: No v5 preflight, subject, judge, or result execution occurs
+
 ## 2026-07-25 - T-033 (T-033)
 
 - Done: T-033

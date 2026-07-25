@@ -2397,5 +2397,78 @@
         }
       ]
     }
+  },
+  "T-035": {
+    "verify": [
+      "python3 -m unittest discover -s experiments/workflow-lab/tests -v",
+      "npm run ci"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py"
+    ],
+    "accept": [
+      "Every v5 trial record requires an auditable seed identifier",
+      "Manifest and schemas consistently name A, B, C5, with C5p only as a contingency",
+      "Automated tests enforce v5 hashes, allowed v4 differences, sampling math, and contract consistency",
+      "No v5 preflight, subject, judge, or result execution occurs"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T23:49:59.352142+00:00",
+      "head": "12ff52d586c9ba8b95f51b5196ed473f5b1db15c",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-25T23:57:10.467039+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_V5_DESIGN.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/evaluation-v5/freeze.json"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/evaluation-v5/manifest.json"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/evaluation-v5/run-spec.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/evaluation-v5/trial-result.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py"
+        }
+      ]
+    }
   }
 }
