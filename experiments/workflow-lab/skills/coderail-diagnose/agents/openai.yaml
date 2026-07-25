@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeRail Diagnose"
+  short_description: "Build a red-capable bug feedback loop"
+  default_prompt: "Use $coderail-diagnose to reproduce and diagnose this bug before changing production code."
