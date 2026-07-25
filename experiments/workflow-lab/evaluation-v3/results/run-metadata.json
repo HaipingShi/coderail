@@ -1,0 +1,281 @@
+{
+  "protocol_version": "wp5-v3",
+  "model": "gpt-5.4",
+  "reasoning_effort": "medium",
+  "codex_version": "codex-cli 0.137.0",
+  "token_allocation": "batch total divided across task cells",
+  "subject_batches": [
+    {
+      "workflow": "A",
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "tasks": [
+        "ambiguous-06-offline-mode",
+        "ambiguous-03-csv-import-mapping",
+        "ambiguous-05-search-filter",
+        "ambiguous-02-notification-channel",
+        "ambiguous-01-login-audience",
+        "ambiguous-04-team-invitations"
+      ],
+      "thread_id": "019f981e-f85a-7d52-94de-03f3fbac1835",
+      "usage": {
+        "input_tokens": 16990,
+        "cached_input_tokens": 2432,
+        "output_tokens": 2023,
+        "reasoning_output_tokens": 516
+      }
+    },
+    {
+      "workflow": "A",
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "tasks": [
+        "clear-05-timeout-default",
+        "clear-06-tooltip",
+        "clear-03-report-export",
+        "clear-02-empty-state-copy",
+        "clear-01-toolbar-label",
+        "clear-04-cli-alias"
+      ],
+      "thread_id": "019f981f-bf42-7f02-b161-e755981b2f25",
+      "usage": {
+        "input_tokens": 17017,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1491,
+        "reasoning_output_tokens": 127
+      }
+    },
+    {
+      "workflow": "A",
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "tasks": [
+        "domain-01-account",
+        "domain-03-materialization",
+        "domain-02-workspace"
+      ],
+      "thread_id": "019f9820-5e38-7a12-8d50-063d971f2c07",
+      "usage": {
+        "input_tokens": 16663,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1286,
+        "reasoning_output_tokens": 516
+      }
+    },
+    {
+      "workflow": "A",
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "tasks": [
+        "risk-01-local-only-files",
+        "risk-02-refund-authority",
+        "risk-03-data-retention"
+      ],
+      "thread_id": "019f9820-ef80-7c90-ba5a-205643353f45",
+      "usage": {
+        "input_tokens": 16665,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1262,
+        "reasoning_output_tokens": 415
+      }
+    },
+    {
+      "workflow": "B",
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "tasks": [
+        "ambiguous-04-team-invitations",
+        "ambiguous-03-csv-import-mapping",
+        "ambiguous-01-login-audience",
+        "ambiguous-02-notification-channel",
+        "ambiguous-05-search-filter",
+        "ambiguous-06-offline-mode"
+      ],
+      "thread_id": "019f9821-7ae9-7271-8daa-56c77a0f6502",
+      "usage": {
+        "input_tokens": 17028,
+        "cached_input_tokens": 2432,
+        "output_tokens": 2549,
+        "reasoning_output_tokens": 516
+      }
+    },
+    {
+      "workflow": "B",
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "tasks": [
+        "clear-05-timeout-default",
+        "clear-04-cli-alias",
+        "clear-02-empty-state-copy",
+        "clear-03-report-export",
+        "clear-06-tooltip",
+        "clear-01-toolbar-label"
+      ],
+      "thread_id": "019f9822-67cc-7e13-8f72-53e23745cd71",
+      "usage": {
+        "input_tokens": 17049,
+        "cached_input_tokens": 2432,
+        "output_tokens": 1708,
+        "reasoning_output_tokens": 232
+      }
+    },
+    {
+      "workflow": "B",
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "tasks": [
+        "domain-02-workspace",
+        "domain-01-account",
+        "domain-03-materialization"
+      ],
+      "thread_id": "019f9823-191a-7011-9879-b0b4df671e9b",
+      "usage": {
+        "input_tokens": 16628,
+        "cached_input_tokens": 2432,
+        "output_tokens": 2349,
+        "reasoning_output_tokens": 302
+      }
+    },
+    {
+      "workflow": "B",
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "tasks": [
+        "risk-02-refund-authority",
+        "risk-03-data-retention",
+        "risk-01-local-only-files"
+      ],
+      "thread_id": "019f9823-f514-7860-aae6-b1d508036f4e",
+      "usage": {
+        "input_tokens": 16703,
+        "cached_input_tokens": 2432,
+        "output_tokens": 1854,
+        "reasoning_output_tokens": 516
+      }
+    },
+    {
+      "workflow": "C",
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "tasks": [
+        "ambiguous-04-team-invitations",
+        "ambiguous-06-offline-mode",
+        "ambiguous-01-login-audience",
+        "ambiguous-02-notification-channel",
+        "ambiguous-03-csv-import-mapping",
+        "ambiguous-05-search-filter"
+      ],
+      "thread_id": "019f9824-b428-7322-b602-07afec072313",
+      "usage": {
+        "input_tokens": 17067,
+        "cached_input_tokens": 15232,
+        "output_tokens": 3382,
+        "reasoning_output_tokens": 516
+      }
+    },
+    {
+      "workflow": "C",
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "tasks": [
+        "clear-03-report-export",
+        "clear-01-toolbar-label",
+        "clear-05-timeout-default",
+        "clear-04-cli-alias",
+        "clear-02-empty-state-copy",
+        "clear-06-tooltip"
+      ],
+      "thread_id": "019f9825-d8f6-7de1-9012-11288f5492ab",
+      "usage": {
+        "input_tokens": 17094,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1933,
+        "reasoning_output_tokens": 168
+      }
+    },
+    {
+      "workflow": "C",
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "tasks": [
+        "domain-02-workspace",
+        "domain-03-materialization",
+        "domain-01-account"
+      ],
+      "thread_id": "019f9826-9aaf-7c72-9e2a-e2bb1e7c8bed",
+      "usage": {
+        "input_tokens": 16740,
+        "cached_input_tokens": 15232,
+        "output_tokens": 2101,
+        "reasoning_output_tokens": 516
+      }
+    },
+    {
+      "workflow": "C",
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "tasks": [
+        "risk-03-data-retention",
+        "risk-01-local-only-files",
+        "risk-02-refund-authority"
+      ],
+      "thread_id": "019f9827-779f-7cc0-91eb-bbcb943c9823",
+      "usage": {
+        "input_tokens": 16748,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1553,
+        "reasoning_output_tokens": 422
+      }
+    }
+  ],
+  "judge_batches": [
+    {
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "items": 18,
+      "thread_id": "019f9828-1f32-7b43-b6b5-c9b8e2dc03c9",
+      "usage": {
+        "input_tokens": 27753,
+        "cached_input_tokens": 2432,
+        "output_tokens": 2440,
+        "reasoning_output_tokens": 1156
+      }
+    },
+    {
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "items": 18,
+      "thread_id": "019f9829-0b17-70e1-a415-5c9d12a85e0b",
+      "usage": {
+        "input_tokens": 25660,
+        "cached_input_tokens": 1920,
+        "output_tokens": 2200,
+        "reasoning_output_tokens": 774
+      }
+    },
+    {
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "items": 9,
+      "thread_id": "019f9829-db08-7f91-b157-2ec903b58681",
+      "usage": {
+        "input_tokens": 23335,
+        "cached_input_tokens": 2432,
+        "output_tokens": 1999,
+        "reasoning_output_tokens": 1138
+      }
+    },
+    {
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "items": 9,
+      "thread_id": "019f982a-a2bf-7271-9c67-16edada2934b",
+      "usage": {
+        "input_tokens": 22321,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1905,
+        "reasoning_output_tokens": 1203
+      }
+    }
+  ]
+}

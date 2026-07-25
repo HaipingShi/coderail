@@ -1,0 +1,8 @@
+{
+  "protocol_version": "wp5-v3",
+  "task_id": "ambiguous-03-csv-import-mapping",
+  "workflow": "B",
+  "notes": [
+    "Question resolves the invalid-row transaction model and prevents forbidden partial-save assumptions."
+  ]
+}

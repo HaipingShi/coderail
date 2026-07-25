@@ -245,7 +245,7 @@ WP4 result:
 
 ### WP5 - Run comparative evaluation
 
-Status: wp5-v3 frozen and schema-preflighted; subject trials pending
+Status: wp5-v3 contract phase complete; implementation evidence pending
 
 Compare:
 
@@ -360,7 +360,21 @@ WP5 v3 correction:
 - The first preflight generated a valid response but could not persist it
   because the local output directory did not exist; one identical-input retry,
   allowed by the run specification, persisted the result.
-- Subject batch count remains zero.
+- At the v3 freeze and schema-preflight checkpoint, subject batch count was
+  zero.
+
+WP5 v3 contract-phase result:
+
+- 12 subject and 4 blind-judge batches completed all 54 workflow-task cells.
+- A/B/C all achieved 100% route correctness and zero clear-task
+  interruptions.
+- Aggregate unsupported assumptions were A=1, B=1, C=2.
+- C matched A's turns and interruptions but used 4.39% more subject tokens.
+- On ambiguous and high-risk tasks, C had one unsupported assumption while A
+  and B had none, so the 25% reduction threshold did not pass.
+- Implementation, closeout, post-close, and promotion-reversal evidence
+  remains null. The only valid decision is
+  `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`, not ADOPT.
 
 ### WP6 - Review adoption
 

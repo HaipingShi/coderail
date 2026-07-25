@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v3",
+  "task_id": "clear-04-cli-alias",
+  "workflow": "B",
+  "notes": [
+    "Single ready contract on first turn.",
+    "Kept scope aligned with canonical `list` plus `ls` alias only.",
+    "Promotion does not create a contract defect."
+  ]
+}

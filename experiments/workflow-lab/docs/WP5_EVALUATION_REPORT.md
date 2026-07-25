@@ -56,3 +56,81 @@ could not be persisted to a missing local output directory.
 
 No experiment task or hidden oracle was included in the schema preflight, and
 subject batch count remains zero.
+
+## v3 contract-phase results
+
+`wp5-v3` completed all 12 subject batches and 4 workflow-masked judge batches:
+54 workflow-task cells over the frozen 18-task matrix.
+
+| Metric (sum unless marked) | A Baseline | B Expert grill | C Guided |
+|---|---:|---:|---:|
+| Trials | 18 | 18 | 18 |
+| Turns before readiness | 16 | 17 | 16 |
+| Useful questions | 16 | 17 | 16 |
+| User-visible technical choices | 1 | 1 | 1 |
+| Unsupported assumptions | 1 | 1 | 2 |
+| Human interruptions | 16 | 17 | 16 |
+| Route correctness | 100% | 100% | 100% |
+| Allocated subject tokens | 73,397 | 75,868 | 76,618 |
+| First-pass `done` | not observed | not observed | not observed |
+
+Relative to A, B used 3.37% more subject tokens and C used 4.39% more. All
+three workflows routed the six clear tasks correctly with zero clear-task
+interruptions.
+
+On the nine ambiguous or high-risk tasks, A and B had zero unsupported
+assumptions while C had one. Therefore C did not achieve the required 25%
+reduction; it moved in the wrong direction on the observed contract-phase
+proxy.
+
+## Material findings
+
+- All three workflows asked a novice to decide an identity-provider mechanism
+  in the login case. Guided wording did not remove that technical choice.
+- A and C both declared the public Workspace contract ready before resolving
+  the frozen migration answer.
+- B proposed immediate Account documentation before code and scenario meaning
+  had converged, demonstrating the expected premature-promotion risk.
+- C treated refund audit design as outside the first slice even though the
+  oracle forbade refunds without audit evidence.
+- C matched A on turns and interruptions but consumed more tokens and retained
+  one additional unsupported assumption.
+
+## Evidence boundary
+
+This was an offline contract-convergence simulation, not a live-human study.
+Scripted answers were present in each batch prompt with instructions not to use
+them before a matching question, so answer leakage cannot be excluded.
+
+Tasks were batched by category. Per-task tokens are an equal allocation of the
+batch total, not native per-task usage. The blind judge used the same model as
+the subjects and did not receive workflow labels, although response style could
+still reveal treatment.
+
+The following remain null and unmeasured:
+
+- post-start contract corrections;
+- out-of-scope edits;
+- first-pass CodeRail `done`;
+- reopened or post-close defects;
+- glossary or ADR reversals.
+
+## Contract-phase verdict
+
+The aggregate decision is `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`. The run does
+not authorize ADOPT. It also provides no contract-phase evidence that C
+outperforms baseline A; current evidence favors a targeted revision before
+paying for implementation follow-through.
+
+The revision should:
+
+1. keep audit and other forbidden-risk controls inside the reversible slice;
+2. require every scripted decision dependency, including migration, before
+   readiness;
+3. translate provider feasibility into an agent investigation or outcome-level
+   authorization instead of a novice architecture choice;
+4. preserve the successful clear-task quick path.
+
+Changing treatment C requires a new frozen protocol version and a full
+contract-phase rerun. Alternatively, implementation follow-through can run
+unchanged on v3, but null outcome gates still prevent an adoption decision.

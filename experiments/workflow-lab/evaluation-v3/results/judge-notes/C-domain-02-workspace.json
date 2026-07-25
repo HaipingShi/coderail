@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v3",
+  "task_id": "domain-02-workspace",
+  "workflow": "C",
+  "notes": [
+    "First turn correctly focused on the domain-term boundary.",
+    "Ready contract was issued after one answer even though migration/rollout semantics were not confirmed from the user.",
+    "The no-migration slice was presented from inference rather than a supplied answer."
+  ]
+}

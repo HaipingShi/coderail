@@ -1,0 +1,28 @@
+{
+  "protocol_version": "wp5-v3",
+  "task_id": "clear-04-cli-alias",
+  "workflow": "B",
+  "model": {
+    "name": "gpt-5.4",
+    "reasoning_effort": "medium",
+    "cli_version": "codex-cli 0.137.0"
+  },
+  "response": {
+    "raw_path": "results/raw/subject-B-clear-local-reversible.json",
+    "session_id": "019f9822-67cc-7e13-8f72-53e23745cd71"
+  },
+  "observation": {
+    "turns_before_readiness": 0,
+    "useful_questions": 0,
+    "user_visible_technical_choices": 0,
+    "unsupported_assumptions": 0,
+    "post_start_contract_corrections": null,
+    "out_of_scope_edits": null,
+    "first_pass_done": null,
+    "reopened_or_post_close_defects": null,
+    "promotion_reversals": null,
+    "total_tokens": 3126,
+    "human_interruptions": 0,
+    "quick_path_correct": true
+  }
+}

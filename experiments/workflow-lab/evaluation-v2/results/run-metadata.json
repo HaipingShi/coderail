@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v2",
+  "model": "gpt-5.4",
+  "reasoning_effort": "medium",
+  "codex_version": "codex-cli 0.137.0",
+  "token_allocation": "batch total divided across task cells",
+  "subject_batches": [],
+  "judge_batches": [],
+  "failure": "[Errno 2] No such file or directory: 'G:\\\\codeRail\\\\coderail\\\\experiments\\\\workflow-lab\\\\evaluation-v2\\\\results\\\\logs\\\\subject-A-ambiguous-cross-module.stderr.log'"
+}

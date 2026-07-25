@@ -429,12 +429,20 @@ def main() -> int:
                     "session_id": thread_id,
                 },
                 "observation": observation,
-                "judge_notes": judged["notes"],
             }
             records.append(record)
             write_json(
                 RESULTS / "trials" / f"{workflow}-{task_id}.json",
                 record,
+            )
+            write_json(
+                RESULTS / "judge-notes" / f"{workflow}-{task_id}.json",
+                {
+                    "protocol_version": "wp5-v3",
+                    "task_id": task_id,
+                    "workflow": workflow,
+                    "notes": judged["notes"],
+                },
             )
 
         write_json(RESULTS / "aggregate.json", aggregate(records))

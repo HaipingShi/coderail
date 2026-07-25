@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v3",
+  "task_id": "domain-03-materialization",
+  "workflow": "A",
+  "notes": [
+    "The subject started with the required domain-term disambiguation.",
+    "The second question resolved the naming collision needed for persistence/contract stability.",
+    "Ready state aligned with the oracle after both answers."
+  ]
+}

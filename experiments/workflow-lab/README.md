@@ -118,6 +118,12 @@ constraint. The v2 hashes remain intact and subject output count is zero.
 the same experiment semantics, and passes a no-task schema compatibility
 preflight before any subject batch.
 
+The v3 contract-phase run completed all 54 cells. Clear-task routing was 100%
+for A, B, and C, but C produced two unsupported assumptions versus one each for
+A and B, used 4.39% more subject tokens than A, and did not reduce
+interruptions. Implementation and post-close fields remain null, so the result
+does not authorize adoption. See `docs/WP5_EVALUATION_REPORT.md`.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 
