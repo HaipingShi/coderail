@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Freeze and preflight wp5-v4 Guided Convergence revision (T-032)
+
+- Done: Freeze and preflight wp5-v4 Guided Convergence revision
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Run all wp5-v4 subject and blind-judge batches, compare results with v3, and keep adoption withheld without implementation evidence
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: A and B, all tasks, hidden oracles, rubric semantics, model, batching, and blinding remain byte-identical to v3
+- Acceptance [done]: C requires risk controls and every decision dependency before readiness
+- Acceptance [done]: C converts novice mechanism choices into agent investigation or outcome authorization
+- Acceptance [done]: Clear local reversible tasks retain the zero-question quick path
+- Acceptance [done]: Frozen hashes and no-task service schema preflight pass before subject execution
+
 ## 2026-07-25 - Finalize wp5-v3 results and lifecycle assertions (T-031)
 
 - Done: Finalize wp5-v3 results and lifecycle assertions

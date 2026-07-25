@@ -124,6 +124,12 @@ A and B, used 4.39% more subject tokens than A, and did not reduce
 interruptions. Implementation and post-close fields remain null, so the result
 does not authorize adoption. See `docs/WP5_EVALUATION_REPORT.md`.
 
+`evaluation-v4/` is the targeted revision checkpoint. It keeps A, B, all task
+packets and hidden oracles, the model, rubric semantics, batching, and blinding
+unchanged. Only C now makes risk-control closure, complete decision-dependency
+closure, novice outcome ownership, and clear-task quick-path preservation
+explicit. Its no-task schema preflight passed before any subject batch.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 

@@ -1543,5 +1543,123 @@
         }
       ]
     }
+  },
+  "T-032": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "accept": [
+      "A and B, all tasks, hidden oracles, rubric semantics, model, batching, and blinding remain byte-identical to v3",
+      "C requires risk controls and every decision dependency before readiness",
+      "C converts novice mechanism choices into agent investigation or outcome authorization",
+      "Clear local reversible tasks retain the zero-question quick path",
+      "Frozen hashes and no-task service schema preflight pass before subject execution"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T07:47:55.347997+00:00",
+      "head": "9b2404814146e11bd61dd5e594dac6f366696a92",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-25T07:59:28.064716+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/scripts/run_evaluation.py"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/freeze.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/judge-output.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/judge.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/manifest.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/model-output.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/preflight/schema-compatibility.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/preflight/schema-events.jsonl"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/preflight/schema-output.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/rubric.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/run-spec.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/trial-result.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/workflows/A.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/workflows/B.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v4/workflows/C.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v4_protocol.py"
+        }
+      ]
+    }
   }
 }

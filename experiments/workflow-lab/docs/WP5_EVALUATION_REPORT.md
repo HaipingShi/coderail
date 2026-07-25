@@ -134,3 +134,22 @@ The revision should:
 Changing treatment C requires a new frozen protocol version and a full
 contract-phase rerun. Alternatively, implementation follow-through can run
 unchanged on v3, but null outcome gates still prevent an adoption decision.
+
+## v4 revision and preflight
+
+`wp5-v4` applies the targeted C revision while preserving A, B, all 18 task
+packets and hidden oracles, the model, rubric semantics, batching, blinding,
+and failure handling from v3. The new C readiness rules require:
+
+1. audit and other controls necessary to make a risk boundary true remain
+   inside the reversible slice and its verification;
+2. every non-fallback decision dependency, including migration, resolves before
+   readiness;
+3. novice users authorize observable outcomes rather than providers or
+   architecture labels;
+4. clear local reversible tasks keep the zero-question quick path.
+
+All v4 pretrial inputs are hash-frozen. A no-task schema request using
+`gpt-5.4` at medium reasoning passed with zero task or oracle payloads and zero
+subject batches started. This checkpoint proves protocol and service
+compatibility only; it is not evidence that C improved.

@@ -12,12 +12,12 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PROTOCOL = ROOT / "evaluation-v3"
+PROTOCOL = ROOT / "evaluation-v4"
 RESULTS = PROTOCOL / "results"
 WORKFLOWS = ("A", "B", "C")
 MODEL = "gpt-5.4"
 REASONING = "medium"
-SEED = "coderail-wp5-v3"
+SEED = "coderail-wp5-v4"
 POWERSHELL = r"C:\Program Files\PowerShell\7\pwsh.exe"
 NULL_METRICS = (
     "post_start_contract_corrections",
@@ -67,7 +67,7 @@ def run_codex(
     stderr_path: Path,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="coderail-wp5-v3-") as temp:
+    with tempfile.TemporaryDirectory(prefix="coderail-wp5-v4-") as temp:
         codex_args = [
             "-a",
             "never",
@@ -176,7 +176,7 @@ For a quick task, include one ready turn with question null. For guided work,
 record one question per turn and consume answers in order only when relevant.
 Stop once the contract is ready. Do not implement, score yourself, inspect the
 filesystem, or discuss the experiment. Return JSON matching the supplied
-schema, with protocol_version wp5-v3 and exactly one response per task.
+schema, with protocol_version wp5-v4 and exactly one response per task.
 
 TASK PACKETS
 {json.dumps(packets, indent=2, ensure_ascii=True)}
@@ -242,11 +242,62 @@ def aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
         )
         workflows[workflow] = summary
     return {
-        "protocol_version": "wp5-v3",
+        "protocol_version": "wp5-v4",
         "workflows": workflows,
         "implementation_evidence_complete": False,
         "decision": "INSUFFICIENT_IMPLEMENTATION_EVIDENCE",
     }
+
+
+def schema_preflight() -> int:
+    preflight = PROTOCOL / "preflight"
+    output_path = preflight / "schema-output.json"
+    event_path = preflight / "schema-events.jsonl"
+    stderr_path = preflight / "schema-stderr.log"
+    record_path = preflight / "schema-compatibility.json"
+    if any(path.exists() for path in (output_path, event_path, record_path)):
+        raise RuntimeError("Refusing to overwrite existing schema preflight")
+
+    verify_freeze()
+    prompt = """
+This is a JSON-schema compatibility preflight. No evaluation task, hidden
+oracle, workflow treatment, or user data is present. Return exactly one
+response with protocol_version wp5-v4, task_id __schema_preflight__, route
+quick, one turn whose question and scripted_answer_index are null and whose
+draft_ready is true, a ready contract whose G/T/S/V/X/P strings are
+\"preflight\", no promotions, and stop_after_contract true.
+""".strip()
+    output, event = run_codex(
+        prompt=prompt,
+        schema=PROTOCOL / "model-output.schema.json",
+        output_path=output_path,
+        event_path=event_path,
+        stderr_path=stderr_path,
+    )
+    responses = output.get("responses", [])
+    if (
+        output.get("protocol_version") != "wp5-v4"
+        or len(responses) != 1
+        or responses[0].get("task_id") != "__schema_preflight__"
+    ):
+        raise RuntimeError("Schema preflight returned an unexpected payload")
+
+    write_json(
+        record_path,
+        {
+            "protocol_version": "wp5-v4",
+            "status": "passed",
+            "model": MODEL,
+            "reasoning_effort": REASONING,
+            "subject_batches_started": 0,
+            "task_or_oracle_payloads_sent": 0,
+            "schema": "model-output.schema.json",
+            "thread_id": event["thread_id"],
+            "usage": event["usage"],
+        },
+    )
+    verify_freeze()
+    return 0
 
 
 def main() -> int:
@@ -256,9 +307,16 @@ def main() -> int:
         "--results",
         type=Path,
         default=RESULTS,
-        help="Result directory; defaults to evaluation-v3/results.",
+        help="Result directory; defaults to evaluation-v4/results.",
+    )
+    parser.add_argument(
+        "--schema-preflight",
+        action="store_true",
+        help="Validate the frozen subject schema without sending task payloads.",
     )
     args = parser.parse_args()
+    if args.schema_preflight:
+        return schema_preflight()
     RESULTS = args.results.resolve()
 
     if RESULTS.exists() and any(RESULTS.rglob("*")):
@@ -272,7 +330,7 @@ def main() -> int:
         by_category[task["category"]].append(task)
 
     metadata: dict[str, Any] = {
-        "protocol_version": "wp5-v3",
+        "protocol_version": "wp5-v4",
         "model": MODEL,
         "reasoning_effort": REASONING,
         "codex_version": codex_version(),
@@ -416,7 +474,7 @@ def main() -> int:
             }
             raw_path, thread_id = subject_paths[(workflow, task_id)]
             record = {
-                "protocol_version": "wp5-v3",
+                "protocol_version": "wp5-v4",
                 "task_id": task_id,
                 "workflow": workflow,
                 "model": {
@@ -438,7 +496,7 @@ def main() -> int:
             write_json(
                 RESULTS / "judge-notes" / f"{workflow}-{task_id}.json",
                 {
-                    "protocol_version": "wp5-v3",
+                    "protocol_version": "wp5-v4",
                     "task_id": task_id,
                     "workflow": workflow,
                     "notes": judged["notes"],

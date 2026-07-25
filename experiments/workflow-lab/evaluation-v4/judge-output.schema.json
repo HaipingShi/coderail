@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WP5 v2 Blind Judge Batch Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol_version", "observations"],
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "const": "wp5-v4"
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "opaque_id",
+          "turns_before_readiness",
+          "useful_questions",
+          "user_visible_technical_choices",
+          "unsupported_assumptions",
+          "human_interruptions",
+          "notes"
+        ],
+        "properties": {
+          "opaque_id": {
+            "type": "string"
+          },
+          "turns_before_readiness": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "useful_questions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "user_visible_technical_choices": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unsupported_assumptions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "human_interruptions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -376,6 +376,20 @@ WP5 v3 contract-phase result:
   remains null. The only valid decision is
   `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`, not ADOPT.
 
+WP5 v4 revision checkpoint:
+
+- A, B, all 18 tasks and hidden oracles, rubric semantics, model, batching,
+  blinding, and failure handling remain unchanged from v3.
+- C now treats required audit and other risk controls as part of the reversible
+  slice rather than deferrable work.
+- C must resolve every non-fallback decision dependency, including migration,
+  before readiness.
+- Novice-facing questions own observable outcomes; provider and architecture
+  feasibility becomes agent investigation or a stop condition.
+- Clear local reversible tasks retain the zero-question quick path.
+- Frozen hashes pass and the no-task `gpt-5.4` schema preflight succeeded before
+  any subject batch.
+
 ### WP6 - Review adoption
 
 Produce one decision:
@@ -437,16 +451,14 @@ Stop implementation and return to design if:
 
 ## 7. Immediate Next Slice
 
-The next implementation slice is WP5 evaluation preparation and execution:
+The next implementation slice is the frozen `wp5-v4` contract-phase rerun:
 
-1. Freeze prompts and scoring rubrics for workflows A, B, and C.
-2. Create the 18-task evaluation manifest from the required task classes.
-3. Run blind, reproducible trials with stable repository fixtures and model
-   settings.
-4. Record turns, useful questions, unsupported assumptions, corrections,
-   scope, closeout, tokens, and interruption counts.
-5. Compare results against the adoption thresholds before making any native
-   integration proposal.
+1. Execute all 12 subject batches with the unchanged model policy.
+2. Execute four workflow-masked blind-judge batches.
+3. Compare v4 C against unchanged A/B and the recorded v3 result.
+4. Keep all implementation and post-close metrics null.
+5. Revise or reject C unless the measured contract-phase signal improves; do
+   not make a native integration proposal from prompt wording alone.
 
 This slice remains inside the isolated lab on a feature branch. It does not
 require ending CodeRail's stabilization freeze or changing the shipping

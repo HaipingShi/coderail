@@ -1,0 +1,16 @@
+{
+  "protocol_version": "wp5-v4",
+  "status": "passed",
+  "model": "gpt-5.4",
+  "reasoning_effort": "medium",
+  "subject_batches_started": 0,
+  "task_or_oracle_payloads_sent": 0,
+  "schema": "model-output.schema.json",
+  "thread_id": "019f9843-5aa2-75f2-9721-5b87feedb08a",
+  "usage": {
+    "input_tokens": 15847,
+    "cached_input_tokens": 2432,
+    "output_tokens": 120,
+    "reasoning_output_tokens": 15
+  }
+}

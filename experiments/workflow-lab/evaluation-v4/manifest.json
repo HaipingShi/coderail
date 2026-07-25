@@ -1,0 +1,487 @@
+{
+  "protocol_version": "wp5-v4",
+  "trial_design": {
+    "workflows": ["A", "B", "C"],
+    "task_order": "deterministically shuffled per workflow",
+    "answers_are_withheld_until_questioned": true,
+    "oracle_is_hidden_from_subject": true,
+    "implementation_phase": "not implied by contract-phase completion"
+  },
+  "tasks": [
+    {
+      "id": "clear-01-toolbar-label",
+      "category": "clear-local-reversible",
+      "user_profile": "novice",
+      "request": "Rename the existing Save toolbar button to Store. Do not change behavior or shortcuts.",
+      "repository_evidence": [
+        "src/ui/toolbar.tsx owns the label",
+        "tests/toolbar-label.test.ts asserts the visible label",
+        "the action and shortcut are separate symbols"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Only the visible toolbar label should change.",
+          "changes": ["S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": ["G", "T", "S", "V"],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": ["rename the command id", "change persistence"]
+      }
+    },
+    {
+      "id": "clear-02-empty-state-copy",
+      "category": "clear-local-reversible",
+      "user_profile": "novice",
+      "request": "Change the empty inbox text to 'No messages yet' using the existing snapshot test.",
+      "repository_evidence": [
+        "src/inbox/EmptyState.tsx contains the only matching text",
+        "tests/inbox-empty-state.test.tsx owns the snapshot",
+        "no localization layer is configured"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use that exact text and make no layout changes.",
+          "changes": ["G", "S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": ["G", "S", "V"],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": ["add localization", "redesign empty state"]
+      }
+    },
+    {
+      "id": "clear-03-report-export",
+      "category": "clear-local-reversible",
+      "user_profile": "expert",
+      "request": "Add CSV export through the existing report export seam for the accepted column set.",
+      "repository_evidence": [
+        "src/reports/export.ts exposes a serializer seam",
+        "src/reports/columns.ts marks the accepted columns",
+        "tests/report-export.test.ts covers headers, escaping, and rows"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "CSV only; no scheduled delivery or extra columns.",
+          "changes": ["S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": ["T", "S", "V"],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": ["add another format", "persist export jobs"]
+      }
+    },
+    {
+      "id": "clear-04-cli-alias",
+      "category": "clear-local-reversible",
+      "user_profile": "expert",
+      "request": "Add 'ls' as an alias for the existing read-only 'list' CLI command and cover it in the parser test.",
+      "repository_evidence": [
+        "src/cli/parser.ts has an alias table",
+        "list has no side effects",
+        "tests/cli-parser.test.ts covers aliases"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Keep 'list' canonical and add only the 'ls' alias.",
+          "changes": ["T", "S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": ["T", "S", "V"],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": ["deprecate list", "change command output"]
+      }
+    },
+    {
+      "id": "clear-05-timeout-default",
+      "category": "clear-local-reversible",
+      "user_profile": "expert",
+      "request": "Raise the test-only polling timeout from 2 seconds to 3 seconds in the shared test helper.",
+      "repository_evidence": [
+        "tests/helpers/poll.ts owns the test-only default",
+        "production callers do not import the helper",
+        "tests/poll-helper.test.ts checks the default"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Change only the test helper default.",
+          "changes": ["S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": ["T", "S", "V"],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": ["change production timeouts", "add retries"]
+      }
+    },
+    {
+      "id": "clear-06-tooltip",
+      "category": "clear-local-reversible",
+      "user_profile": "novice",
+      "request": "Add the text tooltip 'Copy link' to the existing icon button. Keyboard and click behavior stay unchanged.",
+      "repository_evidence": [
+        "src/share/CopyLinkButton.tsx owns the icon button",
+        "the repository already uses Tooltip for adjacent buttons",
+        "tests/copy-link-button.test.tsx covers accessible naming"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use the existing tooltip component and exact text.",
+          "changes": ["T", "S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": ["G", "S", "V"],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": ["replace the icon", "change button behavior"]
+      }
+    },
+    {
+      "id": "ambiguous-01-login-audience",
+      "category": "ambiguous-cross-module",
+      "user_profile": "novice",
+      "request": "Add login to the application.",
+      "repository_evidence": [
+        "a session seam exists",
+        "no user, role, or authorization model exists",
+        "data records currently have no owner field"
+      ],
+      "scripted_answers": [
+        {
+          "when": "audience is asked",
+          "answer": "Several independent customers will sign in and must not see each other's data.",
+          "changes": ["G", "S", "P"]
+        },
+        {
+          "when": "identity provider is asked",
+          "answer": "Use the existing provider if it can isolate users; otherwise stop.",
+          "changes": ["T", "X"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "audience-boundary",
+        "decisive_coordinates": ["G", "S", "P", "X"],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": ["single local owner", "authentication implies authorization"]
+      }
+    },
+    {
+      "id": "ambiguous-02-notification-channel",
+      "category": "ambiguous-cross-module",
+      "user_profile": "novice",
+      "request": "Notify users when a build finishes.",
+      "repository_evidence": [
+        "the app has in-product notifications",
+        "no email or mobile push provider is configured",
+        "build completion is already an internal event"
+      ],
+      "scripted_answers": [
+        {
+          "when": "delivery outcome is asked",
+          "answer": "An in-app notification is enough for the first version.",
+          "changes": ["G", "T", "S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "delivery-boundary",
+        "decisive_coordinates": ["G", "T", "S"],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": ["email delivery", "mobile push", "background retry service"]
+      }
+    },
+    {
+      "id": "ambiguous-03-csv-import-mapping",
+      "category": "ambiguous-cross-module",
+      "user_profile": "novice",
+      "request": "Let people import contacts from CSV.",
+      "repository_evidence": [
+        "contacts require name and one reachable address",
+        "no CSV schema or import preview exists",
+        "duplicate email addresses are currently rejected"
+      ],
+      "scripted_answers": [
+        {
+          "when": "invalid row behavior is asked",
+          "answer": "Show a preview and let the user skip invalid rows; do not partially save before confirmation.",
+          "changes": ["T", "S", "V", "X"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "failure-boundary",
+        "decisive_coordinates": ["T", "S", "V", "X"],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": ["silently drop rows", "commit partial import before confirmation"]
+      }
+    },
+    {
+      "id": "ambiguous-04-team-invitations",
+      "category": "ambiguous-cross-module",
+      "user_profile": "expert",
+      "request": "Add team invitations using the current membership service.",
+      "repository_evidence": [
+        "membership service supports direct admin-created membership",
+        "there is no pending invitation state",
+        "organization roles are owner and member"
+      ],
+      "scripted_answers": [
+        {
+          "when": "acceptance authority is asked",
+          "answer": "Invitees must accept before membership exists; links expire after 7 days.",
+          "changes": ["T", "S", "P", "X"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "membership-boundary",
+        "decisive_coordinates": ["T", "S", "P", "X"],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": ["create membership before acceptance", "non-expiring token"]
+      }
+    },
+    {
+      "id": "ambiguous-05-search-filter",
+      "category": "ambiguous-cross-module",
+      "user_profile": "expert",
+      "request": "Add an Account filter to global search.",
+      "repository_evidence": [
+        "global search spans people and organizations",
+        "authentication calls a person Account",
+        "billing calls an organization account"
+      ],
+      "scripted_answers": [
+        {
+          "when": "account meaning is asked",
+          "answer": "Filter by billable organization, not sign-in identity.",
+          "changes": ["G", "S", "V"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": ["G", "S", "V"],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": ["Account means identity", "reuse authentication model"]
+      }
+    },
+    {
+      "id": "ambiguous-06-offline-mode",
+      "category": "ambiguous-cross-module",
+      "user_profile": "novice",
+      "request": "Make the editor work offline.",
+      "repository_evidence": [
+        "documents are currently server-authoritative",
+        "the client has a read cache but no mutation queue",
+        "conflict resolution is undefined"
+      ],
+      "scripted_answers": [
+        {
+          "when": "offline capability is asked",
+          "answer": "For the first version, people only need to read previously opened documents offline.",
+          "changes": ["G", "T", "S", "V"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "offline-capability-boundary",
+        "decisive_coordinates": ["G", "T", "S", "V"],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": ["offline editing", "automatic conflict resolution"]
+      }
+    },
+    {
+      "id": "risk-01-local-only-files",
+      "category": "high-risk-persistent",
+      "user_profile": "novice",
+      "request": "Add local-only file processing.",
+      "repository_evidence": [
+        "a remote AI provider receives derived text today",
+        "telemetry can include error payload excerpts",
+        "an on-device parser supports the primary format"
+      ],
+      "scripted_answers": [
+        {
+          "when": "privacy boundary is asked",
+          "answer": "File bytes, metadata, and derived text must all stay on this device, including AI and telemetry.",
+          "changes": ["S", "V", "X", "P"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "privacy-boundary",
+        "decisive_coordinates": ["S", "V", "X", "P"],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": ["derived text may leave device", "telemetry exception"]
+      }
+    },
+    {
+      "id": "risk-02-refund-authority",
+      "category": "high-risk-persistent",
+      "user_profile": "expert",
+      "request": "Let support agents refund customer payments.",
+      "repository_evidence": [
+        "payment provider exposes full and partial refund APIs",
+        "support role currently has read-only billing access",
+        "no approval threshold or audit event exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "refund authority is asked",
+          "answer": "Support may refund up to $100 with a required reason; larger refunds require an owner.",
+          "changes": ["S", "V", "P", "X"]
+        },
+        {
+          "when": "partial refunds are asked",
+          "answer": "Allow full or partial refunds within that limit.",
+          "changes": ["T", "V"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "money-authority-boundary",
+        "decisive_coordinates": ["S", "V", "P", "X"],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": ["unlimited support refunds", "refund without audit"]
+      }
+    },
+    {
+      "id": "risk-03-data-retention",
+      "category": "high-risk-persistent",
+      "user_profile": "novice",
+      "request": "Automatically clean up old customer uploads.",
+      "repository_evidence": [
+        "uploads may be referenced by completed reports",
+        "backups retain objects for 30 days",
+        "no accepted retention policy exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "retention outcome is asked",
+          "answer": "Delete uploads 90 days after their last report finishes, but keep report summaries.",
+          "changes": ["G", "S", "P"]
+        },
+        {
+          "when": "recovery semantics are asked",
+          "answer": "Tell users deletion is final even though disaster-recovery backups age out later.",
+          "changes": ["V", "X", "P"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "retention-boundary",
+        "decisive_coordinates": ["G", "S", "P", "X"],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": ["delete referenced reports", "immediate backup erasure"]
+      }
+    },
+    {
+      "id": "domain-01-account",
+      "category": "domain-language-conflict",
+      "user_profile": "novice",
+      "request": "Use Account in the new billing flow, consistent with the rest of the app.",
+      "repository_evidence": [
+        "auth Account means a sign-in identity",
+        "billing account_id points to a billable organization",
+        "no glossary decision resolves the conflict"
+      ],
+      "scripted_answers": [
+        {
+          "when": "meaning is asked",
+          "answer": "The organization owns invoices. Call it Organization in the new flow.",
+          "changes": ["G", "T", "S"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": ["G", "T", "S"],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": ["Account has one stable meaning", "promote glossary before code agrees"]
+      }
+    },
+    {
+      "id": "domain-02-workspace",
+      "category": "domain-language-conflict",
+      "user_profile": "expert",
+      "request": "Expose Workspace IDs in the public API.",
+      "repository_evidence": [
+        "editor Workspace means an open local window",
+        "sync Workspace means a persisted shared container",
+        "the public API currently exposes neither term"
+      ],
+      "scripted_answers": [
+        {
+          "when": "workspace meaning is asked",
+          "answer": "Expose the persisted shared container; call the local window EditorSession.",
+          "changes": ["G", "S", "P"]
+        },
+        {
+          "when": "migration is asked",
+          "answer": "No public migration is needed because the term is new externally.",
+          "changes": ["T", "X"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": ["G", "S", "P"],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": ["expose local window ids", "both meanings share one schema"]
+      }
+    },
+    {
+      "id": "domain-03-materialization",
+      "category": "domain-language-conflict",
+      "user_profile": "expert",
+      "request": "Apply materialization when a lesson gets a real filesystem location.",
+      "repository_evidence": [
+        "lesson state currently uses materialized for cached HTML",
+        "course import uses materialize for assigning filesystem identities",
+        "parent and child transitions differ between the two operations"
+      ],
+      "scripted_answers": [
+        {
+          "when": "materialization meaning is asked",
+          "answer": "This request means assigning filesystem identities to the lesson and its containing hierarchy.",
+          "changes": ["G", "T", "S"]
+        },
+        {
+          "when": "term naming is asked",
+          "answer": "Use location binding for this operation; leave cached HTML terminology unchanged.",
+          "changes": ["P"]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": ["G", "T", "S", "P"],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": ["cached HTML transition", "promote materialization unchanged"]
+      }
+    }
+  ]
+}
