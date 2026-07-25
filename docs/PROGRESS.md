@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Freeze corrected wp5-v2 protocol (T-027)
+
+- Done: Freeze corrected wp5-v2 protocol
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Execute the frozen wp5-v2 subject and blind-judge batches, aggregate observations, and report contract-phase evidence
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: v2 changes only the preflight defects and preserves task/treatment semantics
+- Acceptance [done]: gpt-5.4 medium availability evidence is recorded before freezing
+- Acceptance [done]: all contract-unobservable metrics accept null and cannot authorize adoption
+- Acceptance [done]: new content hashes are frozen with zero subject outputs
+
 ## 2026-07-25 - Run frozen wp5-v1 comparative trials (T-024)
 
 - Done: Run frozen wp5-v1 comparative trials

@@ -105,6 +105,11 @@ contract-only trial. Both findings are recorded under
 `evaluation/results/wp5-v1`; no silent model substitution or false zero was
 accepted. A corrected `wp5-v2` must be frozen before execution.
 
+`evaluation-v2/` is that corrected freeze. It preserves all 18 task packets,
+A/B/C treatments, oracles, and thresholds; pins the preflight-confirmed
+`gpt-5.4` medium configuration; makes every unobservable follow-through metric
+nullable; and freezes separate subject, blind-judge, and execution contracts.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 

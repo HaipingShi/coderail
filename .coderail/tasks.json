@@ -805,5 +805,105 @@
         }
       ]
     }
+  },
+  "T-027": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v2_protocol.py"
+    ],
+    "accept": [
+      "v2 changes only the preflight defects and preserves task/treatment semantics",
+      "gpt-5.4 medium availability evidence is recorded before freezing",
+      "all contract-unobservable metrics accept null and cannot authorize adoption",
+      "new content hashes are frozen with zero subject outputs"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T06:08:42.243371+00:00",
+      "head": "09ba7df9a294ca94af558791e29a76d53666c62d",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-25T06:16:24.532702+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/freeze.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/judge-output.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/judge.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/manifest.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/model-output.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/rubric.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/run-spec.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/trial-result.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/workflows/A.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/workflows/B.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/workflows/C.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v2_protocol.py"
+        }
+      ]
+    }
   }
 }

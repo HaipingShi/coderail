@@ -245,7 +245,7 @@ WP4 result:
 
 ### WP5 - Run comparative evaluation
 
-Status: wp5-v1 preflight aborted before trials; wp5-v2 correction required
+Status: wp5-v2 corrected protocol frozen; subject trials pending
 
 Compare:
 
@@ -329,6 +329,16 @@ WP5 preflight:
   contract-only trials, just like unobserved implementation fields.
 - `evaluation/results/wp5-v1/preflight.jsonl` records both facts. Subject trial
   count remains zero and all frozen hashes remain intact.
+
+WP5 v2 correction:
+
+- `evaluation-v2/` preserves the v1 task packets, A/B/C workflow text, hidden
+  oracles, and adoption thresholds.
+- It pins the preflight-confirmed `gpt-5.4` model at medium reasoning.
+- It allows null for every follow-through metric unavailable to a contract-only
+  trial, including promotion reversals.
+- It freezes subject output, blind judge, batching, failure, and blinding
+  contracts before any v2 subject output exists.
 
 ### WP6 - Review adoption
 
