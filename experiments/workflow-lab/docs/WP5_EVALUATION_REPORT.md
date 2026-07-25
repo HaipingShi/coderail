@@ -153,3 +153,63 @@ All v4 pretrial inputs are hash-frozen. A no-task schema request using
 `gpt-5.4` at medium reasoning passed with zero task or oracle payloads and zero
 subject batches started. This checkpoint proves protocol and service
 compatibility only; it is not evidence that C improved.
+
+## v4 contract-phase results
+
+The v4 run completed 12 subject batches and four workflow-masked judge batches,
+covering all 54 cells.
+
+| Metric (sum unless marked) | A Baseline | B Expert grill | C Guided v4 |
+|---|---:|---:|---:|
+| Trials | 18 | 18 | 18 |
+| Turns before readiness | 16 | 14 | 14 |
+| Useful questions | 16 | 17 | 17 |
+| User-visible technical choices | 1 | 1 | 1 |
+| Unsupported assumptions | 3 | 1 | 0 |
+| Human interruptions | 16 | 17 | 17 |
+| Route correctness | 100% | 100% | 100% |
+| Allocated subject tokens | 73,903 | 75,968 | 97,603 |
+| First-pass `done` | not observed | not observed | not observed |
+
+C used 32.07% more subject tokens than A and 28.48% more than B. Its
+domain-language batches used 37,313 tokens versus A's 18,059, accounting for
+most of the excess.
+
+On the nine ambiguous and high-risk tasks targeted by the adoption threshold,
+unsupported assumptions were A=0, B=0, and C=0. C therefore fixed its v3
+high-risk failure but cannot demonstrate a 25% relative reduction against a
+v4 baseline already at zero.
+
+## v4 material findings
+
+- C kept required refund auditability and approval gating inside the contract.
+- C resolved both Workspace meaning and migration before readiness.
+- C preserved the zero-question path on all six clear tasks.
+- C still asked whether to reuse the existing identity provider. The blind
+  judge counted that provider gate as a novice-facing technical choice.
+- Overall unsupported assumptions improved to zero for C, but A changed from
+  one in v3 to three in v4 despite unchanged treatment text. That baseline
+  movement is evidence of single-run sampling variance, so the v3/v4 delta
+  cannot be treated as a pure causal estimate.
+
+The first execution attempt completed eight subject batches, then the local
+runner decoded a UTF-8 event stream with the Windows GBK default and failed
+after the next raw output had been persisted. The failure metadata and raw
+output were retained. The runner now declares UTF-8 explicitly; the identical
+input was retried and the eight complete raw/event pairs were reused. The final
+metadata identifies reused and executed batches, and all frozen hashes remain
+unchanged.
+
+## v4 disposition
+
+The treatment disposition is **REVISE**:
+
+1. eliminate the remaining novice-facing provider choice;
+2. reduce domain-language verbosity and token cost;
+3. use repeated seeds or multiple samples before attributing score movement to
+   the prompt revision.
+
+The aggregate decision remains `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
+Implementation corrections, scope edits, CodeRail closeout, post-close defects,
+and promotion reversals remain null. Nothing in v4 authorizes native
+integration.

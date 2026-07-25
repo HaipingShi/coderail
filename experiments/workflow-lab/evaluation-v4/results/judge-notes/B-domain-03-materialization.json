@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "domain-03-materialization",
+  "workflow": "B",
+  "notes": [
+    "Both questions directly changed decisive coordinates.",
+    "The contract cleanly separates filesystem identity from cached HTML semantics.",
+    "No unsupported assumption is required for readiness."
+  ]
+}

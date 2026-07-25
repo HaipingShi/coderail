@@ -1,0 +1,8 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "ambiguous-03-csv-import-mapping",
+  "workflow": "A",
+  "notes": [
+    "The question resolves invalid-row handling and no-save-before-confirmation behavior."
+  ]
+}

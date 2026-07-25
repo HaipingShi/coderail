@@ -1,0 +1,651 @@
+{
+  "items": [
+    {
+      "opaque_id": "c6d920582adc5460",
+      "user_profile": "novice",
+      "request": "Use Account in the new billing flow, consistent with the rest of the app.",
+      "repository_evidence": [
+        "auth Account means a sign-in identity",
+        "billing account_id points to a billable organization",
+        "no glossary decision resolves the conflict"
+      ],
+      "scripted_answers": [
+        {
+          "when": "meaning is asked",
+          "answer": "The organization owns invoices. Call it Organization in the new flow.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "Account has one stable meaning",
+          "promote glossary before code agrees"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-01-account",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "In the new billing flow, does \"Account\" mean the sign-in identity or the billable organization?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Make billing terminology in the new flow consistent with the app\u2019s intended domain meaning.",
+          "T": "Use Organization, not Account, for the billable owner in the new billing flow.",
+          "S": "Limit changes to the new billing flow language and related identifiers/messages where the billable owner is referenced; do not change auth identity terminology.",
+          "V": "Verify all touched billing-flow labels/copy/API-facing names refer to Organization for invoice ownership and no touched auth surfaces are renamed.",
+          "X": "Stop if the billing flow also depends on a separate unresolved naming conflict outside Organization vs Account.",
+          "P": "Work the smallest verifiable slice: billing-flow terminology only, with auth Account preserved for sign-in identity.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Account vs Organization",
+            "evidence": "Repository evidence says auth Account is a sign-in identity while billing account_id refers to a billable organization, and no glossary decision currently resolves the conflict."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "3077190d3e66d1f9",
+      "user_profile": "expert",
+      "request": "Expose Workspace IDs in the public API.",
+      "repository_evidence": [
+        "editor Workspace means an open local window",
+        "sync Workspace means a persisted shared container",
+        "the public API currently exposes neither term"
+      ],
+      "scripted_answers": [
+        {
+          "when": "workspace meaning is asked",
+          "answer": "Expose the persisted shared container; call the local window EditorSession.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "migration is asked",
+          "answer": "No public migration is needed because the term is new externally.",
+          "changes": [
+            "T",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "expose local window ids",
+          "both meanings share one schema"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-02-workspace",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Which internal `Workspace` semantic should be externalized in the public API: the open local window or the persisted shared container? Recommended: expose the persisted shared container as `Workspace` and rename the local window concept to `EditorSession`.",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Because `Workspace` is net-new in the public API, do we need a public migration or compatibility alias on first release? Recommended: no public migration; document the semantic boundary and keep the `EditorSession` rename internal/non-public.",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Expose stable public `Workspace` IDs for the persisted shared container without leaking the editor-window meaning.",
+          "T": "Define public `Workspace` as the persisted shared container, rename the local window concept to `EditorSession`, and record that no external migration path is required.",
+          "S": "Public API terminology, ID exposure semantics, and documentation/decision records only; excludes protocol implementation and internal storage redesign.",
+          "V": "The public API contract maps every `Workspace` ID to the persisted shared container, `EditorSession` is not exposed publicly, and release notes/docs state no public migration is needed because the term is externally new.",
+          "X": "Stop if existing external surfaces already use `Workspace` for the local window, or if the persisted container lacks a stable ID lifecycle suitable for public exposure.",
+          "P": "Persist until the semantic split, public naming, and migration posture are documented; no implementation.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Workspace",
+            "evidence": "Scripted answer selects the persisted shared container as the public meaning of `Workspace`, while repository evidence shows an existing internal collision with the local window meaning."
+          },
+          {
+            "kind": "glossary",
+            "name": "EditorSession",
+            "evidence": "Scripted answer assigns `EditorSession` to the open local window to prevent the public `Workspace` term from remaining overloaded."
+          },
+          {
+            "kind": "ADR",
+            "name": "Public Workspace Means Shared Container",
+            "evidence": "This is a consequential external contract decision: repository evidence shows two competing internal meanings, and the scripted answers choose one for public API exposure with no migration path."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "632953f77358c931",
+      "user_profile": "novice",
+      "request": "Use Account in the new billing flow, consistent with the rest of the app.",
+      "repository_evidence": [
+        "auth Account means a sign-in identity",
+        "billing account_id points to a billable organization",
+        "no glossary decision resolves the conflict"
+      ],
+      "scripted_answers": [
+        {
+          "when": "meaning is asked",
+          "answer": "The organization owns invoices. Call it Organization in the new flow.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "Account has one stable meaning",
+          "promote glossary before code agrees"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-01-account",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Which domain concept should the billing-flow label denote: the auth sign-in identity or the billable organization that owns invoices? Recommended: reserve `Account` for auth identity and rename the billing owner to `Organization` to remove the cross-domain homonym.",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Disambiguate billing-flow domain language so the invoice-owning entity is named consistently without colliding with auth terminology.",
+          "T": "Define the billing owner as `Organization` and reserve `Account` for sign-in identity in the new billing flow contract.",
+          "S": "Billing-flow naming, related copy/specs, and immediate terminology documentation only; excludes auth model changes and broader billing redesign.",
+          "V": "A review of the flow/spec shows invoices are owned by `Organization`, while `Account` refers only to auth identity.",
+          "X": "Stop if a third distinct business entity must also be represented in the same flow or if an external contract already requires `Account` for billing ownership.",
+          "P": "Persist through terminology resolution and immediate documentation proposals; no implementation.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Organization",
+            "evidence": "Scripted answer defines the invoice-owning billing entity as `Organization`, while repository evidence shows `billing account_id` currently points to that concept."
+          },
+          {
+            "kind": "ADR",
+            "name": "Reserve Account for Auth; Use Organization in Billing",
+            "evidence": "Repository evidence shows `Account` already means sign-in identity in auth, creating a consequential cross-domain naming conflict unless billing adopts `Organization`."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "b4139deb1fa3c904",
+      "user_profile": "expert",
+      "request": "Apply materialization when a lesson gets a real filesystem location.",
+      "repository_evidence": [
+        "lesson state currently uses materialized for cached HTML",
+        "course import uses materialize for assigning filesystem identities",
+        "parent and child transitions differ between the two operations"
+      ],
+      "scripted_answers": [
+        {
+          "when": "materialization meaning is asked",
+          "answer": "This request means assigning filesystem identities to the lesson and its containing hierarchy.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        },
+        {
+          "when": "term naming is asked",
+          "answer": "Use location binding for this operation; leave cached HTML terminology unchanged.",
+          "changes": [
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "P"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "cached HTML transition",
+          "promote materialization unchanged"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-03-materialization",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "When you say materialization here, do you mean cached-HTML generation or assigning a real filesystem location and identities to the lesson and its containing hierarchy?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Should this operation keep the term materialization, or should it use a distinct name to avoid conflicting with cached HTML state?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Clarify and apply the filesystem-location operation without colliding with existing cached-HTML terminology.",
+          "T": "Use location binding for the operation that assigns filesystem identities to a lesson and its containing hierarchy, leaving cached-HTML materialized terminology unchanged.",
+          "S": "Cover the lesson filesystem-location operation and the containing hierarchy transitions it requires; exclude cached HTML behavior and unrelated state model cleanup.",
+          "V": "Verify touched code/docs use location binding for filesystem identity assignment, retain materialized/materialize semantics for cached HTML, and align the lesson/hierarchy transition with the existing import-style operation.",
+          "X": "Stop if implementing the hierarchy transition requires a broader state-machine redesign beyond the lesson and containing hierarchy.",
+          "P": "Prefer the narrowest consistent slice: terminology split plus the filesystem identity assignment path only.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Materialized vs Location Binding",
+            "evidence": "Repository evidence shows materialized already means cached HTML, while course import uses materialize for filesystem identities."
+          },
+          {
+            "kind": "ADR",
+            "name": "Filesystem Identity Terminology",
+            "evidence": "The same term is used for two different operations with different parent/child transitions, which risks future state-model drift."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "ccde5332c533a977",
+      "user_profile": "expert",
+      "request": "Apply materialization when a lesson gets a real filesystem location.",
+      "repository_evidence": [
+        "lesson state currently uses materialized for cached HTML",
+        "course import uses materialize for assigning filesystem identities",
+        "parent and child transitions differ between the two operations"
+      ],
+      "scripted_answers": [
+        {
+          "when": "materialization meaning is asked",
+          "answer": "This request means assigning filesystem identities to the lesson and its containing hierarchy.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        },
+        {
+          "when": "term naming is asked",
+          "answer": "Use location binding for this operation; leave cached HTML terminology unchanged.",
+          "changes": [
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "P"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "cached HTML transition",
+          "promote materialization unchanged"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-03-materialization",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "EVALUATION RESPONSE\nroute: guided\nquestions:\n  - Recommendation: treat this request as the operation that assigns real filesystem identity, separate from cached HTML state. Reason: repository evidence shows materialized already means cached HTML in lesson state, while course import uses materialize for filesystem identity assignment. Impact: this decides which transition semantics and verification path belong in scope. Evidence: \"lesson state currently uses materialized for cached HTML\" and \"course import uses materialize for assigning filesystem identities.\" Uncertainty: the requested operation's intended meaning is unresolved. Reversibility: choosing the operation meaning is reversible before implementation. Question: when you say materialization here, what observable change should happen to the lesson?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "EVALUATION RESPONSE\nroute: guided\nquestions:\n  - Recommendation: name this filesystem-identity operation Location Binding and leave cached HTML terminology unchanged. Reason: the repository already uses materialized/materialize for a different concept, and parent/child transitions differ between the two operations. Impact: this avoids overloading one term across incompatible state transitions and lets verification cover hierarchy identity assignment without disturbing cached HTML flows. Evidence: \"course import uses materialize for assigning filesystem identities\" and \"parent and child transitions differ between the two operations.\" Uncertainty: only the preferred term for the new operation remains unresolved. Reversibility: introducing a new term for this slice is reversible and local. Question: should this filesystem-identity operation keep the word materialization, or should it get its own name?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: The requested operation means assigning filesystem identities to the lesson and its containing hierarchy; DECISION: name this operation Location Binding; FACT: cached HTML terminology remains unchanged.",
+          "T": "DECISION: apply Location Binding to lesson and containing hierarchy when a lesson gets a real filesystem location; FACT: parent/child transitions for this operation must follow the filesystem-identity path, not the cached-HTML path.",
+          "S": "IN: naming, state/transition semantics, and verification for filesystem identity assignment on lesson plus containing hierarchy; OUT: cached HTML materialized state behavior, unrelated lesson lifecycle changes, and terminology rewrites for existing cached HTML features.",
+          "V": "FACT: verification must show Location Binding assigns filesystem identities to the lesson and containing hierarchy with the correct parent/child transitions; FACT: verification must also confirm cached HTML terminology and behavior remain unchanged.",
+          "X": "STOP: if repository investigation cannot map the hierarchy transition rules for filesystem identity assignment from existing import behavior, stop and record that dependency instead of guessing.",
+          "P": "DECISION: persist the new term only after implementation evidence shows Location Binding is used consistently for filesystem identity assignment and cached HTML terminology is untouched.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "7b584e954fe62d6c",
+      "user_profile": "expert",
+      "request": "Expose Workspace IDs in the public API.",
+      "repository_evidence": [
+        "editor Workspace means an open local window",
+        "sync Workspace means a persisted shared container",
+        "the public API currently exposes neither term"
+      ],
+      "scripted_answers": [
+        {
+          "when": "workspace meaning is asked",
+          "answer": "Expose the persisted shared container; call the local window EditorSession.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "migration is asked",
+          "answer": "No public migration is needed because the term is new externally.",
+          "changes": [
+            "T",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "expose local window ids",
+          "both meanings share one schema"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-02-workspace",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "In the public API, should Workspace refer to the persisted shared container or the open local window?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Expose stable public IDs for the intended Workspace concept without leaking an internal term collision.",
+          "T": "Expose IDs for the persisted shared container in the public API and reserve EditorSession for the local-window concept.",
+          "S": "Limit changes to the public API surface and its naming for this concept; do not broaden into editor-local window exposure unless already required by touched endpoints.",
+          "V": "Verify new or updated public API surfaces expose persisted-container IDs as Workspace IDs and do not use Workspace to refer to the local window in touched API/schema/docs surfaces.",
+          "X": "Stop if the requested API exposure depends on publishing both concepts under conflicting names in the same release.",
+          "P": "Take the smallest externally verifiable slice: add or rename only the public-facing Workspace concept, with no public migration required.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Workspace vs EditorSession",
+            "evidence": "Repository evidence says editor Workspace is an open local window while sync Workspace is a persisted shared container."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "68d212ff55513132",
+      "user_profile": "expert",
+      "request": "Expose Workspace IDs in the public API.",
+      "repository_evidence": [
+        "editor Workspace means an open local window",
+        "sync Workspace means a persisted shared container",
+        "the public API currently exposes neither term"
+      ],
+      "scripted_answers": [
+        {
+          "when": "workspace meaning is asked",
+          "answer": "Expose the persisted shared container; call the local window EditorSession.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "migration is asked",
+          "answer": "No public migration is needed because the term is new externally.",
+          "changes": [
+            "T",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "expose local window ids",
+          "both meanings share one schema"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-02-workspace",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "EVALUATION RESPONSE\nroute: guided\nquestions:\n  - Recommendation: expose the persisted shared container in the public API and reserve a different term for the local window. Reason: repository evidence shows Workspace already names two different internal concepts, and the public API currently exposes neither. Impact: this fixes which object gets external IDs and prevents exporting internal UI terminology by accident. Evidence: \"editor Workspace means an open local window\" and \"sync Workspace means a persisted shared container.\" Uncertainty: the intended external meaning of Workspace is unresolved. Reversibility: selecting the external referent is reversible before implementation. Question: which observable thing should a public Workspace ID identify?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "EVALUATION RESPONSE\nroute: guided\nquestions:\n  - Recommendation: treat this as a new external term with no public migration, while renaming the local-window concept internally to EditorSession where needed. Reason: the public API exposes neither concept today, so the external surface is additive, not a rename of an existing public contract. Impact: this closes the release boundary and verification scope for the new API surface. Evidence: \"the public API currently exposes neither term.\" Uncertainty: the public migration expectation remains unresolved until confirmed. Reversibility: this additive decision is reversible before release if conflicting external evidence appears. Question: does exposing Workspace IDs require any public migration or compatibility handling?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: Public Workspace IDs identify the persisted shared container; DECISION: the local window concept is called EditorSession; DECISION: no public migration is needed because Workspace is new externally.",
+          "T": "DECISION: expose IDs for the persisted shared container on the public API; ASSUMPTION: any internal references needed to disambiguate the local-window concept can use EditorSession without changing the external slice.",
+          "S": "IN: public API naming and ID exposure for the persisted shared container, plus internal disambiguation needed to avoid Workspace ambiguity; OUT: migrations for existing public clients, broader editor architecture changes, and exposure of local-window IDs.",
+          "V": "FACT: verification must confirm public Workspace IDs map to the persisted shared container and that no public surface still ambiguously uses Workspace for the local window; FACT: additive-release verification should confirm no compatibility path is required because no prior public Workspace term existed.",
+          "X": "STOP: if an existing external integration or undocumented public endpoint already uses Workspace differently, stop and reopen migration analysis instead of assuming additive safety.",
+          "P": "DECISION: persist glossary/ADR artifacts only after implementation evidence shows the public API consistently uses Workspace for the shared container and EditorSession for the local window where disambiguation is required.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "24ba2bfed530d94d",
+      "user_profile": "expert",
+      "request": "Apply materialization when a lesson gets a real filesystem location.",
+      "repository_evidence": [
+        "lesson state currently uses materialized for cached HTML",
+        "course import uses materialize for assigning filesystem identities",
+        "parent and child transitions differ between the two operations"
+      ],
+      "scripted_answers": [
+        {
+          "when": "materialization meaning is asked",
+          "answer": "This request means assigning filesystem identities to the lesson and its containing hierarchy.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        },
+        {
+          "when": "term naming is asked",
+          "answer": "Use location binding for this operation; leave cached HTML terminology unchanged.",
+          "changes": [
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "P"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "cached HTML transition",
+          "promote materialization unchanged"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-03-materialization",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Which state transition does this request actually target: cached-HTML generation or assignment of filesystem identities to the lesson and containing hierarchy? Recommended: treat it as the filesystem-identity transition spanning the lesson and its parent hierarchy.",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Given `materialized` already names cached-HTML state, should this filesystem-identity operation use a distinct term? Recommended: use `location binding` for the filesystem-location operation and leave cached-HTML terminology unchanged.",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Eliminate the overloaded `materialization` terminology by naming the filesystem-location transition precisely and keeping cached-HTML state distinct.",
+          "T": "Define the requested operation as `location binding` for assigning filesystem identities to a lesson and its containing hierarchy, while preserving existing cached-HTML `materialized` terminology.",
+          "S": "State-transition naming and documentation for lesson/hierarchy filesystem assignment versus cached HTML only; excludes implementation of the transition machinery.",
+          "V": "Specs/docs distinguish `location binding` from cached-HTML `materialized`, and the lesson plus containing hierarchy are explicitly included in the filesystem-identity transition semantics.",
+          "X": "Stop if the hierarchy scope differs from the scripted answer, or if existing persistence/event names make `location binding` incompatible with established state models.",
+          "P": "Persist until both the semantic target and replacement term are documented with immediate glossary/ADR proposals; no implementation.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Location Binding",
+            "evidence": "Scripted answer explicitly chooses `location binding` for assigning filesystem identities to the lesson and containing hierarchy, avoiding collision with existing cached-HTML terminology."
+          },
+          {
+            "kind": "ADR",
+            "name": "Reserve Materialized for Cached HTML; Use Location Binding for Filesystem Identity",
+            "evidence": "Repository evidence shows `materialized` already refers to cached HTML, while `materialize` is also used for filesystem identities with different parent/child transitions, creating a consequential ambiguity that needs an explicit decision."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "94f8b6df55fcc6d6",
+      "user_profile": "novice",
+      "request": "Use Account in the new billing flow, consistent with the rest of the app.",
+      "repository_evidence": [
+        "auth Account means a sign-in identity",
+        "billing account_id points to a billable organization",
+        "no glossary decision resolves the conflict"
+      ],
+      "scripted_answers": [
+        {
+          "when": "meaning is asked",
+          "answer": "The organization owns invoices. Call it Organization in the new flow.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "Account has one stable meaning",
+          "promote glossary before code agrees"
+        ]
+      },
+      "subject_response": {
+        "task_id": "domain-01-account",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "EVALUATION RESPONSE\nroute: guided\nquestions:\n  - Recommendation: define the billable owner in the new billing flow as Organization, not Account. Reason: repository evidence shows Account already means a sign-in identity in auth and billing account_id points to a billable organization. Impact: this avoids cross-domain ambiguity in UI, API copy, and docs for the new flow. Evidence: \"auth Account means a sign-in identity\" and \"billing account_id points to a billable organization.\" Uncertainty: only the preferred user-facing term is unresolved. Reversibility: renaming this new flow term is local and reversible before implementation. Question: for the new billing flow, which real-world thing should own invoices?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: In the new billing flow, the invoice-owning entity is called Organization; FACT: auth Account remains the sign-in identity; FACT: repository evidence had no prior glossary decision resolving this conflict.",
+          "T": "DECISION: Replace new-flow uses of Account that refer to the billable organization with Organization; ASSUMPTION: existing auth Account behavior and naming stay unchanged outside this slice.",
+          "S": "IN: new billing flow labels, copy, and domain references for the invoice-owning entity; OUT: auth identity model changes, cross-app renames beyond the new flow, database/schema refactors unless separately required.",
+          "V": "FACT: verification must confirm the new billing flow consistently uses Organization for the invoice owner and does not relabel sign-in identity surfaces; FACT: review should cover UI/API copy touched by the flow for ambiguity regressions.",
+          "X": "STOP: if implementation requires changing established auth Account semantics or broad historical billing identifiers outside the new flow, stop and open a separate follow-up.",
+          "P": "DECISION: persist a glossary entry only after implementation evidence shows Organization is now the accepted billing term in this flow; until then, keep this as contract scope only.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    }
+  ]
+}

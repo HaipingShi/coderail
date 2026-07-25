@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "clear-03-report-export",
+  "workflow": "B",
+  "notes": [
+    "Ready on first contract turn.",
+    "ADR promotion is extra but contract preserves CSV-only seam scope."
+  ]
+}

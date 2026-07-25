@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "risk-02-refund-authority",
+  "workflow": "A",
+  "notes": [
+    "Asked the two decisive policy questions, then presented readiness separately.",
+    "Contract stays within bounded refund authority and includes audit expectations."
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "protocol_version": "wp5-v4",
+  "model": "gpt-5.4",
+  "reasoning_effort": "medium",
+  "codex_version": "codex-cli 0.137.0",
+  "token_allocation": "batch total divided across task cells",
+  "subject_batches": [
+    {
+      "workflow": "A",
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "tasks": [
+        "ambiguous-01-login-audience",
+        "ambiguous-05-search-filter",
+        "ambiguous-06-offline-mode",
+        "ambiguous-03-csv-import-mapping",
+        "ambiguous-02-notification-channel",
+        "ambiguous-04-team-invitations"
+      ],
+      "thread_id": "019f984a-3fd6-79b0-81d9-7923da6abcd6",
+      "usage": {
+        "input_tokens": 16990,
+        "cached_input_tokens": 2432,
+        "output_tokens": 2321,
+        "reasoning_output_tokens": 516
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "A",
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "tasks": [
+        "clear-03-report-export",
+        "clear-05-timeout-default",
+        "clear-02-empty-state-copy",
+        "clear-06-tooltip",
+        "clear-01-toolbar-label",
+        "clear-04-cli-alias"
+      ],
+      "thread_id": "019f984b-26d0-7de0-b78c-3d9c9d802b83",
+      "usage": {
+        "input_tokens": 17017,
+        "cached_input_tokens": 2432,
+        "output_tokens": 1405,
+        "reasoning_output_tokens": 119
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "A",
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "tasks": [
+        "domain-01-account",
+        "domain-03-materialization",
+        "domain-02-workspace"
+      ],
+      "thread_id": "019f984b-d47a-70c1-ae86-836e8db06894",
+      "usage": {
+        "input_tokens": 16660,
+        "cached_input_tokens": 2432,
+        "output_tokens": 1399,
+        "reasoning_output_tokens": 516
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "A",
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "tasks": [
+        "risk-01-local-only-files",
+        "risk-02-refund-authority",
+        "risk-03-data-retention"
+      ],
+      "thread_id": "019f984c-8142-7e60-b473-f5a95e2f96d8",
+      "usage": {
+        "input_tokens": 16665,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1446,
+        "reasoning_output_tokens": 516
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "B",
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "tasks": [
+        "ambiguous-06-offline-mode",
+        "ambiguous-05-search-filter",
+        "ambiguous-03-csv-import-mapping",
+        "ambiguous-02-notification-channel",
+        "ambiguous-01-login-audience",
+        "ambiguous-04-team-invitations"
+      ],
+      "thread_id": "019f984d-1ba5-7311-8933-778d4494148e",
+      "usage": {
+        "input_tokens": 18322,
+        "cached_input_tokens": 16768,
+        "output_tokens": 1896,
+        "reasoning_output_tokens": 0
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "B",
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "tasks": [
+        "clear-03-report-export",
+        "clear-01-toolbar-label",
+        "clear-06-tooltip",
+        "clear-05-timeout-default",
+        "clear-02-empty-state-copy",
+        "clear-04-cli-alias"
+      ],
+      "thread_id": "019f984e-6934-7f83-ac40-0c7147ce2308",
+      "usage": {
+        "input_tokens": 17049,
+        "cached_input_tokens": 2432,
+        "output_tokens": 1480,
+        "reasoning_output_tokens": 203
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "B",
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "tasks": [
+        "domain-01-account",
+        "domain-02-workspace",
+        "domain-03-materialization"
+      ],
+      "thread_id": "019f984f-06de-7893-ae7c-d043b6cafb24",
+      "usage": {
+        "input_tokens": 16695,
+        "cached_input_tokens": 15232,
+        "output_tokens": 2292,
+        "reasoning_output_tokens": 1034
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "B",
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "tasks": [
+        "risk-02-refund-authority",
+        "risk-01-local-only-files",
+        "risk-03-data-retention"
+      ],
+      "thread_id": "019f984f-f168-73c0-bcb1-66e45a66f308",
+      "usage": {
+        "input_tokens": 16700,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1534,
+        "reasoning_output_tokens": 258
+      },
+      "source": "resumed"
+    },
+    {
+      "workflow": "C",
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "tasks": [
+        "ambiguous-02-notification-channel",
+        "ambiguous-06-offline-mode",
+        "ambiguous-04-team-invitations",
+        "ambiguous-01-login-audience",
+        "ambiguous-03-csv-import-mapping",
+        "ambiguous-05-search-filter"
+      ],
+      "thread_id": "019f9854-5774-7983-91f5-f2e394a7a2c2",
+      "usage": {
+        "input_tokens": 17362,
+        "cached_input_tokens": 2432,
+        "output_tokens": 3280,
+        "reasoning_output_tokens": 516
+      },
+      "source": "executed"
+    },
+    {
+      "workflow": "C",
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "tasks": [
+        "clear-02-empty-state-copy",
+        "clear-01-toolbar-label",
+        "clear-06-tooltip",
+        "clear-04-cli-alias",
+        "clear-03-report-export",
+        "clear-05-timeout-default"
+      ],
+      "thread_id": "019f9855-7cbc-7ae0-9443-8f0c4b14b981",
+      "usage": {
+        "input_tokens": 17453,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1552,
+        "reasoning_output_tokens": 104
+      },
+      "source": "executed"
+    },
+    {
+      "workflow": "C",
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "tasks": [
+        "domain-01-account",
+        "domain-03-materialization",
+        "domain-02-workspace"
+      ],
+      "thread_id": "019f9856-225d-7563-bd77-34639071f7c0",
+      "usage": {
+        "input_tokens": 34789,
+        "cached_input_tokens": 32000,
+        "output_tokens": 2524,
+        "reasoning_output_tokens": 827
+      },
+      "source": "executed"
+    },
+    {
+      "workflow": "C",
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "tasks": [
+        "risk-01-local-only-files",
+        "risk-02-refund-authority",
+        "risk-03-data-retention"
+      ],
+      "thread_id": "019f9857-1a47-71a2-84ce-b8e5f401ce03",
+      "usage": {
+        "input_tokens": 17098,
+        "cached_input_tokens": 15232,
+        "output_tokens": 3545,
+        "reasoning_output_tokens": 2019
+      },
+      "source": "executed"
+    }
+  ],
+  "judge_batches": [
+    {
+      "category": "ambiguous-cross-module",
+      "status": "completed",
+      "items": 18,
+      "thread_id": "019f9858-4485-7743-8315-92fca951129b",
+      "usage": {
+        "input_tokens": 27873,
+        "cached_input_tokens": 2432,
+        "output_tokens": 2929,
+        "reasoning_output_tokens": 1701
+      },
+      "source": "executed"
+    },
+    {
+      "category": "clear-local-reversible",
+      "status": "completed",
+      "items": 18,
+      "thread_id": "019f9859-437b-78e2-bd2b-b280238e4e61",
+      "usage": {
+        "input_tokens": 25005,
+        "cached_input_tokens": 2432,
+        "output_tokens": 2143,
+        "reasoning_output_tokens": 820
+      },
+      "source": "executed"
+    },
+    {
+      "category": "domain-language-conflict",
+      "status": "completed",
+      "items": 9,
+      "thread_id": "019f985a-163b-7851-88ae-cdf020fad987",
+      "usage": {
+        "input_tokens": 22785,
+        "cached_input_tokens": 15232,
+        "output_tokens": 2138,
+        "reasoning_output_tokens": 1370
+      },
+      "source": "executed"
+    },
+    {
+      "category": "high-risk-persistent",
+      "status": "completed",
+      "items": 9,
+      "thread_id": "019f985a-e5cd-7a53-91b8-23c0def7c4ae",
+      "usage": {
+        "input_tokens": 22769,
+        "cached_input_tokens": 15232,
+        "output_tokens": 1854,
+        "reasoning_output_tokens": 1117
+      },
+      "source": "executed"
+    }
+  ]
+}

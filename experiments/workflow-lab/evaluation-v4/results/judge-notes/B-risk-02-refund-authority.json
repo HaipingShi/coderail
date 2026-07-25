@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "risk-02-refund-authority",
+  "workflow": "B",
+  "notes": [
+    "First question establishes the authority boundary; second resolves refund mode within that boundary.",
+    "Contract includes required audit and approval controls, avoiding the oracle's forbidden assumptions."
+  ]
+}

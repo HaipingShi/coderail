@@ -1,0 +1,8 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "ambiguous-06-offline-mode",
+  "workflow": "A",
+  "notes": [
+    "The question resolves whether offline scope is read-only or full editing."
+  ]
+}

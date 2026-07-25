@@ -390,6 +390,25 @@ WP5 v4 revision checkpoint:
 - Frozen hashes pass and the no-task `gpt-5.4` schema preflight succeeded before
   any subject batch.
 
+WP5 v4 contract-phase result:
+
+- All 12 subject and four workflow-masked judge batches completed 54 cells.
+- C recorded zero unsupported assumptions versus A=3 and B=1 and preserved
+  100% quick-path routing.
+- On the nine ambiguous/high-risk tasks used by the adoption threshold,
+  unsupported assumptions were A=0, B=0, C=0. The baseline floor prevents a
+  measured 25% reduction in this run.
+- The refund audit and Workspace migration regressions were corrected.
+- The login provider gate still counted as one novice-facing technical choice.
+- C used 97,603 subject tokens, 32.07% more than A and 28.48% more than B;
+  domain-language batches account for most of the excess.
+- Unchanged A moved from one unsupported assumption in v3 to three in v4,
+  demonstrating single-run sampling variance and limiting causal claims from
+  the v3/v4 comparison.
+- Implementation and post-close evidence remains null. The current treatment
+  disposition is REVISE and the aggregate adoption decision remains
+  `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
+
 ### WP6 - Review adoption
 
 Produce one decision:
@@ -451,14 +470,17 @@ Stop implementation and return to design if:
 
 ## 7. Immediate Next Slice
 
-The next implementation slice is the frozen `wp5-v4` contract-phase rerun:
+The next implementation slice is a bounded treatment decision, not another
+automatic full rerun:
 
-1. Execute all 12 subject batches with the unchanged model policy.
-2. Execute four workflow-masked blind-judge batches.
-3. Compare v4 C against unchanged A/B and the recorded v3 result.
-4. Keep all implementation and post-close metrics null.
-5. Revise or reject C unless the measured contract-phase signal improves; do
-   not make a native integration proposal from prompt wording alone.
+1. Remove the remaining novice-facing provider choice from C.
+2. Reduce C's domain-language verbosity without weakening dependency closure.
+3. Add repeated seeds or multiple samples so an unchanged baseline can estimate
+   run variance.
+4. Decide between a smaller v5 contract-phase replication and implementation
+   follow-through on the unchanged v4 treatment.
+5. Keep native integration frozen until implementation and closeout evidence
+   exists.
 
 This slice remains inside the isolated lab on a feature branch. It does not
 require ending CodeRail's stabilization freeze or changing the shipping

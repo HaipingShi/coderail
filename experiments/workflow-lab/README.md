@@ -130,6 +130,15 @@ unchanged. Only C now makes risk-control closure, complete decision-dependency
 closure, novice outcome ownership, and clear-task quick-path preservation
 explicit. Its no-task schema preflight passed before any subject batch.
 
+The v4 run completed all 54 cells. C recorded zero unsupported assumptions
+versus A=3 and B=1, and retained 100% clear-task routing. It also used 32.07%
+more subject tokens than A and still exposed one provider-related technical
+choice to a novice. On the acceptance-targeted ambiguous/risky subset, all
+three workflows were already at zero unsupported assumptions, so the required
+25% relative reduction cannot be established from this run. The treatment
+therefore remains REVISE, not ADOPT, and implementation evidence is still
+absent.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 

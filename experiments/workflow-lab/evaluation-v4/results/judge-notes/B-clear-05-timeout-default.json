@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "clear-05-timeout-default",
+  "workflow": "B",
+  "notes": [
+    "Ready on first contract turn.",
+    "Extra ADR promotion does not change the ready contract scope."
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "40d4bd29921ce235": {
+    "workflow": "A",
+    "task_id": "ambiguous-01-login-audience"
+  },
+  "67512093c04687e4": {
+    "workflow": "B",
+    "task_id": "ambiguous-01-login-audience"
+  },
+  "728c1d4ba3e4c5c0": {
+    "workflow": "C",
+    "task_id": "ambiguous-01-login-audience"
+  },
+  "2ed64f5629588a42": {
+    "workflow": "A",
+    "task_id": "ambiguous-02-notification-channel"
+  },
+  "c36b3999dd6e5c15": {
+    "workflow": "B",
+    "task_id": "ambiguous-02-notification-channel"
+  },
+  "d24813e5b94ab19b": {
+    "workflow": "C",
+    "task_id": "ambiguous-02-notification-channel"
+  },
+  "7e17c9f32e03c255": {
+    "workflow": "A",
+    "task_id": "ambiguous-03-csv-import-mapping"
+  },
+  "c25f0054922487ea": {
+    "workflow": "B",
+    "task_id": "ambiguous-03-csv-import-mapping"
+  },
+  "ecb5069c60795e42": {
+    "workflow": "C",
+    "task_id": "ambiguous-03-csv-import-mapping"
+  },
+  "f1f5583284d3055b": {
+    "workflow": "A",
+    "task_id": "ambiguous-04-team-invitations"
+  },
+  "41e949328c57a543": {
+    "workflow": "B",
+    "task_id": "ambiguous-04-team-invitations"
+  },
+  "6a153f74e1d41ec1": {
+    "workflow": "C",
+    "task_id": "ambiguous-04-team-invitations"
+  },
+  "1488bba045e58d42": {
+    "workflow": "A",
+    "task_id": "ambiguous-05-search-filter"
+  },
+  "c2cca84007906701": {
+    "workflow": "B",
+    "task_id": "ambiguous-05-search-filter"
+  },
+  "3b235479d8e7d97f": {
+    "workflow": "C",
+    "task_id": "ambiguous-05-search-filter"
+  },
+  "7fdf4eb667009b03": {
+    "workflow": "A",
+    "task_id": "ambiguous-06-offline-mode"
+  },
+  "9a0e227270d80580": {
+    "workflow": "B",
+    "task_id": "ambiguous-06-offline-mode"
+  },
+  "380a2f15438df0dd": {
+    "workflow": "C",
+    "task_id": "ambiguous-06-offline-mode"
+  },
+  "9966d00aeb5f2c09": {
+    "workflow": "A",
+    "task_id": "clear-01-toolbar-label"
+  },
+  "21e221f8edfa2b6f": {
+    "workflow": "B",
+    "task_id": "clear-01-toolbar-label"
+  },
+  "64813c030b600bce": {
+    "workflow": "C",
+    "task_id": "clear-01-toolbar-label"
+  },
+  "9739cedf4fe3a5e4": {
+    "workflow": "A",
+    "task_id": "clear-02-empty-state-copy"
+  },
+  "bb8d98b0dcc79701": {
+    "workflow": "B",
+    "task_id": "clear-02-empty-state-copy"
+  },
+  "62a9f62939122700": {
+    "workflow": "C",
+    "task_id": "clear-02-empty-state-copy"
+  },
+  "7c2cebb8e32f25c2": {
+    "workflow": "A",
+    "task_id": "clear-03-report-export"
+  },
+  "2eba6e64bc1a9350": {
+    "workflow": "B",
+    "task_id": "clear-03-report-export"
+  },
+  "1c1b046da796c228": {
+    "workflow": "C",
+    "task_id": "clear-03-report-export"
+  },
+  "69263941e6a6f0a1": {
+    "workflow": "A",
+    "task_id": "clear-04-cli-alias"
+  },
+  "e2dc1476c0e4cd20": {
+    "workflow": "B",
+    "task_id": "clear-04-cli-alias"
+  },
+  "1a0fe6c8da635482": {
+    "workflow": "C",
+    "task_id": "clear-04-cli-alias"
+  },
+  "6da2f5ea9ee46fad": {
+    "workflow": "A",
+    "task_id": "clear-05-timeout-default"
+  },
+  "75b69a033b148259": {
+    "workflow": "B",
+    "task_id": "clear-05-timeout-default"
+  },
+  "684aceae4f2f7555": {
+    "workflow": "C",
+    "task_id": "clear-05-timeout-default"
+  },
+  "a9a99773f0477b9f": {
+    "workflow": "A",
+    "task_id": "clear-06-tooltip"
+  },
+  "74c768b75ad42a9a": {
+    "workflow": "B",
+    "task_id": "clear-06-tooltip"
+  },
+  "0039a1efcaa9ef5a": {
+    "workflow": "C",
+    "task_id": "clear-06-tooltip"
+  },
+  "c6d920582adc5460": {
+    "workflow": "A",
+    "task_id": "domain-01-account"
+  },
+  "632953f77358c931": {
+    "workflow": "B",
+    "task_id": "domain-01-account"
+  },
+  "94f8b6df55fcc6d6": {
+    "workflow": "C",
+    "task_id": "domain-01-account"
+  },
+  "7b584e954fe62d6c": {
+    "workflow": "A",
+    "task_id": "domain-02-workspace"
+  },
+  "3077190d3e66d1f9": {
+    "workflow": "B",
+    "task_id": "domain-02-workspace"
+  },
+  "68d212ff55513132": {
+    "workflow": "C",
+    "task_id": "domain-02-workspace"
+  },
+  "b4139deb1fa3c904": {
+    "workflow": "A",
+    "task_id": "domain-03-materialization"
+  },
+  "24ba2bfed530d94d": {
+    "workflow": "B",
+    "task_id": "domain-03-materialization"
+  },
+  "ccde5332c533a977": {
+    "workflow": "C",
+    "task_id": "domain-03-materialization"
+  },
+  "faceb4d75e3e4073": {
+    "workflow": "A",
+    "task_id": "risk-01-local-only-files"
+  },
+  "a8310d6c02fceb13": {
+    "workflow": "B",
+    "task_id": "risk-01-local-only-files"
+  },
+  "c30fcf1b7aefa9c5": {
+    "workflow": "C",
+    "task_id": "risk-01-local-only-files"
+  },
+  "d3d616f6236e643e": {
+    "workflow": "A",
+    "task_id": "risk-02-refund-authority"
+  },
+  "99d52170f0d97eab": {
+    "workflow": "B",
+    "task_id": "risk-02-refund-authority"
+  },
+  "39f61db8d08fc2f8": {
+    "workflow": "C",
+    "task_id": "risk-02-refund-authority"
+  },
+  "b538e69b1bd2e84e": {
+    "workflow": "A",
+    "task_id": "risk-03-data-retention"
+  },
+  "49e467e403b3e67b": {
+    "workflow": "B",
+    "task_id": "risk-03-data-retention"
+  },
+  "a00464afe24ba5d4": {
+    "workflow": "C",
+    "task_id": "risk-03-data-retention"
+  }
+}

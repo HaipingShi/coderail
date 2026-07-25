@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "risk-03-data-retention",
+  "workflow": "A",
+  "notes": [
+    "Asked the two oracle-decisive outcome questions before presenting readiness.",
+    "Final contract stays within the answered retention and deletion-semantics boundaries."
+  ]
+}

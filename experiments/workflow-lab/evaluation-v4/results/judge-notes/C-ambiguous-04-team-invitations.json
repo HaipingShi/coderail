@@ -1,0 +1,8 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "ambiguous-04-team-invitations",
+  "workflow": "C",
+  "notes": [
+    "The question resolves the authority boundary for invitations and membership creation."
+  ]
+}

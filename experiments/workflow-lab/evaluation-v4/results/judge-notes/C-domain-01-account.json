@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "domain-01-account",
+  "workflow": "C",
+  "notes": [
+    "Asked a useful domain-boundary question in novice-friendly terms.",
+    "Reached readiness after the single decisive answer.",
+    "Deferred glossary persistence until implementation evidence, avoiding the forbidden premature promotion."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "ambiguous-02-notification-channel",
+  "workflow": "B",
+  "notes": [
+    "The single question resolves the delivery boundary needed for readiness."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "risk-03-data-retention",
+  "workflow": "C",
+  "notes": [
+    "Both turns ask outcome/policy questions despite offering recommendations and rationale.",
+    "Contract remains consistent with delayed backup aging and preserved report summaries."
+  ]
+}

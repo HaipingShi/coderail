@@ -1,0 +1,8 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "ambiguous-05-search-filter",
+  "workflow": "A",
+  "notes": [
+    "The question cleanly disambiguates the overloaded domain term Account."
+  ]
+}

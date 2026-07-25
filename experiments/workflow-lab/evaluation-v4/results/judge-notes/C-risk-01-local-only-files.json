@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "risk-01-local-only-files",
+  "workflow": "C",
+  "notes": [
+    "Single question captures the decisive local-only privacy boundary.",
+    "Primary-format scoping is explicitly stated as a reversible slice rather than hidden as a contradiction."
+  ]
+}

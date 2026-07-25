@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "ambiguous-01-login-audience",
+  "workflow": "C",
+  "notes": [
+    "First question correctly targets the audience/isolation boundary.",
+    "Provider-reuse gate is counted as a user-visible technical choice."
+  ]
+}

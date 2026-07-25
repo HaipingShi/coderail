@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "clear-04-cli-alias",
+  "workflow": "C",
+  "notes": [
+    "Ready on first contract turn.",
+    "Keeps `list` canonical and limits verification to parser behavior."
+  ]
+}

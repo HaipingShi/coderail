@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "risk-01-local-only-files",
+  "workflow": "B",
+  "notes": [
+    "Single question directly establishes the missing privacy boundary.",
+    "Ready contract does not assume any off-device exception for derived text or telemetry."
+  ]
+}

@@ -52,10 +52,32 @@ def codex_version() -> str:
     result = subprocess.run(
         [POWERSHELL, "-NoLogo", "-NoProfile", "-Command", "codex -V"],
         text=True,
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
         check=True,
     )
     return result.stdout.strip()
+
+
+def parse_event_stream(stream: str) -> dict[str, Any]:
+    thread_id = None
+    usage: dict[str, Any] = {}
+    for line in stream.splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if event.get("type") == "thread.started":
+            thread_id = event.get("thread_id")
+        if event.get("type") == "turn.completed":
+            usage = event.get("usage", {})
+    return {
+        "thread_id": thread_id,
+        "usage": usage,
+        "total_tokens": int(usage.get("input_tokens", 0))
+        + int(usage.get("output_tokens", 0)),
+    }
 
 
 def run_codex(
@@ -104,6 +126,8 @@ def run_codex(
             ],
             input=prompt,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             capture_output=True,
         )
 
@@ -116,24 +140,7 @@ def run_codex(
             f"Codex failed ({result.returncode}); see {stderr_path}"
         )
 
-    thread_id = None
-    usage: dict[str, Any] = {}
-    for line in result.stdout.splitlines():
-        try:
-            event = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if event.get("type") == "thread.started":
-            thread_id = event.get("thread_id")
-        if event.get("type") == "turn.completed":
-            usage = event.get("usage", {})
-
-    return read_json(output_path), {
-        "thread_id": thread_id,
-        "usage": usage,
-        "total_tokens": int(usage.get("input_tokens", 0))
-        + int(usage.get("output_tokens", 0)),
-    }
+    return read_json(output_path), parse_event_stream(result.stdout)
 
 
 def subject_prompt(
@@ -314,12 +321,17 @@ def main() -> int:
         action="store_true",
         help="Validate the frozen subject schema without sending task payloads.",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Reuse complete raw/event batches after a recorded local failure.",
+    )
     args = parser.parse_args()
     if args.schema_preflight:
         return schema_preflight()
     RESULTS = args.results.resolve()
 
-    if RESULTS.exists() and any(RESULTS.rglob("*")):
+    if RESULTS.exists() and any(RESULTS.rglob("*")) and not args.resume:
         raise RuntimeError(f"Refusing to overwrite existing results: {RESULTS}")
 
     verify_freeze()
@@ -352,13 +364,21 @@ def main() -> int:
                 random.Random(f"{SEED}:{workflow}:{category}").shuffle(ordered)
                 stem = f"subject-{workflow}-{category}"
                 raw_path = RESULTS / "raw" / f"{stem}.json"
-                output, event = run_codex(
-                    prompt=subject_prompt(workflow_text, workflow, ordered),
-                    schema=PROTOCOL / "model-output.schema.json",
-                    output_path=raw_path,
-                    event_path=RESULTS / "events" / f"{stem}.jsonl",
-                    stderr_path=RESULTS / "logs" / f"{stem}.stderr.log",
-                )
+                event_path = RESULTS / "events" / f"{stem}.jsonl"
+                reused = args.resume and raw_path.exists() and event_path.exists()
+                if reused:
+                    output = read_json(raw_path)
+                    event = parse_event_stream(
+                        event_path.read_text(encoding="utf-8")
+                    )
+                else:
+                    output, event = run_codex(
+                        prompt=subject_prompt(workflow_text, workflow, ordered),
+                        schema=PROTOCOL / "model-output.schema.json",
+                        output_path=raw_path,
+                        event_path=event_path,
+                        stderr_path=RESULTS / "logs" / f"{stem}.stderr.log",
+                    )
                 expected = {task["id"] for task in ordered}
                 actual = {response["task_id"] for response in output["responses"]}
                 if actual != expected or len(output["responses"]) != len(expected):
@@ -382,6 +402,7 @@ def main() -> int:
                         "tasks": [task["id"] for task in ordered],
                         "thread_id": event["thread_id"],
                         "usage": event["usage"],
+                        "source": "resumed" if reused else "executed",
                     }
                 )
 
@@ -412,13 +433,22 @@ def main() -> int:
             random.Random(f"{SEED}:judge:{category}").shuffle(items)
             write_json(RESULTS / "judge-inputs" / f"{category}.json", {"items": items})
             stem = f"judge-{category}"
-            output, event = run_codex(
-                prompt=judge_prompt(judge_text, items),
-                schema=PROTOCOL / "judge-output.schema.json",
-                output_path=RESULTS / "raw" / f"{stem}.json",
-                event_path=RESULTS / "events" / f"{stem}.jsonl",
-                stderr_path=RESULTS / "logs" / f"{stem}.stderr.log",
-            )
+            raw_path = RESULTS / "raw" / f"{stem}.json"
+            event_path = RESULTS / "events" / f"{stem}.jsonl"
+            reused = args.resume and raw_path.exists() and event_path.exists()
+            if reused:
+                output = read_json(raw_path)
+                event = parse_event_stream(
+                    event_path.read_text(encoding="utf-8")
+                )
+            else:
+                output, event = run_codex(
+                    prompt=judge_prompt(judge_text, items),
+                    schema=PROTOCOL / "judge-output.schema.json",
+                    output_path=raw_path,
+                    event_path=event_path,
+                    stderr_path=RESULTS / "logs" / f"{stem}.stderr.log",
+                )
             expected = {item["opaque_id"] for item in items}
             actual = {
                 observation["opaque_id"]
@@ -435,6 +465,7 @@ def main() -> int:
                     "items": len(items),
                     "thread_id": event["thread_id"],
                     "usage": event["usage"],
+                    "source": "resumed" if reused else "executed",
                 }
             )
 

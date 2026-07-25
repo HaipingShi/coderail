@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "risk-02-refund-authority",
+  "workflow": "C",
+  "notes": [
+    "Questions resolve the money-authority boundary and whether partial refunds are included.",
+    "Final contract explicitly covers auditability and approval gating."
+  ]
+}

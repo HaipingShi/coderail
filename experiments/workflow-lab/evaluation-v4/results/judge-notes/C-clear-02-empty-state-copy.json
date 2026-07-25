@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "clear-02-empty-state-copy",
+  "workflow": "C",
+  "notes": [
+    "Ready on first contract turn.",
+    "Scope is confined to copy and existing snapshot coverage."
+  ]
+}

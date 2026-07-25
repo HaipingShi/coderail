@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "clear-03-report-export",
+  "workflow": "C",
+  "notes": [
+    "Ready on first contract turn.",
+    "CSV-only scope and seam-based verification match the oracle."
+  ]
+}

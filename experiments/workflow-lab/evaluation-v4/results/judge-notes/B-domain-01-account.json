@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "domain-01-account",
+  "workflow": "B",
+  "notes": [
+    "Asked the decisive billing-term disambiguation question.",
+    "Reached readiness after one answer.",
+    "Promoted glossary/ADR artifacts before code agreement; the oracle forbids premature glossary promotion."
+  ]
+}

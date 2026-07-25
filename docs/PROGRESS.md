@@ -3,6 +3,13 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - T-033 (T-033)
+
+- Done: T-033
+- Checked by: retroactive entry - verify commands were registered (`python -m unittest discover -s experiments/workflow-lab/tests -v`); original console evidence was lost to a ledger bug
+- Next: decide with the user
+- Warning: this entry was written by progress --repair, after the close itself skipped the journal
+
 ## 2026-07-25 - Finalize wp5-v4 results after UTF-8 runner recovery (T-034)
 
 - Done: Finalize wp5-v4 results after UTF-8 runner recovery

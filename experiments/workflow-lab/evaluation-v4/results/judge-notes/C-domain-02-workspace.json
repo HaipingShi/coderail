@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "domain-02-workspace",
+  "workflow": "C",
+  "notes": [
+    "Resolved the public Workspace referent first, then migration posture.",
+    "Did not become ready until both decisive answers were consumed.",
+    "Final contract keeps blocking conditions explicit."
+  ]
+}

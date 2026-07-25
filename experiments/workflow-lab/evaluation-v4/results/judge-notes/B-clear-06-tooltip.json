@@ -1,0 +1,9 @@
+{
+  "protocol_version": "wp5-v4",
+  "task_id": "clear-06-tooltip",
+  "workflow": "B",
+  "notes": [
+    "Ready on first contract turn.",
+    "Glossary promotion is extra but contract remains aligned with behavior-preserving tooltip request."
+  ]
+}
