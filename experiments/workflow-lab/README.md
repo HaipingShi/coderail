@@ -110,6 +110,14 @@ A/B/C treatments, oracles, and thresholds; pins the preflight-confirmed
 `gpt-5.4` medium configuration; makes every unobservable follow-through metric
 nullable; and freezes separate subject, blind-judge, and execution contracts.
 
+Its first structured-output request was rejected before subject generation
+because the service requires an explicit JSON type alongside a constant schema
+constraint. The v2 hashes remain intact and subject output count is zero.
+
+`evaluation-v3/` adds only those service-required explicit types, re-freezes
+the same experiment semantics, and passes a no-task schema compatibility
+preflight before any subject batch.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 

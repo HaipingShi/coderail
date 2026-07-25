@@ -245,7 +245,7 @@ WP4 result:
 
 ### WP5 - Run comparative evaluation
 
-Status: wp5-v2 corrected protocol frozen; subject trials pending
+Status: wp5-v3 frozen and schema-preflighted; subject trials pending
 
 Compare:
 
@@ -339,6 +339,28 @@ WP5 v2 correction:
   trial, including promotion reversals.
 - It freezes subject output, blind judge, batching, failure, and blinding
   contracts before any v2 subject output exists.
+
+WP5 v2 execution preflight:
+
+- The first subject request reached `gpt-5.4` but structured-output validation
+  returned HTTP 400 before generation.
+- The service requires an explicit JSON type on properties constrained by a
+  constant; the frozen v2 schema omitted it.
+- No subject output was observed. The error event and zero-output record live
+  under `evaluation-v2/results/`.
+- A v3 protocol may add only the service-compatibility types, then re-freeze
+  before retrying.
+
+WP5 v3 correction:
+
+- The 18 tasks, workflows, model, rubric semantics, blinding, and batching are
+  unchanged from v2.
+- Constant-constrained schema properties now also declare their JSON type.
+- The frozen subject schema passed a `gpt-5.4` structured-output preflight.
+- The first preflight generated a valid response but could not persist it
+  because the local output directory did not exist; one identical-input retry,
+  allowed by the run specification, persisted the result.
+- Subject batch count remains zero.
 
 ### WP6 - Review adoption
 

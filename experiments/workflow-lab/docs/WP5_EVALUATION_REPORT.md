@@ -34,3 +34,25 @@ Do not score `wp5-v1`. Create `wp5-v2` before subject execution:
 
 This is a pretrial protocol correction, not an unfavorable result and not
 evidence for ADOPT, REVISE, or REJECT.
+
+## v2 execution preflight
+
+`wp5-v2` fixed the model and nullability defects, but its first subject request
+was rejected before generation with `invalid_json_schema`. The service requires
+an explicit JSON type alongside each constant constraint. No subject output was
+returned; only the thread start and structured 400 error were recorded.
+
+The frozen v2 schema was not transformed in place. A v3 freeze may add the
+service-required types while preserving the same tasks, workflows, model,
+rubric semantics, and execution design.
+
+## v3 schema preflight
+
+`wp5-v3` adds explicit JSON types beside constant constraints and changes no
+task, workflow, model, oracle, rubric meaning, or batching rule. The service
+accepted the frozen subject schema and returned a conforming dummy response.
+One identical-input retry was used only because the first accepted response
+could not be persisted to a missing local output directory.
+
+No experiment task or hidden oracle was included in the schema preflight, and
+subject batch count remains zero.

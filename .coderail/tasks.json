@@ -359,63 +359,6 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-25T04:00:18.952054+00:00",
       "resume": "coderail switch --to T-019"
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-25T04:18:53.729331+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/HANDOFF.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/fixtures/contract-draft.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/fixtures/draft-delta.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/fixtures/promotion-cases.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/fixtures/protocol.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/fixtures/scenarios.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/tests/test_guided_convergence_protocol.py"
-        }
-      ]
     }
   },
   "T-020": {
@@ -506,40 +449,7 @@
         }
       ]
     },
-    "dirty_fork": true,
-    "closed_pending": {
-      "recorded_at": "2026-07-25T04:13:51.044672+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "scripts/repository_state.py"
-        },
-        {
-          "status": " M",
-          "path": "tests/test_closeout.py"
-        }
-      ]
-    }
+    "dirty_fork": true
   },
   "T-021": {
     "verify": [
@@ -558,51 +468,6 @@
       "captured_at": "2026-07-25T04:28:31.917747+00:00",
       "head": "20a8e411fe520bb6bcfe369c1bdaaf9410aac413",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-25T04:41:01.582557+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/tests/test_skill_contracts.py"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/skills/coderail-frame/SKILL.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/skills/coderail-frame/agents/openai.yaml"
-        }
-      ]
     }
   },
   "T-022": {
@@ -623,55 +488,6 @@
       "captured_at": "2026-07-25T04:45:59.015472+00:00",
       "head": "b88d45c5c030b776e4353e91a7b5085fd42c33b9",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-25T04:58:57.250879+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/fixtures/scenarios.json"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/skills/coderail-grill-contract/SKILL.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/tests/test_guided_convergence_protocol.py"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/tests/test_skill_contracts.py"
-        }
-      ]
     }
   },
   "T-023": {
@@ -691,75 +507,6 @@
       "captured_at": "2026-07-25T05:39:20.907852+00:00",
       "head": "fc6f35e2dc7a09bd2bda3eb7ebe2d01a2df93323",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-25T05:54:35.552930+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation/freeze.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation/manifest.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation/rubric.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation/trial-result.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation/workflows/A.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation/workflows/B.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation/workflows/C.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/scripts/score_evaluation.py"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/tests/test_evaluation_protocol.py"
-        }
-      ]
     }
   },
   "T-024": {
@@ -779,31 +526,6 @@
       "captured_at": "2026-07-25T05:54:51.656762+00:00",
       "head": "1862939cb6e327424d9a4741fa83e1cd0fac97a4",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-25T06:08:40.222326+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/HANDOFF.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-027": {
@@ -823,9 +545,110 @@
       "captured_at": "2026-07-25T06:08:42.243371+00:00",
       "head": "09ba7df9a294ca94af558791e29a76d53666c62d",
       "files": []
+    }
+  },
+  "T-028": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v2_results.py"
+    ],
+    "accept": [
+      "all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures",
+      "all v2 pretrial hashes remain unchanged",
+      "workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence",
+      "report states contract-phase limitations and does not make an adoption decision from null implementation evidence"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T06:16:40.078517+00:00",
+      "head": "7067f5f97134c9cafcd1a69e3fb675d360ab488e",
+      "files": []
     },
+    "pause": {
+      "reason": "dirty-fork",
+      "paused_at": "2026-07-25T07:02:28.913721+00:00",
+      "resume": "coderail switch --to T-028"
+    }
+  },
+  "T-029": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v2_results.py",
+      "experiments/workflow-lab/tests/test_evaluation_v3_protocol.py"
+    ],
+    "accept": [
+      "v2 frozen inputs remain unchanged and zero subject outputs are recorded",
+      "freeze tests validate input hashes rather than forbidding later result evidence",
+      "v3 changes only service-required explicit types and execution paths",
+      "v3 schema preflight succeeds before any subject batch"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-25T07:02:29.310437+00:00",
+      "head": "7067f5f97134c9cafcd1a69e3fb675d360ab488e",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json",
+          "fingerprint": "52c1ffe55069e6d361d978cec85ac10ad19164d25a47e5704b1118e3a9726143"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md",
+          "fingerprint": "6b886c0b15c32dd4993632006d8dca5d968e94c97788618465fba2a3cbf2659c"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md",
+          "fingerprint": "a390d6a3bd5e39d31243f79127163decb00cf5db9f15205e0ea1d07cbec28aae"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md",
+          "fingerprint": "757f53dcbccb5fae929cba9755b3ef7c4d040b2c245d6d2997b8dd14bf60ce3d"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md",
+          "fingerprint": "5098ab4fcefa6d6afb15d0b47ff1502ab6bd52bb7cda7fbef77717f44beb3b05"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md",
+          "fingerprint": "73e5c7ae8290c65bb3767f25f89fabb4ae7fd7727411546616965aa25e752dca"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/events/subject-A-ambiguous-cross-module.jsonl",
+          "fingerprint": "6c471168ac7cef69a1c4983d05c0b63fcfc39f5920677e8c078bb93ee84c2328"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/preflight.jsonl",
+          "fingerprint": "9aeab1cfba09a91d7909d18cbcd4965dea1ffc22cc5a9e3cdc446ecfc266fe22"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v2/results/run-metadata.json",
+          "fingerprint": "ec1bc1b486b69d49329e8b9dc2147ccd9ddb436c9fd73b48efd40821760b9e3a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/scripts/run_evaluation.py",
+          "fingerprint": "20791e2a2224a66b5fa4377d7b3785e14917c17c763488c597e2085032c74456"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v2_results.py",
+          "fingerprint": "7c41eed4a7a0d442e863f243cedd10fe5983bfbb6223815bcf201f9987b4bafa"
+        }
+      ]
+    },
+    "dirty_fork": true,
     "closed_pending": {
-      "recorded_at": "2026-07-25T06:16:24.532702+00:00",
+      "recorded_at": "2026-07-25T07:12:10.801036+00:00",
       "files": [
         {
           "status": " M",
@@ -856,52 +679,72 @@
           "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
         },
         {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/freeze.json"
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
         },
         {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/judge-output.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/judge.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/manifest.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/model-output.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/rubric.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/run-spec.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/trial-result.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/workflows/A.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/workflows/B.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v2/workflows/C.md"
-        },
-        {
-          "status": "??",
+          "status": " M",
           "path": "experiments/workflow-lab/tests/test_evaluation_v2_protocol.py"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/freeze.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/judge-output.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/judge.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/manifest.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/model-output.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/preflight/schema-compatibility.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/preflight/schema-output.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/rubric.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/run-spec.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/trial-result.schema.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/workflows/A.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/workflows/B.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v3/workflows/C.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/scripts/run_evaluation.py"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v3_protocol.py"
         }
       ]
     }

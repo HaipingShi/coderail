@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Record v2 preflight and freeze service-compatible v3 (T-029)
+
+- Done: Record v2 preflight and freeze service-compatible v3
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Run the frozen wp5-v3 subject and blind-judge batches using the successful schema preflight
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: v2 frozen inputs remain unchanged and zero subject outputs are recorded
+- Acceptance [done]: freeze tests validate input hashes rather than forbidding later result evidence
+- Acceptance [done]: v3 changes only service-required explicit types and execution paths
+- Acceptance [done]: v3 schema preflight succeeds before any subject batch
+
 ## 2026-07-25 - Freeze corrected wp5-v2 protocol (T-027)
 
 - Done: Freeze corrected wp5-v2 protocol

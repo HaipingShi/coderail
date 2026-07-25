@@ -92,8 +92,7 @@ class EvaluationV2ProtocolTests(unittest.TestCase):
         for relative, digest in freeze["sha256"].items():
             actual = hashlib.sha256((V2 / relative).read_bytes()).hexdigest()
             self.assertEqual(actual, digest, relative)
-        results = V2 / "results"
-        self.assertFalse(results.exists() and any(results.rglob("*")))
+        self.assertNotIn("results", freeze["sha256"])
 
 
 if __name__ == "__main__":
