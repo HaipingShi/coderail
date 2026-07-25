@@ -359,6 +359,63 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-25T04:00:18.952054+00:00",
       "resume": "coderail switch --to T-019"
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-25T04:18:53.729331+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/contract-draft.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/draft-delta.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/promotion-cases.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/protocol.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/fixtures/scenarios.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_guided_convergence_protocol.py"
+        }
+      ]
     }
   },
   "T-020": {

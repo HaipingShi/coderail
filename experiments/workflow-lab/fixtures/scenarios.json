@@ -1,0 +1,384 @@
+[
+  {
+    "id": "rename-local-button",
+    "user_profile": "novice",
+    "request": "Rename the existing Save toolbar button to Store. Its focused label test already exists.",
+    "route": "quick",
+    "route_reason": "The outcome is clear, local, low-risk, reversible, and already has executable verification.",
+    "first_question": null,
+    "draft": {
+      "G": [
+        {
+          "id": "G.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Display Store instead of Save on the existing toolbar action."
+        }
+      ],
+      "T": [
+        {
+          "id": "T.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "Change only the existing toolbar label.",
+          "falsifier": "Repository search finds shared label ownership outside the toolbar.",
+          "risk": "low"
+        }
+      ],
+      "S": [
+        {
+          "id": "S.1",
+          "state": "FACT",
+          "text": "The label is owned by the toolbar module.",
+          "evidence": "repo:src/ui/toolbar.tsx"
+        },
+        {
+          "id": "S.2",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Save behavior, shortcuts, and persistence are forbidden scope."
+        }
+      ],
+      "V": [
+        {
+          "id": "V.1",
+          "state": "FACT",
+          "text": "A focused label test is executable.",
+          "evidence": "command:npm test -- toolbar-label",
+          "verification_kind": "executable"
+        }
+      ],
+      "X": [
+        {
+          "id": "X.1",
+          "state": "UNKNOWN",
+          "text": "Other Save labels may exist but are outside this slice.",
+          "blocking": false,
+          "deferred": true
+        }
+      ],
+      "P": [
+        {
+          "id": "P.1",
+          "state": "FACT",
+          "text": "Use existing TASKS and TRACE records.",
+          "evidence": "repo:docs/TASKS.md+docs/TRACELOG.jsonl"
+        }
+      ],
+      "readiness": {
+        "ready": true,
+        "blocking": [],
+        "deferred": [
+          "X.1"
+        ],
+        "slice_reversible": true,
+        "next_question_reason": null
+      }
+    },
+    "promotion_candidates": []
+  },
+  {
+    "id": "login-unclear-audience",
+    "user_profile": "novice",
+    "request": "Add login to the application.",
+    "route": "guided",
+    "route_reason": "Audience and data isolation change the task, persistence, and security boundaries.",
+    "first_question": {
+      "focus": "audience-boundary",
+      "question": "Who needs a separate sign-in: one local owner, or multiple independent users whose data must stay isolated?",
+      "recommendation": "Start with one local owner only if no independent users need isolated data.",
+      "reason": "Authentication and user isolation are different scopes; the repository does not establish which outcome is required.",
+      "impact": "Multiple users add identity, authorization, and data-isolation work.",
+      "evidence": "repo:no existing user or authorization model",
+      "uncertainty": "The product audience is not represented in the repository.",
+      "reversibility": "A local-owner shortcut is cheap only before user-owned data is persisted."
+    },
+    "draft": {
+      "G": [
+        {
+          "id": "G.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Require a sign-in before entering the application."
+        },
+        {
+          "id": "G.2",
+          "state": "UNKNOWN",
+          "text": "Whether the application serves one local owner or multiple independent users.",
+          "blocking": true,
+          "deferred": false
+        }
+      ],
+      "T": [
+        {
+          "id": "T.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "The first slice should use the repository's existing session seam.",
+          "falsifier": "Repository inspection finds no session seam.",
+          "risk": "high",
+          "x_trigger": "X.1"
+        }
+      ],
+      "S": [
+        {
+          "id": "S.1",
+          "state": "FACT",
+          "text": "The repository has no user or authorization model.",
+          "evidence": "repo:search user+role+authorization returned no model"
+        }
+      ],
+      "V": [
+        {
+          "id": "V.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Manual acceptance must demonstrate that unauthenticated entry is blocked.",
+          "verification_kind": "manual"
+        }
+      ],
+      "X": [
+        {
+          "id": "X.1",
+          "state": "UNKNOWN",
+          "text": "Stop if no reusable session seam exists.",
+          "blocking": false,
+          "deferred": true
+        }
+      ],
+      "P": [
+        {
+          "id": "P.1",
+          "state": "FACT",
+          "text": "Use existing TASKS and TRACE records; no glossary term is ready.",
+          "evidence": "repo:docs/TASKS.md+docs/TRACELOG.jsonl"
+        }
+      ],
+      "readiness": {
+        "ready": false,
+        "blocking": [
+          "G.2"
+        ],
+        "deferred": [
+          "X.1"
+        ],
+        "slice_reversible": false,
+        "next_question_reason": "The answer changes identity, authorization, persistence, and verification scope."
+      }
+    },
+    "promotion_candidates": [
+      {
+        "kind": "glossary",
+        "term": "Account",
+        "eligible": false,
+        "scenario_consistent": false,
+        "code_consistent": false,
+        "contradiction_resolved": false,
+        "evidence": ""
+      }
+    ]
+  },
+  {
+    "id": "local-only-file-processing",
+    "user_profile": "novice",
+    "request": "Add local-only file processing.",
+    "route": "guided",
+    "route_reason": "The phrase local-only is a security boundary whose treatment of metadata, derived text, telemetry, and AI providers is unresolved.",
+    "first_question": {
+      "focus": "privacy-boundary",
+      "question": "Must file bytes, metadata, and derived text all remain on this device, including during AI processing and telemetry?",
+      "recommendation": "Treat all file-derived data as device-only unless you explicitly allow an exception.",
+      "reason": "A narrow interpretation of local-only could silently send derived content to a remote service.",
+      "impact": "A strict boundary excludes remote parsing, hosted AI processing, and content-bearing telemetry.",
+      "evidence": "request:local-only; repo:remote provider integration exists",
+      "uncertainty": "The request does not define whether derived data counts as file content.",
+      "reversibility": "Sending data remotely cannot be undone after disclosure."
+    },
+    "draft": {
+      "G": [
+        {
+          "id": "G.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Process selected files locally."
+        }
+      ],
+      "T": [
+        {
+          "id": "T.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "Use an on-device parser for the first vertical slice.",
+          "falsifier": "Required file formats are unsupported by available on-device parsers.",
+          "risk": "high",
+          "x_trigger": "X.1"
+        }
+      ],
+      "S": [
+        {
+          "id": "S.1",
+          "state": "UNKNOWN",
+          "text": "Whether metadata and derived text may leave the device.",
+          "blocking": true,
+          "deferred": false
+        },
+        {
+          "id": "S.2",
+          "state": "FACT",
+          "text": "The repository contains a remote provider integration.",
+          "evidence": "repo:src/providers/remote"
+        }
+      ],
+      "V": [
+        {
+          "id": "V.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "A network-denied integration test can verify the local processing path.",
+          "falsifier": "The test harness cannot observe or deny outbound network access.",
+          "risk": "high",
+          "x_trigger": "X.2",
+          "verification_kind": "executable"
+        }
+      ],
+      "X": [
+        {
+          "id": "X.1",
+          "state": "UNKNOWN",
+          "text": "Stop if a required format needs a remote parser.",
+          "blocking": false,
+          "deferred": true
+        },
+        {
+          "id": "X.2",
+          "state": "UNKNOWN",
+          "text": "Stop if the harness cannot detect outbound data flow.",
+          "blocking": false,
+          "deferred": true
+        }
+      ],
+      "P": [
+        {
+          "id": "P.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Persist the accepted privacy boundary in existing CodeRail decisions only after confirmation."
+        }
+      ],
+      "readiness": {
+        "ready": false,
+        "blocking": [
+          "S.1"
+        ],
+        "deferred": [
+          "X.1",
+          "X.2"
+        ],
+        "slice_reversible": false,
+        "next_question_reason": "The answer determines forbidden data flows and the verification harness."
+      }
+    },
+    "promotion_candidates": [
+      {
+        "kind": "adr",
+        "title": "All file-derived data stays on-device",
+        "eligible": false,
+        "hard_to_reverse": true,
+        "surprising_without_context": true,
+        "real_tradeoff": true,
+        "evidence": "",
+        "decision_owner": ""
+      }
+    ]
+  },
+  {
+    "id": "database-for-throwaway-prototype",
+    "user_profile": "novice",
+    "request": "Choose a database for a throwaway prototype.",
+    "route": "guided",
+    "route_reason": "A reversible default is available, but durability and sharing requirements determine whether any database is needed.",
+    "first_question": {
+      "focus": "durability-boundary",
+      "question": "Must prototype data survive reinstall or be shared between different people?",
+      "recommendation": "Use an embedded local store, or no database, when neither durability nor sharing is required.",
+      "reason": "That default avoids accounts, hosted infrastructure, and migration commitments.",
+      "impact": "Choosing shared durable storage adds deployment, security, backup, and schema evolution work.",
+      "evidence": "request:throwaway prototype; repo:no production persistence contract",
+      "uncertainty": "The word throwaway does not specify whether collected data has value.",
+      "reversibility": "An embedded store can be replaced cheaply while the data model remains small."
+    },
+    "draft": {
+      "G": [
+        {
+          "id": "G.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Validate the prototype workflow with minimal infrastructure."
+        }
+      ],
+      "T": [
+        {
+          "id": "T.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "Use an embedded store behind the existing repository seam.",
+          "falsifier": "The prototype requires shared or independently durable data.",
+          "risk": "low"
+        }
+      ],
+      "S": [
+        {
+          "id": "S.1",
+          "state": "UNKNOWN",
+          "text": "Whether data must survive reinstall or be shared.",
+          "blocking": true,
+          "deferred": false
+        },
+        {
+          "id": "S.2",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Hosted production infrastructure is outside the initial prototype."
+        }
+      ],
+      "V": [
+        {
+          "id": "V.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Manual acceptance demonstrates the complete prototype workflow.",
+          "verification_kind": "manual"
+        }
+      ],
+      "X": [
+        {
+          "id": "X.1",
+          "state": "UNKNOWN",
+          "text": "Future multi-user scale is deferred until the prototype validates demand.",
+          "blocking": false,
+          "deferred": true
+        }
+      ],
+      "P": [
+        {
+          "id": "P.1",
+          "state": "FACT",
+          "text": "Use existing TASKS and TRACE records.",
+          "evidence": "repo:docs/TASKS.md+docs/TRACELOG.jsonl"
+        }
+      ],
+      "readiness": {
+        "ready": false,
+        "blocking": [
+          "S.1"
+        ],
+        "deferred": [
+          "X.1"
+        ],
+        "slice_reversible": true,
+        "next_question_reason": "The answer determines whether the reversible local default satisfies the outcome."
+      }
+    },
+    "promotion_candidates": []
+  }
+]

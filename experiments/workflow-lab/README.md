@@ -51,6 +51,20 @@ The test suite runs the standard Codex skill validator for every skill. The
 validation dependency is isolated in `.test-deps` and is not a runtime
 dependency of the skills.
 
+## Guided Convergence protocol
+
+WP1 freezes the protocol before changing prompts:
+
+- `fixtures/protocol.json` defines the closed vocabularies and invariants.
+- `fixtures/contract-draft.md` is the deterministic full-draft fixture.
+- `fixtures/draft-delta.md` demonstrates change-only reporting.
+- `fixtures/scenarios.json` fixes the first four quick/guided route cases.
+- `fixtures/promotion-cases.json` covers glossary and ADR promotion.
+
+`tests/test_guided_convergence_protocol.py` derives readiness and promotion
+eligibility from the fixture data. A fixture cannot declare itself ready or
+promotion-eligible unless the executable invariants agree.
+
 ## Evaluation
 
 Run the pack only in disposable or explicitly selected projects. Compare it

@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Define Guided Convergence WP1 protocol fixtures (T-019)
+
+- Done: Define Guided Convergence WP1 protocol fixtures
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Implement WP2 coderail-frame against the frozen protocol fixtures
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: Contract Draft fixture distinguishes FACT ASSUMPTION DECISION and UNKNOWN
+- Acceptance [done]: Draft Delta contains only changed item references
+- Acceptance [done]: Four initial scenarios encode expected route and at most one first question
+- Acceptance [done]: Readiness and glossary ADR promotion invariants are executable
+
 ## 2026-07-25 - Ignore phantom Git modifications on Windows (T-020)
 
 - Done: Ignore phantom Git modifications on Windows

@@ -1,89 +1,41 @@
 # Handoff
 
-Updated at:
-Handoff Level: H0 | H1 | H2 | H3
-Current branch:
-Current task:
-Trace:
-Inspect status:
-Resume anchor:
+Handoff Level: H3
+Task: T-019
+Reason: explicit dirty-fork waiver before switching to Ignore phantom Git modifications on Windows
 
 ## Coordinate Summary
 
-North Star / slice:
-Rail: full | light
-G:
-T:
-S:
-- Allowed:
-- Forbidden:
-V:
-X:
-P:
+- Current owner remains `T-019`.
+- No implementation commit was created by the failed switch.
+- No destination task was activated.
 
-## Recent Completed Slice
+## Dirty Paths
 
-- 
+- `.coderail/tasks.json` ( M)
+- `docs/CODERAIL_STATUS.md` ( M)
+- `docs/TASKS.md` ( M)
+- `docs/TRACELOG.jsonl` ( M)
+- `docs/TRACE_INDEX.md` ( M)
+- `experiments/workflow-lab/README.md` ( M)
+- `experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md` ( M)
+- `experiments/workflow-lab/fixtures/contract-draft.md` (??)
+- `experiments/workflow-lab/fixtures/draft-delta.md` (??)
+- `experiments/workflow-lab/fixtures/promotion-cases.json` (??)
+- `experiments/workflow-lab/fixtures/protocol.json` (??)
+- `experiments/workflow-lab/fixtures/scenarios.json` (??)
+- `experiments/workflow-lab/tests/test_guided_convergence_protocol.py` (??)
 
-## Current State
+## Decision Required
 
-In progress:
-- 
-
-Blocked:
-- 
-
-Stop conditions:
--
-
-## Verification
-
-Passed:
-- 
-
-Failed:
-- 
-
-Not run:
-- 
-
-## Artifacts
-
-Generated:
--
-
-Ignored / not staged:
--
-
-Archived history:
-- TRACE_INDEX | RUNLOG | archive:
+- Continue current: `coderail switch --continue-current`
+- Carry a fingerprinted dirty baseline: `coderail switch "new task" --dirty-fork`
 
 ## Auto Commit
 
-Eligible:
-Action:
-Commit:
-Exact files staged:
--
-Safe to stage:
--
-Do not stage:
--
-Ignored/generated artifacts:
--
-Avoid git add .:
+- Action: not requested
+- Automatic push: never
 
 ## Next Executable Step
 
-- 
-
-## Recovery Commands
-
-```bash
-python .coderail/coderail.py inspect --write
-python .coderail/coderail.py doctor
-```
-
-## Resume Prompt
-
-Continue this repository under CodeRail. Read `AGENTS.md`, `docs/NORTH_STAR.md`, `docs/TASKS.md`, `docs/CODERAIL_STATUS.md`, and `docs/HARNESS_SPEC.md`. Use the current Coordinate Summary and Next Executable Step; do not mark done without the done gate or stop without closeout state.
+- Choose exactly one command from Decision Required.

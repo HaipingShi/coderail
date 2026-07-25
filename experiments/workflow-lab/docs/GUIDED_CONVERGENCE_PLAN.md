@@ -65,6 +65,8 @@ Acceptance:
 
 ### WP1 - Define the draft protocol before prompts
 
+Status: implemented in fixtures; pending comparative prompt work
+
 Actions:
 
 - Define a deterministic text fixture for a Contract Draft.
@@ -107,6 +109,17 @@ Acceptance:
 - A reader can distinguish evidence, guesses, accepted choices, and deferrals.
 - Readiness never uses a numeric confidence or entropy score.
 - The format introduces no canonical store outside existing CodeRail records.
+
+WP1 result:
+
+- `fixtures/protocol.json` defines the protocol vocabulary and rules.
+- `fixtures/contract-draft.md` and `fixtures/draft-delta.md` freeze the text
+  forms.
+- `fixtures/scenarios.json` encodes the first four routing cases.
+- `fixtures/promotion-cases.json` encodes positive and negative glossary and
+  ADR promotion cases.
+- `tests/test_guided_convergence_protocol.py` derives readiness and promotion
+  outcomes instead of trusting fixture declarations.
 
 ### WP2 - Add the internal framing primitive
 
