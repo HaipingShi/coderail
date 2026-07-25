@@ -1,6 +1,7 @@
 [
   {
     "id": "rename-local-button",
+    "workflow": "contract",
     "user_profile": "novice",
     "request": "Rename the existing Save toolbar button to Store. Its focused label test already exists.",
     "route": "quick",
@@ -79,6 +80,7 @@
   },
   {
     "id": "login-unclear-audience",
+    "workflow": "contract",
     "user_profile": "novice",
     "request": "Add login to the application.",
     "route": "guided",
@@ -180,6 +182,7 @@
   },
   {
     "id": "local-only-file-processing",
+    "workflow": "contract",
     "user_profile": "novice",
     "request": "Add local-only file processing.",
     "route": "guided",
@@ -293,6 +296,7 @@
   },
   {
     "id": "database-for-throwaway-prototype",
+    "workflow": "contract",
     "user_profile": "novice",
     "request": "Choose a database for a throwaway prototype.",
     "route": "guided",
@@ -380,5 +384,289 @@
       }
     },
     "promotion_candidates": []
+  },
+  {
+    "id": "public-api-migration",
+    "workflow": "contract",
+    "user_profile": "expert",
+    "request": "Change the public parse(input) API to accept a structured request object.",
+    "route": "guided",
+    "route_reason": "The repository exposes the function publicly, but the supported migration window for downstream callers is a product decision.",
+    "first_question": {
+      "focus": "migration-boundary",
+      "question": "Do downstream callers require a compatibility window, or may this release make an immediate breaking change?",
+      "recommendation": "Ship a deprecated compatibility overload for one release unless all downstream callers are controlled and can migrate atomically.",
+      "reason": "The repository proves the API is public but cannot establish the release commitment made to external callers.",
+      "impact": "The answer changes implementation scope, versioning, documentation, and verification across old and new call shapes.",
+      "evidence": "repo:parse is exported from the public package entry and existing tests cover the positional signature",
+      "uncertainty": "No migration or semantic-versioning decision names the supported compatibility window.",
+      "reversibility": "Removing compatibility after a published breaking release cannot repair already-broken consumers."
+    },
+    "draft": {
+      "G": [
+        {
+          "id": "G.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Accept a structured request object at the public parse boundary."
+        }
+      ],
+      "T": [
+        {
+          "id": "T.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "Add the object signature behind a temporary compatibility overload.",
+          "falsifier": "The user authorizes an immediate breaking release or repository evidence proves atomic migration of every caller.",
+          "risk": "high",
+          "x_trigger": "X.1"
+        }
+      ],
+      "S": [
+        {
+          "id": "S.1",
+          "state": "FACT",
+          "text": "The positional parse signature is exported from the public package entry.",
+          "evidence": "repo:src/index.ts+tests/public-api.test.ts"
+        },
+        {
+          "id": "S.2",
+          "state": "UNKNOWN",
+          "text": "Whether downstream callers require a compatibility window.",
+          "blocking": true,
+          "deferred": false
+        }
+      ],
+      "V": [
+        {
+          "id": "V.1",
+          "state": "FACT",
+          "text": "The public API suite can exercise both call shapes.",
+          "evidence": "command:npm test -- public-api",
+          "verification_kind": "executable"
+        }
+      ],
+      "X": [
+        {
+          "id": "X.1",
+          "state": "UNKNOWN",
+          "text": "Stop if migration analysis finds an uncontrolled caller that cannot use the selected release path.",
+          "blocking": false,
+          "deferred": true
+        }
+      ],
+      "P": [
+        {
+          "id": "P.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Persist the confirmed migration window in existing CodeRail decisions and release documentation."
+        }
+      ],
+      "readiness": {
+        "ready": false,
+        "blocking": [
+          "S.2"
+        ],
+        "deferred": [
+          "X.1"
+        ],
+        "slice_reversible": false,
+        "next_question_reason": "The answer selects breaking-change scope and compatibility verification."
+      }
+    },
+    "promotion_candidates": []
+  },
+  {
+    "id": "reproduced-regression",
+    "workflow": "diagnosis",
+    "skill": "coderail-diagnose",
+    "user_profile": "either",
+    "request": "Fix the reproduced regression covered by the failing focused test.",
+    "route": null,
+    "route_reason": "A deterministic red reproduction already exists, so diagnosis owns the next reasoning step instead of contract grilling.",
+    "first_question": null,
+    "draft": null,
+    "promotion_candidates": []
+  },
+  {
+    "id": "report-export-clear-acceptance",
+    "workflow": "contract",
+    "user_profile": "expert",
+    "request": "Add CSV export to the existing report screen using the accepted columns and focused export test.",
+    "route": "quick",
+    "route_reason": "The outcome, data boundary, file format, ownership seam, and executable acceptance are already explicit and reversible.",
+    "first_question": null,
+    "draft": {
+      "G": [
+        {
+          "id": "G.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Export the accepted report columns as CSV from the existing report screen."
+        }
+      ],
+      "T": [
+        {
+          "id": "T.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "Add CSV serialization through the existing report export seam.",
+          "falsifier": "Repository inspection finds the export seam cannot access the accepted report rows.",
+          "risk": "low"
+        }
+      ],
+      "S": [
+        {
+          "id": "S.1",
+          "state": "FACT",
+          "text": "The report module owns the accepted columns and an export seam.",
+          "evidence": "repo:src/reports/export.ts+src/reports/columns.ts"
+        },
+        {
+          "id": "S.2",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "New report fields, formats, and scheduled delivery are forbidden scope."
+        }
+      ],
+      "V": [
+        {
+          "id": "V.1",
+          "state": "FACT",
+          "text": "The focused export test verifies header order, escaping, and row values.",
+          "evidence": "command:npm test -- report-export",
+          "verification_kind": "executable"
+        }
+      ],
+      "X": [
+        {
+          "id": "X.1",
+          "state": "UNKNOWN",
+          "text": "Large-report streaming is deferred outside the accepted fixture size.",
+          "blocking": false,
+          "deferred": true
+        }
+      ],
+      "P": [
+        {
+          "id": "P.1",
+          "state": "FACT",
+          "text": "Use existing TASKS and TRACE records.",
+          "evidence": "repo:docs/TASKS.md+docs/TRACELOG.jsonl"
+        }
+      ],
+      "readiness": {
+        "ready": true,
+        "blocking": [],
+        "deferred": [
+          "X.1"
+        ],
+        "slice_reversible": true,
+        "next_question_reason": null
+      }
+    },
+    "promotion_candidates": []
+  },
+  {
+    "id": "conflicting-account-meanings",
+    "workflow": "contract",
+    "user_profile": "either",
+    "request": "Use Account in the new billing flow, consistent with the rest of the application.",
+    "route": "guided",
+    "route_reason": "The repository uses Account for both sign-in identity and billable organization, so the requested domain term is contradictory.",
+    "first_question": {
+      "focus": "domain-term-boundary",
+      "question": "In this billing flow, does Account mean the person who signs in or the organization that owns invoices?",
+      "recommendation": "Use Organization for the billable owner and reserve Account for sign-in identity unless existing product language establishes the opposite.",
+      "reason": "Choosing the meaning first prevents one label from hiding two different ownership and permission models.",
+      "impact": "The answer changes data ownership, UI labels, API names, and which existing model the flow may reuse.",
+      "evidence": "repo:authentication uses Account for identity; billing uses account_id for an organization",
+      "uncertainty": "The repository contains contradictory meanings and no accepted glossary decision.",
+      "reversibility": "Renaming is cheap before the term enters persisted schemas and public APIs."
+    },
+    "draft": {
+      "G": [
+        {
+          "id": "G.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Give the new billing flow one unambiguous owner concept."
+        }
+      ],
+      "T": [
+        {
+          "id": "T.1",
+          "state": "ASSUMPTION",
+          "owner": "agent",
+          "text": "Reuse the billable-organization model after its user-facing term is confirmed.",
+          "falsifier": "The user defines Account as the individual identity responsible for invoices.",
+          "risk": "low"
+        }
+      ],
+      "S": [
+        {
+          "id": "S.1",
+          "state": "FACT",
+          "text": "Authentication and billing use Account for different concepts.",
+          "evidence": "repo:src/auth/account.ts+src/billing/account.ts"
+        },
+        {
+          "id": "S.2",
+          "state": "UNKNOWN",
+          "text": "Which concept owns invoices in the requested flow.",
+          "blocking": true,
+          "deferred": false
+        }
+      ],
+      "V": [
+        {
+          "id": "V.1",
+          "state": "FACT",
+          "text": "The billing flow tests can assert owner identity and visible terminology.",
+          "evidence": "command:npm test -- billing-flow",
+          "verification_kind": "executable"
+        }
+      ],
+      "X": [
+        {
+          "id": "X.1",
+          "state": "UNKNOWN",
+          "text": "Canonical glossary promotion is deferred until scenario and code usage are consistent.",
+          "blocking": false,
+          "deferred": true
+        }
+      ],
+      "P": [
+        {
+          "id": "P.1",
+          "state": "DECISION",
+          "owner": "user",
+          "text": "Do not persist a glossary term until the contradiction and implementation are resolved."
+        }
+      ],
+      "readiness": {
+        "ready": false,
+        "blocking": [
+          "S.2"
+        ],
+        "deferred": [
+          "X.1"
+        ],
+        "slice_reversible": true,
+        "next_question_reason": "The answer establishes domain ownership before names or schemas are changed."
+      }
+    },
+    "promotion_candidates": [
+      {
+        "kind": "glossary",
+        "term": "Account",
+        "eligible": false,
+        "scenario_consistent": false,
+        "code_consistent": false,
+        "contradiction_resolved": false,
+        "evidence": "repo:conflicting auth and billing usages"
+      }
+    ]
   }
 ]

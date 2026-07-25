@@ -105,7 +105,7 @@ class GuidedConvergenceProtocolTests(unittest.TestCase):
             self.assertNotIn(f"{coordinate} - ", changed)
         self.assertIn("UNCHANGED\n  omitted by contract", readiness)
 
-    def test_first_four_scenarios_have_expected_routes(self) -> None:
+    def test_scenarios_cover_minimum_matrix_and_question_shape(self) -> None:
         self.assertEqual(
             [scenario["id"] for scenario in self.scenarios],
             [
@@ -113,15 +113,41 @@ class GuidedConvergenceProtocolTests(unittest.TestCase):
                 "login-unclear-audience",
                 "local-only-file-processing",
                 "database-for-throwaway-prototype",
+                "public-api-migration",
+                "reproduced-regression",
+                "report-export-clear-acceptance",
+                "conflicting-account-meanings",
             ],
         )
         self.assertEqual(
-            [scenario["route"] for scenario in self.scenarios],
-            ["quick", "guided", "guided", "guided"],
+            [
+                (scenario["workflow"], scenario["route"])
+                for scenario in self.scenarios
+            ],
+            [
+                ("contract", "quick"),
+                ("contract", "guided"),
+                ("contract", "guided"),
+                ("contract", "guided"),
+                ("contract", "guided"),
+                ("diagnosis", None),
+                ("contract", "quick"),
+                ("contract", "guided"),
+            ],
         )
-        self.assertIsNone(self.scenarios[0]["first_question"])
-        for scenario in self.scenarios[1:]:
+        for scenario in self.scenarios:
+            if scenario["workflow"] == "diagnosis":
+                self.assertIsNone(scenario["route"])
+                self.assertIsNone(scenario["first_question"])
+                self.assertIsNone(scenario["draft"])
+                self.assertEqual(scenario["skill"], "coderail-diagnose")
+                continue
+
+            self.assertIn(scenario["route"], self.protocol["routes"])
             question = scenario["first_question"]
+            if scenario["route"] == "quick":
+                self.assertIsNone(question)
+                continue
             self.assertIsInstance(question, dict)
             self.assertEqual(
                 set(question),
@@ -141,6 +167,8 @@ class GuidedConvergenceProtocolTests(unittest.TestCase):
     def test_material_items_obey_epistemic_state_requirements(self) -> None:
         requirements = self.protocol["item_requirements"]
         for scenario in self.scenarios:
+            if scenario["draft"] is None:
+                continue
             seen_ids: set[str] = set()
             for item in all_items(scenario["draft"]):
                 self.assertIn(item["state"], STATES, scenario["id"])
@@ -159,6 +187,8 @@ class GuidedConvergenceProtocolTests(unittest.TestCase):
         results = []
         for scenario in self.scenarios:
             draft = scenario["draft"]
+            if draft is None:
+                continue
             derived = derive_ready(draft)
             self.assertEqual(derived, draft["readiness"]["ready"], scenario["id"])
             blocking = sorted(
@@ -174,11 +204,13 @@ class GuidedConvergenceProtocolTests(unittest.TestCase):
             self.assertEqual(blocking, sorted(draft["readiness"]["blocking"]))
             self.assertEqual(deferred, sorted(draft["readiness"]["deferred"]))
             results.append(derived)
-        self.assertEqual(results, [True, False, False, False])
+        self.assertEqual(results, [True, False, False, False, False, True, False])
 
     def test_high_risk_assumptions_point_to_stop_items(self) -> None:
         for scenario in self.scenarios:
             draft = scenario["draft"]
+            if draft is None:
+                continue
             stop_ids = {item["id"] for item in draft["X"]}
             for item in all_items(draft):
                 if item["state"] == "ASSUMPTION" and item["risk"] == "high":
@@ -200,6 +232,7 @@ class GuidedConvergenceProtocolTests(unittest.TestCase):
             any(
                 item["state"] == "UNKNOWN" and item["deferred"]
                 for scenario in self.scenarios
+                if scenario["draft"] is not None
                 for item in all_items(scenario["draft"])
             )
         )

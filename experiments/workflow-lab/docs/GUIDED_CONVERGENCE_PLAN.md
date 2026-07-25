@@ -161,6 +161,8 @@ WP2 result:
 
 ### WP3 - Rewrite the grilling orchestrator
 
+Status: implemented and contract-tested
+
 Actions:
 
 - Compose `coderail-frame` into `coderail-grill-contract`.
@@ -184,7 +186,22 @@ Acceptance:
 - Activation still requires explicit user confirmation and the public
   `coderail start` interface.
 
+WP3 result:
+
+- `coderail-grill-contract` invokes `$coderail-frame` as its internal framing
+  step and routes reproduced regressions to `coderail-diagnose`.
+- Quick results produce a typed draft without an interview; guided results
+  expose exactly one complete outcome-level question.
+- "I do not know" preserves epistemic honesty and permits only an authorized,
+  reversible, agent-owned assumption.
+- Every answer produces a change-only Draft Delta before readiness is
+  recomputed.
+- Readiness stops at a reversible slice, promotion remains delayed, and task
+  activation still requires explicit confirmation through public `start`.
+
 ### WP4 - Add contract and scenario tests
+
+Status: minimum matrix and static contracts implemented
 
 Actions:
 
@@ -215,6 +232,16 @@ Acceptance:
 - At least one scenario rejects premature readiness.
 - At least one scenario rejects premature glossary promotion.
 - At least one scenario demonstrates an explicit deferred UNKNOWN.
+
+WP4 result:
+
+- `fixtures/scenarios.json` now covers all eight minimum cases.
+- Contract scenarios contain at most one first question; reproduced regression
+  has no contract route or draft and explicitly selects diagnosis.
+- The suite derives typed-item validity, readiness, question shape, delayed
+  promotion, and workflow routing from the fixtures.
+- Static skill tests preserve model invocation for frame, explicit invocation
+  for grilling, and CodeRail's no-side-effect authority boundary.
 
 ### WP5 - Run comparative evaluation
 
@@ -332,14 +359,16 @@ Stop implementation and return to design if:
 
 ## 7. Immediate Next Slice
 
-The next implementation slice is WP3 plus the remaining WP4 scenarios:
+The next implementation slice is WP5 evaluation preparation and execution:
 
-1. Compose `coderail-frame` into `coderail-grill-contract`.
-2. Add the explicit quick-path bypass and Draft Delta loop.
-3. Encode the remaining four scenarios.
-4. Test novice-safe wording, deferred UNKNOWN handling, and orchestration
-   invocation boundaries.
-5. Forward-test the composed workflow before comparative evaluation.
+1. Freeze prompts and scoring rubrics for workflows A, B, and C.
+2. Create the 18-task evaluation manifest from the required task classes.
+3. Run blind, reproducible trials with stable repository fixtures and model
+   settings.
+4. Record turns, useful questions, unsupported assumptions, corrections,
+   scope, closeout, tokens, and interruption counts.
+5. Compare results against the adoption thresholds before making any native
+   integration proposal.
 
 This slice remains inside the isolated lab on a feature branch. It does not
 require ending CodeRail's stabilization freeze or changing the shipping

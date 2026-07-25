@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Compose guided contract orchestration (T-022)
+
+- Done: Compose guided contract orchestration
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: WP5: freeze the comparative evaluation manifest and scoring rubric before running workflows A, B, and C
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: clear bounded scenarios bypass interview and reach a typed draft
+- Acceptance [done]: guided scenarios ask one complete outcome-level question and preserve blocking unknowns
+- Acceptance [done]: I do not know, Draft Delta, reversible readiness, and delayed promotion rules are explicit
+- Acceptance [done]: diagnosis routing and CodeRail public lifecycle authority remain intact
+
 ## 2026-07-25 - Implement model-invoked coderail-frame (T-021)
 
 - Done: Implement model-invoked coderail-frame

@@ -142,7 +142,7 @@ class SkillContractTests(unittest.TestCase):
 
         expected_focuses = {
             scenario["first_question"]["focus"]
-            for scenario in scenarios
+            for scenario in scenarios[:4]
             if scenario["first_question"] is not None
         }
         for focus in expected_focuses:
@@ -158,6 +158,46 @@ class SkillContractTests(unittest.TestCase):
 
         for forbidden in protocol["readiness"]["forbidden_fields"]:
             self.assertNotIn(forbidden, frame)
+
+    def test_grill_orchestrates_frame_and_convergence(self) -> None:
+        grill = skill_text("coderail-grill-contract")
+        protocol = json.loads(
+            (ROOT / "fixtures" / "protocol.json").read_text(encoding="utf-8")
+        )
+        scenarios = json.loads(
+            (ROOT / "fixtures" / "scenarios.json").read_text(encoding="utf-8")
+        )
+
+        self.assertIn("$coderail-frame", grill)
+        self.assertIn("quick path", grill.lower())
+        self.assertIn("guided path", grill.lower())
+        self.assertIn("I do not know", grill)
+        self.assertIn("DRAFT DELTA", grill)
+        self.assertIn("Only changed", grill)
+        self.assertIn("reversible-slice readiness", grill)
+        self.assertIn("explicit user confirmation", grill)
+        self.assertIn("coderail-diagnose", grill)
+
+        for state in protocol["epistemic_states"]:
+            self.assertIn(f"`{state}`", grill)
+        for coordinate in protocol["coordinates"]:
+            self.assertIn(f"{coordinate} - ", grill)
+        for operation in protocol["draft_delta"]["change_operations"]:
+            self.assertIn(f"[{operation}]", grill)
+
+        question_fields = {
+            field
+            for scenario in scenarios
+            if scenario["first_question"] is not None
+            for field in scenario["first_question"]
+        }
+        for field in question_fields:
+            self.assertIn(f"{field}:", grill)
+
+        self.assertIn("glossary", grill.lower())
+        self.assertIn("ADR", grill)
+        self.assertIn("do not promote", grill.lower())
+        self.assertIn("unexplained architecture labels", grill.lower())
 
     def test_attribution_pins_an_upstream_commit(self) -> None:
         notice = (ROOT / "NOTICE.md").read_text(encoding="utf-8")

@@ -29,8 +29,9 @@ or immediate promotion of conversational answers into canonical documentation.
 - `coderail-tdd-quality`: improve test seams and reject weak tests while
   retaining CodeRail's full evidence contract.
 - `coderail-two-axis-review`: review standards and task intent independently.
-- `coderail-grill-contract`: explicitly invoked interview for risky or vague
-  work.
+- `coderail-grill-contract`: explicitly invoked orchestrator that consumes the
+  frame result, bypasses interviews for quick work, and converges guided work
+  through typed drafts and change-only deltas.
 
 The framing, diagnosis, TDD-quality, and two-axis-review skills are
 model-invoked. Contract grilling is user-invoked because it changes the
@@ -69,11 +70,16 @@ WP1 freezes the protocol before changing prompts:
 eligibility from the fixture data. A fixture cannot declare itself ready or
 promotion-eligible unless the executable invariants agree.
 
-WP2 implements `coderail-frame` against that frozen protocol. Its contract
-tests derive the required routes, epistemic states, coordinates, question
-fields, and initial focus cases from the fixtures. The skill remains read-only:
-it proposes either a quick path or one guided question and leaves drafting,
-activation, persistence, and implementation to later layers.
+WP2 implements `coderail-frame` against that frozen protocol. WP3 composes it
+into `coderail-grill-contract`, adds the quick-path bypass, treats "I do not
+know" as valid, emits a change-only Draft Delta after each answer, and stops at
+reversible-slice readiness. The orchestrator remains user-invoked and requires
+explicit confirmation before calling the public CodeRail lifecycle.
+
+The scenario matrix now contains all eight planned cases: two quick contracts,
+five guided contracts, and one reproduced regression routed to diagnosis. The
+tests derive readiness, question shape, promotion eligibility, workflow
+routing, and invocation policy from the fixtures.
 
 ## Evaluation
 
