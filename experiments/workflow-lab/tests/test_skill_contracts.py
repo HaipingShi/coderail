@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -9,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = {
+    "coderail-frame": True,
     "coderail-diagnose": True,
     "coderail-tdd-quality": True,
     "coderail-two-axis-review": True,
@@ -112,6 +114,50 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("generated test artifacts", diagnose)
         self.assertIn("Keep a requested read-only review read-only", review)
         self.assertIn("`[~]` task in `docs/TASKS.md`", review)
+
+    def test_frame_skill_implements_frozen_protocol(self) -> None:
+        frame = skill_text("coderail-frame")
+        protocol = json.loads(
+            (ROOT / "fixtures" / "protocol.json").read_text(encoding="utf-8")
+        )
+        scenarios = json.loads(
+            (ROOT / "fixtures" / "scenarios.json").read_text(encoding="utf-8")
+        )
+
+        for route in protocol["routes"]:
+            self.assertIn(f"`{route}`", frame)
+        for state in protocol["epistemic_states"]:
+            self.assertIn(f"`{state}`", frame)
+        for coordinate in protocol["coordinates"]:
+            self.assertIn(f"`{coordinate}`", frame)
+
+        question_fields = {
+            field
+            for scenario in scenarios
+            if scenario["first_question"] is not None
+            for field in scenario["first_question"]
+        }
+        for field in question_fields:
+            self.assertIn(f"{field}:", frame)
+
+        expected_focuses = {
+            scenario["first_question"]["focus"]
+            for scenario in scenarios
+            if scenario["first_question"] is not None
+        }
+        for focus in expected_focuses:
+            self.assertIn(focus, frame)
+
+        self.assertIn("candidate lens", frame.lower())
+        self.assertIn("never a fact", frame.lower())
+        self.assertIn("repository evidence resolves", frame.lower())
+        self.assertIn("user-facing question: none", frame.lower())
+        self.assertIn("exactly one", frame.lower())
+        self.assertIn("primary source", frame.lower())
+        self.assertIn("exhaustive expert checklist", frame.lower())
+
+        for forbidden in protocol["readiness"]["forbidden_fields"]:
+            self.assertNotIn(forbidden, frame)
 
     def test_attribution_pins_an_upstream_commit(self) -> None:
         notice = (ROOT / "NOTICE.md").read_text(encoding="utf-8")

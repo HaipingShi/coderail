@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-25 - Implement model-invoked coderail-frame (T-021)
+
+- Done: Implement model-invoked coderail-frame
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: WP3: compose coderail-frame into coderail-grill-contract and complete the remaining scenario fixtures
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: standard skill validator passes for coderail-frame
+- Acceptance [done]: repository evidence suppresses resolved user-facing questions
+- Acceptance [done]: domain lenses are labeled candidates and only one high-impact unknown is surfaced
+- Acceptance [done]: CodeRail authority and no-side-effect boundaries remain intact
+
 ## 2026-07-25 - Define Guided Convergence WP1 protocol fixtures (T-019)
 
 - Done: Define Guided Convergence WP1 protocol fixtures

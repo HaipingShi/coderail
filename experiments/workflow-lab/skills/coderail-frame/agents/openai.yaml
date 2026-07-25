@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeRail Frame"
+  short_description: "Frame a request before contract drafting"
+  default_prompt: "Use $coderail-frame to investigate this request and choose the quick path or one high-impact question."

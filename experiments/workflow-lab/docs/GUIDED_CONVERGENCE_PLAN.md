@@ -123,6 +123,8 @@ WP1 result:
 
 ### WP2 - Add the internal framing primitive
 
+Status: implemented and contract-tested
+
 Actions:
 
 - Create `skills/coderail-frame/SKILL.md`.
@@ -142,6 +144,20 @@ Acceptance:
 - It returns no user-facing question when repository evidence already resolves
   the issue.
 - Its output labels domain lenses as candidates, never facts.
+
+WP2 result:
+
+- `skills/coderail-frame/SKILL.md` implements a read-only, model-invoked
+  framing primitive.
+- It investigates repository evidence before routing, removes resolved lenses,
+  and emits either `user-facing question: none` or one complete question.
+- It labels every domain lens `[CANDIDATE]`, types material claims with the WP1
+  epistemic vocabulary, and avoids numeric proxy scores.
+- Unstable or high-risk technical claims require primary-source evidence or a
+  focused experiment before they can be treated as facts.
+- `tests/test_skill_contracts.py` derives the required routes, states,
+  coordinates, question fields, and initial focus cases from the frozen
+  fixtures.
 
 ### WP3 - Rewrite the grilling orchestrator
 
@@ -316,14 +332,15 @@ Stop implementation and return to design if:
 
 ## 7. Immediate Next Slice
 
-The next implementation slice is WP1 plus the WP4 fixture skeleton:
+The next implementation slice is WP3 plus the remaining WP4 scenarios:
 
-1. Add the Contract Draft and Draft Delta fixtures.
-2. Encode quick/guided route expectations for the first four scenarios.
-3. Encode readiness and promotion invariants.
-4. Run the existing lab suite unchanged.
-5. Only then change or add skill prompts.
+1. Compose `coderail-frame` into `coderail-grill-contract`.
+2. Add the explicit quick-path bypass and Draft Delta loop.
+3. Encode the remaining four scenarios.
+4. Test novice-safe wording, deferred UNKNOWN handling, and orchestration
+   invocation boundaries.
+5. Forward-test the composed workflow before comparative evaluation.
 
-This slice is documentation and test-fixture work inside the isolated lab on a
-feature branch. It does not require ending CodeRail's stabilization freeze or
-changing the shipping runtime.
+This slice remains inside the isolated lab on a feature branch. It does not
+require ending CodeRail's stabilization freeze or changing the shipping
+runtime.

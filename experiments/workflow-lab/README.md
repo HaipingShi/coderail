@@ -22,6 +22,9 @@ or immediate promotion of conversational answers into canonical documentation.
 
 ## Skills
 
+- `coderail-frame`: model-invoked, read-only framing primitive that investigates
+  repository evidence, chooses quick or guided routing, and surfaces at most
+  one high-impact unknown.
 - `coderail-diagnose`: require a red-capable reproduction before bug theory.
 - `coderail-tdd-quality`: improve test seams and reject weak tests while
   retaining CodeRail's full evidence contract.
@@ -29,8 +32,9 @@ or immediate promotion of conversational answers into canonical documentation.
 - `coderail-grill-contract`: explicitly invoked interview for risky or vague
   work.
 
-The first three are model-invoked. Contract grilling is user-invoked because it
-changes the interaction flow and waits for explicit decisions.
+The framing, diagnosis, TDD-quality, and two-axis-review skills are
+model-invoked. Contract grilling is user-invoked because it changes the
+interaction flow and waits for explicit decisions.
 
 ## Invariants
 
@@ -64,6 +68,12 @@ WP1 freezes the protocol before changing prompts:
 `tests/test_guided_convergence_protocol.py` derives readiness and promotion
 eligibility from the fixture data. A fixture cannot declare itself ready or
 promotion-eligible unless the executable invariants agree.
+
+WP2 implements `coderail-frame` against that frozen protocol. Its contract
+tests derive the required routes, epistemic states, coordinates, question
+fields, and initial focus cases from the fixtures. The skill remains read-only:
+it proposes either a quick path or one guided question and leaves drafting,
+activation, persistence, and implementation to later layers.
 
 ## Evaluation
 
