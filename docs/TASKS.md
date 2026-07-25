@@ -10,49 +10,28 @@
 - `[f]` failed
 - `[r]` reopened
 
-## T-024 Run frozen wp5-v1 comparative trials
+## T-025 all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded
 
-Status: [~]
-Type: docs
-Rail: light
+Status: [ ]
+Type: feature
+Rail: full
 
 ### CodeRail Coordinate
 
 G — Goal
-- Execute and report the frozen A/B/C contract-phase evaluation without changing its tasks, treatments, rubric, schema, or hashes
+- Deferred from T-024: all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded
 
 T — Task
-- Run frozen wp5-v1 comparative trials
+- all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded
 
 S — Scope
 Allowed:
-  - experiments/workflow-lab/evaluation/results/**
-  - experiments/workflow-lab/scripts/run_evaluation.py
-  - experiments/workflow-lab/tests/test_evaluation_results.py
-  - experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md
-  - experiments/workflow-lab/README.md
-  - experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md
+  - to be decided while working
 Forbidden:
-  - scripts
-  - project-template
-  - skills
-  - references
-  - experiments/workflow-lab/skills
-  - experiments/workflow-lab/evaluation/manifest.json
-  - experiments/workflow-lab/evaluation/rubric.json
-  - experiments/workflow-lab/evaluation/trial-result.schema.json
-  - experiments/workflow-lab/evaluation/freeze.json
-  - experiments/workflow-lab/evaluation/workflows
+  - none
 
 V — Verify
-- all frozen contract-phase trials have raw outputs, independently derived observations, an aggregate report, and explicit limitations
-- Run: `python -m unittest discover -s experiments/workflow-lab/tests -v` (must exit 0)
-
-A — Acceptance
-- [ ] all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded
-- [ ] pretrial hashes remain unchanged throughout execution
-- [ ] aggregate metrics are computed from observation records rather than subject self-scoring
-- [ ] report distinguishes contract-phase evidence from unmeasured implementation outcomes and makes no premature adoption claim
+- Manually confirm the result works as intended.
 
 X — Stop
 - Stop and ask if changes are needed outside the allowed files.
@@ -60,20 +39,31 @@ X — Stop
 P — Persist
 - TASKS, TRACE
 
-Task result: blocked
+## T-026 aggregate metrics are computed from observation records rather than subject self-scoring
 
-Harness result: passed
+Status: [ ]
+Type: feature
+Rail: full
 
-Handoff level: H3
+### CodeRail Coordinate
 
-Handoff updated: no
+G — Goal
+- Deferred from T-024: aggregate metrics are computed from observation records rather than subject self-scoring
 
-Inspect status: refreshed
+T — Task
+- aggregate metrics are computed from observation records rather than subject self-scoring
 
-Drive decision: BLOCKED_DECISION
+S — Scope
+Allowed:
+  - to be decided while working
+Forbidden:
+  - none
 
-Resume anchor: docs/TASKS.md#T-024
+V — Verify
+- Manually confirm the result works as intended.
 
-Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
 
-Auto commit: disabled
+P — Persist
+- TASKS, TRACE

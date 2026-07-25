@@ -7,6 +7,19 @@ Each entry: what got done, how it was checked, what comes next.
 
 - Done: Run frozen wp5-v1 comparative trials
 - Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: switch to Freeze corrected wp5-v2 protocol
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [deferred]: all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded
+- Acceptance [done]: pretrial hashes remain unchanged throughout execution
+- Acceptance [deferred]: aggregate metrics are computed from observation records rather than subject self-scoring
+- Acceptance [done]: report distinguishes contract-phase evidence from unmeasured implementation outcomes and makes no premature adoption claim
+- Deferred: all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded (registered as a follow-up task)
+- Deferred: aggregate metrics are computed from observation records rather than subject self-scoring (registered as a follow-up task)
+
+## 2026-07-25 - Run frozen wp5-v1 comparative trials (T-024)
+
+- Done: Run frozen wp5-v1 comparative trials
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
 - Next: Freeze wp5-v2 with gpt-5.4 and nullable follow-through metrics, then run contract-phase trials
 - Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
 

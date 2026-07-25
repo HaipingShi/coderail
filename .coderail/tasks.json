@@ -779,6 +779,31 @@
       "captured_at": "2026-07-25T05:54:51.656762+00:00",
       "head": "1862939cb6e327424d9a4741fa83e1cd0fac97a4",
       "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-25T06:08:40.222326+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        }
+      ]
     }
   }
 }
