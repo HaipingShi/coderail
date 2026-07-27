@@ -3821,6 +3821,55 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-27T08:18:43.307978+00:00",
       "resume": "coderail switch --to T-042"
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T08:32:01.403039+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/PROGRESS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/docs/WP6_ADOPTION_REVIEW.md"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_wp6_adoption_review.py"
+        }
+      ]
     }
   },
   "T-043": {

@@ -425,6 +425,8 @@ WP5 v5 early-stop result:
 
 ### WP6 - Review adoption
 
+Status: complete. The final decision is **REVISE**.
+
 Produce one decision:
 
 ```text
@@ -447,6 +449,12 @@ An ADOPT recommendation must specify:
 - attribution;
 - removal and rollback procedure;
 - characterization tests required in the native pack.
+
+The evidence review is recorded in
+`WP6_ADOPTION_REVIEW.md`. It preserves the isolated research pack but
+withholds native skill installation and smart hooks. Any continuation requires
+a new frozen protocol whose novice-facing questions request observable
+outcomes rather than implementation mechanisms.
 
 ## 5. Implementation Order
 
@@ -482,17 +490,19 @@ Stop implementation and return to design if:
 - promotion rules still permit an unverified assumption to become canonical;
 - evaluation benefit is anecdotal rather than measurable.
 
-## 7. Immediate Next Slice
+## 7. Program Closeout
 
-The next slice is WP6 adoption review, not continuation of the stopped v5 run:
+WP0-WP6 are complete. `WP6_ADOPTION_REVIEW.md` records **REVISE** for the
+research treatment and withholds native integration:
 
 1. preserve the s2 provider-gate failure as the authoritative v5 stop;
 2. do not execute s3-s5 or C5p under `wp5-v5`;
-3. decide REVISE or REJECT for the current native-pack proposal;
-4. if REVISE, define a new protocol rather than editing frozen v5 inputs;
-5. keep native integration frozen until a later treatment supplies both
-   contract and implementation/closeout evidence.
+3. do not install the experimental skills or build a smart hook;
+4. keep CodeRail's kernel, lifecycle, and task authority unchanged;
+5. require separate authorization and a new frozen protocol for any future
+   treatment;
+6. require contract-through-closeout evidence before reconsidering adoption.
 
-This slice remains inside the isolated lab on a feature branch. It does not
-require ending CodeRail's stabilization freeze or changing the shipping
-runtime.
+There is no automatic next implementation slice. The isolated lab remains a
+research asset on the feature branch without ending CodeRail's stabilization
+freeze or changing the shipping runtime.

@@ -156,6 +156,15 @@ therefore ended the run before s3 and prohibited C5p. The disposition is
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 
+## WP6 closeout
+
+`docs/WP6_ADOPTION_REVIEW.md` records the final decision: **REVISE**. The
+research pack is preserved in this isolated lab, but the current C5 treatment
+is not installed natively and no smart hook is authorized. Any later treatment
+must use a separately authorized, newly frozen protocol that asks novice users
+for observable outcomes rather than implementation mechanisms and gathers
+contract-through-closeout evidence before adoption is reconsidered.
+
 ## Initial forward-test result
 
 - The two-axis review independently found all seeded standards and contract

@@ -316,3 +316,21 @@ The token and quick-path observations do not override the registered stop.
 Gates requiring all five seeds remain unevaluated. The treatment disposition
 is `REVISE_PROVIDER_GATE`; the adoption decision remains
 `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
+
+## WP6 adoption decision
+
+WP6 converts the experimental result into a product decision: **REVISE**.
+This is not permission to integrate the current treatment. The isolated lab
+artifacts remain available for study, while the native skill pack, automatic
+hook, kernel changes, v5 s3-s5, and C5p remain unauthorized.
+
+The evidence does not justify rejection of the research direction because the
+clear-task bypass, bounded interaction model, and observable early-stop
+contract were useful. It does require revision because the novice-facing
+technical-choice boundary failed and implementation-through-closeout evidence
+is absent. A future treatment must use a new frozen protocol and ask users for
+observable outcomes rather than provider, cache, schema, architecture, or
+workflow mechanisms.
+
+The complete reasoning, boundaries, and reconsideration criteria are recorded
+in `WP6_ADOPTION_REVIEW.md`.

@@ -3,6 +3,32 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Issue WP6 guided-convergence adoption review (T-042)
+
+- Done: Issue WP6 guided-convergence adoption review
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: No automatic next slice; keep the experiment isolated unless a separately authorized new protocol is requested
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: The review makes exactly one top-level ADOPT, REVISE, or REJECT decision and distinguishes treatment disposition from native integration
+- Acceptance [done]: The decision cites v4 and v5 evidence, including the s2 provider-gate stop, unsupported assumptions, clear quick path, token economy, and missing implementation evidence
+- Acceptance [done]: No smart hook, kernel change, native skill installation, later v5 seed, or C5p execution is authorized
+- Acceptance [done]: A future revision must use a new frozen protocol and novice-facing questions must request outcomes rather than mechanisms
+- Acceptance [done]: The plan, report, README, and executable consistency test agree on the final decision
+- Acceptance [done]: All workflow-lab tests pass
+
+## 2026-07-27 - Issue WP6 guided-convergence adoption review (T-042)
+
+- Done: Issue WP6 guided-convergence adoption review
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: No automatic next slice; keep the experiment isolated unless a separately authorized new protocol is requested
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: The review makes exactly one top-level ADOPT, REVISE, or REJECT decision and distinguishes treatment disposition from native integration
+- Acceptance [done]: The decision cites v4 and v5 evidence, including the s2 provider-gate stop, unsupported assumptions, clear quick path, token economy, and missing implementation evidence
+- Acceptance [done]: No smart hook, kernel change, native skill installation, later v5 seed, or C5p execution is authorized
+- Acceptance [done]: A future revision must use a new frozen protocol and novice-facing questions must request outcomes rather than mechanisms
+- Acceptance [done]: The plan, report, README, and executable consistency test agree on the final decision
+- Acceptance [done]: All workflow-lab tests pass
+
 ## 2026-07-27 - Finalize WP6 review under governance-owned closeout scope (T-043)
 
 - Done: Finalize WP6 review under governance-owned closeout scope
