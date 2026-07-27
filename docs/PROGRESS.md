@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Preflight wp5-v5 schema and execution runner (T-038)
+
+- Done: Preflight wp5-v5 schema and execution runner
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: WP6: issue the evidence-led adoption review and withhold native integration after the v5 provider-gate failure
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: The runner reads primary workflows, contingency workflows, canonical seeds, and sampling plan from manifest.json
+- Acceptance [done]: The service accepts model-output.schema.json for protocol wp5-v5
+- Acceptance [done]: Preflight sends zero task and oracle payloads and starts zero subject batches
+- Acceptance [done]: All v5 frozen hashes remain unchanged
+- Acceptance [done]: No v5 results directory or trial output is created
+
 ## 2026-07-27 - Run and adjudicate seed-wise wp5-v5 comparison (T-040)
 
 - Done: Run and adjudicate seed-wise wp5-v5 comparison

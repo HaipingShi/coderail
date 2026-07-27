@@ -2439,6 +2439,27 @@
       "captured_at": "2026-07-27T02:13:52.699900+00:00",
       "head": "e57df6769e4ccc5df8fdb728aee87f1fca0e5743",
       "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T08:11:50.585121+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        }
+      ]
     }
   },
   "T-039": {
