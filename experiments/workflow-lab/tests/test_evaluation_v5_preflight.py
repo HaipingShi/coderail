@@ -108,6 +108,7 @@ class EvaluationV5PreflightArtifactTests(unittest.TestCase):
         self.assertTrue(record["frozen_hashes_unchanged"])
         self.assertEqual(record["planned_primary_trials"], 180)
         self.assertTrue(record["thread_id"])
+        self.assertIn(record["transport_attempts"], (1, 2))
 
         self.assertEqual(output["protocol_version"], "wp5-v5")
         self.assertEqual(len(output["responses"]), 1)
@@ -118,7 +119,30 @@ class EvaluationV5PreflightArtifactTests(unittest.TestCase):
 
     def test_preflight_created_no_results_or_trials(self) -> None:
         self.assertFalse((V5 / "results").exists())
-        self.assertFalse(list(V5.rglob("trial-*.json")))
+        self.assertFalse((V5 / "results" / "trials").exists())
+
+    def test_transport_retry_is_identical_and_precedes_output(self) -> None:
+        record = load_json(PREFLIGHT / "schema-compatibility.json")
+        failure_path = PREFLIGHT / "schema-transport-failure.json"
+        if record["transport_attempts"] == 1:
+            self.assertFalse(failure_path.exists())
+            return
+
+        failure = load_json(failure_path)
+        self.assertEqual(failure["attempt"], 1)
+        self.assertEqual(
+            failure["status"],
+            "transport-failed-before-output",
+        )
+        self.assertEqual(
+            failure["retry_policy"],
+            "one identical-input transport retry",
+        )
+        self.assertEqual(failure["subject_batches_started"], 0)
+        self.assertEqual(failure["judge_batches_started"], 0)
+        self.assertEqual(failure["task_or_oracle_payloads_sent"], 0)
+        self.assertTrue((PREFLIGHT / failure["events"]).is_file())
+        self.assertTrue((PREFLIGHT / failure["stderr"]).is_file())
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import random
 import subprocess
 import tempfile
@@ -146,6 +147,17 @@ def run_codex(
     stderr_path: Path,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    environment = os.environ.copy()
+    if environment.get("CODERAIL_V5_DIRECT_NETWORK") == "1":
+        for name in (
+            "HTTP_PROXY",
+            "HTTPS_PROXY",
+            "ALL_PROXY",
+            "http_proxy",
+            "https_proxy",
+            "all_proxy",
+        ):
+            environment.pop(name, None)
     with tempfile.TemporaryDirectory(prefix="coderail-wp5-v5-") as temp:
         codex_args = [
             "-a",
@@ -186,6 +198,7 @@ def run_codex(
             encoding="utf-8",
             errors="replace",
             capture_output=True,
+            env=environment,
         )
 
     event_path.parent.mkdir(parents=True, exist_ok=True)
@@ -199,16 +212,63 @@ def run_codex(
     return read_json(output_path), parse_event_stream(result.stdout)
 
 
+def prepare_schema_preflight_retry(
+    *,
+    output_path: Path,
+    event_path: Path,
+    stderr_path: Path,
+    record_path: Path,
+) -> int:
+    failed_record = PREFLIGHT / "schema-transport-failure.json"
+    failed_events = PREFLIGHT / "schema-attempt-1-events.jsonl"
+    failed_stderr = PREFLIGHT / "schema-attempt-1-stderr.log"
+
+    if output_path.exists() or record_path.exists():
+        raise RuntimeError("Refusing to overwrite completed schema preflight")
+    if failed_record.exists():
+        if event_path.exists() or stderr_path.exists():
+            raise RuntimeError("A second schema preflight attempt already exists")
+        return 2
+    if not event_path.exists() and not stderr_path.exists():
+        return 1
+    if not event_path.exists() or not stderr_path.exists():
+        raise RuntimeError("Incomplete schema preflight failure evidence")
+
+    stream = event_path.read_text(encoding="utf-8")
+    if '"type":"turn.failed"' not in stream or '"type":"turn.completed"' in stream:
+        raise RuntimeError("Existing preflight is not a retryable transport failure")
+    event = parse_event_stream(stream)
+    event_path.replace(failed_events)
+    stderr_path.replace(failed_stderr)
+    write_json(
+        failed_record,
+        {
+            "protocol_version": PROTOCOL_VERSION,
+            "status": "transport-failed-before-output",
+            "attempt": 1,
+            "retry_policy": "one identical-input transport retry",
+            "subject_batches_started": 0,
+            "judge_batches_started": 0,
+            "task_or_oracle_payloads_sent": 0,
+            "thread_id": event["thread_id"],
+            "events": failed_events.name,
+            "stderr": failed_stderr.name,
+        },
+    )
+    return 2
+
+
 def schema_preflight() -> int:
     output_path = PREFLIGHT / "schema-output.json"
     event_path = PREFLIGHT / "schema-events.jsonl"
     stderr_path = PREFLIGHT / "schema-stderr.log"
     record_path = PREFLIGHT / "schema-compatibility.json"
-    if any(
-        path.exists()
-        for path in (output_path, event_path, stderr_path, record_path)
-    ):
-        raise RuntimeError("Refusing to overwrite existing schema preflight")
+    attempt = prepare_schema_preflight_retry(
+        output_path=output_path,
+        event_path=event_path,
+        stderr_path=stderr_path,
+        record_path=record_path,
+    )
 
     hashes_before = verify_freeze()
     plan = load_execution_plan()
@@ -246,6 +306,12 @@ stop_after_contract true.
             "reasoning_effort": REASONING,
             "schema": "model-output.schema.json",
             "request_kind": "schema-compatibility-only",
+            "transport_attempts": attempt,
+            "network_route": (
+                "direct-via-host-tun"
+                if os.environ.get("CODERAIL_V5_DIRECT_NETWORK") == "1"
+                else "inherited"
+            ),
             "subject_batches_started": 0,
             "judge_batches_started": 0,
             "task_payloads_sent": 0,

@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Complete wp5-v5 schema preflight checkpoint (T-039)
+
+- Done: Complete wp5-v5 schema preflight checkpoint
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Implement seed-wise wp5-v5 subject and blind-judge execution with the provider early-stop gate
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: The service accepts model-output.schema.json for protocol wp5-v5
+- Acceptance [done]: Preflight artifacts prove zero task and oracle payloads and zero subject or judge batches
+- Acceptance [done]: The pre-execution protocol test is advanced to the post-preflight checkpoint
+- Acceptance [done]: All frozen hashes remain unchanged and no results or trial output exists
+
 ## 2026-07-27 - Preflight wp5-v5 schema and execution runner (T-038)
 
 - Done: Preflight wp5-v5 schema and execution runner

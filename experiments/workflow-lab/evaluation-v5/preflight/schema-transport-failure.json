@@ -1,0 +1,12 @@
+{
+  "protocol_version": "wp5-v5",
+  "status": "transport-failed-before-output",
+  "attempt": 1,
+  "retry_policy": "one identical-input transport retry",
+  "subject_batches_started": 0,
+  "judge_batches_started": 0,
+  "task_or_oracle_payloads_sent": 0,
+  "thread_id": "019fa166-1f3c-77f3-b943-f42c1a47bafa",
+  "events": "schema-attempt-1-events.jsonl",
+  "stderr": "schema-attempt-1-stderr.log"
+}

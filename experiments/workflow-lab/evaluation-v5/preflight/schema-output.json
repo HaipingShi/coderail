@@ -1,0 +1,1 @@
+{"protocol_version":"wp5-v5","responses":[{"task_id":"__schema_preflight__","route":"quick","turns":[{"question":null,"scripted_answer_index":null,"draft_ready":true}],"contract":{"G":"preflight","T":"preflight","S":"preflight","V":"preflight","X":"preflight","P":"preflight","ready":true},"promotions":[],"stop_after_contract":true}]}

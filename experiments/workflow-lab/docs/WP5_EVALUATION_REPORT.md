@@ -260,3 +260,22 @@ schema preflight; `subject_batches_started` is 0 and
 preparation only. It is not a trial, it constitutes no evidence that C5
 improved, and it does not authorize ADOPT. The schema preflight with zero task
 or oracle payloads remains paused until separately authorized.
+
+## v5 schema preflight checkpoint
+
+The separately authorized `wp5-v5` schema preflight passed on 2026-07-27
+without sending a task packet, hidden oracle, workflow treatment, repository
+evidence, scripted answer, or user data. The service returned one conforming
+`__schema_preflight__` response for `model-output.schema.json` using
+`gpt-5.4` at medium reasoning. Metadata records zero subject batches, zero
+judge batches, zero task or oracle payloads, unchanged frozen hashes, and no
+`evaluation-v5/results/` directory.
+
+The first attempt failed at transport before model output because the
+escalated shell inherited an unavailable loopback proxy. The frozen run
+specification permits one identical-input transport retry. The failed event
+stream and stderr are retained as attempt 1; attempt 2 used the same prompt,
+schema, model, reasoning effort, sandbox, and configuration through the
+already-active host TUN and succeeded. This proves schema compatibility only.
+It adds no evidence that C5 improves treatment outcomes and does not change
+the aggregate decision.

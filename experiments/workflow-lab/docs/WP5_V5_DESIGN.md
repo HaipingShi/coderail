@@ -1,10 +1,11 @@
 # WP5 V5 Experiment Design
 
-Status: frozen before subject output; no schema preflight or trial started
+Status: schema preflight passed; no subject or judge trial started
 Protocol: `wp5-v5`
 Supersedes for execution: `wp5-v4`
 Originally frozen: 2026-07-25
 Contract repair and refreeze: 2026-07-26
+Schema preflight: 2026-07-27
 
 ## 1. Purpose
 
@@ -171,6 +172,20 @@ implementation-phase planning.
   ["A", "B", "C5", "C5p"] and requires one canonical seed identifier on every
   trial record. Task packets, oracles, rubric content, judge prompt, and
   workflows A/B remain byte-identical to v4.
+
+### Schema compatibility checkpoint
+
+The frozen `model-output.schema.json` was accepted by `gpt-5.4` at medium
+reasoning on 2026-07-27. The request contained no task packet, hidden oracle,
+workflow treatment, repository evidence, scripted answer, or user data. It
+started zero subject and judge batches and created no `results/` directory.
+
+The first transport attempt produced no model output because the escalated
+shell inherited an unavailable `127.0.0.1:7890` proxy. The frozen failure
+policy permits one identical-input transport retry. That failure is preserved
+under `evaluation-v5/preflight/`; the retry bypassed the stale environment
+proxy through the already-active host TUN and returned a schema-conforming
+response. Frozen input hashes matched before and after both attempts.
 
 ## 7. Metrics and nullability
 

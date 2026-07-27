@@ -2681,5 +2681,93 @@
       "head": "e57df6769e4ccc5df8fdb728aee87f1fca0e5743",
       "files": []
     }
+  },
+  "T-039": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py"
+    ],
+    "accept": [
+      "The service accepts model-output.schema.json for protocol wp5-v5",
+      "Preflight artifacts prove zero task and oracle payloads and zero subject or judge batches",
+      "The pre-execution protocol test is advanced to the post-preflight checkpoint",
+      "All frozen hashes remain unchanged and no results or trial output exists"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T02:26:58.759819+00:00",
+      "head": "f9a7f0a1358d1e09041d7f1058b81be36bbed777",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T02:41:51.708678+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_V5_DESIGN.md"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/scripts/run_evaluation_v5.py"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v5_preflight.py"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-attempt-1-events.jsonl"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-compatibility.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-events.jsonl"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-output.json"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-transport-failure.json"
+        }
+      ]
+    }
   }
 }

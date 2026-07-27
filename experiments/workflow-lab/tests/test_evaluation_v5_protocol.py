@@ -118,7 +118,7 @@ class EvaluationV5ProtocolTests(unittest.TestCase):
         del v5_trial["properties"]["seed"]
         self.assertEqual(v5_trial, v4_trial)
 
-    def test_v5_freeze_covers_every_pretrial_input_and_no_execution(self) -> None:
+    def test_v5_freeze_covers_inputs_and_preflight_is_not_a_trial(self) -> None:
         freeze = load_json(V5 / "freeze.json")
         expected_paths = {
             "manifest.json",
@@ -142,14 +142,22 @@ class EvaluationV5ProtocolTests(unittest.TestCase):
         policy = freeze["execution_policy"]
         self.assertFalse(policy["schema_preflight_run_at_this_checkpoint"])
         self.assertEqual(policy["subject_batches_started"], 0)
-        self.assertFalse((V5 / "preflight").exists())
+
+        preflight = load_json(V5 / "preflight" / "schema-compatibility.json")
+        self.assertEqual(preflight["status"], "passed")
+        self.assertEqual(preflight["subject_batches_started"], 0)
+        self.assertEqual(preflight["judge_batches_started"], 0)
+        self.assertEqual(preflight["task_or_oracle_payloads_sent"], 0)
         self.assertFalse((V5 / "results").exists())
 
     def test_v5_frozen_documents_match_the_machine_contract(self) -> None:
         design = DESIGN.read_text(encoding="utf-8")
         run_spec = (V5 / "run-spec.md").read_text(encoding="utf-8")
 
-        self.assertIn("Status: frozen before subject output", design)
+        self.assertIn(
+            "Status: schema preflight passed; no subject or judge trial started",
+            design,
+        )
         self.assertIn("Protocol: `wp5-v5`", design)
         self.assertIn("A, B, and C5", run_spec)
         self.assertIn("required in every trial record", run_spec)

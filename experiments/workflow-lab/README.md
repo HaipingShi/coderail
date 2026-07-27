@@ -139,6 +139,14 @@ three workflows were already at zero unsupported assumptions, so the required
 therefore remains REVISE, not ADOPT, and implementation evidence is still
 absent.
 
+`evaluation-v5/` freezes the provider-question and output-economy revisions,
+five canonical task-order seeds, a 180-cell primary A/B/C5 plan, and the C5p
+contingency before subject output. Its zero-task schema preflight passed on
+`gpt-5.4` at medium reasoning after one preserved identical-input transport
+retry. The checkpoint sent no task or oracle payloads, started no subject or
+judge batches, left every frozen hash unchanged, and created no results
+directory. It establishes execution compatibility, not treatment benefit.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 

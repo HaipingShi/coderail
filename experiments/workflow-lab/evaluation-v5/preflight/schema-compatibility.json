@@ -1,0 +1,39 @@
+{
+  "protocol_version": "wp5-v5",
+  "status": "passed",
+  "model": "gpt-5.4",
+  "reasoning_effort": "medium",
+  "schema": "model-output.schema.json",
+  "request_kind": "schema-compatibility-only",
+  "transport_attempts": 2,
+  "network_route": "direct-via-host-tun",
+  "subject_batches_started": 0,
+  "judge_batches_started": 0,
+  "task_payloads_sent": 0,
+  "oracle_payloads_sent": 0,
+  "task_or_oracle_payloads_sent": 0,
+  "planned_primary_workflows": [
+    "A",
+    "B",
+    "C5"
+  ],
+  "planned_contingency_workflows": [
+    "C5p"
+  ],
+  "planned_seeds": [
+    "coderail-wp5-v5-s1",
+    "coderail-wp5-v5-s2",
+    "coderail-wp5-v5-s3",
+    "coderail-wp5-v5-s4",
+    "coderail-wp5-v5-s5"
+  ],
+  "planned_primary_trials": 180,
+  "frozen_hashes_unchanged": true,
+  "thread_id": "019fa16e-4b31-7c43-8661-bed0b84151c6",
+  "usage": {
+    "input_tokens": 15447,
+    "cached_input_tokens": 2432,
+    "output_tokens": 120,
+    "reasoning_output_tokens": 15
+  }
+}
