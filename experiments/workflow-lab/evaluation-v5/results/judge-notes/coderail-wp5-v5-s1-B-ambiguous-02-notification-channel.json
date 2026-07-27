@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-02-notification-channel",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Delivery-boundary question is outcome-focused and appropriate for a novice request.",
+    "Final contract stays within evidenced in-app notification capabilities."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-04-team-invitations",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s1",
+  "model": {
+    "name": "gpt-5.4",
+    "reasoning_effort": "medium",
+    "cli_version": "codex-cli 0.137.0"
+  },
+  "response": {
+    "raw_path": "results/raw/subject-coderail-wp5-v5-s1-B-ambiguous-cross-module.json",
+    "session_id": "019fa277-c04d-7b03-9259-d71785fc7019"
+  },
+  "observation": {
+    "turns_before_readiness": 1,
+    "useful_questions": 1,
+    "user_visible_technical_choices": 0,
+    "unsupported_assumptions": 0,
+    "post_start_contract_corrections": null,
+    "out_of_scope_edits": null,
+    "first_pass_done": null,
+    "reopened_or_post_close_defects": null,
+    "promotion_reversals": null,
+    "total_tokens": 3170,
+    "human_interruptions": 1,
+    "quick_path_correct": true
+  }
+}

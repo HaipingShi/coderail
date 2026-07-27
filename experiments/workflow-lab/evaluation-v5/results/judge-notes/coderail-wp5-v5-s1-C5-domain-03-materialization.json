@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-03-materialization",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Both questions changed decisive contract coordinates.",
+    "Ready state followed the two needed user answers and preserved the cached-HTML boundary."
+  ]
+}

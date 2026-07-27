@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-03-materialization",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Asked the two decisive domain-boundary questions before marking ready.",
+    "Final contract preserves cached-HTML materialization and uses location binding for filesystem identity assignment."
+  ]
+}

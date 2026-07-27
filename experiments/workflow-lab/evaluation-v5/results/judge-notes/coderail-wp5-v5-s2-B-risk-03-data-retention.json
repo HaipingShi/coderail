@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "risk-03-data-retention",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Asked the retention boundary first, then backup-facing deletion semantics.",
+    "Final contract remains consistent with preserving summaries and not promising backup erasure."
+  ]
+}

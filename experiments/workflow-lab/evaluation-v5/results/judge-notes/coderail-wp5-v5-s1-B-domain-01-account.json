@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-01-account",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Resolved the key meaning question in one turn.",
+    "Final contract narrows persistence to terminology/documentation-only work without user evidence supporting that stop/persistence decision."
+  ]
+}

@@ -3,6 +3,19 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Run and adjudicate seed-wise wp5-v5 comparison (T-040)
+
+- Done: Run and adjudicate seed-wise wp5-v5 comparison
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: WP6: issue the evidence-led adoption review; do not run s3-s5 or C5p and do not integrate C5 natively
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: Execution is seed-major and no later seed starts before the prior seed provider gate is judged
+- Acceptance [done]: Judge inputs expose neither workflow labels nor seed identifiers and map only through opaque ids
+- Acceptance [done]: Every expected completed cell has one seed-bearing trial record, or an explicit frozen-rule early-stop record explains omitted cells
+- Acceptance [done]: Aggregates evaluate all five pre-registered gates, category-pooled token ratios, and the baseline-floor rule
+- Acceptance [done]: Unobserved implementation and follow-through metrics remain null and cannot authorize ADOPT
+- Acceptance [done]: All frozen hashes remain unchanged and retries preserve identical inputs and completed batches
+
 ## 2026-07-27 - Finalize wp5-v5 registered early-stop checkpoint (T-041)
 
 - Done: Finalize wp5-v5 registered early-stop checkpoint

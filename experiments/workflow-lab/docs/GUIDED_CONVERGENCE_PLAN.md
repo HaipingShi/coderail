@@ -245,7 +245,8 @@ WP4 result:
 
 ### WP5 - Run comparative evaluation
 
-Status: wp5-v3 contract phase complete; implementation evidence pending
+Status: wp5-v5 stopped at the registered provider gate; implementation
+evidence pending
 
 Compare:
 
@@ -409,6 +410,19 @@ WP5 v4 contract-phase result:
   disposition is REVISE and the aggregate adoption decision remains
   `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
 
+WP5 v5 early-stop result:
+
+- The zero-task schema preflight passed without task or oracle payloads.
+- The seed-major runner completed s1 and s2: 21 subject batches, seven
+  workflow-masked judge batches, and 90 trial records.
+- C5 recorded zero user-visible technical choices in s1 and two in s2.
+- The registered provider gate failed in s2, so s3-s5 and C5p were not run.
+- Partial token ratios were below 1.15 in every observed category, and the
+  clear arm retained 100% quick routing, but those observations cannot
+  override the early stop.
+- The v5 disposition is `REVISE_PROVIDER_GATE`; adoption remains
+  `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
+
 ### WP6 - Review adoption
 
 Produce one decision:
@@ -470,17 +484,14 @@ Stop implementation and return to design if:
 
 ## 7. Immediate Next Slice
 
-The next implementation slice is a bounded treatment decision, not another
-automatic full rerun:
+The next slice is WP6 adoption review, not continuation of the stopped v5 run:
 
-1. Remove the remaining novice-facing provider choice from C.
-2. Reduce C's domain-language verbosity without weakening dependency closure.
-3. Add repeated seeds or multiple samples so an unchanged baseline can estimate
-   run variance.
-4. Decide between a smaller v5 contract-phase replication and implementation
-   follow-through on the unchanged v4 treatment.
-5. Keep native integration frozen until implementation and closeout evidence
-   exists.
+1. preserve the s2 provider-gate failure as the authoritative v5 stop;
+2. do not execute s3-s5 or C5p under `wp5-v5`;
+3. decide REVISE or REJECT for the current native-pack proposal;
+4. if REVISE, define a new protocol rather than editing frozen v5 inputs;
+5. keep native integration frozen until a later treatment supplies both
+   contract and implementation/closeout evidence.
 
 This slice remains inside the isolated lab on a feature branch. It does not
 require ending CodeRail's stabilization freeze or changing the shipping

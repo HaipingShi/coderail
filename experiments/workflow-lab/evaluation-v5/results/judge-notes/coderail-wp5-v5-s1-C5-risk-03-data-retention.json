@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "risk-03-data-retention",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "The subject asked the decisive retention and deletion-semantics questions in the expected order.",
+    "`P` adds a 'reversible default retention policy' claim that was not supplied by evidence or user decision."
+  ]
+}

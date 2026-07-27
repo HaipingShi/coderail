@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-02-workspace",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Both questions addressed decisive boundary and migration concerns before readiness.",
+    "No unsupported assumption about exposing local-window IDs appears in the final contract."
+  ]
+}

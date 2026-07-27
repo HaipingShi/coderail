@@ -1,0 +1,1189 @@
+{
+  "items": [
+    {
+      "opaque_id": "fca6201adb699ddd",
+      "user_profile": "expert",
+      "request": "Add team invitations using the current membership service.",
+      "repository_evidence": [
+        "membership service supports direct admin-created membership",
+        "there is no pending invitation state",
+        "organization roles are owner and member"
+      ],
+      "scripted_answers": [
+        {
+          "when": "acceptance authority is asked",
+          "answer": "Invitees must accept before membership exists; links expire after 7 days.",
+          "changes": [
+            "T",
+            "S",
+            "P",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "membership-boundary",
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "create membership before acceptance",
+          "non-expiring token"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-04-team-invitations",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Should invitations introduce a pre-membership pending state where acceptance is the authorization boundary, or should admins continue creating active memberships directly?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add team invitations on top of the current membership system.",
+          "T": "Design an invitation flow that defers membership creation until invitee acceptance.",
+          "S": "Add pending invitations, acceptance by expiring link, 7-day TTL, and final membership creation using existing owner/member roles; exclude broader role-model changes.",
+          "V": "Verify an invite can be issued, remains non-member until accepted, expires after 7 days, and acceptance creates the correct membership once.",
+          "X": "Stop if the current membership service cannot represent pending invitations or acceptance flow without unsafe direct-membership side effects.",
+          "P": "Persist through contract clarification only; do not implement until the invitation state and acceptance boundary are explicitly confirmed.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Pending Invitation",
+            "evidence": "Repository evidence says there is no pending invitation state, while the accepted direction requires membership to exist only after invitee acceptance."
+          },
+          {
+            "kind": "ADR",
+            "name": "Invitation Acceptance Creates Membership",
+            "evidence": "This is a consequential boundary change from admin-created direct membership to acceptance-gated membership with 7-day link expiry."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "880e24dd6db56973",
+      "user_profile": "novice",
+      "request": "Make the editor work offline.",
+      "repository_evidence": [
+        "documents are currently server-authoritative",
+        "the client has a read cache but no mutation queue",
+        "conflict resolution is undefined"
+      ],
+      "scripted_answers": [
+        {
+          "when": "offline capability is asked",
+          "answer": "For the first version, people only need to read previously opened documents offline.",
+          "changes": [
+            "G",
+            "T",
+            "S",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "offline-capability-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "offline editing",
+          "automatic conflict resolution"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-06-offline-mode",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Outcome question: For the first version, should offline mean read previously opened documents only, or also edit while disconnected? Recommended: read previously opened documents only. Reason: a read cache exists; offline edits need a mutation queue and conflict handling that are not evidenced. Impact: delivers useful offline access now and avoids undefined merge behavior. Evidence: documents are server-authoritative; client has a read cache; conflict resolution is undefined. Uncertainty: cache coverage/retention details are not evidenced. Reversibility: high; read-only offline can later expand to queued edits.",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "FACT request: editor works offline; DECISION v1 outcome: read previously opened documents offline only.",
+          "T": "FACT use existing read cache; DECISION no offline create/edit in this slice.",
+          "S": "FACT documents stay server-authoritative; DECISION scope is cached document reading while offline.",
+          "V": "DECISION verify a previously opened document opens offline; verify uncached documents do not appear editable offline; verify no offline mutation path exists.",
+          "X": "DECISION stop before offline write queue, sync, or conflict resolution.",
+          "P": "ASSUMPTION cached documents persist across normal offline sessions; UNKNOWN cache retention policy is non-blocking for this slice.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "5638be41813b86f1",
+      "user_profile": "expert",
+      "request": "Add an Account filter to global search.",
+      "repository_evidence": [
+        "global search spans people and organizations",
+        "authentication calls a person Account",
+        "billing calls an organization account"
+      ],
+      "scripted_answers": [
+        {
+          "when": "account meaning is asked",
+          "answer": "Filter by billable organization, not sign-in identity.",
+          "changes": [
+            "G",
+            "S",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "Account means identity",
+          "reuse authentication model"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-05-search-filter",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "When you say Account, should global search filter by sign-in identities or by billable organization accounts?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add an Account filter to global search with the intended domain meaning.",
+          "T": "Add an Account filter that narrows global search to billable organization accounts, not person sign-in identities.",
+          "S": "Cover search filter labeling, query behavior, and results limited to organization-account entities; exclude changes to authentication account search or person identity terminology outside this filter.",
+          "V": "Verify selecting the Account filter returns only billable organizations and does not surface person sign-in accounts.",
+          "X": "Stop if global search has no distinct organization-account entity/query path to target without redefining the search domain model.",
+          "P": "Persist on the smallest search-only slice and avoid unrelated auth-account changes.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Account",
+            "evidence": "Repository uses Account for both authentication people and billing organizations, creating a direct naming collision."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "970b28b3b36c5ce1",
+      "user_profile": "expert",
+      "request": "Add an Account filter to global search.",
+      "repository_evidence": [
+        "global search spans people and organizations",
+        "authentication calls a person Account",
+        "billing calls an organization account"
+      ],
+      "scripted_answers": [
+        {
+          "when": "account meaning is asked",
+          "answer": "Filter by billable organization, not sign-in identity.",
+          "changes": [
+            "G",
+            "S",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "Account means identity",
+          "reuse authentication model"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-05-search-filter",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "In global search, does \"Account\" mean the authenticated person identity or the billable organization entity?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add an Account filter to global search without terminology collision.",
+          "T": "Define the filter against the billable organization entity and wire search behavior to that meaning.",
+          "S": "Use Account to mean billing organization in search UI and query semantics; exclude sign-in identity filtering or auth terminology changes outside this feature.",
+          "V": "Verify the filter narrows results by billable organization and does not expose or imply person-account identity semantics.",
+          "X": "Stop if product wants one label to represent both auth identity and billing organization in the same surface, because the term would remain ambiguous.",
+          "P": "Persist through contract clarification only; do not implement until Account semantics are explicitly fixed for search.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Account",
+            "evidence": "Repository evidence shows 'Account' already means person identity in authentication and organization account in billing; the search feature must pin it to billable organization."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "de7188c5ee979667",
+      "user_profile": "novice",
+      "request": "Make the editor work offline.",
+      "repository_evidence": [
+        "documents are currently server-authoritative",
+        "the client has a read cache but no mutation queue",
+        "conflict resolution is undefined"
+      ],
+      "scripted_answers": [
+        {
+          "when": "offline capability is asked",
+          "answer": "For the first version, people only need to read previously opened documents offline.",
+          "changes": [
+            "G",
+            "T",
+            "S",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "offline-capability-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "offline editing",
+          "automatic conflict resolution"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-06-offline-mode",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "For the first version, do you need offline editing and later sync, or only offline access to documents that were already opened?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Provide a truthful first offline capability for the editor.",
+          "T": "Make previously opened documents readable offline from the client cache without supporting offline edits or sync.",
+          "S": "Include caching and reopening previously viewed documents while offline plus clear read-only behavior; exclude offline mutations, mutation queues, and conflict resolution.",
+          "V": "Verify a previously opened document can be reopened with no network connection and is clearly non-editable offline; verify never-opened documents remain unavailable offline.",
+          "X": "Stop if the client cache cannot reliably persist full document content for offline reopen without introducing a new local storage layer beyond this slice.",
+          "P": "Persist on offline read access only and do not expand into unsolved sync/conflict behavior.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Offline mode v1 is read-only",
+            "evidence": "Documents are server-authoritative, there is no mutation queue, and conflict resolution is undefined."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "f3315cd91472aa72",
+      "user_profile": "novice",
+      "request": "Add login to the application.",
+      "repository_evidence": [
+        "a session seam exists",
+        "no user, role, or authorization model exists",
+        "data records currently have no owner field"
+      ],
+      "scripted_answers": [
+        {
+          "when": "audience is asked",
+          "answer": "Several independent customers will sign in and must not see each other's data.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "identity provider is asked",
+          "answer": "Use the existing provider if it can isolate users; otherwise stop.",
+          "changes": [
+            "T",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "audience-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "single local owner",
+          "authentication implies authorization"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-01-login-audience",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Outcome question: Who needs to sign in, and what boundary must login enforce? Recommended: define the first version around independent customers whose data must stay isolated. Reason: login is not complete without a data-visibility boundary, and the repository has no user/owner model yet. Impact: forces tenant isolation, ownership, and authorization into scope now. Evidence: session seam exists; no user, role, or authorization model exists; records have no owner field. Uncertainty: whether the existing provider can enforce that boundary is not evidenced. Reversibility: medium; tenant-scoped login can later expand to richer roles.",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "FACT request: add login; DECISION outcome: independent customers sign in and cannot see each other's data.",
+          "T": "FACT a session seam exists; DECISION add tenant-scoped identity, record ownership, and authorization checks required for cross-customer isolation.",
+          "S": "DECISION include only the minimum user/account model needed for isolated customer access; FACT no roles beyond isolation are evidenced.",
+          "V": "DECISION verify sign-in creates an isolated customer session; verify records are owner-scoped; verify one customer cannot read another customer's data; verify unauthenticated access is blocked where required.",
+          "X": "DECISION stop if the existing provider cannot support isolated customer sessions without replacing core boundaries; DECISION exclude advanced roles/permissions beyond isolation.",
+          "P": "UNKNOWN provider feasibility to isolate users; ASSUMPTION use the existing provider only if it satisfies the isolation boundary; DECISION persist owner/tenant linkage on records created or accessed in scope.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "af9c62d46b3ef0f5",
+      "user_profile": "expert",
+      "request": "Add team invitations using the current membership service.",
+      "repository_evidence": [
+        "membership service supports direct admin-created membership",
+        "there is no pending invitation state",
+        "organization roles are owner and member"
+      ],
+      "scripted_answers": [
+        {
+          "when": "acceptance authority is asked",
+          "answer": "Invitees must accept before membership exists; links expire after 7 days.",
+          "changes": [
+            "T",
+            "S",
+            "P",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "membership-boundary",
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "create membership before acceptance",
+          "non-expiring token"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-04-team-invitations",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Should an invitation create membership immediately, or must the invitee accept first with an expiring invite link?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add team invitations without misrepresenting membership before invitee acceptance.",
+          "T": "Create a pending invitation flow that issues 7-day expiring invite links and only creates organization membership through the current membership service after the invitee accepts.",
+          "S": "Include invitation creation, persistence of pending invites, acceptance endpoint/UI, expiry handling, and owner/member role selection; exclude broader org-role changes and any redesign of the membership service beyond invoking it on acceptance.",
+          "V": "Verify an owner can send an invite, the invite remains pending until accepted, acceptance before expiry creates the correct membership, and expired links cannot create membership.",
+          "X": "Stop if the current system cannot store a pending invitation state or generate/validate expiring acceptance links without replacing the membership service.",
+          "P": "Persist through the smallest end-to-end invitation slice using the existing membership service only at acceptance time.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Invitation acceptance before membership",
+            "evidence": "Repository only supports direct admin-created membership and has no pending invitation state, so acceptance timing must be recorded explicitly."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "03e0d9471098aa34",
+      "user_profile": "novice",
+      "request": "Notify users when a build finishes.",
+      "repository_evidence": [
+        "the app has in-product notifications",
+        "no email or mobile push provider is configured",
+        "build completion is already an internal event"
+      ],
+      "scripted_answers": [
+        {
+          "when": "delivery outcome is asked",
+          "answer": "An in-app notification is enough for the first version.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "delivery-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "email delivery",
+          "mobile push",
+          "background retry service"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-02-notification-channel",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "For the first version, is an in-app notification sufficient when a build finishes, or do you need email or mobile push too?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Notify users when a build finishes using an available delivery channel.",
+          "T": "Emit an in-app notification from the existing build-completion event when a build finishes.",
+          "S": "Cover notification creation, delivery into the existing in-product notifications UI, and basic success/failure messaging; exclude email, mobile push, and provider setup.",
+          "V": "Verify a completed build produces a visible in-app notification for the relevant user and that no external messaging providers are required.",
+          "X": "Stop if the existing in-product notification system cannot target the intended build user without first introducing a separate recipient model.",
+          "P": "Persist on the in-app channel only and avoid speculative multi-channel infrastructure.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "fd73142c0e6f77e2",
+      "user_profile": "novice",
+      "request": "Make the editor work offline.",
+      "repository_evidence": [
+        "documents are currently server-authoritative",
+        "the client has a read cache but no mutation queue",
+        "conflict resolution is undefined"
+      ],
+      "scripted_answers": [
+        {
+          "when": "offline capability is asked",
+          "answer": "For the first version, people only need to read previously opened documents offline.",
+          "changes": [
+            "G",
+            "T",
+            "S",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "offline-capability-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "offline editing",
+          "automatic conflict resolution"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-06-offline-mode",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "For v1, do you need offline mutation with later sync, or is the requirement limited to opening previously viewed documents from local cache while offline?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Make the editor usable offline within a safe first-version scope.",
+          "T": "Deliver read-only offline access for previously opened documents from the existing client cache.",
+          "S": "Support viewing cached documents offline; exclude offline edits, mutation queueing, sync, and conflict resolution.",
+          "V": "Verify previously opened documents open without network, uncached documents fail predictably, and reconnect returns to normal server-authoritative behavior without divergence.",
+          "X": "Stop if the product actually requires offline editing or background sync, because conflict semantics are currently undefined.",
+          "P": "Persist through contract clarification only; do not implement until offline scope is explicitly bounded to cached reads.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Offline V1 Is Read-Only Cached Access",
+            "evidence": "Repository evidence shows server-authoritative documents, no mutation queue, and undefined conflict resolution, so v1 must explicitly exclude writes."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "de093e1753ea5cf8",
+      "user_profile": "expert",
+      "request": "Add an Account filter to global search.",
+      "repository_evidence": [
+        "global search spans people and organizations",
+        "authentication calls a person Account",
+        "billing calls an organization account"
+      ],
+      "scripted_answers": [
+        {
+          "when": "account meaning is asked",
+          "answer": "Filter by billable organization, not sign-in identity.",
+          "changes": [
+            "G",
+            "S",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "domain-term-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "Account means identity",
+          "reuse authentication model"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-05-search-filter",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Outcome question: In global search, what should 'Account' mean? Recommended: treat it as the billable organization. Reason: the repository uses 'Account' for both sign-in identity and billing context, and the filter must pick one. Impact: keeps search filtering aligned to organization records instead of person identities. Evidence: search spans people and organizations; authentication calls a person Account; billing calls an organization account. Uncertainty: filter label wording may still need disambiguation in UI copy. Reversibility: high; the filter can be renamed later without changing the core query boundary.",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "FACT request: add Account filter to global search; DECISION Account means billable organization.",
+          "T": "DECISION add an organization-account filter over existing global search results.",
+          "S": "FACT search spans people and organizations; DECISION filter targets billing organizations, not sign-in identities.",
+          "V": "DECISION verify filtering returns only results associated with the selected billable organization; verify person-identity accounts are not used by this filter.",
+          "X": "DECISION stop before adding a separate sign-in-identity filter.",
+          "P": "UNKNOWN final UI label if 'Account' remains ambiguous; ASSUMPTION underlying organization linkage is already queryable or can be exposed without changing the request outcome.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "3b782b14008dd0f5",
+      "user_profile": "novice",
+      "request": "Add login to the application.",
+      "repository_evidence": [
+        "a session seam exists",
+        "no user, role, or authorization model exists",
+        "data records currently have no owner field"
+      ],
+      "scripted_answers": [
+        {
+          "when": "audience is asked",
+          "answer": "Several independent customers will sign in and must not see each other's data.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "identity provider is asked",
+          "answer": "Use the existing provider if it can isolate users; otherwise stop.",
+          "changes": [
+            "T",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "audience-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "single local owner",
+          "authentication implies authorization"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-01-login-audience",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Who needs to log in, and do signed-in users need to be isolated from each other's data?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Should this use the existing identity provider only if it can isolate customers, or should login proceed even if tenant isolation is not available there?",
+            "scripted_answer_index": 1,
+            "draft_ready": false
+          },
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add login in a way that enforces independent-customer data isolation.",
+          "T": "Implement customer login using the existing identity provider only if it can support user isolation, and add the minimum ownership/tenant model needed so customers cannot see each other's data.",
+          "S": "Include authentication, user-to-customer association, record ownership or tenant scoping required for isolation, and authorization checks on data access; exclude broader role hierarchies beyond what isolation minimally needs.",
+          "V": "Verify separate customers can sign in, access only their own records, and cannot retrieve another customer's data through normal UI or direct requests.",
+          "X": "Stop if the existing identity provider cannot support the required isolation model or if data cannot be tenant-scoped without a broader redesign than this bounded slice.",
+          "P": "Persist on the minimum secure multi-customer login slice and stop rather than shipping auth without data isolation.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Tenant isolation as part of login",
+            "evidence": "No user, role, authorization, or data ownership model exists, so login scope must explicitly include customer isolation."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "684ff7937bd863e1",
+      "user_profile": "expert",
+      "request": "Add team invitations using the current membership service.",
+      "repository_evidence": [
+        "membership service supports direct admin-created membership",
+        "there is no pending invitation state",
+        "organization roles are owner and member"
+      ],
+      "scripted_answers": [
+        {
+          "when": "acceptance authority is asked",
+          "answer": "Invitees must accept before membership exists; links expire after 7 days.",
+          "changes": [
+            "T",
+            "S",
+            "P",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "membership-boundary",
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "create membership before acceptance",
+          "non-expiring token"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-04-team-invitations",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Outcome question: Should an invite create membership immediately, or only after the invitee accepts? Recommended: require invitee acceptance before membership exists, with expiring links. Reason: the current service only supports direct admin-created membership, so invitation authority must be explicit to avoid granting access early. Impact: adds a pending invitation state and acceptance gate. Evidence: membership service supports direct admin-created membership; there is no pending invitation state; roles are owner and member. Uncertainty: exact invitation delivery channel is not evidenced. Reversibility: medium; acceptance-gated invites can later add more channels without changing authority semantics.",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "FACT request: add team invitations using current membership service; DECISION membership exists only after invitee acceptance; DECISION invite links expire after 7 days.",
+          "T": "DECISION add pending invitation state, acceptance flow, expiry handling, and membership creation on acceptance only.",
+          "S": "FACT current service supports direct admin-created membership; DECISION reuse current roles owner/member; DECISION no pre-acceptance membership.",
+          "V": "DECISION verify inviting creates a pending invitation, not membership; verify acceptance creates membership with the chosen role; verify expired links cannot create membership; verify direct-admin membership behavior remains unchanged outside invitation flow.",
+          "X": "DECISION stop before adding new org roles or bypassing invitee acceptance.",
+          "P": "UNKNOWN delivery mechanism for invite links is non-blocking if an existing delivery path is available; DECISION persist invitation expiry and acceptance audit evidence.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "49a705223c30239f",
+      "user_profile": "novice",
+      "request": "Let people import contacts from CSV.",
+      "repository_evidence": [
+        "contacts require name and one reachable address",
+        "no CSV schema or import preview exists",
+        "duplicate email addresses are currently rejected"
+      ],
+      "scripted_answers": [
+        {
+          "when": "invalid row behavior is asked",
+          "answer": "Show a preview and let the user skip invalid rows; do not partially save before confirmation.",
+          "changes": [
+            "T",
+            "S",
+            "V",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "failure-boundary",
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V",
+          "X"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "silently drop rows",
+          "commit partial import before confirmation"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-03-csv-import-mapping",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Outcome question: When a CSV has bad rows, should import stop, skip, or partially save? Recommended: show a preview, let the user skip invalid rows, and save nothing before confirmation. Reason: contacts require specific fields and duplicates are already rejected, so users need a clear pre-save review point. Impact: prevents accidental partial imports and makes invalid/duplicate handling explicit. Evidence: contacts require name and one reachable address; no CSV schema or import preview exists; duplicate emails are rejected. Uncertainty: source CSV column names are not evidenced. Reversibility: high; preview-first import can later add richer mapping rules.",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "FACT request: import contacts from CSV; DECISION outcome: preview first, skip invalid rows, no save before confirmation.",
+          "T": "DECISION add CSV parse, required-field validation, duplicate-email detection, and confirmation-gated import.",
+          "S": "DECISION include preview-based field mapping for required contact fields; FACT required fields are name plus one reachable address; DECISION exclude background/automatic partial saves.",
+          "V": "DECISION verify preview shows valid, invalid, and duplicate rows before save; verify invalid rows can be skipped; verify nothing is saved before confirmation; verify confirmed import rejects duplicate emails already in system.",
+          "X": "DECISION stop before automatic schema learning or bulk partial-save workflows.",
+          "P": "ASSUMPTION reachable address means a supported existing contact channel such as email or phone; UNKNOWN optional-field mapping is non-blocking for this slice.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "befa517382c49e16",
+      "user_profile": "novice",
+      "request": "Let people import contacts from CSV.",
+      "repository_evidence": [
+        "contacts require name and one reachable address",
+        "no CSV schema or import preview exists",
+        "duplicate email addresses are currently rejected"
+      ],
+      "scripted_answers": [
+        {
+          "when": "invalid row behavior is asked",
+          "answer": "Show a preview and let the user skip invalid rows; do not partially save before confirmation.",
+          "changes": [
+            "T",
+            "S",
+            "V",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "failure-boundary",
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V",
+          "X"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "silently drop rows",
+          "commit partial import before confirmation"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-03-csv-import-mapping",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "When some CSV rows are invalid or duplicates, should import stop entirely, save valid rows immediately, or show a preview so people can skip bad rows before confirming?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add CSV contact import with safe handling of invalid rows.",
+          "T": "Build a CSV import flow that previews parsed rows, flags rows missing a required name or reachable address or having duplicate email addresses, lets the user skip invalid rows, and saves nothing until the user confirms the final selection.",
+          "S": "Include CSV upload, column mapping into required contact fields, validation, preview, skip-selection, and confirmed batch save; exclude background imports and automatic duplicate merging.",
+          "V": "Verify users can map CSV columns, preview validation results, exclude invalid rows, and complete one confirmed save with only selected valid contacts created; verify no partial save occurs before confirmation.",
+          "X": "Stop if the product cannot support a preview-and-confirm flow without first introducing any import UI surface at all.",
+          "P": "Persist on a single interactive import path with confirmation gating all writes.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "CSV import confirmation model",
+            "evidence": "No CSV schema or preview exists, and duplicate email rows are already rejected, so pre-save review behavior should be explicit."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "8416559de225cc09",
+      "user_profile": "novice",
+      "request": "Add login to the application.",
+      "repository_evidence": [
+        "a session seam exists",
+        "no user, role, or authorization model exists",
+        "data records currently have no owner field"
+      ],
+      "scripted_answers": [
+        {
+          "when": "audience is asked",
+          "answer": "Several independent customers will sign in and must not see each other's data.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "identity provider is asked",
+          "answer": "Use the existing provider if it can isolate users; otherwise stop.",
+          "changes": [
+            "T",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "audience-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "single local owner",
+          "authentication implies authorization"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-01-login-audience",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Is login only for a single internal user population, or do you need tenant isolation for multiple independent customers with strict data separation?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Should authentication reuse the existing provider only if it can enforce that tenant isolation boundary, with the work stopping otherwise?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add login to the application without violating customer data isolation.",
+          "T": "Design multi-tenant authentication around the existing session seam, reusing the current identity provider only if it can isolate independent customers.",
+          "S": "Define user identity and tenant boundary, require per-customer data isolation, and introduce ownership/authorization prerequisites for records; exclude implementation if the provider cannot satisfy isolation.",
+          "V": "Verify independent customers can authenticate separately, cannot access each other's data, and that the chosen provider enforces the required isolation model.",
+          "X": "Stop if the existing provider cannot isolate tenants or if data ownership cannot be introduced coherently ahead of login.",
+          "P": "Persist through contract clarification only; do not implement until tenant isolation and provider viability are explicitly confirmed.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Login Requires Tenant Isolation Before Release",
+            "evidence": "Repository evidence lacks user, role, authorization, and record ownership models, while the accepted audience is several independent customers who must not see each other's data."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "43094c19be72e6a1",
+      "user_profile": "novice",
+      "request": "Notify users when a build finishes.",
+      "repository_evidence": [
+        "the app has in-product notifications",
+        "no email or mobile push provider is configured",
+        "build completion is already an internal event"
+      ],
+      "scripted_answers": [
+        {
+          "when": "delivery outcome is asked",
+          "answer": "An in-app notification is enough for the first version.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "delivery-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "email delivery",
+          "mobile push",
+          "background retry service"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-02-notification-channel",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "FACT request: notify users when a build finishes; DECISION v1 outcome: in-app notification.",
+          "T": "FACT build completion is already an internal event; DECISION emit an in-product notification from that event.",
+          "S": "FACT in-product notifications exist; DECISION exclude email and mobile push.",
+          "V": "DECISION verify a completed build creates one visible in-app notification for the relevant user; verify no notification is sent before completion.",
+          "X": "DECISION stop before external delivery providers.",
+          "P": "FACT no email or push provider is configured; ASSUMPTION existing in-app notification persistence is reused.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "3a7b80c79e48b4ad",
+      "user_profile": "novice",
+      "request": "Notify users when a build finishes.",
+      "repository_evidence": [
+        "the app has in-product notifications",
+        "no email or mobile push provider is configured",
+        "build completion is already an internal event"
+      ],
+      "scripted_answers": [
+        {
+          "when": "delivery outcome is asked",
+          "answer": "An in-app notification is enough for the first version.",
+          "changes": [
+            "G",
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "delivery-boundary",
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "email delivery",
+          "mobile push",
+          "background retry service"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-02-notification-channel",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "For the first release, is an in-product notification on the existing build-completion event sufficient, or do you require an external delivery channel such as email or push?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Notify users when a build finishes.",
+          "T": "Emit an in-app notification from the existing build-completion event.",
+          "S": "Use only the existing in-product notification surface; exclude email, mobile push, provider setup, and cross-channel preferences.",
+          "V": "Verify a completed build generates one visible in-app notification with the correct build context for the intended user.",
+          "X": "Stop if external delivery is required, because no email or push provider is configured.",
+          "P": "Persist through contract clarification only; do not implement until channel scope is explicitly fixed to in-app delivery.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Build Completion Notification Channel Is In-App Only For V1",
+            "evidence": "Repository evidence already provides an internal event and an in-product notifications surface, while no external providers exist."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "5c52f890769193b0",
+      "user_profile": "novice",
+      "request": "Let people import contacts from CSV.",
+      "repository_evidence": [
+        "contacts require name and one reachable address",
+        "no CSV schema or import preview exists",
+        "duplicate email addresses are currently rejected"
+      ],
+      "scripted_answers": [
+        {
+          "when": "invalid row behavior is asked",
+          "answer": "Show a preview and let the user skip invalid rows; do not partially save before confirmation.",
+          "changes": [
+            "T",
+            "S",
+            "V",
+            "X"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "failure-boundary",
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V",
+          "X"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "silently drop rows",
+          "commit partial import before confirmation"
+        ]
+      },
+      "subject_response": {
+        "task_id": "ambiguous-03-csv-import-mapping",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Should CSV import use a pre-save preview that validates row mapping and lets the operator exclude invalid rows before commit, or should import fail fast without a review stage?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Let users import contacts from CSV safely.",
+          "T": "Add a CSV import workflow with preview, validation, field mapping, and selective row skipping before any write.",
+          "S": "Parse CSV, map columns to required contact fields, flag rows missing name or reachable address, reject duplicate emails per current rules, and save only after confirmation; exclude background partial ingestion.",
+          "V": "Verify users can preview mappings, see invalid rows, skip them, confirm a final batch, and that no contacts are saved before confirmation.",
+          "X": "Stop if the product requires schema-less auto-import without preview, because current constraints make silent partial failure unsafe.",
+          "P": "Persist through contract clarification only; do not implement until preview-before-write semantics are explicitly confirmed.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "CSV Import Uses Confirmation Gate Before Persistence",
+            "evidence": "The chosen behavior is to preview data, allow invalid-row exclusion, and avoid any partial save before confirmation."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    }
+  ]
+}

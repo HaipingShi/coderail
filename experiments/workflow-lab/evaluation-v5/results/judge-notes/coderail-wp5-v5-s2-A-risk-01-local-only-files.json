@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "risk-01-local-only-files",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Single question directly elicited the decisive privacy boundary.",
+    "Final contract explicitly blocks off-device transfer across AI and telemetry paths."
+  ]
+}

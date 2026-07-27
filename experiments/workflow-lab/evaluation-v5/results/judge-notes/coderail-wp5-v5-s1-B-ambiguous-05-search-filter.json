@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-05-search-filter",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Asked the domain-term boundary directly and was ready after one answer.",
+    "No forbidden assumption that Account means identity."
+  ]
+}

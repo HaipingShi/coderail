@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-02-notification-channel",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "The first turn usefully resolves notification channel scope.",
+    "Final contract stays within existing in-app delivery and marks reuse as assumption where relevant."
+  ]
+}

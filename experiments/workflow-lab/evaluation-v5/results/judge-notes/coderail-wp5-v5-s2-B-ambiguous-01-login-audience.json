@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-01-login-audience",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Collected both required answers before readiness.",
+    "Second question exposed a provider-reuse mechanism choice to a novice user."
+  ]
+}

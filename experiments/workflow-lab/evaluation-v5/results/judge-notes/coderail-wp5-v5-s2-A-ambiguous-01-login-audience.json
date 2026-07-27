@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-01-login-audience",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Started with the correct audience/isolation boundary.",
+    "Marked ready after one answer and baked in provider/path decisions without asking the required identity-provider follow-up."
+  ]
+}

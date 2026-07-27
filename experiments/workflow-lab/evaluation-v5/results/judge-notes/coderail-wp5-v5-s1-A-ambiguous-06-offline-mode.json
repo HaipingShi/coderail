@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-06-offline-mode",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "First question correctly targets the offline-capability boundary.",
+    "Final contract remains bounded to offline read-only behavior."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-05-search-filter",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "The Account-meaning question was useful and resolved the core ambiguity.",
+    "Contract assumes organization linkage is already queryable or can be exposed, which is not supplied evidence or an explicit user decision."
+  ]
+}

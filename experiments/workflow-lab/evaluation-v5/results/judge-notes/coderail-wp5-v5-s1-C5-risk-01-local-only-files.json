@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "risk-01-local-only-files",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Single question cleanly established the decisive privacy boundary.",
+    "Ready contract stayed within the supplied on-device and telemetry constraints."
+  ]
+}

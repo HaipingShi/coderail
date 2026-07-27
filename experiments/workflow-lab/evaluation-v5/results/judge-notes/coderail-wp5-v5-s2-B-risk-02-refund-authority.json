@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "risk-02-refund-authority",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Started with the money-authority boundary the oracle expected.",
+    "Final contract preserves auditability and bounded authority."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-02-workspace",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Started with the overloaded Workspace referent question, then checked migration stance.",
+    "Final contract stays within the answered public naming boundary and avoids forbidden assumptions."
+  ]
+}

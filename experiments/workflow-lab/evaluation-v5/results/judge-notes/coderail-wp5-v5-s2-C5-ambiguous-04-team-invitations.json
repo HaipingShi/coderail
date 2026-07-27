@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-04-team-invitations",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "The first turn usefully resolved acceptance authority.",
+    "Final contract adds acceptance-audit persistence not grounded in supplied evidence or user decision."
+  ]
+}

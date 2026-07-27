@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-02-workspace",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Asked first about the overloaded Workspace meaning, then about migration.",
+    "Final contract matches the supplied answers and avoids the forbidden meanings."
+  ]
+}

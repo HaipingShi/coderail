@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-01-login-audience",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Both questions were useful: audience boundary first, then provider viability.",
+    "The second question asks the novice to choose an implementation mechanism/provider path rather than only an outcome boundary."
+  ]
+}

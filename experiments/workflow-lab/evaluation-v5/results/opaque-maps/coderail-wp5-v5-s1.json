@@ -1,0 +1,272 @@
+{
+  "3b782b14008dd0f5": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-01-login-audience"
+  },
+  "8416559de225cc09": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-01-login-audience"
+  },
+  "f3315cd91472aa72": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-01-login-audience"
+  },
+  "03e0d9471098aa34": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-02-notification-channel"
+  },
+  "3a7b80c79e48b4ad": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-02-notification-channel"
+  },
+  "43094c19be72e6a1": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-02-notification-channel"
+  },
+  "befa517382c49e16": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-03-csv-import-mapping"
+  },
+  "5c52f890769193b0": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-03-csv-import-mapping"
+  },
+  "49a705223c30239f": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-03-csv-import-mapping"
+  },
+  "af9c62d46b3ef0f5": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-04-team-invitations"
+  },
+  "fca6201adb699ddd": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-04-team-invitations"
+  },
+  "684ff7937bd863e1": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-04-team-invitations"
+  },
+  "5638be41813b86f1": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-05-search-filter"
+  },
+  "970b28b3b36c5ce1": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-05-search-filter"
+  },
+  "de093e1753ea5cf8": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-05-search-filter"
+  },
+  "de7188c5ee979667": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-06-offline-mode"
+  },
+  "fd73142c0e6f77e2": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-06-offline-mode"
+  },
+  "880e24dd6db56973": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "ambiguous-06-offline-mode"
+  },
+  "c87548457344f1f1": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-01-local-only-files"
+  },
+  "6bf002961b41d531": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-01-local-only-files"
+  },
+  "aa9f3445fc836cee": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-01-local-only-files"
+  },
+  "1a063b9a54546ebf": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-02-refund-authority"
+  },
+  "ee7f91e2efae6523": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-02-refund-authority"
+  },
+  "bd86007027ce705c": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-02-refund-authority"
+  },
+  "5bbf4beeab3268f1": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-03-data-retention"
+  },
+  "58b0b9c2c8ef7ee3": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-03-data-retention"
+  },
+  "3e56cab79eb65d36": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "risk-03-data-retention"
+  },
+  "8e9ffd463f6bf365": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-01-account"
+  },
+  "00a425a938ab4123": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-01-account"
+  },
+  "4309b52577f601a8": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-01-account"
+  },
+  "8528222c936f456e": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-02-workspace"
+  },
+  "e51d1761d4c78fdb": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-02-workspace"
+  },
+  "fffbb36e3f821cd3": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-02-workspace"
+  },
+  "6a57eeaed3984032": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-03-materialization"
+  },
+  "2ec2f65d526584c3": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-03-materialization"
+  },
+  "fd5b0a238c2e249f": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "domain-03-materialization"
+  },
+  "07790cc88ac4818c": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-01-toolbar-label"
+  },
+  "a1450e46543d2d90": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-01-toolbar-label"
+  },
+  "cff70f0397961303": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-01-toolbar-label"
+  },
+  "aefe4455a87f5416": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-02-empty-state-copy"
+  },
+  "985b3e364ec04aae": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-02-empty-state-copy"
+  },
+  "656e665a80276195": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-02-empty-state-copy"
+  },
+  "8a0d3d080c5f6a61": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-03-report-export"
+  },
+  "6bb629d95565bebc": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-03-report-export"
+  },
+  "95e181db7c2b5ae1": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-03-report-export"
+  },
+  "a3b35e596c1c3b5f": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-04-cli-alias"
+  },
+  "e91a261d1be3130b": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-04-cli-alias"
+  },
+  "f0c3debe9dc72b15": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-04-cli-alias"
+  },
+  "4a0e9b9edba74acf": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-05-timeout-default"
+  },
+  "f77f7ecb92943ebb": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-05-timeout-default"
+  },
+  "754eb35eac7cb6dc": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-05-timeout-default"
+  },
+  "dc6dabfdce81b727": {
+    "workflow": "A",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-06-tooltip"
+  },
+  "0369e973c9e8ebd8": {
+    "workflow": "B",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-06-tooltip"
+  },
+  "03a93f46ce84b624": {
+    "workflow": "C5",
+    "seed": "coderail-wp5-v5-s1",
+    "task_id": "clear-06-tooltip"
+  }
+}

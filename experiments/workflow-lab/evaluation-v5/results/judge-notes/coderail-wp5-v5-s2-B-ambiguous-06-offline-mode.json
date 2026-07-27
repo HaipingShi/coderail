@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-06-offline-mode",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Asked the decisive offline-scope boundary first.",
+    "Final contract stays read-only and avoids forbidden sync assumptions."
+  ]
+}

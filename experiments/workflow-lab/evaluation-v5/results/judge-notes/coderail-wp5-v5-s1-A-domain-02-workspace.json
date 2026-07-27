@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-02-workspace",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Asked the decisive domain-boundary question first.",
+    "Marked ready without consuming the migration/compatibility answer, leaving rollout posture inferred rather than user-confirmed."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-02-notification-channel",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "No question was asked despite the oracle requiring guided clarification of delivery scope.",
+    "It assumes the v1 channel outcome without consuming the scripted answer, so the ready contract is unsupported."
+  ]
+}

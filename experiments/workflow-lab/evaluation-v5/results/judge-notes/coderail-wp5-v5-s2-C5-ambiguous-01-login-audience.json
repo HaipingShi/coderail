@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-01-login-audience",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Started with the correct customer-isolation boundary.",
+    "Became ready without asking the required provider-fit follow-up and filled in implementation/persistence decisions beyond the supplied answer."
+  ]
+}

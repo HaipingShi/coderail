@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-02-notification-channel",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Correctly asked the delivery-boundary question for a novice request.",
+    "Contract stays on in-app notifications and excludes unsupported external channels."
+  ]
+}

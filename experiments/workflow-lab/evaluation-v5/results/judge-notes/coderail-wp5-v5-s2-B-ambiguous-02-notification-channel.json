@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-02-notification-channel",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Asked the decisive delivery-boundary question first.",
+    "Final contract stays within existing in-app notifications."
+  ]
+}

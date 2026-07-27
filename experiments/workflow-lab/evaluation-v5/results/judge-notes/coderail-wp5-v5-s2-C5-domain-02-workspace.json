@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "domain-02-workspace",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "First question resolved which Workspace meaning the public API should expose.",
+    "Second question usefully closed migration/compatibility handling before readiness."
+  ]
+}

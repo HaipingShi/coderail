@@ -1,11 +1,12 @@
 # WP5 V5 Experiment Design
 
-Status: schema preflight passed; no subject or judge trial started
+Status: stopped after s2 by the pre-registered provider gate
 Protocol: `wp5-v5`
 Supersedes for execution: `wp5-v4`
 Originally frozen: 2026-07-25
 Contract repair and refreeze: 2026-07-26
 Schema preflight: 2026-07-27
+Execution stopped: 2026-07-27
 
 ## 1. Purpose
 
@@ -186,6 +187,29 @@ policy permits one identical-input transport retry. That failure is preserved
 under `evaluation-v5/preflight/`; the retry bypassed the stale environment
 proxy through the already-active host TUN and returned a schema-conforming
 response. Frozen input hashes matched before and after both attempts.
+
+### Early-stop execution checkpoint
+
+Seeds s1 and s2 completed in manifest order: 21 subject batches, seven
+workflow-masked judge batches, and 90 exact seed-bearing trial records. The s1
+C5 arm recorded zero user-visible technical choices. In s2, blind judging
+recorded two: one for `ambiguous-03-csv-import-mapping` and one for
+`ambiguous-06-offline-mode`.
+
+Gate 1 therefore failed in s2. The frozen stopping rule now prohibits s3-s5
+and the C5p contingency. `results/run-state.json` records the stop seed,
+observed count, and rule; no later-seed or C5p record exists.
+
+The partial aggregates are diagnostic rather than substitutes for the stopped
+design. C5 retained 100% quick-path correctness on the clear arm and its
+observed category token ratios versus A were all below 1.15. On the threshold
+subset observed through s2, however, unsupported-assumption means were A=0.1667
+and C5=0.5. C5 turns per matched trial were 1.2667 versus v4 C=0.9333, while
+interruptions were 1.0333 versus 1.1333. Gates requiring all five seeds remain
+unevaluated.
+
+The registered disposition is `REVISE_PROVIDER_GATE`, while the adoption
+decision remains `INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
 
 ## 7. Metrics and nullability
 

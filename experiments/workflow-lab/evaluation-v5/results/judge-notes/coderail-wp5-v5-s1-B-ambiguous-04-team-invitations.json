@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-04-team-invitations",
+  "workflow": "B",
+  "seed": "coderail-wp5-v5-s1",
+  "notes": [
+    "Asked the decisive membership-boundary question first.",
+    "Ready immediately after the single answer, matching oracle readiness."
+  ]
+}

@@ -147,6 +147,12 @@ retry. The checkpoint sent no task or oracle payloads, started no subject or
 judge batches, left every frozen hash unchanged, and created no results
 directory. It establishes execution compatibility, not treatment benefit.
 
+The seed-major v5 run subsequently completed s1 and s2, producing 90 trial
+records. C5 passed the provider gate in s1 but blind judging found two
+user-visible technical choices in s2. The pre-registered stopping rule
+therefore ended the run before s3 and prohibited C5p. The disposition is
+`REVISE_PROVIDER_GATE`; implementation evidence remains absent.
+
 Do not copy the experiment into CodeRail until measured results justify ending
 the stabilization freeze for a native optional pack.
 

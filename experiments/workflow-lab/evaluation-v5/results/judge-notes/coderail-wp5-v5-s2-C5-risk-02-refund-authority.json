@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "risk-02-refund-authority",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Questions correctly resolved refund authority and partial-refund scope.",
+    "Contract adds specific audit fields such as provider refund id without user decision or repository evidence."
+  ]
+}

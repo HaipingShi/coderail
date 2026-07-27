@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-03-csv-import-mapping",
+  "workflow": "A",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "Asked the decisive invalid-row behavior question.",
+    "Final contract matches skip-invalid plus confirm-before-save behavior."
+  ]
+}

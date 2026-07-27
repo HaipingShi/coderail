@@ -1,0 +1,10 @@
+{
+  "protocol_version": "wp5-v5",
+  "task_id": "ambiguous-06-offline-mode",
+  "workflow": "C5",
+  "seed": "coderail-wp5-v5-s2",
+  "notes": [
+    "The first turn correctly narrows offline scope to cached reads.",
+    "It frames the choice around a concrete cache-based implementation path for a novice user."
+  ]
+}

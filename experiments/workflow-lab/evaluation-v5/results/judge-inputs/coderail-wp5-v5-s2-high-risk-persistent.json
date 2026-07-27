@@ -1,0 +1,664 @@
+{
+  "items": [
+    {
+      "opaque_id": "37bac960b5c34d9f",
+      "user_profile": "novice",
+      "request": "Add local-only file processing.",
+      "repository_evidence": [
+        "a remote AI provider receives derived text today",
+        "telemetry can include error payload excerpts",
+        "an on-device parser supports the primary format"
+      ],
+      "scripted_answers": [
+        {
+          "when": "privacy boundary is asked",
+          "answer": "File bytes, metadata, and derived text must all stay on this device, including AI and telemetry.",
+          "changes": [
+            "S",
+            "V",
+            "X",
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "privacy-boundary",
+        "decisive_coordinates": [
+          "S",
+          "V",
+          "X",
+          "P"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "derived text may leave device",
+          "telemetry exception"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-01-local-only-files",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Privacy-boundary branch: what must remain device-local for this feature? Recommended answer: treat local-only as a hard data residency boundary where file bytes, file metadata, derived text, AI processing, and telemetry payloads all stay on the device with no remote egress.",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add file processing that never transmits customer file content or derivatives off-device.",
+          "T": "Define the local-only privacy boundary and the resulting processing constraints across parsing, AI, and telemetry.",
+          "S": "Use the on-device parser for the primary format; prohibit sending file bytes, metadata, derived text, AI prompts/completions, and telemetry error excerpts to any remote provider; scope excludes formats that lack an on-device path unless separately approved.",
+          "V": "Verify network isolation for file-processing code paths, confirm telemetry redaction removes file-derived payloads, confirm AI execution is local-only, and confirm the primary format completes successfully without remote dependencies.",
+          "X": "Stop if any required processing step still depends on the current remote AI provider, if telemetry cannot be stripped of payload excerpts, or if non-primary formats would silently fall back to remote handling.",
+          "P": "Persist until the privacy boundary is explicit across data plane and telemetry plane; do not implement.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Local-Only Processing",
+            "evidence": "Stable term fixed by the session: file bytes, metadata, and derived text must remain on-device, including AI and telemetry."
+          },
+          {
+            "kind": "ADR",
+            "name": "On-Device File Processing Boundary",
+            "evidence": "Repository evidence shows current remote derived-text handling and telemetry excerpts; the session established a strict no-egress boundary and selected the on-device parser path."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "0c332cbc21bfaf22",
+      "user_profile": "novice",
+      "request": "Automatically clean up old customer uploads.",
+      "repository_evidence": [
+        "uploads may be referenced by completed reports",
+        "backups retain objects for 30 days",
+        "no accepted retention policy exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "retention outcome is asked",
+          "answer": "Delete uploads 90 days after their last report finishes, but keep report summaries.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "recovery semantics are asked",
+          "answer": "Tell users deletion is final even though disaster-recovery backups age out later.",
+          "changes": [
+            "V",
+            "X",
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "retention-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "delete referenced reports",
+          "immediate backup erasure"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-03-data-retention",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "What retention outcome should govern uploads that may still be referenced by completed reports?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "What should users be told about recovery after deletion, given backups retain objects for 30 days?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Automatically clean up old customer uploads under an explicit retention rule that preserves needed report data.",
+          "T": "Draft a bounded change to delete uploads 90 days after their last report finishes while keeping report summaries, and align user-facing deletion semantics with backup reality.",
+          "S": "Define retention trigger on last related report completion, preserve report summaries, exclude broader report-data redesign, and cover messaging that deletion is final even though disaster-recovery backups may persist up to 30 days.",
+          "V": "Contract is satisfied when the retention rule, preserved artifacts, deletion timing, and user-facing recovery semantics are all specified consistently with the repository evidence.",
+          "X": "Stop if linked uploads are required beyond report summaries, if backup handling must change, or if policy scope expands beyond customer uploads.",
+          "P": "Persist only through drafting the smallest verifiable retention-policy change; do not implement.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Upload Retention And Deletion Semantics",
+            "evidence": "No accepted retention policy exists, uploads may be referenced by completed reports, and backups retain objects for 30 days."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "e025e472f4c78740",
+      "user_profile": "novice",
+      "request": "Automatically clean up old customer uploads.",
+      "repository_evidence": [
+        "uploads may be referenced by completed reports",
+        "backups retain objects for 30 days",
+        "no accepted retention policy exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "retention outcome is asked",
+          "answer": "Delete uploads 90 days after their last report finishes, but keep report summaries.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "recovery semantics are asked",
+          "answer": "Tell users deletion is final even though disaster-recovery backups age out later.",
+          "changes": [
+            "V",
+            "X",
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "retention-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "delete referenced reports",
+          "immediate backup erasure"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-03-data-retention",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Retention outcome candidate. Recommendation: delete uploads on a fixed schedule tied to report completion, while preserving the customer-visible artifact that still matters. Reason: uploads may still be referenced by completed reports, and no accepted retention policy exists. Impact: this sets the retention boundary for the reversible slice. Evidence: uploads may be referenced by completed reports; backups retain objects for 30 days; no accepted retention policy exists. Uncertainty: the exact retention window is not evidenced. Reversibility: high, because policy can be enforced as scheduled deletion. When should uploads be deleted relative to report completion, and what must remain available afterward?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Recovery semantics candidate. Recommendation: tell users deletion is final in product behavior, while disaster-recovery backups age out separately and are not a user restore path. Reason: backups already retain objects for 30 days, so user-facing deletion semantics must be explicit. Impact: this closes the retention-control conflict. Evidence: backups retain objects for 30 days. Uncertainty: none material once the user-facing rule is chosen. Reversibility: medium, because wording and restore policy can later change with a policy revision. What should users be told about recovery after deletion while backups still exist for disaster recovery?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: automatically delete uploads 90 days after their last report finishes; DECISION: keep report summaries.",
+          "T": "DECISION: track each upload's last completed report finish time; DECISION: schedule deletion at day 90; DECISION: prevent completed reports from depending on deleted upload blobs.",
+          "S": "FACT: uploads may be referenced by completed reports; FACT: backups retain objects for 30 days; DECISION: reversible slice includes production deletion and user-facing final-deletion semantics, not backup redesign.",
+          "V": "DECISION: verify uploads delete 90 days after the last report finishes; DECISION: verify report summaries remain available after upload deletion; DECISION: verify user-facing messaging says deletion is final; DECISION: verify deleted uploads are not restorable through normal product flows.",
+          "X": "DECISION: stop before changing backup retention, restoring deleted uploads to users, or deleting report summaries.",
+          "P": "DECISION: persist summary records; FACT: disaster-recovery backups may retain deleted objects for 30 days; DECISION: product treats deletion as final despite backup aging.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "e10b9fc5ec32e69e",
+      "user_profile": "expert",
+      "request": "Let support agents refund customer payments.",
+      "repository_evidence": [
+        "payment provider exposes full and partial refund APIs",
+        "support role currently has read-only billing access",
+        "no approval threshold or audit event exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "refund authority is asked",
+          "answer": "Support may refund up to $100 with a required reason; larger refunds require an owner.",
+          "changes": [
+            "S",
+            "V",
+            "P",
+            "X"
+          ]
+        },
+        {
+          "when": "partial refunds are asked",
+          "answer": "Allow full or partial refunds within that limit.",
+          "changes": [
+            "T",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "money-authority-boundary",
+        "decisive_coordinates": [
+          "S",
+          "V",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "unlimited support refunds",
+          "refund without audit"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-02-refund-authority",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Refund authority branch: should support receive delegated refund authority with a hard cap and mandatory justification? Recommended answer: permit support-initiated refunds up to $100 per refund with a required reason, and require owner approval above that cap; confirm whether the cap is per refund or cumulative.",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Refund shape branch: should delegated authority cover partial refunds as well as full refunds? Recommended answer: allow full or partial refunds as long as the refunded amount stays within the delegated limit.",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Enable support agents to issue customer payment refunds without granting unrestricted billing authority.",
+          "T": "Define delegated refund authority, escalation, and observability requirements for support-initiated refunds.",
+          "S": "Grant support refund capability for full and partial refunds up to $100 per refund with a required reason; require owner involvement above $100; add approval-threshold enforcement and refund audit events because neither exists today.",
+          "V": "Verify role-based access allows eligible support agents to create provider refunds, rejects amounts above $100 without owner approval, captures reason text, records immutable audit events, and preserves read-only access outside refund actions.",
+          "X": "Stop if the provider cannot enforce partial/full refund constraints, if owner approval cannot be represented in the workflow, or if audit logging cannot be made durable.",
+          "P": "Persist until policy, permissioning, threshold enforcement, and auditability are contractually pinned down; do not implement.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Refund Authority",
+            "evidence": "Consequential term introduced by the delegated cap decision: support may initiate refunds up to $100 with mandatory reason capture; amounts above the cap require an owner."
+          },
+          {
+            "kind": "ADR",
+            "name": "Support Refund Delegation Model",
+            "evidence": "Repository evidence shows refund APIs exist, support is read-only today, and no approval threshold or audit event exists; the session fixed the authority boundary and refund shapes."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "5a5d69bcea180883",
+      "user_profile": "expert",
+      "request": "Let support agents refund customer payments.",
+      "repository_evidence": [
+        "payment provider exposes full and partial refund APIs",
+        "support role currently has read-only billing access",
+        "no approval threshold or audit event exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "refund authority is asked",
+          "answer": "Support may refund up to $100 with a required reason; larger refunds require an owner.",
+          "changes": [
+            "S",
+            "V",
+            "P",
+            "X"
+          ]
+        },
+        {
+          "when": "partial refunds are asked",
+          "answer": "Allow full or partial refunds within that limit.",
+          "changes": [
+            "T",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "money-authority-boundary",
+        "decisive_coordinates": [
+          "S",
+          "V",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "unlimited support refunds",
+          "refund without audit"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-02-refund-authority",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Refund authority candidate. Recommendation: give support bounded refund authority with a required reason, and require stronger approval above that bound. Reason: support is currently read-only, and no approval threshold or audit event exists. Impact: this defines the authority boundary and mandatory control surface. Evidence: payment provider exposes full and partial refund APIs; support role currently has read-only billing access; no approval threshold or audit event exists. Uncertainty: the threshold amount is not evidenced. Reversibility: high, because limits and approver rules can be adjusted later. What refund authority should support have, and when is higher approval required?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Refund shape candidate. Recommendation: allow partial refunds as well as full refunds within the approved support limit. Reason: the provider already supports both, and the remaining dependency is whether support needs both outcomes. Impact: this determines the executable refund paths in scope. Evidence: payment provider exposes full and partial refund APIs. Uncertainty: none material beyond the outcome choice. Reversibility: high, because narrower permissions can be reinstated later. Should support be able to issue partial refunds, full refunds, or both within that limit?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: support agents may refund up to $100 with a required reason; DECISION: larger refunds require an owner; DECISION: allow full and partial refunds within the support limit.",
+          "T": "DECISION: change support billing access from read-only to bounded refund authority; DECISION: require owner approval for refunds over $100; DECISION: record reason, actor, approver, amount, type, and provider refund id in an audit event.",
+          "S": "FACT: payment provider supports full and partial refunds; FACT: support role is read-only today; DECISION: reversible slice covers refund execution, approval gating, and audit evidence.",
+          "V": "DECISION: verify support can issue full or partial refunds up to $100 only with a reason; DECISION: verify refunds above $100 are blocked until owner approval exists; DECISION: verify every refund emits auditable approval and execution records.",
+          "X": "DECISION: stop before granting unlimited refund authority, removing required reasons, or processing over-limit refunds without owner approval.",
+          "P": "DECISION: persist immutable audit records for refund request, approval, and execution.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "7abb1b26201afa5c",
+      "user_profile": "novice",
+      "request": "Automatically clean up old customer uploads.",
+      "repository_evidence": [
+        "uploads may be referenced by completed reports",
+        "backups retain objects for 30 days",
+        "no accepted retention policy exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "retention outcome is asked",
+          "answer": "Delete uploads 90 days after their last report finishes, but keep report summaries.",
+          "changes": [
+            "G",
+            "S",
+            "P"
+          ]
+        },
+        {
+          "when": "recovery semantics are asked",
+          "answer": "Tell users deletion is final even though disaster-recovery backups age out later.",
+          "changes": [
+            "V",
+            "X",
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "retention-boundary",
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "delete referenced reports",
+          "immediate backup erasure"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-03-data-retention",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Retention-policy branch: what object lifecycle should govern uploads that may be referenced by completed reports? Recommended answer: start the retention clock when the last report using the upload finishes, delete the upload 90 days later, and preserve report summaries if they are the retained system of record.",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Recovery-semantics branch: what user-facing deletion guarantee should apply given backups retain deleted objects for 30 days? Recommended answer: present deletion as final in the product while treating backup copies as disaster-recovery artifacts that age out without restoration to normal workflows.",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Automatically remove stale customer uploads while preserving necessary report outputs.",
+          "T": "Define the accepted retention policy, deletion trigger, and user-visible deletion semantics for uploads and backups.",
+          "S": "Delete uploads 90 days after the last dependent report finishes; retain report summaries; treat uploads as deleted from product access immediately upon policy execution even though disaster-recovery backups may still age out for up to 30 days; scope includes references from completed reports.",
+          "V": "Verify retention jobs compute the last-report-finished timestamp correctly, remove upload access from primary storage on schedule, preserve report summaries and their references, and ensure deleted uploads are not restorable through normal product operations while backup expiry proceeds separately.",
+          "X": "Stop if report dependencies cannot be resolved reliably, if summaries still require source uploads for normal reads, or if backup handling would contradict the promised final-deletion semantics.",
+          "P": "Persist until retention trigger, preserved artifacts, and backup semantics are explicit enough for product, legal, and engineering alignment; do not implement.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "Retention Clock",
+            "evidence": "Stable term introduced by the decision to count 90 days from when the last report finishes, not from upload time."
+          },
+          {
+            "kind": "ADR",
+            "name": "Upload Retention and Final Deletion Semantics",
+            "evidence": "Repository evidence showed completed-report references, 30-day backup retention, and no accepted policy; the session fixed both the retention outcome and the backup-facing product promise."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "4cb1a18e4856ed52",
+      "user_profile": "expert",
+      "request": "Let support agents refund customer payments.",
+      "repository_evidence": [
+        "payment provider exposes full and partial refund APIs",
+        "support role currently has read-only billing access",
+        "no approval threshold or audit event exists"
+      ],
+      "scripted_answers": [
+        {
+          "when": "refund authority is asked",
+          "answer": "Support may refund up to $100 with a required reason; larger refunds require an owner.",
+          "changes": [
+            "S",
+            "V",
+            "P",
+            "X"
+          ]
+        },
+        {
+          "when": "partial refunds are asked",
+          "answer": "Allow full or partial refunds within that limit.",
+          "changes": [
+            "T",
+            "V"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "money-authority-boundary",
+        "decisive_coordinates": [
+          "S",
+          "V",
+          "P",
+          "X"
+        ],
+        "ready_after_answers": 2,
+        "forbidden_assumptions": [
+          "unlimited support refunds",
+          "refund without audit"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-02-refund-authority",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "What refund authority should support agents have, including any approval threshold and required audit details?",
+            "scripted_answer_index": 0,
+            "draft_ready": false
+          },
+          {
+            "question": "Should support be allowed to issue partial refunds within that authority?",
+            "scripted_answer_index": 1,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Let support agents refund customer payments within a defined authority model.",
+          "T": "Draft a bounded change granting support authority to issue full or partial refunds up to $100 with a required reason, and require owner approval above that amount.",
+          "S": "Cover support-role permissions, full and partial refund eligibility within the $100 limit, required reason capture, and creation of an audit event; exclude broader billing-role redesign or payment-provider changes.",
+          "V": "Contract is satisfied when the authority threshold, approver for larger refunds, partial-refund allowance, and minimum audit requirement are all explicitly specified against the current billing access model.",
+          "X": "Stop if owner identity or escalation path is undefined, if compliance requires more than reason plus audit event, or if refund scope expands beyond support-initiated payment refunds.",
+          "P": "Persist only through the smallest verifiable authorization-and-audit contract; do not implement.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Support Refund Authorization And Audit",
+            "evidence": "Support currently has read-only billing access, the provider exposes full and partial refund APIs, and no approval threshold or audit event exists."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "985e62de560c0e08",
+      "user_profile": "novice",
+      "request": "Add local-only file processing.",
+      "repository_evidence": [
+        "a remote AI provider receives derived text today",
+        "telemetry can include error payload excerpts",
+        "an on-device parser supports the primary format"
+      ],
+      "scripted_answers": [
+        {
+          "when": "privacy boundary is asked",
+          "answer": "File bytes, metadata, and derived text must all stay on this device, including AI and telemetry.",
+          "changes": [
+            "S",
+            "V",
+            "X",
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "privacy-boundary",
+        "decisive_coordinates": [
+          "S",
+          "V",
+          "X",
+          "P"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "derived text may leave device",
+          "telemetry exception"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-01-local-only-files",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "What exact privacy boundary should local-only processing enforce for file bytes, metadata, derived text, AI calls, and telemetry?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add local-only file processing with a clear no-egress privacy boundary.",
+          "T": "Draft a bounded change so file bytes, metadata, and derived text all remain on-device, replacing current remote-AI and telemetry paths as needed for this flow.",
+          "S": "Cover the primary format supported by the on-device parser, block remote AI use for these files, prevent telemetry from sending file-derived content, and exclude unsupported formats or broader privacy program changes.",
+          "V": "Contract is satisfied when the local-only boundary explicitly forbids off-device transfer of bytes, metadata, and derived text, including AI and telemetry paths, and fits the current repository evidence.",
+          "X": "Stop if required functionality depends on unsupported formats, if remote dependencies remain mandatory for the primary flow, or if policy must extend beyond file-processing surfaces.",
+          "P": "Persist only through the smallest truthful local-only contract slice; do not implement.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Local-Only Processing Boundary",
+            "evidence": "A remote AI provider receives derived text today, telemetry can include error payload excerpts, and an on-device parser supports the primary format."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "6ac8a341568f2c6f",
+      "user_profile": "novice",
+      "request": "Add local-only file processing.",
+      "repository_evidence": [
+        "a remote AI provider receives derived text today",
+        "telemetry can include error payload excerpts",
+        "an on-device parser supports the primary format"
+      ],
+      "scripted_answers": [
+        {
+          "when": "privacy boundary is asked",
+          "answer": "File bytes, metadata, and derived text must all stay on this device, including AI and telemetry.",
+          "changes": [
+            "S",
+            "V",
+            "X",
+            "P"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "guided",
+        "expected_first_focus": "privacy-boundary",
+        "decisive_coordinates": [
+          "S",
+          "V",
+          "X",
+          "P"
+        ],
+        "ready_after_answers": 1,
+        "forbidden_assumptions": [
+          "derived text may leave device",
+          "telemetry exception"
+        ]
+      },
+      "subject_response": {
+        "task_id": "risk-01-local-only-files",
+        "route": "guided",
+        "turns": [
+          {
+            "question": "Privacy boundary candidate. Recommendation: make this feature fully local for file bytes, metadata, derived text, AI, and telemetry. Reason: repository evidence shows derived text currently leaves the device and telemetry may leak excerpts. Impact: this defines the reversible slice and required controls. Evidence: remote AI provider receives derived text today; telemetry can include error payload excerpts; on-device parser supports the primary format. Uncertainty: non-primary formats may need later investigation. Reversibility: high, because the parser already runs on-device. Which privacy boundary should this feature enforce?",
+            "scripted_answer_index": 0,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: local-only file processing; DECISION: file bytes, metadata, and derived text stay on-device, including AI and telemetry.",
+          "T": "DECISION: replace remote derived-text handling for this flow with on-device processing; DECISION: block telemetry from carrying file content or derived text.",
+          "S": "FACT: on-device parser supports the primary format; DECISION: reversible slice covers the primary format only; UNKNOWN: non-primary formats are non-blocking and out of scope.",
+          "V": "DECISION: verify no file bytes, metadata, or derived text leave the device; DECISION: verify telemetry/error paths contain no file content; DECISION: verify primary-format parsing still succeeds locally.",
+          "X": "DECISION: stop before adding remote AI, remote telemetry excerpts, or non-primary-format support.",
+          "P": "DECISION: no file-content persistence outside the device for this flow.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    }
+  ]
+}

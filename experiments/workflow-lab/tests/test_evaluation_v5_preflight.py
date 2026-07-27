@@ -117,9 +117,17 @@ class EvaluationV5PreflightArtifactTests(unittest.TestCase):
             "__schema_preflight__",
         )
 
-    def test_preflight_created_no_results_or_trials(self) -> None:
-        self.assertFalse((V5 / "results").exists())
-        self.assertFalse((V5 / "results" / "trials").exists())
+    def test_preflight_itself_started_no_results_or_trials(self) -> None:
+        record = load_json(PREFLIGHT / "schema-compatibility.json")
+        output = load_json(PREFLIGHT / "schema-output.json")
+
+        self.assertEqual(record["subject_batches_started"], 0)
+        self.assertEqual(record["judge_batches_started"], 0)
+        self.assertNotIn("results", record)
+        self.assertEqual(
+            [response["task_id"] for response in output["responses"]],
+            ["__schema_preflight__"],
+        )
 
     def test_transport_retry_is_identical_and_precedes_output(self) -> None:
         record = load_json(PREFLIGHT / "schema-compatibility.json")

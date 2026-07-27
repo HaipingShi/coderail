@@ -1,0 +1,1029 @@
+{
+  "items": [
+    {
+      "opaque_id": "4a0e9b9edba74acf",
+      "user_profile": "expert",
+      "request": "Raise the test-only polling timeout from 2 seconds to 3 seconds in the shared test helper.",
+      "repository_evidence": [
+        "tests/helpers/poll.ts owns the test-only default",
+        "production callers do not import the helper",
+        "tests/poll-helper.test.ts checks the default"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Change only the test helper default.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "change production timeouts",
+          "add retries"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-05-timeout-default",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Raise the shared test helper\u2019s default polling timeout from 2 seconds to 3 seconds.",
+          "T": "Change the test-only default timeout in `tests/helpers/poll.ts` from 2000ms to 3000ms and update any directly relevant expectation in `tests/poll-helper.test.ts`.",
+          "S": "Limit changes to the shared test helper default and its focused test coverage. Do not alter production code or caller-specific overrides.",
+          "V": "Verify `tests/poll-helper.test.ts` reflects a 3-second default and that production callers remain unaffected because they do not import this helper.",
+          "X": "Stop once the default in the test helper is 3 seconds and the focused helper test confirms that exact default.",
+          "P": "Persist through the smallest verifiable slice: update the helper constant, adjust the focused test if needed, run the targeted test if execution is available, and stop after the bounded change is confirmed.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "0369e973c9e8ebd8",
+      "user_profile": "novice",
+      "request": "Add the text tooltip 'Copy link' to the existing icon button. Keyboard and click behavior stay unchanged.",
+      "repository_evidence": [
+        "src/share/CopyLinkButton.tsx owns the icon button",
+        "the repository already uses Tooltip for adjacent buttons",
+        "tests/copy-link-button.test.tsx covers accessible naming"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use the existing tooltip component and exact text.",
+          "changes": [
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "replace the icon",
+          "change button behavior"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-06-tooltip",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add a tooltip labeled \"Copy link\" to the existing copy-link icon button.",
+          "T": "Use the existing Tooltip pattern on `src/share/CopyLinkButton.tsx` without changing click or keyboard behavior, and preserve the current accessible naming contract covered by tests.",
+          "S": "Limit changes to the existing icon button and any directly affected test expectations; do not alter behavior, layout, or adjacent controls.",
+          "V": "Confirm the button renders tooltip text \"Copy link\", existing interaction behavior is unchanged, and `tests/copy-link-button.test.tsx` still passes for accessible naming expectations.",
+          "X": "Stop if adding the tooltip would change the button's accessible name or requires introducing a new tooltip primitive instead of the repo's existing one.",
+          "P": "Persist only through the minimal UI and test updates needed for this tooltip addition.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "f77f7ecb92943ebb",
+      "user_profile": "expert",
+      "request": "Raise the test-only polling timeout from 2 seconds to 3 seconds in the shared test helper.",
+      "repository_evidence": [
+        "tests/helpers/poll.ts owns the test-only default",
+        "production callers do not import the helper",
+        "tests/poll-helper.test.ts checks the default"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Change only the test helper default.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "change production timeouts",
+          "add retries"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-05-timeout-default",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Raise the shared test polling default timeout from 2 seconds to 3 seconds.",
+          "T": "Change the default in `tests/helpers/poll.ts` and update `tests/poll-helper.test.ts` to assert the new default.",
+          "S": "Only the test-helper default changes; production code and call sites remain untouched.",
+          "V": "Verify the helper default is 3000 ms and the poll helper test passes without changing production imports or behavior.",
+          "X": "Stop if any production caller imports the helper despite repository evidence, or if the timeout value is duplicated outside the shared helper/test pair.",
+          "P": "Persist only through the isolated test-helper constant and its direct test coverage.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "test-only polling timeout default",
+            "evidence": "`tests/helpers/poll.ts` is explicitly a test-only shared default; naming it clarifies that this timeout is not a production SLA or runtime contract."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "07790cc88ac4818c",
+      "user_profile": "novice",
+      "request": "Rename the existing Save toolbar button to Store. Do not change behavior or shortcuts.",
+      "repository_evidence": [
+        "src/ui/toolbar.tsx owns the label",
+        "tests/toolbar-label.test.ts asserts the visible label",
+        "the action and shortcut are separate symbols"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Only the visible toolbar label should change.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "rename the command id",
+          "change persistence"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-01-toolbar-label",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Rename the visible Save toolbar button label to Store while keeping behavior and shortcuts unchanged.",
+          "T": "Update the toolbar label in `src/ui/toolbar.tsx` from `Save` to `Store` and adjust the visible-label assertion in `tests/toolbar-label.test.ts` if needed.",
+          "S": "Limit changes to the visible toolbar label and its test coverage. Do not modify the underlying action binding or shortcut symbols.",
+          "V": "Verify the toolbar renders `Store` as the visible label and that the existing test in `tests/toolbar-label.test.ts` passes while behavior and shortcuts remain unchanged.",
+          "X": "Stop once only the visible toolbar label has changed to `Store` and the focused label test confirms it.",
+          "P": "Persist through the smallest verifiable slice: change the label in the owning file, update the focused test expectation if needed, run the targeted test if possible, and stop after the bounded change is confirmed.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "95e181db7c2b5ae1",
+      "user_profile": "expert",
+      "request": "Add CSV export through the existing report export seam for the accepted column set.",
+      "repository_evidence": [
+        "src/reports/export.ts exposes a serializer seam",
+        "src/reports/columns.ts marks the accepted columns",
+        "tests/report-export.test.ts covers headers, escaping, and rows"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "CSV only; no scheduled delivery or extra columns.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "add another format",
+          "persist export jobs"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-03-report-export",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: Add CSV export via existing report export seam for accepted columns.",
+          "T": "FACT: Implement serializer path in src/reports/export.ts using accepted-column set from src/reports/columns.ts.",
+          "S": "FACT: Existing seam and accepted columns are defined. DECISION: CSV only; no scheduled delivery or extra columns.",
+          "V": "FACT: Update and pass tests/report-export.test.ts for headers, escaping, and rows with accepted columns.",
+          "X": "DECISION: Do not add other formats, extra columns, scheduling, or alternate export paths.",
+          "P": "DECISION: Persist only CSV export support through the existing seam and minimal test coverage updates.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "aefe4455a87f5416",
+      "user_profile": "novice",
+      "request": "Change the empty inbox text to 'No messages yet' using the existing snapshot test.",
+      "repository_evidence": [
+        "src/inbox/EmptyState.tsx contains the only matching text",
+        "tests/inbox-empty-state.test.tsx owns the snapshot",
+        "no localization layer is configured"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use that exact text and make no layout changes.",
+          "changes": [
+            "G",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "add localization",
+          "redesign empty state"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-02-empty-state-copy",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Change the empty inbox copy to `No messages yet` without changing layout.",
+          "T": "Update the existing empty-state text in `src/inbox/EmptyState.tsx` to exact text `No messages yet` and refresh the existing snapshot expectation in `tests/inbox-empty-state.test.tsx` if required.",
+          "S": "Limit changes to the single matching text and its existing snapshot test. Make no layout or localization changes.",
+          "V": "Verify the rendered empty state now says `No messages yet` and the existing snapshot test in `tests/inbox-empty-state.test.tsx` passes with no structural UI changes beyond the text update.",
+          "X": "Stop once the exact replacement text is in place and the snapshot reflects only that copy change.",
+          "P": "Persist through the smallest verifiable slice: update the copy in the identified component, refresh the existing snapshot if needed, run the focused test if possible, and stop after confirmation.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "754eb35eac7cb6dc",
+      "user_profile": "expert",
+      "request": "Raise the test-only polling timeout from 2 seconds to 3 seconds in the shared test helper.",
+      "repository_evidence": [
+        "tests/helpers/poll.ts owns the test-only default",
+        "production callers do not import the helper",
+        "tests/poll-helper.test.ts checks the default"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Change only the test helper default.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "change production timeouts",
+          "add retries"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-05-timeout-default",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: Raise shared test-helper default polling timeout from 2s to 3s.",
+          "T": "FACT: Edit tests/helpers/poll.ts default only.",
+          "S": "FACT: Test-only helper; production imports excluded. DECISION: No production behavior change.",
+          "V": "FACT: Update and pass tests/poll-helper.test.ts default assertion.",
+          "X": "DECISION: Do not change production callers, polling behavior beyond default, or non-test timeouts.",
+          "P": "DECISION: Persist only the default-value change and matching test update.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "8a0d3d080c5f6a61",
+      "user_profile": "expert",
+      "request": "Add CSV export through the existing report export seam for the accepted column set.",
+      "repository_evidence": [
+        "src/reports/export.ts exposes a serializer seam",
+        "src/reports/columns.ts marks the accepted columns",
+        "tests/report-export.test.ts covers headers, escaping, and rows"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "CSV only; no scheduled delivery or extra columns.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "add another format",
+          "persist export jobs"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-03-report-export",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add CSV export support through the existing report export seam for the accepted report columns.",
+          "T": "Implement CSV serialization in `src/reports/export.ts` using the existing serializer seam, sourcing only the accepted columns identified in `src/reports/columns.ts`.",
+          "S": "Limit changes to CSV export through the existing seam and any directly relevant test updates in `tests/report-export.test.ts`. Do not add new export formats, delivery mechanisms, or columns beyond the accepted set.",
+          "V": "Verify CSV output covers headers, row serialization, and escaping behavior expected by `tests/report-export.test.ts`, and confirm only accepted columns are included.",
+          "X": "Stop once CSV export works through the existing seam for the accepted column set and the existing export tests pass or are minimally updated to reflect that behavior.",
+          "P": "Persist through the smallest verifiable slice: wire CSV into the current export seam, use the accepted column markers, validate against the focused export tests, and stop after that bounded path is confirmed.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "656e665a80276195",
+      "user_profile": "novice",
+      "request": "Change the empty inbox text to 'No messages yet' using the existing snapshot test.",
+      "repository_evidence": [
+        "src/inbox/EmptyState.tsx contains the only matching text",
+        "tests/inbox-empty-state.test.tsx owns the snapshot",
+        "no localization layer is configured"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use that exact text and make no layout changes.",
+          "changes": [
+            "G",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "add localization",
+          "redesign empty state"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-02-empty-state-copy",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: Change empty inbox text to 'No messages yet'.",
+          "T": "FACT: Edit src/inbox/EmptyState.tsx only matching text.",
+          "S": "FACT: No localization layer. DECISION: No layout change.",
+          "V": "FACT: Update and pass tests/inbox-empty-state.test.tsx snapshot.",
+          "X": "DECISION: Do not change layout, styling, or any other copy.",
+          "P": "DECISION: Persist only the text replacement and snapshot update.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "dc6dabfdce81b727",
+      "user_profile": "novice",
+      "request": "Add the text tooltip 'Copy link' to the existing icon button. Keyboard and click behavior stay unchanged.",
+      "repository_evidence": [
+        "src/share/CopyLinkButton.tsx owns the icon button",
+        "the repository already uses Tooltip for adjacent buttons",
+        "tests/copy-link-button.test.tsx covers accessible naming"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use the existing tooltip component and exact text.",
+          "changes": [
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "replace the icon",
+          "change button behavior"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-06-tooltip",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add a tooltip labeled 'Copy link' to the existing copy-link icon button without changing its current behavior.",
+          "T": "Update `src/share/CopyLinkButton.tsx` to use the existing tooltip pattern already used by adjacent buttons, with exact tooltip text `Copy link`.",
+          "S": "Limit changes to the existing icon button presentation and any directly required test expectation updates in `tests/copy-link-button.test.tsx`. Preserve keyboard behavior, click behavior, and accessible naming unless the existing test requires a bounded adjustment caused by the tooltip wrapper.",
+          "V": "Verify the icon button shows tooltip text `Copy link` using the repository\u2019s existing tooltip component pattern, and confirm `tests/copy-link-button.test.tsx` still covers the button\u2019s accessible naming and passes with behavior unchanged.",
+          "X": "Stop once the tooltip text is added with no behavior changes and the relevant test coverage is updated only if needed for the existing tooltip integration.",
+          "P": "Persist through the smallest verifiable slice: implement the tooltip on the existing button, run the targeted test if execution is available, and stop after the requested change is confirmed.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "a1450e46543d2d90",
+      "user_profile": "novice",
+      "request": "Rename the existing Save toolbar button to Store. Do not change behavior or shortcuts.",
+      "repository_evidence": [
+        "src/ui/toolbar.tsx owns the label",
+        "tests/toolbar-label.test.ts asserts the visible label",
+        "the action and shortcut are separate symbols"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Only the visible toolbar label should change.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "rename the command id",
+          "change persistence"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-01-toolbar-label",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Rename the visible Save toolbar label to Store.",
+          "T": "Update the toolbar label in `src/ui/toolbar.tsx` and adjust `tests/toolbar-label.test.ts` to expect the new visible text while leaving action wiring and shortcuts intact.",
+          "S": "Only the visible toolbar label changes; no behavior, action symbol, shortcut binding, or command semantics change.",
+          "V": "Verify the toolbar renders \"Store\" visibly, existing save behavior and shortcuts remain unchanged, and the label test passes.",
+          "X": "Stop if the visible label is reused as an action identifier or shortcut source instead of being presentation-only.",
+          "P": "Persist only through the presentation-label change and its focused test update.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "a3b35e596c1c3b5f",
+      "user_profile": "expert",
+      "request": "Add 'ls' as an alias for the existing read-only 'list' CLI command and cover it in the parser test.",
+      "repository_evidence": [
+        "src/cli/parser.ts has an alias table",
+        "list has no side effects",
+        "tests/cli-parser.test.ts covers aliases"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Keep 'list' canonical and add only the 'ls' alias.",
+          "changes": [
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "deprecate list",
+          "change command output"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-04-cli-alias",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add `ls` as an alias for the existing read-only `list` CLI command.",
+          "T": "Update `src/cli/parser.ts` alias handling so `ls` resolves to canonical command `list`, and add parser test coverage in `tests/cli-parser.test.ts`.",
+          "S": "Limit changes to the parser alias table and the parser test. Keep `list` canonical and add only the `ls` alias. Do not change command behavior or introduce new aliases.",
+          "V": "Verify parsing `ls` resolves identically to `list` and that alias coverage in `tests/cli-parser.test.ts` passes with `list` remaining the canonical command.",
+          "X": "Stop once `ls` is recognized as an alias for `list` and the parser test covers that mapping with no behavior changes to the command itself.",
+          "P": "Persist through the smallest verifiable slice: add the alias in the parser, cover it in the focused test, run the targeted parser test if possible, and stop after confirmation.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "cff70f0397961303",
+      "user_profile": "novice",
+      "request": "Rename the existing Save toolbar button to Store. Do not change behavior or shortcuts.",
+      "repository_evidence": [
+        "src/ui/toolbar.tsx owns the label",
+        "tests/toolbar-label.test.ts asserts the visible label",
+        "the action and shortcut are separate symbols"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Only the visible toolbar label should change.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "rename the command id",
+          "change persistence"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-01-toolbar-label",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: Rename visible Save toolbar label to Store.",
+          "T": "FACT: Edit src/ui/toolbar.tsx label only.",
+          "S": "FACT: Action and shortcut symbols are separate. DECISION: No behavior or shortcut change.",
+          "V": "FACT: Update and pass tests/toolbar-label.test.ts visible-label assertion.",
+          "X": "DECISION: Do not change action wiring, shortcut text, or other toolbar items.",
+          "P": "DECISION: Persist only the visible label change and matching test update.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "6bb629d95565bebc",
+      "user_profile": "expert",
+      "request": "Add CSV export through the existing report export seam for the accepted column set.",
+      "repository_evidence": [
+        "src/reports/export.ts exposes a serializer seam",
+        "src/reports/columns.ts marks the accepted columns",
+        "tests/report-export.test.ts covers headers, escaping, and rows"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "CSV only; no scheduled delivery or extra columns.",
+          "changes": [
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "add another format",
+          "persist export jobs"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-03-report-export",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add CSV export support through the existing report export seam for the accepted column set.",
+          "T": "Implement CSV serialization via `src/reports/export.ts` using the accepted columns defined in `src/reports/columns.ts`, and extend `tests/report-export.test.ts` coverage for headers, escaping, and rows.",
+          "S": "CSV only through the existing serializer seam and only for accepted columns; exclude scheduled delivery, alternate formats, and extra columns.",
+          "V": "Verify exported CSV includes only accepted columns, preserves existing escaping semantics, and passes report export tests for headers and row serialization.",
+          "X": "Stop if the accepted column set is ambiguous in `columns.ts` or if the seam cannot support CSV without changing unrelated export architecture.",
+          "P": "Persist through the minimal serializer and test changes required to add CSV at the existing seam.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "glossary",
+            "name": "accepted column set",
+            "evidence": "`src/reports/columns.ts` marks which report columns are eligible for export; this term governs export inclusion and should be defined once for future format work."
+          },
+          {
+            "kind": "ADR",
+            "name": "Use existing export serializer seam for CSV",
+            "evidence": "The request explicitly routes CSV through `src/reports/export.ts` instead of a parallel path, which is a consequential extensibility decision for future export formats."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "e91a261d1be3130b",
+      "user_profile": "expert",
+      "request": "Add 'ls' as an alias for the existing read-only 'list' CLI command and cover it in the parser test.",
+      "repository_evidence": [
+        "src/cli/parser.ts has an alias table",
+        "list has no side effects",
+        "tests/cli-parser.test.ts covers aliases"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Keep 'list' canonical and add only the 'ls' alias.",
+          "changes": [
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "deprecate list",
+          "change command output"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-04-cli-alias",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Add `ls` as an alias for the read-only `list` CLI command.",
+          "T": "Extend the alias table in `src/cli/parser.ts` so `ls` resolves to canonical `list`, and cover it in `tests/cli-parser.test.ts`.",
+          "S": "Keep `list` canonical and add only the `ls` alias; no command semantics or side effects change.",
+          "V": "Verify parser input `ls` maps to `list` and existing alias tests continue to pass without changing command execution behavior.",
+          "X": "Stop if alias handling is generated from another source instead of the parser table, or if `ls` collides with an existing command token.",
+          "P": "Persist through the minimal parser-table and parser-test updates required for this alias.",
+          "ready": true
+        },
+        "promotions": [
+          {
+            "kind": "ADR",
+            "name": "Canonical CLI command with read-only alias mapping",
+            "evidence": "The repo already distinguishes canonical commands from aliases in `src/cli/parser.ts`; adding `ls` reinforces that parser aliases should normalize to one canonical command name."
+          }
+        ],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "03a93f46ce84b624",
+      "user_profile": "novice",
+      "request": "Add the text tooltip 'Copy link' to the existing icon button. Keyboard and click behavior stay unchanged.",
+      "repository_evidence": [
+        "src/share/CopyLinkButton.tsx owns the icon button",
+        "the repository already uses Tooltip for adjacent buttons",
+        "tests/copy-link-button.test.tsx covers accessible naming"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use the existing tooltip component and exact text.",
+          "changes": [
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "replace the icon",
+          "change button behavior"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-06-tooltip",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: Add tooltip text 'Copy link' to the existing copy-link icon button.",
+          "T": "FACT: Edit src/share/CopyLinkButton.tsx. DECISION: Reuse existing Tooltip pattern.",
+          "S": "FACT: Keyboard and click behavior stay unchanged. DECISION: Exact tooltip text only.",
+          "V": "FACT: Confirm tests/copy-link-button.test.tsx still cover accessible naming; add/update tooltip assertion only if needed.",
+          "X": "DECISION: Do not change button behavior, shortcuts, adjacent buttons, or tooltip wording.",
+          "P": "DECISION: Persist only the tooltip wrapper/text and any minimal test adjustment.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "f0c3debe9dc72b15",
+      "user_profile": "expert",
+      "request": "Add 'ls' as an alias for the existing read-only 'list' CLI command and cover it in the parser test.",
+      "repository_evidence": [
+        "src/cli/parser.ts has an alias table",
+        "list has no side effects",
+        "tests/cli-parser.test.ts covers aliases"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Keep 'list' canonical and add only the 'ls' alias.",
+          "changes": [
+            "T",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "T",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "deprecate list",
+          "change command output"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-04-cli-alias",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "DECISION: Add 'ls' as an alias for canonical read-only 'list' CLI command.",
+          "T": "FACT: Edit src/cli/parser.ts alias table.",
+          "S": "FACT: 'list' has no side effects. DECISION: Keep 'list' canonical; add only 'ls'.",
+          "V": "FACT: Update and pass tests/cli-parser.test.ts alias coverage.",
+          "X": "DECISION: Do not rename 'list', add writable behavior, or add other aliases.",
+          "P": "DECISION: Persist only parser alias-table change and parser test update.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    },
+    {
+      "opaque_id": "985b3e364ec04aae",
+      "user_profile": "novice",
+      "request": "Change the empty inbox text to 'No messages yet' using the existing snapshot test.",
+      "repository_evidence": [
+        "src/inbox/EmptyState.tsx contains the only matching text",
+        "tests/inbox-empty-state.test.tsx owns the snapshot",
+        "no localization layer is configured"
+      ],
+      "scripted_answers": [
+        {
+          "when": "fallback-only",
+          "answer": "Use that exact text and make no layout changes.",
+          "changes": [
+            "G",
+            "S"
+          ]
+        }
+      ],
+      "oracle": {
+        "expected_route": "quick",
+        "expected_first_focus": null,
+        "decisive_coordinates": [
+          "G",
+          "S",
+          "V"
+        ],
+        "ready_after_answers": 0,
+        "forbidden_assumptions": [
+          "add localization",
+          "redesign empty state"
+        ]
+      },
+      "subject_response": {
+        "task_id": "clear-02-empty-state-copy",
+        "route": "quick",
+        "turns": [
+          {
+            "question": null,
+            "scripted_answer_index": null,
+            "draft_ready": true
+          }
+        ],
+        "contract": {
+          "G": "Change the empty inbox copy to \"No messages yet\".",
+          "T": "Update the empty-state text in `src/inbox/EmptyState.tsx` and refresh the existing snapshot in `tests/inbox-empty-state.test.tsx`.",
+          "S": "Only change the displayed string; no layout, styling, or localization work.",
+          "V": "Verify the rendered empty state shows exactly \"No messages yet\" and the snapshot test reflects only that copy change.",
+          "X": "Stop if the text is sourced from anywhere beyond `EmptyState.tsx` or if the snapshot reveals unintended visual changes.",
+          "P": "Persist only through the string update and corresponding snapshot refresh.",
+          "ready": true
+        },
+        "promotions": [],
+        "stop_after_contract": true
+      }
+    }
+  ]
+}

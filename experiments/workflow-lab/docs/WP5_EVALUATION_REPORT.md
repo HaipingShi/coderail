@@ -279,3 +279,40 @@ schema, model, reasoning effort, sandbox, and configuration through the
 already-active host TUN and succeeded. This proves schema compatibility only.
 It adds no evidence that C5 improves treatment outcomes and does not change
 the aggregate decision.
+
+## v5 registered early stop
+
+The seed-major runner completed s1 before starting s2. After s1 blind judging,
+C5 had zero user-visible technical choices, so the provider gate allowed s2.
+The runner then completed s2 and judged it before considering any later seed.
+
+Across s1 and s2, the run produced 21 subject batches, seven blind-judge
+batches, and 90 exact seed-bearing trial records. Judge inputs contain opaque
+ids, task material, hidden oracles, and subject responses but no workflow or
+seed fields. All follow-through observations remain null.
+
+In s2, C5 received two user-visible technical-choice observations:
+
+- `ambiguous-03-csv-import-mapping`: the recommended preview workflow was
+  judged as asking a novice to select a concrete workflow mechanism;
+- `ambiguous-06-offline-mode`: the cached-read recommendation was judged as
+  presenting a concrete cache-based implementation path.
+
+Gate 1 therefore failed. Following the frozen rule, the runner stopped before
+s3 and did not run C5p. `results/run-state.json` records
+`REVISE_PROVIDER_GATE`, the stop seed, observed count, and prohibition on later
+seeds and C5p.
+
+Partial descriptive results:
+
+- threshold unsupported-assumption mean: A=0.1667, C5=0.5;
+- clear-arm C5 quick-path correctness: 100%;
+- observed C5/A token ratios: ambiguous=1.0756, risk=1.0713,
+  domain-language=1.0509, clear=0.9857;
+- matched turns per trial: C5=1.2667, v4 C=0.9333;
+- matched interruptions per trial: C5=1.0333, v4 C=1.1333.
+
+The token and quick-path observations do not override the registered stop.
+Gates requiring all five seeds remain unevaluated. The treatment disposition
+is `REVISE_PROVIDER_GATE`; the adoption decision remains
+`INSUFFICIENT_IMPLEMENTATION_EVIDENCE`.
