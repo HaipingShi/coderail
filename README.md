@@ -18,6 +18,10 @@ No server. No accounts. No new methodology to learn. Just three commands and a `
 
 没有服务端、不需要账号、不用学任何新方法论。只有三个命令，和一个不会说谎的 `docs/` 目录。
 
+如果你不懂编程，想先理解 CodeRail 解决什么问题、开发过程中会做哪些动作，以及怎样与 Spec Kit、grill-me 和 Superpowers 配合，请阅读：
+
+**[CodeRail 是什么：给 Vibe Coder 的项目治理说明](docs/CODERAIL_FOR_VIBE_CODERS_ZH.md)**
+
 ## 60-second start / 60 秒上手
 
 ```bash

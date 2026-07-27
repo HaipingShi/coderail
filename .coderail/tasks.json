@@ -4026,5 +4026,58 @@
         }
       ]
     }
+  },
+  "T-045": {
+    "display_id": "T-045",
+    "verify": [
+      "python scripts/trace_doctor.py --target .",
+      "npm.cmd test"
+    ],
+    "accept": [
+      "The document explains CodeRail, the novice communication problem, and the investor/vendor analogy without requiring programming vocabulary",
+      "The document describes actual start/check/switch/done and cross-session persistence behavior accurately",
+      "The rationale maps each design choice to a concrete failure mode and states scientific/evidence limits honestly",
+      "The comparison with Spec Kit, grill-me/grill-with-docs, and Superpowers uses official-source facts and explains composition rather than false competition",
+      "The document provides small, medium, large, bug, and high-risk workflow recipes with one canonical source of task truth",
+      "README links the introduction and repository tests pass"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T09:45:25.857432+00:00",
+      "head": "0cb2dd6622bf0eacd471fc20a8896f7b85a3a07e",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T09:55:43.009082+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "README.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": "??",
+          "path": "docs/CODERAIL_FOR_VIBE_CODERS_ZH.md"
+        }
+      ]
+    }
   }
 }

@@ -3,6 +3,20 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Write the CodeRail introduction for vibe coders (T-045)
+
+- Done: Write the CodeRail introduction for vibe coders
+- Checked by: `python scripts/trace_doctor.py --target .` exit 0; `npm.cmd test` exit 0
+- Next: Use the new vibe-coder introduction as the public explanation; no follow-up implementation is authorized
+- Evidence: `python scripts/trace_doctor.py --target .` -> exit 0
+- Evidence: `npm.cmd test` -> exit 0
+- Acceptance [done]: The document explains CodeRail, the novice communication problem, and the investor/vendor analogy without requiring programming vocabulary
+- Acceptance [done]: The document describes actual start/check/switch/done and cross-session persistence behavior accurately
+- Acceptance [done]: The rationale maps each design choice to a concrete failure mode and states scientific/evidence limits honestly
+- Acceptance [done]: The comparison with Spec Kit, grill-me/grill-with-docs, and Superpowers uses official-source facts and explains composition rather than false competition
+- Acceptance [done]: The document provides small, medium, large, bug, and high-risk workflow recipes with one canonical source of task truth
+- Acceptance [done]: README links the introduction and repository tests pass
+
 ## 2026-07-27 - Finalize release governance metadata before feature merge (T-044)
 
 - Done: Finalize release governance metadata before feature merge
