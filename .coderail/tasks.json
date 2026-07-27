@@ -2661,5 +2661,25 @@
         }
       ]
     }
+  },
+  "T-038": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v5_preflight.py"
+    ],
+    "accept": [
+      "The runner reads primary workflows, contingency workflows, canonical seeds, and sampling plan from manifest.json",
+      "The service accepts model-output.schema.json for protocol wp5-v5",
+      "Preflight sends zero task and oracle payloads and starts zero subject batches",
+      "All v5 frozen hashes remain unchanged",
+      "No v5 results directory or trial output is created"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T02:13:52.699900+00:00",
+      "head": "e57df6769e4ccc5df8fdb728aee87f1fca0e5743",
+      "files": []
+    }
   }
 }

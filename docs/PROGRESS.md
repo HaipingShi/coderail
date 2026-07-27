@@ -3,6 +3,13 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Preflight wp5-v5 schema and execution runner (T-038)
+
+- Done: Preflight wp5-v5 schema and execution runner
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: switch to Complete wp5-v5 schema preflight checkpoint
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+
 ## 2026-07-27 - Run and adjudicate wp5-v4 A/B/C comparison (T-033)
 
 - Done: Run and adjudicate wp5-v4 A/B/C comparison
