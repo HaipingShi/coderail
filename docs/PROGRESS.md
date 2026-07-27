@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Run frozen wp5-v3 contract trials (T-030)
+
+- Done: Run frozen wp5-v3 contract trials
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Close T-033 using the already committed wp5-v4 comparison and recovery evidence
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
+- Acceptance [done]: all v3 pretrial hashes remain unchanged
+- Acceptance [done]: workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
+- Acceptance [done]: report states contract-phase limitations and does not make an adoption decision from null implementation evidence
+- Warning: Promised test file was never touched: experiments/workflow-lab/tests/test_evaluation_v3_results.py (declared at start with --tests, absent from the diff)
+
 ## 2026-07-27 - workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence (T-037)
 
 - Done: workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
