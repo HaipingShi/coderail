@@ -3,6 +3,12 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded (T-025)
+
+- Done: all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded
+- Checked by: manual check: v4 run metadata records 12 completed subject batches and 4 completed blind-judge batches; 54 exact trial records and frozen-hash tests pass
+- Next: Close T-026 using aggregate provenance tests that reject subject self-scoring
+
 ## 2026-07-25 - Repair and refreeze wp5-v5 machine contracts (T-035)
 
 - Done: Repair and refreeze wp5-v5 machine contracts
