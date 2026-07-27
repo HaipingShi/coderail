@@ -2502,5 +2502,37 @@
         }
       ]
     }
+  },
+  "T-026": {
+    "baseline": {
+      "captured_at": "2026-07-27T01:29:13.380168+00:00",
+      "head": "eca7a9235f4cebbd52df2973c92765a8e9e510ed",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T01:34:41.331502+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        }
+      ]
+    }
   }
 }

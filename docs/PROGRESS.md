@@ -3,6 +3,12 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - aggregate metrics are computed from observation records rather than subject self-scoring (T-026)
+
+- Done: aggregate metrics are computed from observation records rather than subject self-scoring
+- Checked by: manual check: Tests prove aggregate metrics are read from adjudicated observation records; runner joins blind judge observations to subject references before deterministic aggregation
+- Next: Reconcile paused superseded v2/v3/v4 run tasks before starting v5 preflight
+
 ## 2026-07-27 - all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded (T-025)
 
 - Done: all 54 workflow-task cells use the frozen model policy or failures are explicitly recorded
