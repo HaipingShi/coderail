@@ -3,6 +3,22 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Finalize release governance metadata before feature merge (T-044)
+
+- Done: Finalize release governance metadata before feature merge
+- Checked by: `python scripts/trace_doctor.py --target .` exit 0; `python scripts/trace_index.py --target .` exit 0; `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0; `npm.cmd test` exit 0
+- Next: Push feature/guided-convergence, fast-forward main, and push main
+- Evidence: `python scripts/trace_doctor.py --target .` -> exit 0
+- Evidence: `python scripts/trace_index.py --target .` -> exit 0
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Evidence: `npm.cmd test` -> exit 0
+- Acceptance [done]: NORTH_STAR defines NS-001, removes the stale T-018 active-task claim, and records the release-governance closeout state
+- Acceptance [done]: Every task event in TRACELOG maps to NS-001 and trace doctor reports no warnings
+- Acceptance [done]: TRACE_INDEX is regenerated from the repaired structured log
+- Acceptance [done]: No product code, experiment inputs, package, or lock file changes
+- Acceptance [done]: CodeRail has no active or paused task, closeout pending, verification gap, or historical verification debt after completion
+- Acceptance [done]: All workflow-lab and CodeRail tests pass
+
 ## 2026-07-27 - Issue WP6 guided-convergence adoption review (T-042)
 
 - Done: Issue WP6 guided-convergence adoption review

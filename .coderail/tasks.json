@@ -3975,5 +3975,56 @@
         }
       ]
     }
+  },
+  "T-044": {
+    "display_id": "T-044",
+    "verify": [
+      "python scripts/trace_doctor.py --target .",
+      "python scripts/trace_index.py --target .",
+      "python -m unittest discover -s experiments/workflow-lab/tests -v",
+      "npm.cmd test"
+    ],
+    "accept": [
+      "NORTH_STAR defines NS-001, removes the stale T-018 active-task claim, and records the release-governance closeout state",
+      "Every task event in TRACELOG maps to NS-001 and trace doctor reports no warnings",
+      "TRACE_INDEX is regenerated from the repaired structured log",
+      "No product code, experiment inputs, package, or lock file changes",
+      "CodeRail has no active or paused task, closeout pending, verification gap, or historical verification debt after completion",
+      "All workflow-lab and CodeRail tests pass"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T09:30:49.837741+00:00",
+      "head": "255a510cfacc1aff4eb4c1a14f1e1fcbc84d88b6",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T09:41:55.642776+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/NORTH_STAR.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        }
+      ]
+    }
   }
 }

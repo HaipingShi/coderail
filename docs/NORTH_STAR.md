@@ -1,7 +1,8 @@
 # North Star
 
+ID: NS-001
 Status: current
-Last reviewed: 2026-07-16
+Last reviewed: 2026-07-27
 Owner: CodeRail maintainers
 
 ## Outcome
@@ -21,8 +22,12 @@ Owner: CodeRail maintainers
 ## Current Slice
 
 - Milestone: M-013 stabilization freeze
-- Execution Batch: repair reproduced scope-contract and closeout commit recovery defects
-- Active Task: T-018
+- Execution Batch: release/governance closeout for the guided-convergence
+  feature branch
+- State: implementation and evaluation tasks are closed; no reproduced defect
+  is awaiting action
+- Release boundary: verify, push, and fast-forward the feature branch into
+  `main` without adding product behavior
 
 ## Non-Goals
 
