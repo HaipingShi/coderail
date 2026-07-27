@@ -10,81 +10,6 @@
 - `[f]` failed
 - `[r]` reopened
 
-## T-028 Run frozen wp5-v2 contract trials
-
-Status: [~]
-Type: docs
-Rail: light
-
-### CodeRail Coordinate
-
-G — Goal
-- Execute the frozen 18-task A/B/C contract-phase simulation with blind judging and report only observed evidence
-
-T — Task
-- Run frozen wp5-v2 contract trials
-
-S — Scope
-Allowed:
-  - experiments/workflow-lab/evaluation-v2/results/**
-  - experiments/workflow-lab/scripts/run_evaluation.py
-  - experiments/workflow-lab/tests/test_evaluation_v2_results.py
-  - experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md
-  - experiments/workflow-lab/README.md
-  - experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md
-Forbidden:
-  - scripts
-  - project-template
-  - skills
-  - references
-  - experiments/workflow-lab/skills
-  - experiments/workflow-lab/evaluation
-  - experiments/workflow-lab/evaluation-v2/manifest.json
-  - experiments/workflow-lab/evaluation-v2/rubric.json
-  - experiments/workflow-lab/evaluation-v2/trial-result.schema.json
-  - experiments/workflow-lab/evaluation-v2/model-output.schema.json
-  - experiments/workflow-lab/evaluation-v2/judge-output.schema.json
-  - experiments/workflow-lab/evaluation-v2/freeze.json
-  - experiments/workflow-lab/evaluation-v2/workflows
-  - experiments/workflow-lab/evaluation-v2/judge.md
-  - experiments/workflow-lab/evaluation-v2/run-spec.md
-
-V — Verify
-- 12 subject batches and 4 blind judge batches cover all 54 cells, aggregate contract metrics, and preserve null follow-through evidence
-- Run: `python -m unittest discover -s experiments/workflow-lab/tests -v` (must exit 0)
-
-A — Acceptance
-- [ ] all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
-- [ ] all v2 pretrial hashes remain unchanged
-- [ ] workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
-- [ ] report states contract-phase limitations and does not make an adoption decision from null implementation evidence
-
-X — Stop
-- Stop and ask if changes are needed outside the allowed files.
-
-P — Persist
-- TASKS, TRACE
-Pause reason: dirty-fork
-Resume command: coderail switch --to T-028
-
-
-Task result: failed
-
-Harness result: passed
-
-Handoff level: H3
-
-Handoff updated: no
-
-Inspect status: refreshed
-
-Drive decision: BLOCKED_DECISION
-
-Resume anchor: docs/TASKS.md#T-028
-
-Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
-
-Auto commit: disabled
 ## T-030 Run frozen wp5-v3 contract trials
 
 Status: [p]
@@ -210,3 +135,61 @@ Next executable step: Continue in manual mode; no dependency-ready autonomous ta
 Auto commit: disabled
 Pause reason: dirty-fork
 Resume command: coderail switch --to T-033
+
+## T-036 all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
+
+Status: [ ]
+Type: feature
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Deferred from T-028: all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
+
+T — Task
+- all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
+
+S — Scope
+Allowed:
+  - to be decided while working
+Forbidden:
+  - none
+
+V — Verify
+- Manually confirm the result works as intended.
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE
+
+## T-037 workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
+
+Status: [ ]
+Type: feature
+Rail: full
+
+### CodeRail Coordinate
+
+G — Goal
+- Deferred from T-028: workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
+
+T — Task
+- workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
+
+S — Scope
+Allowed:
+  - to be decided while working
+Forbidden:
+  - none
+
+V — Verify
+- Manually confirm the result works as intended.
+
+X — Stop
+- Stop and ask if changes are needed outside the allowed files.
+
+P — Persist
+- TASKS, TRACE

@@ -7,6 +7,20 @@ Each entry: what got done, how it was checked, what comes next.
 
 - Done: Run frozen wp5-v2 contract trials
 - Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Historical reconciliation complete: v2 execution failed before subjects and was superseded by completed v3/v4 runs
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [deferred]: all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
+- Acceptance [done]: all v2 pretrial hashes remain unchanged
+- Acceptance [deferred]: workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
+- Acceptance [done]: report states contract-phase limitations and does not make an adoption decision from null implementation evidence
+- Deferred: all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures (registered as a follow-up task)
+- Deferred: workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence (registered as a follow-up task)
+- Warning: Promised test file was never touched: experiments/workflow-lab/tests/test_evaluation_v2_results.py (declared at start with --tests, absent from the diff)
+
+## 2026-07-27 - Run frozen wp5-v2 contract trials (T-028)
+
+- Done: Run frozen wp5-v2 contract trials
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
 - Next: T-028 ended before subject execution because the frozen v2 schema was service-incompatible; wp5-v3 is the completed successor
 - Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
 - Warning: Promised test file was never touched: experiments/workflow-lab/tests/test_evaluation_v2_results.py (declared at start with --tests, absent from the diff)

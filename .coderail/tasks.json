@@ -569,6 +569,27 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-25T07:02:28.913721+00:00",
       "resume": "coderail switch --to T-028"
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T01:51:43.975819+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        }
+      ]
     }
   },
   "T-029": {
