@@ -3,6 +3,12 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence (T-037)
+
+- Done: workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
+- Checked by: manual check: All four v4 judge-input files omit workflow labels, and aggregate provenance tests prove metrics come from blind judge observations plus deterministic runner evidence
+- Next: Close paused T-030 with completed wp5-v3 evidence
+
 ## 2026-07-27 - all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures (T-036)
 
 - Done: all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures

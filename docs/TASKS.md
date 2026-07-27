@@ -135,32 +135,3 @@ Next executable step: Continue in manual mode; no dependency-ready autonomous ta
 Auto commit: disabled
 Pause reason: dirty-fork
 Resume command: coderail switch --to T-033
-
-## T-037 workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
-
-Status: [ ]
-Type: feature
-Rail: full
-
-### CodeRail Coordinate
-
-G — Goal
-- Deferred from T-028: workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
-
-T — Task
-- workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
-
-S — Scope
-Allowed:
-  - to be decided while working
-Forbidden:
-  - none
-
-V — Verify
-- Manually confirm the result works as intended.
-
-X — Stop
-- Stop and ask if changes are needed outside the allowed files.
-
-P — Persist
-- TASKS, TRACE
