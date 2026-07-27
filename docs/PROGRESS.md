@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Run and adjudicate wp5-v4 A/B/C comparison (T-033)
+
+- Done: Run and adjudicate wp5-v4 A/B/C comparison
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: Start wp5-v5 schema preflight with zero task and oracle payloads
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: All 12 subject batches and four blind judge batches complete with the frozen model policy or failures are recorded
+- Acceptance [done]: Exactly 54 trial cells exist and judge inputs remain workflow-masked
+- Acceptance [done]: Frozen v4 hashes remain unchanged
+- Acceptance [done]: The report compares A/B/C and v3/v4 C on observed metrics
+- Acceptance [done]: Implementation fields remain null and no ADOPT decision is made
+
 ## 2026-07-27 - Run frozen wp5-v3 contract trials (T-030)
 
 - Done: Run frozen wp5-v3 contract trials
