@@ -7,6 +7,14 @@ Each entry: what got done, how it was checked, what comes next.
 
 - Done: Run frozen wp5-v2 contract trials
 - Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: T-028 ended before subject execution because the frozen v2 schema was service-incompatible; wp5-v3 is the completed successor
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Warning: Promised test file was never touched: experiments/workflow-lab/tests/test_evaluation_v2_results.py (declared at start with --tests, absent from the diff)
+
+## 2026-07-27 - Run frozen wp5-v2 contract trials (T-028)
+
+- Done: Run frozen wp5-v2 contract trials
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
 - Next: T-028 is superseded by schema-compatible wp5-v3; close T-030 using completed v3 evidence
 - Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
 

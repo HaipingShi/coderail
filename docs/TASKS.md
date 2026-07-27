@@ -68,7 +68,7 @@ Pause reason: dirty-fork
 Resume command: coderail switch --to T-028
 
 
-Task result: deferred
+Task result: failed
 
 Harness result: passed
 
