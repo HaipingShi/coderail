@@ -12,7 +12,7 @@
 
 ## T-028 Run frozen wp5-v2 contract trials
 
-Status: [p]
+Status: [~]
 Type: docs
 Rail: light
 
@@ -67,6 +67,24 @@ P — Persist
 Pause reason: dirty-fork
 Resume command: coderail switch --to T-028
 
+
+Task result: deferred
+
+Harness result: passed
+
+Handoff level: H3
+
+Handoff updated: no
+
+Inspect status: refreshed
+
+Drive decision: BLOCKED_DECISION
+
+Resume anchor: docs/TASKS.md#T-028
+
+Next executable step: Continue in manual mode; no dependency-ready autonomous task is available to recommend.
+
+Auto commit: disabled
 ## T-030 Run frozen wp5-v3 contract trials
 
 Status: [p]

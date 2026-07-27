@@ -3,6 +3,13 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Run frozen wp5-v2 contract trials (T-028)
+
+- Done: Run frozen wp5-v2 contract trials
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: T-028 is superseded by schema-compatible wp5-v3; close T-030 using completed v3 evidence
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+
 ## 2026-07-27 - aggregate metrics are computed from observation records rather than subject self-scoring (T-026)
 
 - Done: aggregate metrics are computed from observation records rather than subject self-scoring
