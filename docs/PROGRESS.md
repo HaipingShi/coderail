@@ -3,6 +3,12 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures (T-036)
+
+- Done: all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
+- Checked by: manual check: wp5-v4 has 54 exact frozen-policy trial records, 12 completed subject batches, 4 completed judge batches, and preserved identical-input recovery evidence
+- Next: Close T-037 using workflow-masked judge inputs and deterministic observation aggregation tests
+
 ## 2026-07-27 - Run frozen wp5-v2 contract trials (T-028)
 
 - Done: Run frozen wp5-v2 contract trials

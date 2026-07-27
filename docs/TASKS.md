@@ -136,35 +136,6 @@ Auto commit: disabled
 Pause reason: dirty-fork
 Resume command: coderail switch --to T-033
 
-## T-036 all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
-
-Status: [ ]
-Type: feature
-Rail: full
-
-### CodeRail Coordinate
-
-G — Goal
-- Deferred from T-028: all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
-
-T — Task
-- all 54 cells have frozen-policy raw output and observation records or explicit identical-input failures
-
-S — Scope
-Allowed:
-  - to be decided while working
-Forbidden:
-  - none
-
-V — Verify
-- Manually confirm the result works as intended.
-
-X — Stop
-- Stop and ask if changes are needed outside the allowed files.
-
-P — Persist
-- TASKS, TRACE
-
 ## T-037 workflow labels are masked from judge inputs and aggregate metrics come from judge or deterministic runner evidence
 
 Status: [ ]

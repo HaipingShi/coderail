@@ -2555,5 +2555,37 @@
         }
       ]
     }
+  },
+  "T-036": {
+    "baseline": {
+      "captured_at": "2026-07-27T01:52:18.296232+00:00",
+      "head": "9eb2410307a1722d94852215c5977c398838d4a9",
+      "files": []
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-27T01:57:08.678374+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        }
+      ]
+    }
   }
 }
