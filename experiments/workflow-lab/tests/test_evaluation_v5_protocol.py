@@ -118,7 +118,7 @@ class EvaluationV5ProtocolTests(unittest.TestCase):
         del v5_trial["properties"]["seed"]
         self.assertEqual(v5_trial, v4_trial)
 
-    def test_v5_freeze_covers_inputs_and_preflight_is_not_a_trial(self) -> None:
+    def test_v5_freeze_covers_inputs_and_registered_execution_prefix(self) -> None:
         freeze = load_json(V5 / "freeze.json")
         expected_paths = {
             "manifest.json",
@@ -148,14 +148,56 @@ class EvaluationV5ProtocolTests(unittest.TestCase):
         self.assertEqual(preflight["subject_batches_started"], 0)
         self.assertEqual(preflight["judge_batches_started"], 0)
         self.assertEqual(preflight["task_or_oracle_payloads_sent"], 0)
-        self.assertFalse((V5 / "results").exists())
+
+        run_state = load_json(V5 / "results" / "run-state.json")
+        aggregate = load_json(V5 / "results" / "aggregate.json")
+        completed_seeds = list(SEEDS[:2])
+
+        self.assertEqual(run_state["completed_seeds"], completed_seeds)
+        self.assertEqual(
+            run_state["seed_status"],
+            {
+                SEEDS[0]: "completed",
+                SEEDS[1]: "provider-gate-failed",
+            },
+        )
+        self.assertEqual(len(run_state["subject_batches"]), 21)
+        self.assertEqual(len(run_state["judge_batches"]), 7)
+        self.assertTrue(
+            all(
+                batch["seed"] in completed_seeds
+                for batch in (
+                    run_state["subject_batches"] + run_state["judge_batches"]
+                )
+            ),
+        )
+        self.assertNotIn(
+            CONTINGENCY_WORKFLOWS[0],
+            {batch["workflow"] for batch in run_state["subject_batches"]},
+        )
+
+        early_stop = run_state["early_stop"]
+        self.assertEqual(early_stop["gate"], "provider-question-elimination")
+        self.assertEqual(early_stop["seed"], SEEDS[1])
+        self.assertEqual(early_stop["observed_user_visible_technical_choices"], 2)
+        self.assertEqual(aggregate["completed_primary_trials"], 90)
+        self.assertEqual(aggregate["completed_seeds"], completed_seeds)
+        self.assertEqual(
+            aggregate["treatment_disposition"],
+            "REVISE_PROVIDER_GATE",
+        )
+        self.assertFalse(aggregate["implementation_evidence_complete"])
+        self.assertEqual(
+            aggregate["decision"],
+            "INSUFFICIENT_IMPLEMENTATION_EVIDENCE",
+        )
 
     def test_v5_frozen_documents_match_the_machine_contract(self) -> None:
         design = DESIGN.read_text(encoding="utf-8")
         run_spec = (V5 / "run-spec.md").read_text(encoding="utf-8")
 
         self.assertIn(
-            "Status: schema preflight passed; no subject or judge trial started",
+            "Status: stopped after s2 by the pre-registered provider gate",
             design,
         )
         self.assertIn("Protocol: `wp5-v5`", design)

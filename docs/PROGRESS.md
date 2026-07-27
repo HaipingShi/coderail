@@ -3,6 +3,19 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Finalize wp5-v5 registered early-stop checkpoint (T-041)
+
+- Done: Finalize wp5-v5 registered early-stop checkpoint
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: WP6: issue the evidence-led adoption review; do not run s3-s5 or C5p and do not integrate C5 natively
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: Protocol tests distinguish the historical zero-trial freeze checkpoint from the current registered early-stop results
+- Acceptance [done]: Exactly 90 trials, 21 subject batches, and 7 judge batches cover only the s1/s2 prefix
+- Acceptance [done]: No s3-s5 or C5p execution exists after the provider gate observed two user-visible technical choices
+- Acceptance [done]: Aggregate disposition is REVISE_PROVIDER_GATE and implementation metrics remain null with no ADOPT decision
+- Acceptance [done]: Frozen artifact hashes remain unchanged and blind judge inputs expose neither workflow nor seed labels
+- Acceptance [done]: All workflow-lab tests pass
+
 ## 2026-07-27 - Complete wp5-v5 schema preflight checkpoint (T-039)
 
 - Done: Complete wp5-v5 schema preflight checkpoint

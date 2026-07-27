@@ -569,27 +569,6 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-25T07:02:28.913721+00:00",
       "resume": "coderail switch --to T-028"
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T01:51:43.975819+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-029": {
@@ -717,27 +696,6 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-25T07:30:17.083785+00:00",
       "resume": "coderail switch --to T-030"
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T02:07:42.204325+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-031": {
@@ -1594,27 +1552,6 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-25T08:28:34.543019+00:00",
       "resume": "coderail switch --to T-033"
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T02:13:02.372540+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-034": {
@@ -2434,32 +2371,7 @@
         }
       ]
     },
-    "dirty_fork": true,
-    "closed_pending": {
-      "recorded_at": "2026-07-25T08:33:44.436648+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
-    }
+    "dirty_fork": true
   },
   "T-035": {
     "verify": [
@@ -2479,59 +2391,6 @@
       "captured_at": "2026-07-25T23:49:59.352142+00:00",
       "head": "12ff52d586c9ba8b95f51b5196ed473f5b1db15c",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-25T23:57:10.467039+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_V5_DESIGN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/evaluation-v5/freeze.json"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/evaluation-v5/manifest.json"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/evaluation-v5/run-spec.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/evaluation-v5/trial-result.schema.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py"
-        }
-      ]
     }
   },
   "T-025": {
@@ -2539,31 +2398,6 @@
       "captured_at": "2026-07-27T01:23:07.847794+00:00",
       "head": "9cf8a7724e3a701ff9be2818e8857ca07a64a75f",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T01:28:51.107522+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-026": {
@@ -2571,31 +2405,6 @@
       "captured_at": "2026-07-27T01:29:13.380168+00:00",
       "head": "eca7a9235f4cebbd52df2973c92765a8e9e510ed",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T01:34:41.331502+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-036": {
@@ -2603,31 +2412,6 @@
       "captured_at": "2026-07-27T01:52:18.296232+00:00",
       "head": "9eb2410307a1722d94852215c5977c398838d4a9",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T01:57:08.678374+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-037": {
@@ -2635,31 +2419,6 @@
       "captured_at": "2026-07-27T01:57:27.267998+00:00",
       "head": "9bcf4cb0cfed201ba351728ba353f1b40bca4543",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T02:02:19.569229+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-038": {
@@ -2699,9 +2458,1345 @@
       "captured_at": "2026-07-27T02:26:58.759819+00:00",
       "head": "f9a7f0a1358d1e09041d7f1058b81be36bbed777",
       "files": []
+    }
+  },
+  "T-040": {
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v5_results.py"
+    ],
+    "accept": [
+      "Execution is seed-major and no later seed starts before the prior seed provider gate is judged",
+      "Judge inputs expose neither workflow labels nor seed identifiers and map only through opaque ids",
+      "Every expected completed cell has one seed-bearing trial record, or an explicit frozen-rule early-stop record explains omitted cells",
+      "Aggregates evaluate all five pre-registered gates, category-pooled token ratios, and the baseline-floor rule",
+      "Unobserved implementation and follow-through metrics remain null and cannot authorize ADOPT",
+      "All frozen hashes remain unchanged and retries preserve identical inputs and completed batches"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T02:42:16.946102+00:00",
+      "head": "f219d075b102d3c6985535d6220680ab2c9b1b94",
+      "files": []
     },
+    "pause": {
+      "reason": "dirty-fork",
+      "paused_at": "2026-07-27T07:58:30.709293+00:00",
+      "resume": "coderail switch --to T-040"
+    }
+  },
+  "T-041": {
+    "display_id": "T-041",
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py",
+      "experiments/workflow-lab/tests/test_evaluation_v5_results.py"
+    ],
+    "accept": [
+      "Protocol tests distinguish the historical zero-trial freeze checkpoint from the current registered early-stop results",
+      "Exactly 90 trials, 21 subject batches, and 7 judge batches cover only the s1/s2 prefix",
+      "No s3-s5 or C5p execution exists after the provider gate observed two user-visible technical choices",
+      "Aggregate disposition is REVISE_PROVIDER_GATE and implementation metrics remain null with no ADOPT decision",
+      "Frozen artifact hashes remain unchanged and blind judge inputs expose neither workflow nor seed labels",
+      "All workflow-lab tests pass"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T07:58:31.134262+00:00",
+      "head": "f219d075b102d3c6985535d6220680ab2c9b1b94",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json",
+          "fingerprint": "f5dde57dcff7839a10dc19912eaa7e5ff3c09e76a6c928395c1495f3489cffe8"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md",
+          "fingerprint": "19c0f26294939dda74102ccf3f9c20babef5b2169a30da146335caadb5082b7e"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md",
+          "fingerprint": "72036a0c30b7a0ab8f709a58d6c36384d582afe7004c629c52f1b110984e0919"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md",
+          "fingerprint": "5faca9ae9e65ba73de2c34b53fe1a4409732a249dfb2c0ccc9f0cde8760782c2"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md",
+          "fingerprint": "0f2dacd94d363cd35ce9ae16719892b4b1e2ac36d4c0d2ef107362895f1996ae"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md",
+          "fingerprint": "8c9574baff467852606099861f01694418d2ae0c89afebbe3239912ab2102644"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_V5_DESIGN.md",
+          "fingerprint": "13db05320fdd9eb5a11125594f6fbdd73badbcc712b8805ab61acab6d74ca455"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/scripts/run_evaluation_v5.py",
+          "fingerprint": "2d0c957b7b3bc1be58f73470128a34737b046daa5d4ec0b9bf3cdfb3b0746d3d"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v5_preflight.py",
+          "fingerprint": "9394751af1def70a92d0355757f5ece57e7f26bd13cf2568e6b4e412869df034"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/aggregate.json",
+          "fingerprint": "369ff1fddbb2e516e6d4605353c3a3796dbe47507f2e98b1039b3f269d7c08ea"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-ambiguous-cross-module.jsonl",
+          "fingerprint": "a7d24812b05d9bb58911214d15857ce0b1c2f36c4bcda6f78bea184abd9d1f84"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-clear-local-reversible.jsonl",
+          "fingerprint": "685bc72d2e290d714cb3be0ff8f2f7275eefed4a2d89af510f2d132e36c7339e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-domain-language-conflict.jsonl",
+          "fingerprint": "6021409771dadbf369ab79bad64e7044c98de1fc35017854d7a56fbc5039111a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-high-risk-persistent.jsonl",
+          "fingerprint": "7a50ab3a1e4e852f74d14ad1077f97fbb77dc96f472edb492f9275e01edd1228"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s2-ambiguous-cross-module.jsonl",
+          "fingerprint": "ad78cf65d581b81313147582e7c5f447438d0e54aeaa15e9b2444254c9bc3dc4"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s2-domain-language-conflict.jsonl",
+          "fingerprint": "af08ebce88d6237051a71e649a65f2c6d71ba2384e9caf23428bb982761ad8e0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s2-high-risk-persistent.jsonl",
+          "fingerprint": "69c8d6c3786c5ca806a233ada9e7bafb2b01008e138029029c6d3cd002fe0e29"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-ambiguous-cross-module.jsonl",
+          "fingerprint": "81079c11b236deca8672d139fd42fea161a6da17879dea6fc945eb32961b9dfd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-clear-local-reversible.jsonl",
+          "fingerprint": "a165b9d40a189c211a45d5ecbfbf01373dd133da36c0ea1ffb9714ef9b9c5c2a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-domain-language-conflict.jsonl",
+          "fingerprint": "7d950425dc4e8c5f6f61e853d0c843014795fc573d47269d7e6139c59c3f64d2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-high-risk-persistent.jsonl",
+          "fingerprint": "8533768c976e2ea73909125d8d010f3899db1843a9b27638aa85b20bdd854893"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-ambiguous-cross-module.jsonl",
+          "fingerprint": "1880a5c368c20fb326d91300d31eb24f286796a482ffacd1136ac29ea152cd89"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-clear-local-reversible.jsonl",
+          "fingerprint": "acdcd7e4b8de51bf5ab3c5304cc3f3d01759d988a94d0bc35318b482f6336733"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-domain-language-conflict.jsonl",
+          "fingerprint": "39aa8bfe8270c540871b55317c2d1867774c784c5bf2ac22aa2c7b5fbeddf13e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-high-risk-persistent.jsonl",
+          "fingerprint": "0971890597402833e25ae6d85863517adb760d753d8e52ddb0a77a0a6eabe716"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-ambiguous-cross-module.jsonl",
+          "fingerprint": "dd5dc053d2686bb0e2b78938c6ff179597e1b2ee410da366b256179893597883"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-clear-local-reversible.jsonl",
+          "fingerprint": "9cc574a93c8eb30f18599c80f306701df6b2dd8642e76c0573db40f62a42ff97"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-domain-language-conflict.jsonl",
+          "fingerprint": "0f427000e60ed2e38713f1891e938c5cd757a052119fea8b8f4aaa92350a333b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-high-risk-persistent.jsonl",
+          "fingerprint": "fa497e295af9fccb3b162a050a47b80777be5fc3e2900c468d714664fce2c6fd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-A-ambiguous-cross-module.jsonl",
+          "fingerprint": "440add722fe9c08a522bfb7660708fdd3a8ac35daae0a8de99c93171408c2295"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-A-domain-language-conflict.jsonl",
+          "fingerprint": "91883e48e0a1cd509c55f17d8adb093c622f600256d6d12e2c62427c34325ca3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-A-high-risk-persistent.jsonl",
+          "fingerprint": "7ad5b6b358124e4be16d84be2e4d37f8a502de3318ee176a625f04c41f9f44f5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-B-ambiguous-cross-module.jsonl",
+          "fingerprint": "c7dac58b66e8fa42f93e85dbe873122405e060007dacac757c8fd0f774f6d08c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-B-domain-language-conflict.jsonl",
+          "fingerprint": "d8fdbf388fbf175d7dab7e80bed21f02416d563f498b34b6f5ad720bc538e00a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-B-high-risk-persistent.jsonl",
+          "fingerprint": "1e8595f9eb9296fe85324622fcf32dbb449595dcf27a7bf831dba96ad8e0d5b3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-C5-ambiguous-cross-module.jsonl",
+          "fingerprint": "dff2092d2ca8c2af10a8afbf2b18b01a90b7854842450b525208728c94fc06b8"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-C5-domain-language-conflict.jsonl",
+          "fingerprint": "a313e0b0abcc1e1a5148ac9f9dbf7d3203e4dfbb50857a888b4a5032519f30d9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-C5-high-risk-persistent.jsonl",
+          "fingerprint": "f3b7d3514d3cf8655c7df3e47b97b1d3411247f4d24a6be7ac0dc10999286f42"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-ambiguous-cross-module.json",
+          "fingerprint": "b8a791f32061fd6031e95b80ef3d0295c24202c3be0a3fb32a9788eca84ee04c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-clear-local-reversible.json",
+          "fingerprint": "b85910d9ba0454f0054a44ae7b9c84cf8ee303301f0a6503a921f75e5e3e9371"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-domain-language-conflict.json",
+          "fingerprint": "c75280d64ece388554916a77bdb319ec21ffb8b23ae3d30367f7749cc88ff940"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-high-risk-persistent.json",
+          "fingerprint": "5fd28216ce8dab031c958e5e5a11dee91a0fa3982e4ed1f844e06b2e21203adc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s2-ambiguous-cross-module.json",
+          "fingerprint": "04b6359f70a40eab237ca884db6701f0630577f0c70976aa5e94bedd8c9c8806"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s2-domain-language-conflict.json",
+          "fingerprint": "cf730f39093ec5d81d1b3c1a9db1327d84c4b36539947d353eb458541007ac76"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s2-high-risk-persistent.json",
+          "fingerprint": "73461e7783e1c5a98cc23a1325342d70d095e135c4d6ab25a802f9de11de13cd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-01-login-audience.json",
+          "fingerprint": "edab18fcf276b4bc3a2abb4772b38b17f9c510e77dda7163efa8ea1812bf8e46"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-02-notification-channel.json",
+          "fingerprint": "ffd98389a56cb938fd43f4dfcb189836c36c59ff19604654302eb34edd16bdba"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "fe6b136c37baa4a4827c877b12902b5acb178fc0910805d112d33b79b09e7905"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-04-team-invitations.json",
+          "fingerprint": "658d1b96dbe1fdb8202354a0c0643d7a3b0dd4070d925426347197833600b8fe"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-05-search-filter.json",
+          "fingerprint": "0d43a39109cdfbe53818d75b85f69ee1f5af576b6b41a1b642dcb1c6a6ca40f7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-06-offline-mode.json",
+          "fingerprint": "c92aea5f5017e4b35b69c93d9f68c5fcbc86bdd071719a50143921e542225027"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-01-toolbar-label.json",
+          "fingerprint": "1823c8c72d8981d5db8759722088f9466afd3ab084423a405e0efb0e6655ea60"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-02-empty-state-copy.json",
+          "fingerprint": "8471167990ef304bacf4bb3fec374665a0113b467f68ae0345e2702c2afddf21"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-03-report-export.json",
+          "fingerprint": "99d8822000f7212e29619c0489e30924e9007ba531049a5f9c5298cc8191a863"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-04-cli-alias.json",
+          "fingerprint": "795e62fb5b34bd37bda17050fa5b5d3e522028e25f392a9c033620f704663cbf"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-05-timeout-default.json",
+          "fingerprint": "6ebc4457587079f7c897663b40f39a6b664b776857c300b6aaef3de0e30e2953"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-06-tooltip.json",
+          "fingerprint": "2397d8334f4ca4d36b60b4b55215dc244c4b5d073c2b9bb8f8dce8b9200beb85"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-domain-01-account.json",
+          "fingerprint": "858eae6dd31bdbed80e5bcf76e263f44d26dfe15d5426eeb549be1b6ca2d662e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-domain-02-workspace.json",
+          "fingerprint": "c51e311b66053005bf47d8fac44575613dbcfe3630e74c6a18fc10e4e136b204"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-domain-03-materialization.json",
+          "fingerprint": "0b3cb643564ef26f6320c10a0a6350902503929034ebed12d5bff3de1c1b5dcb"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-risk-01-local-only-files.json",
+          "fingerprint": "c6eac1f3ccbc1740f0bc24b38743973fdf4274a09c0245db1eb830f4fc438abc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-risk-02-refund-authority.json",
+          "fingerprint": "bf8c4082dded1e8851897d5d226394c7bc7bcf20bee91872fc7e3e9c438fe345"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-risk-03-data-retention.json",
+          "fingerprint": "6048d3f45f517b0bed3769609db180dc167bd32f8eaa8d4c2859d9821def257d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-01-login-audience.json",
+          "fingerprint": "204ba60c6c72af36fc4e27fa9c1f5f685d2be3d2bc3e05b76e18e35c4b0c1bf6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-02-notification-channel.json",
+          "fingerprint": "b041b524b034db5cdfeb4306e37344a09863ed93e8cb78267482d6240866c1ff"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "65cde0d00b70ad794e27d8314f55d17e30c8e5ce8e71745495a07fd05929d296"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-04-team-invitations.json",
+          "fingerprint": "ae43e35e7ba30eefcc6e900fb2f983dd1a325fddf7b54064f4c648fcd20f8403"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-05-search-filter.json",
+          "fingerprint": "00d68f614de944099a315f5c398e3a9b86cfb836043d5164e06af87583c7bf56"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-06-offline-mode.json",
+          "fingerprint": "b9284643d0ca09d47313a2160fa1ec7dad6add2ad096eec06648af2ef7dd7274"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-01-toolbar-label.json",
+          "fingerprint": "22c0a5eab2a70c6785b9c649614cadd7620604810620c06c424e02c7d2bed6b9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-02-empty-state-copy.json",
+          "fingerprint": "35e778db388a29593bc7e4b3bb3b221c693db19db9181e7e1ff738f1a7ba6447"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-03-report-export.json",
+          "fingerprint": "f05aeaed806bbe95edb0c348ff8617fd0e3e3f9959ac47b60f883a512fbc7654"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-04-cli-alias.json",
+          "fingerprint": "9330b6d0e8509ddbd7a675007331782d231d7f3f46ae5b925c24587120c59bd6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-05-timeout-default.json",
+          "fingerprint": "9b84b1779490950b006f7993cb4e1bad36dbe858c9931720c62e685728cb1b3f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-06-tooltip.json",
+          "fingerprint": "e43f2183319358a4347a0d755495c7c9dba7774a26b09f6b7131784084faf4f9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-domain-01-account.json",
+          "fingerprint": "075b98c6db979e7b5a530134797a8171220e6891603f25b379281f1d40793579"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-domain-02-workspace.json",
+          "fingerprint": "92fc6c575a5db9d3cf810a641b44e30a9972c25d81299927d6f2ef6574e7b4b2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-domain-03-materialization.json",
+          "fingerprint": "4c7a55c658a91e7daf4f1d3ce84e3db822c91e2408adcef262b913bb0a472e29"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-risk-01-local-only-files.json",
+          "fingerprint": "060a00daed24b90115ad0f379dd1be8fbd0af4416e7474067f9b4ecfcea60462"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-risk-02-refund-authority.json",
+          "fingerprint": "d86b20fc33bc78e4101f03eca203d56a2b8b3f17090d6047ef6a0d0205ccd189"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-risk-03-data-retention.json",
+          "fingerprint": "c327198f80e4f0e5b4a581fe08ac1203722db410c04e6c063c937359105f393d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-01-login-audience.json",
+          "fingerprint": "5d7f4b38231377696df3c26641560d395a001b355390aef5c5e17cb3ccd8bec5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-02-notification-channel.json",
+          "fingerprint": "b39283356489721fc98beede648fd1ca544c22690061a104d45c5494c2aabbb6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "258cdc3890b4a9b8cb73a71ace160db938d78d0703e6b01efcf02e31112d467e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-04-team-invitations.json",
+          "fingerprint": "c03866abaea90b891566ef294d8d291d4bb4daf3d4fc0460aef1a5ffa066429a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-05-search-filter.json",
+          "fingerprint": "5315869b7f5989ec9853a337f08f3ddcf453c508b4840f7477d58f9781791fde"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-06-offline-mode.json",
+          "fingerprint": "574328aaf00941a89d094bd03af7823b4f1ad67967add8f09a9a4ae865b26170"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-01-toolbar-label.json",
+          "fingerprint": "962d4c86ce52dd5b1bd716901b181158ee31034c5988bfab4eeae5be28b4616d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-02-empty-state-copy.json",
+          "fingerprint": "4d9e78b40d08f132d63f3f2f5ce8ea17bbb8a523699809c7a11e9fccb542e833"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-03-report-export.json",
+          "fingerprint": "dda1b99fca35a2a83507818f31c5f5d25268c3d2355fccdff1867c35dc91d4ad"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-04-cli-alias.json",
+          "fingerprint": "a9d4a8b0bce4546da1eb12b5ac857b111fa3b1c35fe182626a916ab4fc3c8e82"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-05-timeout-default.json",
+          "fingerprint": "0733e48d37d33bde57ea220cd8a88a01b6c21e6b39343bfcb69321b9bf7abd0d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-06-tooltip.json",
+          "fingerprint": "b131318b0cbdb0a34a2d2e6ee1e9de6113c975cf1ed24371538f0f6b7fbc8544"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-domain-01-account.json",
+          "fingerprint": "3ee297efe4f4515054f6a47aa6a5edfdcfeaf0e8dbecfc469ffe6ba39bd84cfb"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-domain-02-workspace.json",
+          "fingerprint": "7ca4e759dc798370cf2fb953ffae229b34f1d3092cbd593ed706833c1b3e5c8b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-domain-03-materialization.json",
+          "fingerprint": "fb92d0ceca393beefcd92a982684097c20656178823f5354d33084d9e2fbf45b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-risk-01-local-only-files.json",
+          "fingerprint": "a933ce24f9bb5af37bb92d1f503820bb884182b7df804dc55b2d6ff76fa4d285"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-risk-02-refund-authority.json",
+          "fingerprint": "cac05315f6ebea6860ac91030568aa06f2470aba87a72929a056366467f881fa"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-risk-03-data-retention.json",
+          "fingerprint": "49ae06e19ba20a81761948e49510b33ceb1b1ad0f60c71edad0dc521d945853a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-01-login-audience.json",
+          "fingerprint": "7147cfb563f3ef492861b6834cff57d16c3c0c9df758f61a4957ae6c45c6a639"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-02-notification-channel.json",
+          "fingerprint": "aa18b806066b580911b2f7f6e029624ac2b513109ddeb378a07cc337989adc77"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "99cd19d8aeb310710fa1b3cf1776b1258d414e703136bc51f536a600b231e5b6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-04-team-invitations.json",
+          "fingerprint": "1f92aed2e1c455ddcbcfce72ec18a0f21b21aabd48756dae47c50b9565e1528b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-05-search-filter.json",
+          "fingerprint": "e28de7a979ccd8522ba9e9796cd990a911a9ebe469d0f75d391da8ab0d61f914"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-06-offline-mode.json",
+          "fingerprint": "3a39c7448611dfda9923ab9bdb74ec545c477cb179948ec32068023a6c57ffb5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-domain-01-account.json",
+          "fingerprint": "d2222b511c01820056d866181ee036169a25c6f7154ad4e139d23f0342d0877a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-domain-02-workspace.json",
+          "fingerprint": "09a7853fb8cf4f6e61518dd4fc3f2e3a30273d0886d3e6184256f67805458312"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-domain-03-materialization.json",
+          "fingerprint": "e93fb1646f97a1bbc7f0908c3c832a47f6daf2d84e47cd02f58d7dbfd658d60c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-risk-01-local-only-files.json",
+          "fingerprint": "248dae0b0fcb0c268b59684de8a4a732326380e327f74cfa308b0f9e5dcf4605"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-risk-02-refund-authority.json",
+          "fingerprint": "a7a592b89b81dd3dd5566affd53222ba3bf152ec2fe914a28ecff8f9c5a12d46"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-risk-03-data-retention.json",
+          "fingerprint": "80d2547efee2695a0395e9aced99914696ed4ffc85fdb5ee564227454b7bf8db"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-01-login-audience.json",
+          "fingerprint": "f8c6929d21efffbd1a285e6d97e79355ab1b1086d768fac90f79ca6100e0de2e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-02-notification-channel.json",
+          "fingerprint": "954bfc2c696ca9bce0b46254329417b9cfe1196ac21d2e64087948c2e42ee8e2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "281bb72aad8a71b0f4b4a1b048c0804e683c3e58d6a26af24df971e98e7e26a6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-04-team-invitations.json",
+          "fingerprint": "e22d875b0325ac1cd1f049f98775550857e0281ccbff41f4775688f58c5c9024"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-05-search-filter.json",
+          "fingerprint": "e47dc74343372cdc49b55a56428816b930f7516afbf2c595447937e814f81239"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-06-offline-mode.json",
+          "fingerprint": "e4b9715fc044640723bed4ef7a160ec29dec52f1c3c0a4f19551453a722457a0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-domain-01-account.json",
+          "fingerprint": "6c49465239981bcd0d5b1994ee8526106cac72e22a6ec97782ef8404b31fc7ba"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-domain-02-workspace.json",
+          "fingerprint": "eda6ba3058a4a5ab54c7c0173474fea899a9c5f86f975c77276d459c94eff2e5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-domain-03-materialization.json",
+          "fingerprint": "54ada6d3145127d2fea7b6fb3b4d5e0292af655ded6e2d6502a66c26795c006f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-risk-01-local-only-files.json",
+          "fingerprint": "2ff3a86f318da9fa305389551023cad4d5ee19c07c3a54e0a9687f4581f9adc8"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-risk-02-refund-authority.json",
+          "fingerprint": "3bd9ed879a4aab6736d0d249a47b19bc2763c173a7287981c8086354e85e5f26"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-risk-03-data-retention.json",
+          "fingerprint": "1e07b40d096f8da84ce16fcb4b04eb68e6951a05361f1ad6446cdffcce8983d0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-01-login-audience.json",
+          "fingerprint": "5b3656bdec9c0f99abc4e71c5e37af55c230301007434ec12d560defde856e47"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-02-notification-channel.json",
+          "fingerprint": "a67693ba41e732b5b86f1bee7282a9aa5c1cb7f8ff32809d3dfc0ceb310f69d2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "a295b56833b77a95b0ea36c7e3c80aa27ec703e648c46ddc67705a4b5bcb4577"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-04-team-invitations.json",
+          "fingerprint": "1125e162122e9c8306a5448e10a494132a4e7a4efd81fb0e4f8db4e59276ba89"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-05-search-filter.json",
+          "fingerprint": "b8fe9c575374debe82ab535bdd3fda62f651049cb3c736d0d88565a93ba4e5e4"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-06-offline-mode.json",
+          "fingerprint": "4baef872a4e7561c2f75771f2d6d4c1f207f96e3171b23267680fbe082df5015"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-domain-01-account.json",
+          "fingerprint": "5e8d5c2fce4cdb0f7e0627e294d003f6d08f0b75a4af6c5f6557b86f65885a6e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-domain-02-workspace.json",
+          "fingerprint": "2f6a779a7353977e1c2c947c1a355e6ca22307ad01321ef542628ddd42d24fce"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-domain-03-materialization.json",
+          "fingerprint": "728aac07a1d5c2901cc4f9e7ffc49c2df2b0751b6a0725c9dec6979dd8a6608a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-risk-01-local-only-files.json",
+          "fingerprint": "4e3b54223e18c751bf88fd3a3c0e496df9dacc771c213a79c56ff330edd2d0db"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-risk-02-refund-authority.json",
+          "fingerprint": "8721c37120dd0d8bca6ed70aa374aebb822c8eb1ed70ceed6d0714a67568e5d2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-risk-03-data-retention.json",
+          "fingerprint": "4b32e2e87f4b5b07f1b8ead0f47869bcc47fb7ad101646408b7d004a956c8a88"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/opaque-maps/coderail-wp5-v5-s1.json",
+          "fingerprint": "0ea5d3cf0caa71bb44b7a0b9e57097659cc0854ebf8a33ca664323fc8ea29edd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/opaque-maps/coderail-wp5-v5-s2.json",
+          "fingerprint": "3dce5739a9b3f546a28abd442255627c39d8ae081e4e0a3024291b29c92e68e3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-ambiguous-cross-module.json",
+          "fingerprint": "5c87bfd8fcafb895a6c50f12df039f3b0516d6b47eaa2e1cfcf9991bfaa95dc5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-clear-local-reversible.json",
+          "fingerprint": "099680bd7b52123b813020921f00bce5d6d3fda92519b30b88d07e50c0ba867b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-domain-language-conflict.json",
+          "fingerprint": "85d650430045a887476be228a95cfb5dcd7c138c6e5989dd97976f4d7d08352c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-high-risk-persistent.json",
+          "fingerprint": "b9b7d12b64f60e1bd6b1466d86098a3f291f976317213bd84742328833d16196"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s2-ambiguous-cross-module.json",
+          "fingerprint": "71a7506347cc13cc6f69a2ff514acea5a9f9ce2b394fe96f54d069a517e9c902"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s2-domain-language-conflict.json",
+          "fingerprint": "b26b242738f1e626d4c3bcce215d59bb12638c6e16ac5ff47d37750fb68cdb61"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s2-high-risk-persistent.json",
+          "fingerprint": "b3d2182bf6e6b1dcf750d83830ebfd9849bbc79cb999a21ef6b6509fca7fda2a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-ambiguous-cross-module.json",
+          "fingerprint": "90193dddfe066d170ce0880b45e4f20e8eb89633cf3c9563e6817fc5b78eb066"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-clear-local-reversible.json",
+          "fingerprint": "5724eca06bcb13cffbb096c7ffabe0c94a06115b42d04e4c05807db0ff4ba3aa"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-domain-language-conflict.json",
+          "fingerprint": "ff4c0caaccaec50b44021f3e6d652742b10f02b52ecd5be206f29e2a20a57f5f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-high-risk-persistent.json",
+          "fingerprint": "62619f2792edac6f19d977d864c827959461fbc032d5c29f9748737ad4900a48"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-ambiguous-cross-module.json",
+          "fingerprint": "7831e305fcb43c85763c541f3359e176ee0a71fcc1ecb03ce01a7ff14fffe250"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-clear-local-reversible.json",
+          "fingerprint": "4286e73b247ad8eef9e3b6febc15abe6c5624b381a2d63b20ab950afb1012ae9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-domain-language-conflict.json",
+          "fingerprint": "4c1516c3152a12ba3d48e3d41f47bc9a11d1a3f427935ea0a636dda3dddca27e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-high-risk-persistent.json",
+          "fingerprint": "62ec7c2381a1fc018704bd8591a4fd8e22eee196ad3c7780585f24657c0dd966"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-ambiguous-cross-module.json",
+          "fingerprint": "cc91b362eaa2475595ea3d8a4c1ca7cc852857414b925458a20b1e337784ef85"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-clear-local-reversible.json",
+          "fingerprint": "9b0bfab67f8816c7da1c3cf0c4f39a1608fdd986d37ffd9e5298fa603e522603"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-domain-language-conflict.json",
+          "fingerprint": "37e2300f04be5363cf9045e5e7c9d368585cfec19b1adc080bf2690de3a8c823"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-high-risk-persistent.json",
+          "fingerprint": "3cfc0c598e9a4e6008f53187971eef5669f983181976e0478895eb4d2eeb9160"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-A-ambiguous-cross-module.json",
+          "fingerprint": "b58de6173cc331af3da51f819a00f300fea69f7af605ee15acbfa62798fbe86d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-A-domain-language-conflict.json",
+          "fingerprint": "dd7ce82d2b7fa43dbfeef2fb0a6158c1b7f6babdaa5da090a6f3b6088a10eafd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-A-high-risk-persistent.json",
+          "fingerprint": "b57e540655f1e1db0ad0e8e2e95ec5df7b184712a07bad9046fc297853eb69db"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-B-ambiguous-cross-module.json",
+          "fingerprint": "4e8fffbfdf021e50bb9157249bbb8b353a11d7c69777db8c1a2c1a037b171290"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-B-domain-language-conflict.json",
+          "fingerprint": "02d9b223bad1a261fb6fec2f56a602ac6dbbd9e878abf19d1cc7308b4e5bc9cc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-B-high-risk-persistent.json",
+          "fingerprint": "aab82ee03880cf2b0844cccd6c525d9546b71804472fc37ad32e9adac2f6eb7a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-C5-ambiguous-cross-module.json",
+          "fingerprint": "087b912a2661c679b7d17f74a42d12ffb37acb685729527cc3131acee39ff4cc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-C5-domain-language-conflict.json",
+          "fingerprint": "bda10a60538c37fc245002c1806a3af31adf3aac79a9c561da9eda641a315a2f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-C5-high-risk-persistent.json",
+          "fingerprint": "b8415517bd1f52e951ef99dd16125236a9ed9cfa37573ef50d90bf781c6e4a73"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/run-state.json",
+          "fingerprint": "a1df6ab27f428976001430610c6ab246bd06fd3a4853bf8edc1d805874157360"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-01-login-audience.json",
+          "fingerprint": "4ff24b6eb11dcc6f78b155da79efd9cea504f4e2634969fba49f3615cd5fd3d2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-02-notification-channel.json",
+          "fingerprint": "13e9d60c1270b70791984a4db7e84f451dd1941b63537e2cc87cc227c005a8ec"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "6ed2fffb3f3dd1d8abb6da027981d561bf2dbdb714d38ce096fabda0a0d3f511"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-04-team-invitations.json",
+          "fingerprint": "04af8b79e81c45c93c78334c724036c7a85e370420a66325ba032cdf462546b3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-05-search-filter.json",
+          "fingerprint": "d05b16fc6581ebd675a15aed9f3d740b494162e5e52f77385ee90d0ae796a7e8"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-06-offline-mode.json",
+          "fingerprint": "beff0c6a00eabbbfdedbe71f53d31e82f23cb122b1ac8d98f4d3948b87640b69"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-01-toolbar-label.json",
+          "fingerprint": "f3c729b5431bc004d30b30c57762dd646225946d148d0ef5ffc9f6cb39fe1bff"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-02-empty-state-copy.json",
+          "fingerprint": "f8e233c89035ba0353663f23eb54c0c26546000074776544fedd8a78e6b0a6c3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-03-report-export.json",
+          "fingerprint": "1820010d9dab750a128af799d9fcd6514f2e538e7016486905aa7afdc1683ee0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-04-cli-alias.json",
+          "fingerprint": "ed82654c20319081c4726d1af8ed94722c632af54bac9867c6f7c2a17226d43f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-05-timeout-default.json",
+          "fingerprint": "989de234d867db3c997ed353344325a5de10b94625afb19f8a8eccc334115881"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-06-tooltip.json",
+          "fingerprint": "ca299bf34c87f2d2ec3056f70f62c775cc8fafb42bfe2d2c98b8c6374c631e09"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-domain-01-account.json",
+          "fingerprint": "94d362d514067ddcb7a5771825e3889c31aab8361b99f4a9289ea55f074cb867"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-domain-02-workspace.json",
+          "fingerprint": "70f0e1e573034f2652a814c53c189bb8bb09c976b5bd077eb2d0e98afd39d849"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-domain-03-materialization.json",
+          "fingerprint": "598f5f7de0d6ab1af656698e592a61cedb4fc6c5a86b0c62c4c6e3bcc4c71485"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-risk-01-local-only-files.json",
+          "fingerprint": "84d137a1a0f93a3660b66c5f542dd7438dc34f7c99f0d06306dae50e7033c30b"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-risk-02-refund-authority.json",
+          "fingerprint": "d733068970c11a6ab9e89cab30259f839f2eea5be0751c55c841fb166d5e6de7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-risk-03-data-retention.json",
+          "fingerprint": "a1b56d702a24337e53a0bf56cd5c1565895abd03b8d73967c7204733acf9379d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-01-login-audience.json",
+          "fingerprint": "3056bc4adff2430e0ee5c5a1a0f53161a51b382a75af9e48373349d2b9e96e88"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-02-notification-channel.json",
+          "fingerprint": "f2c347d844e8a3506db5db2375a41b5ac72617268334a9cbcb632731dd9bcc69"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "a0c0f29d69d6e479e41dedebe70e5e154427596833abc3597e609b6201bb3e10"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-04-team-invitations.json",
+          "fingerprint": "f5b3d6224521120f72bce3c3c045ea15a454ab32805fbb425be23e4e9b675ab7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-05-search-filter.json",
+          "fingerprint": "98008afde81829278f863f3feefeaca9752fb3070702521c7df4211b9ab877b6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-06-offline-mode.json",
+          "fingerprint": "ebff4c49881dae58e70b2fd4387109192b9babb9815b7aefc5f09a8e13ae04b6"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-01-toolbar-label.json",
+          "fingerprint": "260493d3b7ec2d12038a18aadf0b638ce036d011a57dafb289666f493e753391"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-02-empty-state-copy.json",
+          "fingerprint": "2a9ed326f9abeb08a72c6b15380dfb314edc271bc9a734383600551edd51b301"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-03-report-export.json",
+          "fingerprint": "79a616ab915afd3df69780436cc39c430f6110d4c1c6f06b3a8d8257ae9db58e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-04-cli-alias.json",
+          "fingerprint": "c8293f10b4cd7c95f3ed1dff9bddc24c95e21c38705b25f3cb7bdb1b396280a3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-05-timeout-default.json",
+          "fingerprint": "28c01376f2400db8870da33ffe69a7336b33a8570d2f0af9a4ab64a600c64b7f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-06-tooltip.json",
+          "fingerprint": "f8bb0f71b768bd48f41a8b06215a09e0e898720b038e386932069e9aacb1c550"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-domain-01-account.json",
+          "fingerprint": "8eb7e5a2681f59f1bbf4cfdbabb7c70828d7fc1e6b39577dede3bc5d06ee14da"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-domain-02-workspace.json",
+          "fingerprint": "a42881b4f53152bdcce06562667ef3de41f5612c6091c9fa9b06e03ebee8bbfd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-domain-03-materialization.json",
+          "fingerprint": "813ee616b902e5a215a157da7feffaffe7aff1cdee68318c4f9c339c4b993f58"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-risk-01-local-only-files.json",
+          "fingerprint": "2b9f51be8442a4bee96cea50488c9918320ad61db6e902cfe73d16f17d5b57ea"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-risk-02-refund-authority.json",
+          "fingerprint": "0de20efe86b9a19f28b64762561ffb1e20577c49db9ba4da170321c5cad7e4b4"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-risk-03-data-retention.json",
+          "fingerprint": "3b9e1b23b17da24c0444ed1c45c206baef96b3dc3038ac41d55299fa8111dbfd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-01-login-audience.json",
+          "fingerprint": "21349c10b38de2f3bab4de879499cb26f4b49cfe6dbcfc143a3f8543f6bf6ff1"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-02-notification-channel.json",
+          "fingerprint": "9795aaf03eb4df9ebf36c413ef3c64b00c1f2bfd32398f99fa29b044f972eb34"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "d8a87d0e2774f88ed15da88bfd866342420c2af6a06de36962cd9b1f7dc9c815"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-04-team-invitations.json",
+          "fingerprint": "2f391223b2526fec88fb363d85b8451795bc8b7f1cb4fb11b95358fecb8c6bd1"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-05-search-filter.json",
+          "fingerprint": "373188f8d32dd7cd4fd2b1047204af863d756621889b0eeaebd902b44f794e8c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-06-offline-mode.json",
+          "fingerprint": "2334a9dcb683da4d8cf057824b23c95798cd9b1f4a1a5c10c60a05c5759e5ec3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-01-toolbar-label.json",
+          "fingerprint": "7403516d89954274d53edad412f13b42e34c4d8e9cdccb880010090ba5e90491"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-02-empty-state-copy.json",
+          "fingerprint": "f7687d833fe19ec241e12d8f6eb2dd9ece05b752344af8518909406bddbb6ac9"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-03-report-export.json",
+          "fingerprint": "af39d73bf983fba5967101f5cd330d69a948f76b07015d33c6826db00f726000"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-04-cli-alias.json",
+          "fingerprint": "668622dcf6166dfb19efca641398f7302694a098f85bb3c21a0d533603fe6ea2"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-05-timeout-default.json",
+          "fingerprint": "c268077c93b766c6ac65a3557d40d69463ac93dde19d88d5a9ba30eecb5d689c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-06-tooltip.json",
+          "fingerprint": "8072b1e333374781a595843026296d80d3c6e86f641610e2de1a9bf06d1842cd"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-domain-01-account.json",
+          "fingerprint": "0c86640ea18d69f426a72b907423319707d11984eae4a586fd09bc9887edb4fa"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-domain-02-workspace.json",
+          "fingerprint": "4438ca77c58056fe37569bbaeb171cda5c134311408093f4971b9722d646dc8a"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-domain-03-materialization.json",
+          "fingerprint": "7eedea0b032fb3a02ac3e42d3199af60ef9f62722df37c06082d1e6a86749f91"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-risk-01-local-only-files.json",
+          "fingerprint": "aa50e2bad623e5478f484e1670a24f246bdfb0f910e3f315247e9ba92580a501"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-risk-02-refund-authority.json",
+          "fingerprint": "922ddd67027ef9184b6e939f9ebd8c4f7aadf2d5065c45db768831a5fe9a7831"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-risk-03-data-retention.json",
+          "fingerprint": "471d5e6f5d775ff3fffead83cc5450b48beaf61ab590526c7d5386c226eeaddf"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-01-login-audience.json",
+          "fingerprint": "785f55adada0f6fad6c849d554c1bf3236eb78df3517f1710252fd05aba0ec5c"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-02-notification-channel.json",
+          "fingerprint": "cf2c0d08572de6375fb1194c80ece3cb28181f9ef8d8fd30cf0b6cd22c67ef46"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "e3950ef3a2b8a656317916acbc700508653f3b45c3b4f2cd9b7a03d52da40259"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-04-team-invitations.json",
+          "fingerprint": "b4cc0a738b7cbb891ac84c439e9921cc94183392923b12c7caad670bf77190c5"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-05-search-filter.json",
+          "fingerprint": "48174029e6616255835f6c7ea944554ec16fb63c2486e916a702d903716b4a33"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-06-offline-mode.json",
+          "fingerprint": "41b89fabc113a94fd8e9f48ad49ea5f31f29d8617176aa728bc828cec868df33"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-domain-01-account.json",
+          "fingerprint": "75e13ad30f30fdd9c60382329288bd2376b47f4852eb3bc2a073e2bdd5b76599"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-domain-02-workspace.json",
+          "fingerprint": "e018a0556bb6a3081f9bb3253d16f62b31f072af10612f83199e6d4b4292e17d"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-domain-03-materialization.json",
+          "fingerprint": "b0068980cfa8fd5cdae43429170d90591ae2a00cdb702aa745268368013bb8a7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-risk-01-local-only-files.json",
+          "fingerprint": "72b1c48fc07236fb647291b517533b92740ba4a125cd40745fd61cbe1f2e4025"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-risk-02-refund-authority.json",
+          "fingerprint": "4a4efa7c979147d32e2ab5ff5a21a6e89010a99e7ec3518e335eaba6fd310299"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-risk-03-data-retention.json",
+          "fingerprint": "2a4356ad19cb07a21c0edf6ccaa89582d84fc7d05654e6024dc008815c593970"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-01-login-audience.json",
+          "fingerprint": "f4af7754d71927b607b68aa3fe0644a14afaa7e37a8b5fca266c8c734ad6f649"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-02-notification-channel.json",
+          "fingerprint": "ae583d1fda7a9346cb18ca204e2d183745847b81c58c58fc71d122ba1d8861c7"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "bdca3776d6da1b0dd6010bb14aee286e7792581ce55c0250531beb02382ee3b3"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-04-team-invitations.json",
+          "fingerprint": "9ede6f8d28ad787771836d8d49db493d447448304c8458f988ce484bfa245018"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-05-search-filter.json",
+          "fingerprint": "ba588d69c891a9c0bb022429cef55034a188cfd945970135170d0980aef03fcf"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-06-offline-mode.json",
+          "fingerprint": "691c06761d72efae0563dacfb00224037c184af85d337fe4d4b83695c7ad8a51"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-domain-01-account.json",
+          "fingerprint": "36d7523afc3b4a789224c1f1dd8d639f1a7ba8ab3c8db04e5de2227e0c8aeb73"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-domain-02-workspace.json",
+          "fingerprint": "d82a8ab2e208ff3e6b62228bbd92ce05e479abd031175580ae04c665bc03d325"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-domain-03-materialization.json",
+          "fingerprint": "7e57a59d91acc8707852f97aeb096c2aceea9920ecadcc98317d5916710d2a34"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-risk-01-local-only-files.json",
+          "fingerprint": "81617d3732fbc4686b3f66525d62b7e4c07af6938aca42ef8095f793bf4c5e29"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-risk-02-refund-authority.json",
+          "fingerprint": "6e6db147bebabed8451e7579eea18657ab103d926b603af0498e7aab204c5064"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-risk-03-data-retention.json",
+          "fingerprint": "5b07fb8e1091701d53ddd5ee13ff1fc8d54ebb54f98366f677472a0fd58ba3ab"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-01-login-audience.json",
+          "fingerprint": "70c0263060e7fc6d72c878d6f203b246a88c41e2614916b797baf0372ab0343f"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-02-notification-channel.json",
+          "fingerprint": "54f340578e7b4c5c1af36ff1ca4381d827a4748adbd934419457a3ba329079ed"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-03-csv-import-mapping.json",
+          "fingerprint": "9d2fd73ff32f126b57d334040bb888a4a705adb004c6e81bfcc9990d72f04512"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-04-team-invitations.json",
+          "fingerprint": "c73131fcd0c441d4e2192f7b01c671e3497c358f7c93ac63d94041df2ba8c1fc"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-05-search-filter.json",
+          "fingerprint": "5b6597822799dd2d242aafa966397a722393fc256dedda2f8cd0b45e14a64511"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-06-offline-mode.json",
+          "fingerprint": "a097bba000efd7e84d968ec61ea5e8d750a7c44117776501a490b5b595da69bb"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-domain-01-account.json",
+          "fingerprint": "4aaff5c18dcdd56c5e806067c5d3f2ce08b5204d81e361fd3512b0bf53277c05"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-domain-02-workspace.json",
+          "fingerprint": "0416f70a6732c54a36c4d68e478fbc01529017da2609aa1b6fc916e7b9269293"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-domain-03-materialization.json",
+          "fingerprint": "58875007d61e158cfe4e128ef5f824c47cf6a784a370b31682372e70b652a6bf"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-risk-01-local-only-files.json",
+          "fingerprint": "e759e798c9df3950a2ead642bd1b5b9c3db1be9a2596f07d9ba8d5bcaf80520e"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-risk-02-refund-authority.json",
+          "fingerprint": "cb2019249c86da9a993c4bf1e8fa57546a783457fc91b3320f6916f48b046c70"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-risk-03-data-retention.json",
+          "fingerprint": "a04254c51af4f9331492d084c258ea5270b90e9f87e65d34ebab5e642f024ef8"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_evaluation_v5_results.py",
+          "fingerprint": "6b7c9762ffcb0dc3b2269b257234d49945ac8b9279e7058bef75a62dd5a916f3"
+        }
+      ]
+    },
+    "dirty_fork": true,
     "closed_pending": {
-      "recorded_at": "2026-07-27T02:41:51.708678+00:00",
+      "recorded_at": "2026-07-27T08:03:39.428670+00:00",
       "files": [
         {
           "status": " M",
@@ -2725,47 +3820,7 @@
         },
         {
           "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_V5_DESIGN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/scripts/run_evaluation_v5.py"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/tests/test_evaluation_v5_preflight.py"
-        },
-        {
-          "status": " M",
           "path": "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-attempt-1-events.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-compatibility.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-events.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-output.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/preflight/schema-transport-failure.json"
         }
       ]
     }
