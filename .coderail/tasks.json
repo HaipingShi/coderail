@@ -2439,27 +2439,6 @@
       "captured_at": "2026-07-27T02:13:52.699900+00:00",
       "head": "e57df6769e4ccc5df8fdb728aee87f1fca0e5743",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T08:11:50.585121+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-039": {
@@ -2505,1047 +2484,6 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-27T07:58:30.709293+00:00",
       "resume": "coderail switch --to T-040"
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T08:07:43.640891+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/HANDOFF.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_V5_DESIGN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/scripts/run_evaluation_v5.py"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/tests/test_evaluation_v5_preflight.py"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/aggregate.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-clear-local-reversible.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s1-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s2-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s2-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/judge-coderail-wp5-v5-s2-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-clear-local-reversible.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-A-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-clear-local-reversible.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-B-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-clear-local-reversible.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s1-C5-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-A-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-A-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-A-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-B-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-B-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-B-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-C5-ambiguous-cross-module.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-C5-domain-language-conflict.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/events/subject-coderail-wp5-v5-s2-C5-high-risk-persistent.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-clear-local-reversible.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s1-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s2-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s2-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-inputs/coderail-wp5-v5-s2-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-01-toolbar-label.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-02-empty-state-copy.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-03-report-export.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-04-cli-alias.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-05-timeout-default.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-clear-06-tooltip.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-A-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-01-toolbar-label.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-02-empty-state-copy.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-03-report-export.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-04-cli-alias.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-05-timeout-default.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-clear-06-tooltip.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-B-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-01-toolbar-label.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-02-empty-state-copy.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-03-report-export.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-04-cli-alias.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-05-timeout-default.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-clear-06-tooltip.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s1-C5-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-A-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-B-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/judge-notes/coderail-wp5-v5-s2-C5-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/opaque-maps/coderail-wp5-v5-s1.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/opaque-maps/coderail-wp5-v5-s2.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-clear-local-reversible.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s1-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s2-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s2-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/judge-coderail-wp5-v5-s2-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-clear-local-reversible.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-A-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-clear-local-reversible.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-B-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-clear-local-reversible.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s1-C5-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-A-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-A-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-A-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-B-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-B-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-B-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-C5-ambiguous-cross-module.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-C5-domain-language-conflict.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/raw/subject-coderail-wp5-v5-s2-C5-high-risk-persistent.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/run-state.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-01-toolbar-label.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-02-empty-state-copy.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-03-report-export.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-04-cli-alias.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-05-timeout-default.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-clear-06-tooltip.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-A-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-01-toolbar-label.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-02-empty-state-copy.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-03-report-export.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-04-cli-alias.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-05-timeout-default.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-clear-06-tooltip.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-B-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-01-toolbar-label.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-02-empty-state-copy.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-03-report-export.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-04-cli-alias.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-05-timeout-default.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-clear-06-tooltip.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s1-C5-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-A-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-B-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-01-login-audience.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-02-notification-channel.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-03-csv-import-mapping.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-04-team-invitations.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-05-search-filter.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-ambiguous-06-offline-mode.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-domain-01-account.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-domain-02-workspace.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-domain-03-materialization.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-risk-01-local-only-files.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-risk-02-refund-authority.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/evaluation-v5/results/trials/coderail-wp5-v5-s2-C5-risk-03-data-retention.json"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/tests/test_evaluation_v5_results.py"
-        }
-      ]
     }
   },
   "T-041": {
@@ -4856,9 +3794,115 @@
         }
       ]
     },
+    "dirty_fork": true
+  },
+  "T-042": {
+    "display_id": "T-042",
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_wp6_adoption_review.py"
+    ],
+    "accept": [
+      "The review makes exactly one top-level ADOPT, REVISE, or REJECT decision and distinguishes treatment disposition from native integration",
+      "The decision cites v4 and v5 evidence, including the s2 provider-gate stop, unsupported assumptions, clear quick path, token economy, and missing implementation evidence",
+      "No smart hook, kernel change, native skill installation, later v5 seed, or C5p execution is authorized",
+      "A future revision must use a new frozen protocol and novice-facing questions must request outcomes rather than mechanisms",
+      "The plan, report, README, and executable consistency test agree on the final decision",
+      "All workflow-lab tests pass"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T08:12:29.158591+00:00",
+      "head": "660774b691d456010e168da3c4534a143aee9d72",
+      "files": []
+    },
+    "pause": {
+      "reason": "dirty-fork",
+      "paused_at": "2026-07-27T08:18:43.307978+00:00",
+      "resume": "coderail switch --to T-042"
+    }
+  },
+  "T-043": {
+    "display_id": "T-043",
+    "verify": [
+      "python -m unittest discover -s experiments/workflow-lab/tests -v"
+    ],
+    "tests": [
+      "experiments/workflow-lab/tests/test_wp6_adoption_review.py"
+    ],
+    "accept": [
+      "The review makes exactly one top-level REVISE decision and withholds native integration",
+      "The decision is linked to frozen v4/v5 evidence and the registered s2 stop",
+      "No smart hook, kernel change, native skill installation, later v5 seed, or C5p execution is authorized",
+      "Future work requires a separately authorized new frozen protocol with outcome-level novice questions",
+      "Public documents and executable tests agree",
+      "All workflow-lab tests pass"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-27T08:18:43.641655+00:00",
+      "head": "660774b691d456010e168da3c4534a143aee9d72",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json",
+          "fingerprint": "81e129bcc61bc37775ac9ddbba4eb4c44e133c9f0d1a01cdc8dc947dbc103578"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md",
+          "fingerprint": "3b0ac41ca3cbf90c4ddbb17ab252eea597a45fac6b223960f931b6128d9bc99e"
+        },
+        {
+          "status": " M",
+          "path": "docs/HANDOFF.md",
+          "fingerprint": "975eef291e5ef33fbc38f812aadae81408f582c0688efca143e824d03974e9e8"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md",
+          "fingerprint": "9af6ac5740020e03349c8133ab860c4a757e77827fd431be722bb6b7f4ebeaa9"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl",
+          "fingerprint": "441e2237f108245b43ea59bf00c45baf263c545c30e71405f99712322a7c8533"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md",
+          "fingerprint": "f0768d6b936ab4595831b57441feb26feddc6398f9823d4ff0c5d0eeb282ca49"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/README.md",
+          "fingerprint": "932c8dcf3f551952ede1e8c81f75848b5af699095e7dd1771eca3dce576c9188"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md",
+          "fingerprint": "70c432377cb6eddf7044a0f2e733b326cb7ffdc32aee7bbba02245d63e6536e9"
+        },
+        {
+          "status": " M",
+          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md",
+          "fingerprint": "21f237eef79f40f50c3d68d342d79f43954bcbf4d5c70e7bddb6668501167aa0"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/docs/WP6_ADOPTION_REVIEW.md",
+          "fingerprint": "3af6411d446746e0d24d926b2db6ea8e1c3ed0bf090eeaf529952be3ec2c8836"
+        },
+        {
+          "status": "??",
+          "path": "experiments/workflow-lab/tests/test_wp6_adoption_review.py",
+          "fingerprint": "223c8ca422d0658f7ab919ffb8a11531cd3c98f999efe8716bfb34cf9fecd85f"
+        }
+      ]
+    },
     "dirty_fork": true,
     "closed_pending": {
-      "recorded_at": "2026-07-27T08:03:39.428670+00:00",
+      "recorded_at": "2026-07-27T08:22:34.188655+00:00",
       "files": [
         {
           "status": " M",
@@ -4879,10 +3923,6 @@
         {
           "status": " M",
           "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/tests/test_evaluation_v5_protocol.py"
         }
       ]
     }

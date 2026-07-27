@@ -3,6 +3,19 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-27 - Finalize WP6 review under governance-owned closeout scope (T-043)
+
+- Done: Finalize WP6 review under governance-owned closeout scope
+- Checked by: `python -m unittest discover -s experiments/workflow-lab/tests -v` exit 0
+- Next: No automatic next slice; keep the experiment isolated unless a separately authorized new protocol is requested
+- Evidence: `python -m unittest discover -s experiments/workflow-lab/tests -v` -> exit 0
+- Acceptance [done]: The review makes exactly one top-level REVISE decision and withholds native integration
+- Acceptance [done]: The decision is linked to frozen v4/v5 evidence and the registered s2 stop
+- Acceptance [done]: No smart hook, kernel change, native skill installation, later v5 seed, or C5p execution is authorized
+- Acceptance [done]: Future work requires a separately authorized new frozen protocol with outcome-level novice questions
+- Acceptance [done]: Public documents and executable tests agree
+- Acceptance [done]: All workflow-lab tests pass
+
 ## 2026-07-27 - Preflight wp5-v5 schema and execution runner (T-038)
 
 - Done: Preflight wp5-v5 schema and execution runner
