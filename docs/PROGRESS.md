@@ -3,6 +3,12 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - split bilingual README into English and Simplified Chinese files with top language index (T-053)
+
+- Done: split bilingual README into English and Simplified Chinese files with top language index
+- Checked by: manual check: Confirmed README.md is English-only except the language selector, README.zh-CN.md contains the Chinese counterpart, both expose top language links, all referenced local paths exist, headings and code fences align, git diff --check passes, and python3 tests/test_static.py passes 31 tests.
+- Next: decide with the user
+
 ## 2026-07-28 - 优化 CodeRail 生命周期图的视觉可读性 (T-052)
 
 - Done: 优化 CodeRail 生命周期图的视觉可读性
