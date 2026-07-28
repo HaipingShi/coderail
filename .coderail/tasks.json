@@ -4048,5 +4048,25 @@
       "head": "24b38ecf5f2391f5d7916f7219382fd42bd33165",
       "files": []
     }
+  },
+  "T-050": {
+    "verify": [
+      "python scripts/doctor.py --target .",
+      "python .coderail/coderail.py check",
+      "python scripts/trace_doctor.py --target .",
+      "git diff --check"
+    ],
+    "accept": [
+      "报告记录 tasks.json 当前字节数、任务条目数和 baseline 文件记录数",
+      "报告区分 TASKS、PROGRESS、TRACE 与 tasks.json 的权威职责",
+      "报告定义关闭任务压缩资格门、保留字段与拒绝条件",
+      "报告定义一次性迁移、验证、回滚和停止条件",
+      "本任务不修改生产内核、不执行账本压缩"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-28T09:22:26.529645+00:00",
+      "head": "09ca9d233c32bc462452375875c1f06f3fb6a28e",
+      "files": []
+    }
   }
 }

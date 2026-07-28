@@ -3,6 +3,21 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - 设计 CodeRail 状态账本压缩方案，不实施内核改动 (T-050)
+
+- Done: 设计 CodeRail 状态账本压缩方案，不实施内核改动
+- Checked by: `python scripts/doctor.py --target .` exit 0; `python .coderail/coderail.py check` exit 0; `python scripts/trace_doctor.py --target .` exit 0; `git diff --check` exit 0
+- Next: 待仓库所有者另行授权时，按设计建立纯数据状态账本压缩任务
+- Evidence: `python scripts/doctor.py --target .` -> exit 0
+- Evidence: `python .coderail/coderail.py check` -> exit 0
+- Evidence: `python scripts/trace_doctor.py --target .` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: 报告记录 tasks.json 当前字节数、任务条目数和 baseline 文件记录数
+- Acceptance [done]: 报告区分 TASKS、PROGRESS、TRACE 与 tasks.json 的权威职责
+- Acceptance [done]: 报告定义关闭任务压缩资格门、保留字段与拒绝条件
+- Acceptance [done]: 报告定义一次性迁移、验证、回滚和停止条件
+- Acceptance [done]: 本任务不修改生产内核、不执行账本压缩
+
 ## 2026-07-28 - 清理 CodeRail 公共仓库过程表面并归档 Workflow Lab (T-049)
 
 - Done: 清理 CodeRail 公共仓库过程表面并归档 Workflow Lab
