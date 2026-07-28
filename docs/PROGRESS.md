@@ -3,6 +3,18 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - Build evidence-aware trace graph lifecycle and queries (T-046)
+
+- Done: Build evidence-aware trace graph lifecycle and queries
+- Checked by: `F:\mathmind\venv\Scripts\python.exe -m pytest -q` exit 0
+- Next: decide with the user
+- Evidence: `F:\mathmind\venv\Scripts\python.exe -m pytest -q` -> exit 0
+- Acceptance [done]: Lifecycle commands automatically record only provable fact edges among north star, task, files, commits, and verification
+- Acceptance [done]: Tasks support depends_on, blocks, and supersedes with missing-reference and cycle checks
+- Acceptance [done]: why, impact, and graph commands return concise plain-language conclusions
+- Acceptance [done]: Uncertain semantic edges remain isolated candidates until evidence or explicit confirmation promotes them
+- Acceptance [done]: Trace and introduction documentation describe fact, decision, and candidate boundaries accurately
+
 ## 2026-07-27 - Write the CodeRail introduction for vibe coders (T-045)
 
 - Done: Write the CodeRail introduction for vibe coders

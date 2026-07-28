@@ -6,7 +6,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 VALID_TYPES={"intent","align","task","decision","research","attempt","change","verify","handoff","lesson"}
-EDGE_KEYS=["serves","derived_from","implements","modifies","validated_by","depends_on","supersedes","blocks","relates_to"]
+EDGE_KEYS=[
+    "serves","derived_from","implements","implemented_by","modifies",
+    "validated_by","validates","depends_on","supersedes","blocks",
+    "relates_to","follows",
+]
 
 def make_id(now=None):
     now=now or datetime.now(timezone.utc)
@@ -38,21 +42,32 @@ def build_event(ns):
         raise ValueError(f"invalid type {ns.type!r}")
     now=datetime.now(timezone.utc)
     ev={"id": ns.id or make_id(now), "ts": ns.ts or now.isoformat(timespec='seconds'), "type": ns.type, "summary": ns.summary or ""}
-    for key in ["task","north_star","status","source_kind","source_ref","harness_command","harness_result","commit"]:
+    for key in [
+        "subject","edge_class","task","north_star","status","source_kind",
+        "source_ref","confirmed_by","harness_command","harness_result","commit",
+    ]:
         val=getattr(ns,key,None)
         if val: ev[key]=val
     files=split_list(getattr(ns,"files",None))
     if files: ev["files"]=files
+    basis=split_list(getattr(ns,"basis",None))
+    if basis: ev["basis"]=basis
     for edge in EDGE_KEYS:
         val=getattr(ns, edge, None)
         lst=split_list(val)
         if lst: ev[edge]=lst
+    if ev["type"]=="verify" and ev.get("task"):
+        ev.setdefault("subject", ev["id"])
+        ev.setdefault("validates", [ev["task"]])
     coord=build_coordinate(ns)
     if coord: ev["coordinate"]=coord
     if ev["type"]=="change" and not (ev.get("task") or ev.get("north_star") or ev.get("files")):
         raise ValueError("change event must have at least one of --task, --north-star, --files")
     if ev["type"]=="verify" and not ev.get("harness_result"):
         raise ValueError("verify event must have --harness-result")
+    if ev.get("edge_class")=="decision" and any(ev.get(edge) for edge in EDGE_KEYS):
+        if not (ev.get("basis") or ev.get("source_ref") or ev.get("confirmed_by")):
+            raise ValueError("decision edges require --basis, --source-ref, or --confirmed-by")
     return ev
 
 def parse(argv=None):
@@ -61,8 +76,12 @@ def parse(argv=None):
     p.add_argument('--from-file')
     p.add_argument('--type', choices=sorted(VALID_TYPES))
     p.add_argument('--summary')
+    p.add_argument('--subject')
+    p.add_argument('--edge-class', dest='edge_class', choices=['fact','decision'])
     p.add_argument('--task'); p.add_argument('--north-star', dest='north_star'); p.add_argument('--status')
     p.add_argument('--source-kind', dest='source_kind'); p.add_argument('--source-ref', dest='source_ref')
+    p.add_argument('--confirmed-by', dest='confirmed_by')
+    p.add_argument('--basis')
     p.add_argument('--files'); p.add_argument('--harness-command', dest='harness_command'); p.add_argument('--harness-result', dest='harness_result')
     p.add_argument('--commit'); p.add_argument('--id'); p.add_argument('--ts')
     for edge in EDGE_KEYS:

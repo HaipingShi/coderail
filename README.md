@@ -142,6 +142,10 @@ The three commands are a facade over a deeper kernel: verification gates, TDD ev
 
 ```bash
 python .coderail/coderail.py --help    # lists advanced commands
+python .coderail/coderail.py why T-046
+python .coderail/coderail.py impact docs/BLUEPRINTS.md
+python .coderail/coderail.py graph T-046
+python .coderail/coderail.py candidate list
 ```
 
 The idea behind the tool — Convergent Coding — is written up in [`references/CONVERGENT_CODING.md`](references/CONVERGENT_CODING.md). Deep documentation lives in [`references/`](references/). Install details in [`INSTALL.md`](INSTALL.md). Skills for Claude Code / Codex live in [`skills/`](skills/).

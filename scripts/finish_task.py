@@ -113,6 +113,10 @@ def append_verify_trace(root: Path, task_id: str | None, result: str, summary: s
         [
             "--type", "verify",
             "--task", task_id,
+            "--edge-class", "fact",
+            "--source-kind", "harness",
+            "--source-ref", summary,
+            "--basis", f"harness-result:{result}",
             "--status", "progress" if result in {"passed", "manual"} else "failed",
             "--harness-result", result,
             "--summary", summary,

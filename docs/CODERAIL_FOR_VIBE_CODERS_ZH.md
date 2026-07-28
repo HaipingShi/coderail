@@ -194,6 +194,66 @@ python .coderail/coderail.py done
 
 自动提交不等于自动推送。发布到远程仍然是独立、可见的动作。
 
+### 第五步：随着项目成长补齐图纸
+
+CodeRail 不要求小项目一开始就画一整套看起来专业、实际可能是猜测的架构图。它会从仓库中的真实信号判断当前是否已经出现前端、后端、数据库、部署、CI、复杂状态或多页面流程，再检查相应图纸是否缺失或已经过期。
+
+Blueprint Gate 覆盖四层、十一类图纸：
+
+- 用户与交互：用户旅程、用户流程、页面流程；
+- 系统与应用：系统架构、组件、时序、状态机；
+- 数据与模型：ER 图、数据流图；
+- 部署与运维：部署拓扑、CI/CD 流程。
+
+```bash
+python .coderail/coderail.py blueprint
+python .coderail/coderail.py blueprint --scaffold
+```
+
+`--scaffold` 只会根据已经检测到的项目结构建立 Mermaid 骨架。Agent 仍须用实际代码中的模块、服务和数据关系替换占位内容，然后才能把图纸标记为 `current`。图纸是对已实现事实的校准和压缩，不是提前虚构未来架构。
+
+### 第六步：登记任务为什么存在、改了什么、由什么证明
+
+CodeRail 把关系分成三个严格隔离的区域：
+
+| 关系 | 谁可以写入 | 例子 |
+|---|---|---|
+| 可证明事实边 | 本地程序自动登记 | 任务服务哪个 North Star、哪个提交实现任务、提交修改哪些文件、哪项测试验证提交 |
+| 重要决策边 | 人或 Agent 显式登记，并给出证据或确认 | `T-046 depends_on T-045`、新任务明确取代旧任务 |
+| 候选语义边 | 模型可以提出，但没有执行权限 | “这两个模块可能存在未记录依赖” |
+
+`start`、`switch`、验证和 `done` 会登记能够从任务状态、测试结果和 Git 证明的事实。CodeRail 不会因为某个文件出现在允许范围里，就假装它已经被修改；也不会因为计划运行某个测试，就提前声称测试已经通过。
+
+重要关系使用显式命令登记：
+
+```bash
+python .coderail/coderail.py link T-046 depends_on T-045 \
+  --reason "使用已经接受的介绍文档合同" \
+  --evidence "docs/CODERAIL_FOR_VIBE_CODERS_ZH.md"
+```
+
+CodeRail 会检查任务是否存在、是否引用自身、是否形成循环依赖，并在激活任务前检查它依赖的任务是否已经完成。
+
+不确定推断必须先留在候选区：
+
+```bash
+python .coderail/coderail.py candidate add T-046 depends_on T-045 \
+  --reason "模型怀疑存在未记录依赖"
+python .coderail/coderail.py candidate list
+```
+
+候选关系不会进入正式图谱，也不能改变任务顺序。只有提供仓库证据或得到明确确认后，`candidate promote` 才会把它晋升为正式决策边。
+
+普通用户不需要阅读图结构，可以直接询问：
+
+```bash
+python .coderail/coderail.py why T-046
+python .coderail/coderail.py impact docs/BLUEPRINTS.md
+python .coderail/coderail.py graph T-046
+```
+
+输出会说明这个任务服务什么目标、修改了哪些文件、由哪些测试验证、依赖什么、阻塞什么，以及还有多少未确认候选，而不是输出难以判断的裸节点和边。
+
 ## 为什么这样设计
 
 | 常见失败 | CodeRail 的设计回应 |
@@ -206,6 +266,9 @@ python .coderail/coderail.py done
 | 切换任务后改动归属混乱 | `switch` 管理关闭、暂停、恢复和脏基线 |
 | 提交夹带无关文件 | 使用精确安全快照，不执行 `git add .` |
 | 失败后状态比之前更乱 | 保留可恢复状态，不把失败伪装成成功 |
+| 项目长大后结构只能靠猜 | 根据真实复杂度信号要求补齐并维护最少必要图纸 |
+| 任务、文件、提交和验证互相失联 | 自动登记 Git 与生命周期能够证明的事实边 |
+| 模型把合理猜测说成事实 | 候选边与正式事实、决策边物理隔离 |
 | 规则越来越复杂 | 普通用户仍只需要三个日常命令 |
 
 CodeRail 把需要确定性的部分交给本地程序，把需要判断的部分留给人和 Agent：

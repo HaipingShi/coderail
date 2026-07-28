@@ -32,6 +32,8 @@ import closeout_transaction  # noqa: E402
 import repository_state  # noqa: E402
 import coordinate_check  # noqa: E402
 import done_gate  # noqa: E402
+import trace_graph  # noqa: E402
+import task_graph  # noqa: E402
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
@@ -77,6 +79,27 @@ def run_script(script: str, root: Path, args: list[str] | None = None, capture: 
                                 encoding="utf-8", errors="replace")
         return result.returncode, result.stdout or ""
     return subprocess.run(cmd, cwd=str(root)).returncode, ""
+
+
+def append_trace_events(root: Path, events: list[dict], *, refresh_index: bool = True) -> tuple[bool, str]:
+    """Append a small event batch, restoring the log if any write/index step fails."""
+    path = trace_graph.trace_path(root)
+    existed = path.exists()
+    before = path.read_bytes() if existed else b""
+    try:
+        for event in events:
+            trace_graph.append_event(root, event)
+        if refresh_index:
+            rc, output = run_script("trace_index.py", root, capture=True)
+            if rc:
+                raise RuntimeError(output.strip() or "trace index generation failed")
+    except Exception as exc:  # noqa: BLE001 - lifecycle writes must be atomic
+        if existed:
+            path.write_bytes(before)
+        elif path.exists():
+            path.unlink()
+        return False, str(exc)
+    return True, ", ".join(str(event.get("id", "?")) for event in events)
 
 
 def tasks_path(root: Path) -> Path:
@@ -538,12 +561,25 @@ def post_close_consistency(root: Path, task_id: str) -> tuple[bool, list[str], s
 
 
 def append_switch_trace(root: Path, task_id: str, summary: str, event_type: str = "task") -> bool:
+    if event_type == "task":
+        ok, output = append_trace_events(
+            root,
+            [trace_graph.task_event(root, task_id, summary, "active")],
+        )
+        if not ok:
+            print(output or f"Could not append switch trace for {task_id}.")
+        return ok
     rc, output = run_script(
         "trace_event.py",
         root,
         [
             "--type", event_type,
             "--task", task_id,
+            "--subject", task_id,
+            "--edge-class", "fact",
+            "--source-kind", "lifecycle",
+            "--source-ref", f"docs/TASKS.md#{task_id}",
+            "--basis", "repository:docs/TASKS.md",
             "--status", "progress",
             "--summary", summary,
             "--coordinate-task", task_id,
@@ -554,6 +590,42 @@ def append_switch_trace(root: Path, task_id: str, summary: str, event_type: str 
     if rc:
         print(output or f"Could not append switch trace for {task_id}.")
     return rc == 0
+
+
+def relation_decision_event(
+    root: Path,
+    task_id: str,
+    relation_values: dict[str, list[str]],
+    summary: str,
+    *,
+    source_ref: str,
+    basis: list[str],
+    confirmed_by: str = "",
+) -> dict:
+    ns_ref, _ = trace_graph.north_star(root)
+    event = {
+        "id": trace_graph.make_id(),
+        "ts": trace_graph.now_iso(),
+        "type": "decision",
+        "subject": task_id,
+        "edge_class": "decision",
+        "summary": summary,
+        "task": task_id,
+        "north_star": ns_ref,
+        "status": "accepted",
+        "source_kind": "explicit-registration",
+        "source_ref": source_ref,
+        "basis": basis,
+        "coordinate": {"task": task_id, "persist": ["TASKS", "TRACE"]},
+    }
+    if confirmed_by:
+        event["confirmed_by"] = confirmed_by
+    for relation, values in relation_values.items():
+        if values:
+            event[relation] = values
+    if ns_ref:
+        event.setdefault("serves", [ns_ref])
+    return event
 
 
 def write_done_report(root: Path, shown: str, title: str,
@@ -1042,16 +1114,45 @@ def cmd_start(args) -> int:
     verify_cmds = [v.strip() for v in (args.verify or []) if v.strip()]
     test_files = [t.strip() for t in (args.tests or []) if t.strip()]
     accept_items = [a.strip() for a in (args.accept or []) if a.strip()]
+    relation_values = {
+        relation: task_graph.split_refs(getattr(args, relation, None))
+        for relation in task_graph.RELATIONS
+    }
 
     if dirty_fork and preflight.get("paths"):
         task_switch.consume_closed_pending(root)
     meta = load_meta(root)
+    old_meta = json.loads(json.dumps(meta))
+    candidate_meta = json.loads(json.dumps(meta))
+    candidate_meta.setdefault(task_id, {})
+    for relation, values in relation_values.items():
+        if values:
+            candidate_meta = task_graph.with_relation(candidate_meta, task_id, relation, values)
+    relation_problems = task_graph.validate(
+        candidate_meta,
+        task_graph.known_task_ids(root, candidate_meta) | {task_id},
+    )
+    unresolved = [
+        dependency for dependency in relation_values["depends_on"]
+        if dependency not in task_graph.completed_task_ids(root)
+    ]
+    if unresolved:
+        relation_problems.append(
+            f"{task_id}: unresolved dependencies cannot own active work: {', '.join(unresolved)}"
+        )
+    if relation_problems:
+        print("Task Graph blocked start:")
+        for problem in relation_problems:
+            print(f"  - {problem}")
+        return 1
+    meta = candidate_meta
     meta[task_id] = {
         k: v for k, v in {
             "display_id": display_id or None,
             "verify": verify_cmds or None,
             "tests": test_files or None,
             "accept": accept_items or None,
+            "relations": {k: v for k, v in relation_values.items() if v} or None,
             "baseline": preflight.get("baseline"),
             "baseline_adoption": (
                 task_switch.build_baseline_adoption(root, files, avoid)
@@ -1069,6 +1170,7 @@ def cmd_start(args) -> int:
     if accept_items:
         accept_lines = "\nA — Acceptance\n" + "\n".join(f"- [ ] {a}" for a in accept_items) + "\n"
     display_line = f"\nDisplay id: {display_id}" if display_id else ""
+    relation_section = task_graph.render_relation_section(relation_values)
 
     block = f"""
 ## {task_id} {title}
@@ -1099,9 +1201,38 @@ X — Stop
 
 P — Persist
 - TASKS, TRACE
-"""
+
+{relation_section}
+    """
     path = tasks_path(root)
-    path.write_text(text.rstrip() + "\n" + block, encoding="utf-8")
+    path.write_text(text.rstrip() + "\n\n" + block.strip() + "\n", encoding="utf-8")
+    start_events = [
+        trace_graph.task_event(
+            root,
+            task_id,
+            f"started {task_id}: {title}",
+            "active",
+            follows=getattr(args, "follows", "") or "",
+        )
+    ]
+    if any(relation_values.values()):
+        start_events.append(
+            relation_decision_event(
+                root,
+                task_id,
+                relation_values,
+                f"registered explicit task relations for {task_id}",
+                source_ref="coderail start",
+                basis=["operator-command:coderail start"],
+                confirmed_by="operator-command",
+            )
+        )
+    trace_ok, trace_detail = append_trace_events(root, start_events)
+    if not trace_ok:
+        path.write_text(text, encoding="utf-8")
+        save_meta(root, old_meta)
+        print(f"Could not register lifecycle graph; start was rolled back: {trace_detail}")
+        return 1
 
     shown = fmt_id(task_id, meta[task_id])
     print(f"Started task {shown}: {title}")
@@ -1149,12 +1280,17 @@ def cmd_check(args) -> int:
 
     coord_rc, coord_out = run_script("coordinate_check.py", root, capture=True)
     tdd_rc, tdd_out = run_script("tdd_check.py", root, capture=True)
+    graph_problems = task_graph.validate(
+        task_graph.load_meta(root),
+        task_graph.known_task_ids(root),
+    )
 
     problems = []
     if coord_rc:
         problems.append("Some tasks are missing goal, scope, or verification info.")
     if tdd_rc:
         problems.append("A task that needs tests does not have test evidence yet.")
+    problems.extend(graph_problems)
 
     if not problems:
         print("Everything looks consistent. You can keep working or run:  coderail done")
@@ -1322,6 +1458,14 @@ def print_commit_pending(pending: dict) -> None:
 
 def shell_join(parts: list[str]) -> str:
     return subprocess.list2cmdline(parts) if os.name == "nt" else shlex.join(parts)
+
+
+def commit_message_with_graph_facts(root: Path, base: str, task_id: str) -> str:
+    verify_ids = trace_graph.latest_verify_ids(trace_graph.load_events(root), task_id)
+    trailers = [f"CodeRail-Task: {task_id}"]
+    if verify_ids:
+        trailers.append(f"CodeRail-Verified-By: {', '.join(verify_ids)}")
+    return base.rstrip() + "\n\n" + "\n".join(trailers)
 
 
 def stage_exact_files(root: Path, safe_files: list[str]) -> tuple[bool, str]:
@@ -1751,6 +1895,9 @@ def cmd_done(args) -> int:
             return 1
 
         safe_files = list(final_classification.safe)
+        expected_commit_message = commit_message_with_graph_facts(
+            root, expected_commit_message, closed_id
+        )
         pending = persist_commit_pending(
             root,
             task_id=task_before,
@@ -1997,11 +2144,22 @@ def cmd_next(args) -> int:
         print("Commit those exact paths, or rerun with --dirty-fork.")
         return 1
 
-    todo = next_todo_task(text)
-    if not todo:
+    queued = [task for task in list_tasks(text) if task["status"] == "[ ]"]
+    if not queued:
         print("No queued tasks in docs/TASKS.md.")
         print("Start a new one with:  coderail start \"...\"")
         return 0
+    ready = [
+        task for task in queued
+        if not task_graph.unresolved_dependencies(root, task["id"])
+    ]
+    if not ready:
+        print("No dependency-ready queued task.")
+        for task in queued:
+            pending = task_graph.unresolved_dependencies(root, task["id"])
+            print(f"  - {task['id']} waits for: {', '.join(pending)}")
+        return 1
+    todo = ready[0]
 
     if not args.go:
         print(f"Recommended next task: {todo['id']} {todo['title']}")
@@ -2016,6 +2174,13 @@ def cmd_next(args) -> int:
         task_switch.consume_closed_pending(root)
     record_activation_baseline(root, todo["id"], preflight["baseline"], dirty_fork=dirty_fork)
     if activate_task(root, todo["id"]):
+        if not append_switch_trace(
+            root,
+            todo["id"],
+            f"activated {todo['id']} through dependency-ready next",
+        ):
+            print(f"{todo['id']} is active, but its lifecycle trace failed.")
+            return 1
         print(f"Now working on {todo['id']}: {todo['title']}")
         print("Details are in docs/TASKS.md. When finished, run:  coderail done")
         return 0
@@ -2058,6 +2223,18 @@ def cmd_switch(args) -> int:
     elif args.to:
         if not validate_task_scope(text, args.to, root):
             print("Task Switch Gate left the source and destination unchanged.")
+            return 1
+        graph_problems = task_graph.validate(
+            task_graph.load_meta(root),
+            task_graph.known_task_ids(root),
+        )
+        unresolved = task_graph.unresolved_dependencies(root, args.to)
+        if graph_problems or unresolved:
+            print("Task Graph blocked activation:")
+            for problem in graph_problems:
+                print(f"  - {problem}")
+            if unresolved:
+                print(f"  - {args.to} still depends on: {', '.join(unresolved)}")
             return 1
 
     destination = args.to or args.title
@@ -2145,17 +2322,225 @@ def cmd_switch(args) -> int:
         print(f"Task Switch Gate activated {args.to}; exactly one task now owns new changes.")
         return 0
 
-    source = active or "none"
-    new_id = next_task_id(read_tasks(root), root)
-    rc = cmd_start(args)
-    if rc == 0 and not append_switch_trace(
-        root,
-        new_id,
-        f"switched from {source} to {new_id} through Task Switch Gate",
-    ):
-        print(f"{new_id} is active, but its switch trace failed. Repair TRACE before coding.")
+    args.follows = active or ""
+    return cmd_start(args)
+
+
+def _decision_basis(args) -> tuple[list[str], str]:
+    evidence = [
+        item.strip()
+        for chunk in (getattr(args, "evidence", None) or [])
+        for item in chunk.split(",")
+        if item.strip()
+    ]
+    confirmed_by = (getattr(args, "confirmed_by", "") or "").strip()
+    return evidence, confirmed_by
+
+
+def cmd_link(args) -> int:
+    root = Path(args.target).resolve()
+    source = args.source.upper()
+    relation = args.relation
+    target = args.destination.replace("\\", "/")
+    if relation in task_graph.RELATIONS:
+        target = target.upper()
+    evidence, confirmed_by = _decision_basis(args)
+    if not (evidence or confirmed_by):
+        print("Decision edges require --evidence or --confirmed-by.")
+        print("Uncertain relationships belong in: coderail candidate add ...")
         return 1
-    return rc
+
+    old_meta = task_graph.load_meta(root)
+    if source not in task_graph.known_task_ids(root, old_meta):
+        print(f"Decision edge source task {source} does not exist.")
+        return 1
+    updated_meta = old_meta
+    if relation in task_graph.RELATIONS:
+        updated_meta, problems = task_graph.validate_add(
+            root, source, relation, [target]
+        )
+        if problems:
+            print("Task Graph refused the decision edge:")
+            for problem in problems:
+                print(f"  - {problem}")
+            return 1
+
+    watched = [
+        trace_graph.trace_path(root),
+        root / "docs" / "TRACE_INDEX.md",
+        root / ".coderail" / "tasks.json",
+        tasks_path(root),
+    ]
+    snapshot = _snapshot_paths(watched)
+    try:
+        event = relation_decision_event(
+            root,
+            source,
+            {relation: [target]},
+            args.reason,
+            source_ref="coderail link",
+            basis=evidence or [f"confirmation:{confirmed_by}"],
+            confirmed_by=confirmed_by,
+        )
+        ok, detail = append_trace_events(root, [event])
+        if not ok:
+            raise RuntimeError(detail)
+        if relation in task_graph.RELATIONS:
+            task_graph.save_meta(root, updated_meta)
+            task_graph.sync_task_block(
+                root, source, task_graph.relations(updated_meta, source)
+            )
+    except Exception as exc:  # noqa: BLE001
+        _restore_paths(snapshot)
+        print(f"Decision edge registration was rolled back: {exc}")
+        return 1
+    print(f"Registered decision: {source} {relation} {target}")
+    print(f"Basis: {', '.join(evidence) if evidence else f'confirmed by {confirmed_by}'}")
+    return 0
+
+
+def cmd_why(args) -> int:
+    print(trace_graph.render_task_query(Path(args.target).resolve(), args.task.upper()))
+    return 0
+
+
+def cmd_graph(args) -> int:
+    print(
+        trace_graph.render_task_query(
+            Path(args.target).resolve(), args.task.upper(), heading="Graph"
+        )
+    )
+    return 0
+
+
+def cmd_impact(args) -> int:
+    print(trace_graph.render_impact(Path(args.target).resolve(), args.path))
+    return 0
+
+
+def _snapshot_paths(paths: list[Path]) -> dict[Path, bytes | None]:
+    return {path: path.read_bytes() if path.exists() else None for path in paths}
+
+
+def _restore_paths(snapshot: dict[Path, bytes | None]) -> None:
+    for path, content in snapshot.items():
+        if content is None:
+            if path.exists():
+                path.unlink()
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+
+
+def cmd_candidate(args) -> int:
+    root = Path(args.target).resolve()
+    if args.candidate_command == "add":
+        if args.relation not in trace_graph.EDGE_KEYS:
+            print(f"Unsupported relation {args.relation!r}.")
+            return 1
+        row = trace_graph.append_candidate(
+            root,
+            args.source.replace("\\", "/"),
+            args.relation,
+            args.destination.replace("\\", "/"),
+            args.reason,
+            args.proposed_by,
+        )
+        print(f"Candidate {row['id']} recorded outside the formal graph.")
+        print("It has no execution authority until promoted with evidence or confirmation.")
+        return 0
+
+    if args.candidate_command == "list":
+        rows = trace_graph.formal_candidates(root)
+        open_rows = [row for row in rows.values() if row.get("status") == "proposed"]
+        print("# Trace Edge Candidates\n")
+        if not open_rows:
+            print("- none")
+            return 0
+        for row in sorted(open_rows, key=lambda item: item.get("ts", "")):
+            print(
+                f"- {row['id']}: {row.get('source')} {row.get('relation')} "
+                f"{row.get('target')} — {row.get('reason')}"
+            )
+        print("\nThese are hypotheses, not formal graph edges.")
+        return 0
+
+    candidates = trace_graph.formal_candidates(root)
+    current = candidates.get(args.candidate_id)
+    if not current:
+        print(f"Candidate {args.candidate_id} does not exist.")
+        return 1
+
+    if args.candidate_command == "reject":
+        try:
+            trace_graph.resolve_candidate(
+                root, args.candidate_id, "rejected", reason=args.reason
+            )
+        except ValueError as exc:
+            print(str(exc))
+            return 1
+        print(f"Rejected {args.candidate_id}; it never entered the formal graph.")
+        return 0
+
+    evidence, confirmed_by = _decision_basis(args)
+    if not (evidence or confirmed_by):
+        print("Promotion requires --evidence or --confirmed-by.")
+        return 1
+    source = str(current.get("source", "")).upper()
+    relation = str(current.get("relation", ""))
+    target = str(current.get("target", ""))
+    if relation in task_graph.RELATIONS:
+        target = target.upper()
+    updated_meta = task_graph.load_meta(root)
+    if relation in task_graph.RELATIONS:
+        updated_meta, problems = task_graph.validate_add(
+            root, source, relation, [target]
+        )
+        if problems:
+            print("Candidate cannot be promoted:")
+            for problem in problems:
+                print(f"  - {problem}")
+            return 1
+    watched = [
+        trace_graph.candidate_path(root),
+        trace_graph.trace_path(root),
+        root / "docs" / "TRACE_INDEX.md",
+        root / ".coderail" / "tasks.json",
+        tasks_path(root),
+    ]
+    snapshot = _snapshot_paths(watched)
+    try:
+        trace_graph.resolve_candidate(
+            root,
+            args.candidate_id,
+            "promoted",
+            evidence=evidence,
+            confirmed_by=confirmed_by,
+        )
+        event = relation_decision_event(
+            root,
+            source,
+            {relation: [target]},
+            f"promoted {args.candidate_id}: {current.get('reason', '')}",
+            source_ref=f"candidate:{args.candidate_id}",
+            basis=evidence or [f"confirmation:{confirmed_by}"],
+            confirmed_by=confirmed_by,
+        )
+        ok, detail = append_trace_events(root, [event])
+        if not ok:
+            raise RuntimeError(detail)
+        if relation in task_graph.RELATIONS:
+            task_graph.save_meta(root, updated_meta)
+            task_graph.sync_task_block(
+                root, source, task_graph.relations(updated_meta, source)
+            )
+    except Exception as exc:  # noqa: BLE001
+        _restore_paths(snapshot)
+        print(f"Candidate promotion was rolled back: {exc}")
+        return 1
+    print(f"Promoted {args.candidate_id} as a decision edge.")
+    print("The candidate history remains append-only; the formal edge records its basis.")
+    return 0
 
 
 # ---------------------------------------------------------------- main
@@ -2183,6 +2568,12 @@ def build_parser() -> argparse.ArgumentParser:
                          help="Test file that must appear in the diff (repeatable)")
     p_start.add_argument("--accept", action="append",
                          help="Acceptance item; done requires done/deferred per item (repeatable)")
+    p_start.add_argument("--depends-on", dest="depends_on", action="append",
+                         help="Completed task this task requires (repeatable or comma-separated)")
+    p_start.add_argument("--blocks", action="append",
+                         help="Task that cannot proceed until this task completes")
+    p_start.add_argument("--supersedes", action="append",
+                         help="Older task or decision this task explicitly replaces")
     p_start.add_argument("--force", action="store_true",
                          help="Deprecated: cannot bypass the single-active-task invariant")
     p_start.add_argument("--dirty-fork", action="store_true",
@@ -2218,6 +2609,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_switch.add_argument("--verify", action="append", help="New-task verify command (repeatable)")
     p_switch.add_argument("--tests", action="append", help="New-task promised test file (repeatable)")
     p_switch.add_argument("--accept", action="append", help="New-task acceptance item (repeatable)")
+    p_switch.add_argument("--depends-on", dest="depends_on", action="append",
+                          help="Completed task the new task requires")
+    p_switch.add_argument("--blocks", action="append",
+                          help="Task the new task blocks")
+    p_switch.add_argument("--supersedes", action="append",
+                          help="Task the new task explicitly replaces")
     p_switch.add_argument("--accept-status", action="append",
                           help="Source-task acceptance verdicts used during safe closeout")
     p_switch.add_argument("--harness-result", choices=["passed", "failed", "manual", "skipped"])
@@ -2225,6 +2622,55 @@ def build_parser() -> argparse.ArgumentParser:
     p_switch.add_argument("--verbose", action="store_true")
     p_switch.add_argument("--target", default=".")
     p_switch.set_defaults(force=False)
+
+    p_link = sub.add_parser("link", help="Register an explicit evidence-backed decision edge")
+    p_link.add_argument("source", help="Source task, normally T-001")
+    p_link.add_argument("relation", choices=trace_graph.EDGE_KEYS)
+    p_link.add_argument("destination", help="Target task, file, decision, or trace id")
+    p_link.add_argument("--reason", required=True, help="Why this relationship matters")
+    p_link.add_argument("--evidence", action="append",
+                        help="Repository/test/document evidence (repeatable)")
+    p_link.add_argument("--confirmed-by",
+                        help="Who explicitly confirmed this decision")
+    p_link.add_argument("--target", default=".")
+
+    p_why = sub.add_parser("why", help="Explain why a task exists in ordinary language")
+    p_why.add_argument("task")
+    p_why.add_argument("--target", default=".")
+
+    p_impact = sub.add_parser("impact", help="Explain which tasks and evidence touch a file")
+    p_impact.add_argument("path")
+    p_impact.add_argument("--target", default=".")
+
+    p_graph = sub.add_parser("graph", help="Summarize a task's formal graph neighborhood")
+    p_graph.add_argument("task")
+    p_graph.add_argument("--target", default=".")
+
+    p_candidate = sub.add_parser(
+        "candidate",
+        help="Keep uncertain semantic edges outside the formal graph",
+    )
+    candidate_sub = p_candidate.add_subparsers(dest="candidate_command", required=True)
+    p_candidate_add = candidate_sub.add_parser("add", help="Record an unconfirmed edge hypothesis")
+    p_candidate_add.add_argument("source")
+    p_candidate_add.add_argument("relation", choices=trace_graph.EDGE_KEYS)
+    p_candidate_add.add_argument("destination")
+    p_candidate_add.add_argument("--reason", required=True)
+    p_candidate_add.add_argument("--proposed-by", default="model")
+    p_candidate_add.add_argument("--target", default=".")
+    p_candidate_list = candidate_sub.add_parser("list", help="List open hypotheses")
+    p_candidate_list.add_argument("--target", default=".")
+    p_candidate_promote = candidate_sub.add_parser(
+        "promote", help="Promote a candidate with evidence or confirmation"
+    )
+    p_candidate_promote.add_argument("candidate_id")
+    p_candidate_promote.add_argument("--evidence", action="append")
+    p_candidate_promote.add_argument("--confirmed-by")
+    p_candidate_promote.add_argument("--target", default=".")
+    p_candidate_reject = candidate_sub.add_parser("reject", help="Reject a candidate")
+    p_candidate_reject.add_argument("candidate_id")
+    p_candidate_reject.add_argument("--reason", required=True)
+    p_candidate_reject.add_argument("--target", default=".")
 
     p_bp = sub.add_parser("blueprint", help="Check diagram coverage; --scaffold fills the gaps")
     p_bp.add_argument("--scaffold", action="store_true",
@@ -2284,6 +2730,16 @@ def main(argv=None) -> int:
         return cmd_next(args)
     if args.command == "switch":
         return cmd_switch(args)
+    if args.command == "link":
+        return cmd_link(args)
+    if args.command == "why":
+        return cmd_why(args)
+    if args.command == "impact":
+        return cmd_impact(args)
+    if args.command == "graph":
+        return cmd_graph(args)
+    if args.command == "candidate":
+        return cmd_candidate(args)
     if args.command == "blueprint":
         return cmd_blueprint(args)
     if args.command == "done":

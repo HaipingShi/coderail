@@ -31,6 +31,7 @@ STANDARD = LITE + [
     "docs/CONTRACTS.md",
     "docs/BLUEPRINTS.md",
     "docs/TRACELOG.jsonl",
+    "docs/TRACE_CANDIDATES.jsonl",
     "docs/TRACE_INDEX.md",
 ]
 

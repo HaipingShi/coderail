@@ -4079,5 +4079,116 @@
         }
       ]
     }
+  },
+  "T-046": {
+    "display_id": "T-046",
+    "verify": [
+      "F:\\mathmind\\venv\\Scripts\\python.exe -m pytest -q"
+    ],
+    "tests": [
+      "tests/test_trace_graph_v2.py"
+    ],
+    "accept": [
+      "Lifecycle commands automatically record only provable fact edges among north star, task, files, commits, and verification",
+      "Tasks support depends_on, blocks, and supersedes with missing-reference and cycle checks",
+      "why, impact, and graph commands return concise plain-language conclusions",
+      "Uncertain semantic edges remain isolated candidates until evidence or explicit confirmation promotes them",
+      "Trace and introduction documentation describe fact, decision, and candidate boundaries accurately"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-28T02:21:31.019831+00:00",
+      "head": "b35be125c5a2d4d0f98a8cb311cf5ba06193be37",
+      "files": []
+    },
+    "relations": {
+      "depends_on": [
+        "T-045"
+      ]
+    },
+    "closed_pending": {
+      "recorded_at": "2026-07-28T03:10:21.348977+00:00",
+      "files": [
+        {
+          "status": " M",
+          "path": ".coderail/tasks.json"
+        },
+        {
+          "status": " M",
+          "path": "README.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_FOR_VIBE_CODERS_ZH.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASKS.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TASK_GRAPH.md"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACELOG.jsonl"
+        },
+        {
+          "status": " M",
+          "path": "docs/TRACE_INDEX.md"
+        },
+        {
+          "status": " M",
+          "path": "project-template/docs/TASK_GRAPH.md"
+        },
+        {
+          "status": " M",
+          "path": "references/TRACE_GRAPH.md"
+        },
+        {
+          "status": " M",
+          "path": "scripts/coderail.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/finish_task.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/init_project.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/trace_event.py"
+        },
+        {
+          "status": " M",
+          "path": "scripts/trace_index.py"
+        },
+        {
+          "status": "??",
+          "path": "docs/TRACE_CANDIDATES.jsonl"
+        },
+        {
+          "status": "??",
+          "path": "project-template/docs/TRACE_CANDIDATES.jsonl"
+        },
+        {
+          "status": "??",
+          "path": "scripts/task_graph.py"
+        },
+        {
+          "status": "??",
+          "path": "scripts/trace_graph.py"
+        },
+        {
+          "status": "??",
+          "path": "tests/test_trace_graph_v2.py"
+        }
+      ]
+    }
   }
 }
