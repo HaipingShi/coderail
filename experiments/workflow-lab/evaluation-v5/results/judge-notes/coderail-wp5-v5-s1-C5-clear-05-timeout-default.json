@@ -1,9 +1,0 @@
-{
-  "protocol_version": "wp5-v5",
-  "task_id": "clear-05-timeout-default",
-  "workflow": "C5",
-  "seed": "coderail-wp5-v5-s1",
-  "notes": [
-    "Uses `FACT` to state future verification as already established."
-  ]
-}

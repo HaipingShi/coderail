@@ -1,9 +1,0 @@
-{
-  "protocol_version": "wp5-v3",
-  "task_id": "risk-03-data-retention",
-  "workflow": "A",
-  "notes": [
-    "First question established the retention boundary and trigger.",
-    "Second question resolved deletion semantics versus 30-day backups before readiness."
-  ]
-}

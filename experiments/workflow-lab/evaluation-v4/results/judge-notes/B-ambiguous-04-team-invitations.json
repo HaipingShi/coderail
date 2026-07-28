@@ -1,8 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "ambiguous-04-team-invitations",
-  "workflow": "B",
-  "notes": [
-    "The question resolves whether membership is created before or after acceptance."
-  ]
-}

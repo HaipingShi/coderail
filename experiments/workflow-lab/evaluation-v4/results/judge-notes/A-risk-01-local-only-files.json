@@ -1,9 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "risk-01-local-only-files",
-  "workflow": "A",
-  "notes": [
-    "Asked the decisive privacy-boundary question, then presented readiness on the next turn.",
-    "No unsupported telemetry or remote-processing exception is introduced."
-  ]
-}

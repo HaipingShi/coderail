@@ -1,9 +1,0 @@
-{
-  "protocol_version": "wp5-v3",
-  "task_id": "ambiguous-01-login-audience",
-  "workflow": "C",
-  "notes": [
-    "First question correctly resolves multi-customer isolation needs.",
-    "Second question resolves the provider gate and stopping condition, but it exposes a technical implementation choice to a novice."
-  ]
-}

@@ -1,4 +1,0 @@
-interface:
-  display_name: "CodeRail Two-Axis Review"
-  short_description: "Review task changes for standards and intent"
-  default_prompt: "Use $coderail-two-axis-review to review the active task against repository standards and its CodeRail contract."

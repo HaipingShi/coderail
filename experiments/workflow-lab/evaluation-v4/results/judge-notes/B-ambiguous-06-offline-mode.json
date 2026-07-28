@@ -1,8 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "ambiguous-06-offline-mode",
-  "workflow": "B",
-  "notes": [
-    "The question resolves the offline capability boundary needed for readiness."
-  ]
-}

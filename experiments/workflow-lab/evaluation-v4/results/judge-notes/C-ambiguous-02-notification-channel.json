@@ -1,8 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "ambiguous-02-notification-channel",
-  "workflow": "C",
-  "notes": [
-    "The question resolves the first-version delivery boundary without assuming unsupported channels."
-  ]
-}

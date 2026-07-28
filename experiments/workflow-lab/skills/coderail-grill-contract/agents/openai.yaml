@@ -1,6 +1,0 @@
-interface:
-  display_name: "CodeRail Grill Contract"
-  short_description: "Clarify risky work into a task contract"
-  default_prompt: "Use $coderail-grill-contract to clarify this request and draft a CodeRail task contract."
-policy:
-  allow_implicit_invocation: false

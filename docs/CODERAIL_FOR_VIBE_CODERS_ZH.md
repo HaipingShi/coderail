@@ -559,4 +559,4 @@ CodeRail 要做的，是让 AI Agent 更像一个负责任的技术团队：
 - [Matt Pocock `grill-with-docs` 官方说明](https://github.com/mattpocock/skills/blob/main/docs/engineering/grill-with-docs.md)
 - [Superpowers 官方仓库](https://github.com/obra/superpowers)
 - [CodeRail Convergent Coding 说明](../references/CONVERGENT_CODING.md)
-- [CodeRail Guided Convergence 实验结论](../experiments/workflow-lab/docs/WP6_ADOPTION_REVIEW.md)
+- [CodeRail Guided Convergence 实验结论（归档）](https://github.com/HaipingShi/coderail/blob/archive-workflow-lab-final-20260728/experiments/workflow-lab/docs/WP6_ADOPTION_REVIEW.md)

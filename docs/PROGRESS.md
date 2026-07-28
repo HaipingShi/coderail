@@ -3,6 +3,22 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - 清理 CodeRail 公共仓库过程表面并归档 Workflow Lab (T-049)
+
+- Done: 清理 CodeRail 公共仓库过程表面并归档 Workflow Lab
+- Checked by: `python tests/test_structure.py` exit 0; `python scripts/doctor.py --target .` exit 0; `python .coderail/coderail.py check` exit 0; `python scripts/trace_doctor.py --target .` exit 0; `git diff --check` exit 0
+- Next: 推送归档标签和清理提交，删除已合并远程分支后单独设计状态账本压缩
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `python scripts/doctor.py --target .` -> exit 0
+- Evidence: `python .coderail/coderail.py check` -> exit 0
+- Evidence: `python scripts/trace_doctor.py --target .` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: 归档引用保留删除前完整 experiments/workflow-lab
+- Acceptance [done]: .coderail/config.json 不再包含开发者机器绝对路径
+- Acceptance [done]: HANDOFF 不再声称 T-042 或已提交实验文件仍处于脏状态
+- Acceptance [done]: 根生产代码、核心测试、技能、模板、参考和包清单没有变化
+- Acceptance [done]: 删除后主分支核心 122 项测试和健康检查通过
+
 ## 2026-07-28 - 建立 CodeRail 内核边界观察基线，不实施重构 (T-048)
 
 - Done: 建立 CodeRail 内核边界观察基线，不实施重构

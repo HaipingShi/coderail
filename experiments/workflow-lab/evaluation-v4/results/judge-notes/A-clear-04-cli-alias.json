@@ -1,9 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "clear-04-cli-alias",
-  "workflow": "A",
-  "notes": [
-    "Ready on first contract turn.",
-    "Alias addition, canonical command preservation, and parser-test verification align with the oracle."
-  ]
-}

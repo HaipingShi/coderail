@@ -4027,5 +4027,26 @@
         }
       ]
     }
+  },
+  "T-049": {
+    "verify": [
+      "python tests/test_structure.py",
+      "python scripts/doctor.py --target .",
+      "python .coderail/coderail.py check",
+      "python scripts/trace_doctor.py --target .",
+      "git diff --check"
+    ],
+    "accept": [
+      "归档引用保留删除前完整 experiments/workflow-lab",
+      ".coderail/config.json 不再包含开发者机器绝对路径",
+      "HANDOFF 不再声称 T-042 或已提交实验文件仍处于脏状态",
+      "根生产代码、核心测试、技能、模板、参考和包清单没有变化",
+      "删除后主分支核心 122 项测试和健康检查通过"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-28T09:05:22.751435+00:00",
+      "head": "24b38ecf5f2391f5d7916f7219382fd42bd33165",
+      "files": []
+    }
   }
 }

@@ -1,8 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "ambiguous-04-team-invitations",
-  "workflow": "A",
-  "notes": [
-    "The question resolves the acceptance-before-membership boundary and expiry requirement."
-  ]
-}

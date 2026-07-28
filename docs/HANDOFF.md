@@ -1,32 +1,23 @@
 # Handoff
 
-Handoff Level: H3
-Task: T-042
-Reason: explicit dirty-fork waiver before switching to Finalize WP6 review under governance-owned closeout scope
+Handoff Level: H0
+Task: none
+Reason: no paused task requires a handoff
 
 ## Coordinate Summary
 
-- Current owner remains `T-042`.
-- No implementation commit was created by the failed switch.
-- No destination task was activated.
+- No paused task owns work.
+- Workflow Lab is preserved by the
+  `archive-workflow-lab-final-20260728` archive tag.
+- The maintained `main` branch excludes the completed experiment workspace.
 
 ## Dirty Paths
 
-- `.coderail/tasks.json` ( M)
-- `docs/CODERAIL_STATUS.md` ( M)
-- `docs/TASKS.md` ( M)
-- `docs/TRACELOG.jsonl` ( M)
-- `docs/TRACE_INDEX.md` ( M)
-- `experiments/workflow-lab/README.md` ( M)
-- `experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md` ( M)
-- `experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md` ( M)
-- `experiments/workflow-lab/docs/WP6_ADOPTION_REVIEW.md` (??)
-- `experiments/workflow-lab/tests/test_wp6_adoption_review.py` (??)
+- none
 
 ## Decision Required
 
-- Continue current: `coderail switch --continue-current`
-- Carry a fingerprinted dirty baseline: `coderail switch "new task" --dirty-fork`
+- none
 
 ## Auto Commit
 
@@ -35,4 +26,4 @@ Reason: explicit dirty-fork waiver before switching to Finalize WP6 review under
 
 ## Next Executable Step
 
-- Choose exactly one command from Decision Required.
+- Start the next authorized task with `coderail start "..."`.

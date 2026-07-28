@@ -1,8 +1,0 @@
-{
-  "protocol_version": "wp5-v3",
-  "task_id": "ambiguous-06-offline-mode",
-  "workflow": "B",
-  "notes": [
-    "Question correctly establishes the offline capability boundary and avoids assuming offline editing."
-  ]
-}

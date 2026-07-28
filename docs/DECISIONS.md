@@ -190,3 +190,22 @@ Task: T-048
   缺口或可复查的回归成本。
 - stabilization freeze 和 ADR-010 保持有效；T-048 只建立被动观察基线，不
   授权生产代码移动、抽取、重命名或重构。
+
+## ADR-015 Freeze-period public-surface cleanup is a bounded exception
+
+Status: accepted
+Date: 2026-07-28
+Task: T-049
+
+- The repository owner explicitly authorized removal of machine-specific
+  configuration, stale handoff state, and the completed Workflow Lab workspace
+  from the maintained `main` branch.
+- The final Workflow Lab tree must remain available through the immutable
+  `archive-workflow-lab-final-20260728` tag before its removal from `main`.
+- This exception covers only repository hygiene and public-surface reduction.
+  It does not authorize changes to the production kernel, tests, templates,
+  skills, references, package metadata, CI, commands, hooks, or telemetry.
+- The archive result remains `REVISE`; moving the experiment out of `main`
+  neither promotes it to product behavior nor erases its recorded evidence.
+- The exception ends when T-049 is closed. Any state-ledger compaction must be
+  designed and governed as a separate task before implementation.

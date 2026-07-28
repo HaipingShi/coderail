@@ -1,9 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "clear-05-timeout-default",
-  "workflow": "C",
-  "notes": [
-    "Ready on first contract turn.",
-    "Contract stays within test-only helper scope and verification evidence."
-  ]
-}

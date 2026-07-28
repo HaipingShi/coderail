@@ -1,8 +1,0 @@
-{
-  "protocol_version": "wp5-v4",
-  "task_id": "ambiguous-05-search-filter",
-  "workflow": "C",
-  "notes": [
-    "The question resolves the domain-term ambiguity that blocks a truthful contract."
-  ]
-}

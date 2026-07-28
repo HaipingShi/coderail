@@ -1,4 +1,0 @@
-{"type":"thread.started","thread_id":"019f9843-5aa2-75f2-9721-5b87feedb08a"}
-{"type":"turn.started"}
-{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"protocol_version\":\"wp5-v4\",\"responses\":[{\"task_id\":\"__schema_preflight__\",\"route\":\"quick\",\"turns\":[{\"question\":null,\"scripted_answer_index\":null,\"draft_ready\":true}],\"contract\":{\"G\":\"preflight\",\"T\":\"preflight\",\"S\":\"preflight\",\"V\":\"preflight\",\"X\":\"preflight\",\"P\":\"preflight\",\"ready\":true},\"promotions\":[],\"stop_after_contract\":true}]}"}}
-{"type":"turn.completed","usage":{"input_tokens":15847,"cached_input_tokens":2432,"output_tokens":120,"reasoning_output_tokens":15}}

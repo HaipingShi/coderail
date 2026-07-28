@@ -1,4 +1,0 @@
-interface:
-  display_name: "CodeRail TDD Quality"
-  short_description: "Build behavior through trustworthy TDD"
-  default_prompt: "Use $coderail-tdd-quality to implement this behavior with a trustworthy red-green loop."
