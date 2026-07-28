@@ -3,6 +3,20 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - 建立 CodeRail 内核边界观察基线，不实施重构 (T-048)
+
+- Done: 建立 CodeRail 内核边界观察基线，不实施重构
+- Checked by: `python scripts/doctor.py --target .` exit 0; `python .coderail/coderail.py check` exit 0; `python scripts/trace_doctor.py --target .` exit 0; `git diff --check` exit 0
+- Next: 在未来 3 至 5 个真实 CodeRail 维护任务完成后，按观察表复查共同变更与触发阈值
+- Evidence: `python scripts/doctor.py --target .` -> exit 0
+- Evidence: `python .coderail/coderail.py check` -> exit 0
+- Evidence: `python scripts/trace_doctor.py --target .` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: 报告区分规模信号、已证实耦合证据、未证实风险和已受控风险
+- Acceptance [done]: 报告建立未来 3 至 5 个维护任务的被动观察协议与治理触发阈值
+- Acceptance [done]: 生产代码与测试文件没有变化
+- Acceptance [done]: 当前结论严格从 OBSERVE、PREPARE、GOVERN 中选择并以仓库证据说明
+
 ## 2026-07-28 - 修复 CodeRail 自举治理与单一收口权威漂移 (T-047)
 
 - Done: 修复 CodeRail 自举治理与单一收口权威漂移

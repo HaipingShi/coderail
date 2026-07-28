@@ -177,3 +177,16 @@ Task: T-047
   entrypoint, contradictory health signals, stale status projection, duplicate
   completion guidance, dot-directory scope corruption, and rail
   misclassification.
+
+## ADR-014 Code length does not authorize kernel refactoring
+
+Status: accepted
+Date: 2026-07-28
+Task: T-048
+
+- 代码长度本身不授权重构；只有可重复的维护伤害才能触发内核治理。
+- `scripts/coderail.py` 的行数、函数数和集中度只作为观察信号。任何 PREPARE
+  或 GOVERN 决定必须引用已复现缺陷、跨职责共同变更、冲突状态权威、局部测试
+  缺口或可复查的回归成本。
+- stabilization freeze 和 ADR-010 保持有效；T-048 只建立被动观察基线，不
+  授权生产代码移动、抽取、重命名或重构。

@@ -4002,5 +4002,30 @@
       "head": "0108c6851bfbc14ec0ec123694717ca76a1bb95f",
       "files": []
     }
+  },
+  "T-048": {
+    "verify": [
+      "python scripts/doctor.py --target .",
+      "python .coderail/coderail.py check",
+      "python scripts/trace_doctor.py --target .",
+      "git diff --check"
+    ],
+    "accept": [
+      "报告区分规模信号、已证实耦合证据、未证实风险和已受控风险",
+      "报告建立未来 3 至 5 个维护任务的被动观察协议与治理触发阈值",
+      "生产代码与测试文件没有变化",
+      "当前结论严格从 OBSERVE、PREPARE、GOVERN 中选择并以仓库证据说明"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-28T07:55:11.996129+00:00",
+      "head": "80dc40abdf3586d913b48ac5e1936b8c40fb1d79",
+      "files": [
+        {
+          "status": " M",
+          "path": "docs/CODERAIL_STATUS.md",
+          "fingerprint": "59161fe4e6f2997d670b12394502fae2f7494a8f7789499a9021aa978fe758f1"
+        }
+      ]
+    }
   }
 }
