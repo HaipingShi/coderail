@@ -152,3 +152,28 @@ Task: T-018
 - Only `FINALIZED` renders `Done`. Commit permission failure is recoverable
   pending state, not `[!]`; scope, sensitive-file, manual Drive, and no-push
   invariants remain unchanged.
+
+## ADR-013 Freeze-period command additions were an undocumented exception
+
+Status: accepted
+Date: 2026-07-28
+Task: T-047
+
+- ADR-010 froze feature work on 2026-07-16 until a reproduced defect or an
+  explicit North Star decision authorized implementation.
+- The later public inspection commands, including graph-oriented navigation
+  added during T-046, were merged without a repository-tracked freeze
+  exception. User direction existed in the development conversation, but the
+  required decision was not persisted before implementation. This is a
+  governance process violation, not evidence that the freeze silently ended.
+- The already merged behavior remains in place. Removing it during T-047 would
+  be a new product decision and could create a regression; this repair neither
+  expands those commands nor treats them as precedent for more feature work.
+- During the freeze, only a reproduced defect with an existing invariant may
+  enter implementation. Any proposed exception must be recorded in the North
+  Star or Decisions before code changes begin, with its scope and stop
+  conditions.
+- T-047 is admitted only for reproduced self-governance defects: stale local
+  entrypoint, contradictory health signals, stale status projection, duplicate
+  completion guidance, dot-directory scope corruption, and rail
+  misclassification.

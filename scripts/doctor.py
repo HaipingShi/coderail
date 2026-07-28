@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -61,6 +62,28 @@ def read_json(path: Path) -> dict:
         return json.loads(path.read_text(encoding="utf-8", errors="ignore"))
     except Exception:
         return {}
+
+
+def configured_home_candidates(root: Path) -> tuple[list[str], list[str]]:
+    candidates: list[str] = []
+    errors: list[str] = []
+    env_home = os.environ.get("CODERAIL_HOME")
+    if env_home:
+        candidates.append(env_home)
+    for name in ("config.local.json", "config.json"):
+        path = root / ".coderail" / name
+        if not path.exists():
+            continue
+        try:
+            value = json.loads(read(path)).get("coderail_home")
+        except (ValueError, OSError):
+            errors.append(f".coderail/{name} is not valid JSON")
+            continue
+        if isinstance(value, str):
+            candidates.append(value)
+        elif isinstance(value, list):
+            candidates.extend(item for item in value if isinstance(item, str))
+    return candidates, errors
 
 
 def line_count(path: Path) -> int:
@@ -223,7 +246,6 @@ def main(argv=None) -> int:
 
     # FN-001/FN-002: shim health - version match and coderail_home reachability.
     shim_path = root / ".coderail" / "coderail.py"
-    config_file = root / ".coderail" / "config.json"
     if shim_path.exists():
         shim_text = read(shim_path)
         m = re.search(r'SHIM_VERSION\s*=\s*"([^"]+)"', shim_text)
@@ -245,16 +267,16 @@ def main(argv=None) -> int:
             entry_warn.append(
                 f".coderail/coderail.py shim is v{shim_ver} but CodeRail home is v{home_ver}; "
                 f"re-run init to update the shim")
-        if config_file.exists():
-            try:
-                cfg = json.loads(read(config_file))
-                cfg_home = cfg.get("coderail_home")
-                if cfg_home and not (Path(cfg_home).expanduser() / "scripts" / "coderail.py").exists():
-                    entry_warn.append(
-                        f"coderail_home in .coderail/config.json is unreachable ({cfg_home}); "
-                        f"fix the path or override per run with CODERAIL_HOME=/path/to/coderail")
-            except (ValueError, OSError):
-                entry_warn.append(".coderail/config.json is not valid JSON")
+        home_candidates, config_errors = configured_home_candidates(root)
+        entry_warn.extend(config_errors)
+        if home_candidates and not any(
+            (Path(candidate).expanduser() / "scripts" / "coderail.py").exists()
+            for candidate in home_candidates
+        ):
+            entry_warn.append(
+                "all configured coderail_home candidates are unreachable "
+                f"({', '.join(home_candidates)}); fix a path or override per run "
+                "with CODERAIL_HOME=/path/to/coderail")
 
     blueprint = blueprint_check.check_project(root)
     blueprint_severe = blueprint["severe"]

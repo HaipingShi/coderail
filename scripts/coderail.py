@@ -56,7 +56,8 @@ ADVANCED = {
 TASK_HEADER = re.compile(r"^##\s+T-(\d+)", re.M)
 ACTIVE_RE = re.compile(r"^##\s+(T-\d+)[^\n]*\n(?:(?!^##\s).)*?^Status:\s*\[(?:~|!)\]", re.M | re.S)
 
-LIGHT_HINTS = ["doc", "readme", "note", "design", "research", "adr", "写文档", "笔记", "调研", "设计稿"]
+LIGHT_WORDS = {"doc", "docs", "documentation", "readme", "note", "design", "research", "adr"}
+LIGHT_CJK_HINTS = ["写文档", "笔记", "调研", "设计稿"]
 
 MINIMAL_TASKS = """# Tasks
 
@@ -995,7 +996,10 @@ def guess_rail(title: str, goal: str, task_type: str) -> str:
     blob = f"{title} {goal} {task_type}".lower()
     if task_type in {"docs", "design", "research", "note"}:
         return "light"
-    if any(h in blob for h in LIGHT_HINTS):
+    if task_type in {"bug", "refactor"}:
+        return "full"
+    words = set(re.findall(r"[a-z0-9]+", blob))
+    if words & LIGHT_WORDS or any(hint in blob for hint in LIGHT_CJK_HINTS):
         return "light"
     return "full"
 
@@ -1280,6 +1284,7 @@ def cmd_check(args) -> int:
 
     coord_rc, coord_out = run_script("coordinate_check.py", root, capture=True)
     tdd_rc, tdd_out = run_script("tdd_check.py", root, capture=True)
+    doctor_rc, doctor_out = run_script("doctor.py", root, capture=True)
     graph_problems = task_graph.validate(
         task_graph.load_meta(root),
         task_graph.known_task_ids(root),
@@ -1290,6 +1295,8 @@ def cmd_check(args) -> int:
         problems.append("Some tasks are missing goal, scope, or verification info.")
     if tdd_rc:
         problems.append("A task that needs tests does not have test evidence yet.")
+    if doctor_rc:
+        problems.append("The project health check found an installation, contract, or persisted-state problem.")
     problems.extend(graph_problems)
 
     if not problems:
@@ -1303,6 +1310,8 @@ def cmd_check(args) -> int:
             print("\n--- task record check ---\n" + coord_out)
         if tdd_rc:
             print("\n--- test evidence check ---\n" + tdd_out)
+        if doctor_rc:
+            print("\n--- project health check ---\n" + doctor_out)
     return 1 if problems else 0
 
 
@@ -1490,6 +1499,18 @@ def commit_staged(root: Path, message: str) -> tuple[bool, str]:
         errors="replace",
     )
     return result.returncode == 0, result.stdout.strip()
+
+
+def prepare_committed_status(root: Path) -> str:
+    """Write the Inspect state expected after the exact closeout commit."""
+    status_path = root / "docs" / "CODERAIL_STATUS.md"
+    status, text = inspect_state.render(root, assume_clean=True)
+    desired = text + "\n"
+    current = status_path.read_text(encoding="utf-8") if status_path.exists() else ""
+    if current != desired:
+        status_path.parent.mkdir(parents=True, exist_ok=True)
+        status_path.write_text(desired, encoding="utf-8")
+    return status
 
 
 def changed_paths_between(root: Path, before: str, after: str) -> set[str]:
@@ -1863,6 +1884,13 @@ def cmd_done(args) -> int:
             tasks_before_compaction, compacted_ids = compact_persisted_closed_tasks(root)
             if compacted_ids:
                 print(f"  hot TASKS:    compacted {', '.join(compacted_ids)}")
+            # finish_task records path ownership for its legacy direct-close
+            # flow. The facade instead commits one exact source + ledger
+            # snapshot, so that temporary ownership must not survive inside
+            # tasks.json. Persist the clean state that this same commit will
+            # produce; do not create a second amend commit.
+            task_switch.clear_closed_pending(root, closed_id)
+            prepare_committed_status(root)
 
         if ledger_errors:
             transaction.fail(closeout_transaction.Failure.PERSIST_FAILED)

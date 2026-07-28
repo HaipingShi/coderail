@@ -5,23 +5,20 @@ description: End a work session cleanly: report what happened, commit safe files
 
 # closeout
 
-Use at the end of any substantial task, batch boundary, blocked state, or handoff.
+Compatibility guidance for choosing the result passed to the single
+`coderail done` completion authority.
 
 ## Action
 
-Run available CI/CD checks first:
-
 ```bash
-python .coderail/coderail.py ci
+python .coderail/coderail.py done
 ```
 
-Run when available:
+For a verified partial boundary, use:
 
 ```bash
-python .coderail/coderail.py finish --task <TASK_ID> --task-result stage-complete
+python .coderail/coderail.py done --result stage-complete
 ```
-
-Use `--task-result done` only after Done Gate has passed.
 
 ## Required final packet
 
@@ -37,7 +34,7 @@ Use `--task-result done` only after Done Gate has passed.
 
 - Do not include project-specific examples from another repository.
 - Do not stop with only a narrative summary.
-- Do not ask about commit mechanics when a safe task-scoped commit can be made automatically.
-- Do not use broad staging when unrelated, ignored, generated, forbidden, or out-of-scope files exist.
-- Prefer one task-sliced commit per done or stage-complete boundary.
-- If useful work is stage-complete but not verified, keep the task active and make the next validation step explicit.
+- Do not run the legacy `finish` adapter as a second closeout path.
+- Do not manually repeat persistence, staging, or commit work after `done`.
+- If useful work is not verified, keep the task active and state the next
+  validation step instead of manufacturing a checkpoint.

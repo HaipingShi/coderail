@@ -3821,55 +3821,6 @@
       "reason": "dirty-fork",
       "paused_at": "2026-07-27T08:18:43.307978+00:00",
       "resume": "coderail switch --to T-042"
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T08:32:01.403039+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/HANDOFF.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/PROGRESS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/README.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/GUIDED_CONVERGENCE_PLAN.md"
-        },
-        {
-          "status": " M",
-          "path": "experiments/workflow-lab/docs/WP5_EVALUATION_REPORT.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/docs/WP6_ADOPTION_REVIEW.md"
-        },
-        {
-          "status": "??",
-          "path": "experiments/workflow-lab/tests/test_wp6_adoption_review.py"
-        }
-      ]
     }
   },
   "T-043": {
@@ -3949,32 +3900,7 @@
         }
       ]
     },
-    "dirty_fork": true,
-    "closed_pending": {
-      "recorded_at": "2026-07-27T08:22:34.188655+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
-    }
+    "dirty_fork": true
   },
   "T-044": {
     "display_id": "T-044",
@@ -3996,35 +3922,6 @@
       "captured_at": "2026-07-27T09:30:49.837741+00:00",
       "head": "255a510cfacc1aff4eb4c1a14f1e1fcbc84d88b6",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T09:41:55.642776+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/NORTH_STAR.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        }
-      ]
     }
   },
   "T-045": {
@@ -4045,39 +3942,6 @@
       "captured_at": "2026-07-27T09:45:25.857432+00:00",
       "head": "0cb2dd6622bf0eacd471fc20a8896f7b85a3a07e",
       "files": []
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-27T09:55:43.009082+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "README.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": "??",
-          "path": "docs/CODERAIL_FOR_VIBE_CODERS_ZH.md"
-        }
-      ]
     }
   },
   "T-046": {
@@ -4104,91 +3968,39 @@
       "depends_on": [
         "T-045"
       ]
-    },
-    "closed_pending": {
-      "recorded_at": "2026-07-28T03:10:21.348977+00:00",
-      "files": [
-        {
-          "status": " M",
-          "path": ".coderail/tasks.json"
-        },
-        {
-          "status": " M",
-          "path": "README.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_FOR_VIBE_CODERS_ZH.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/CODERAIL_STATUS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASKS.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TASK_GRAPH.md"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACELOG.jsonl"
-        },
-        {
-          "status": " M",
-          "path": "docs/TRACE_INDEX.md"
-        },
-        {
-          "status": " M",
-          "path": "project-template/docs/TASK_GRAPH.md"
-        },
-        {
-          "status": " M",
-          "path": "references/TRACE_GRAPH.md"
-        },
-        {
-          "status": " M",
-          "path": "scripts/coderail.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/finish_task.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/init_project.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/trace_event.py"
-        },
-        {
-          "status": " M",
-          "path": "scripts/trace_index.py"
-        },
-        {
-          "status": "??",
-          "path": "docs/TRACE_CANDIDATES.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "project-template/docs/TRACE_CANDIDATES.jsonl"
-        },
-        {
-          "status": "??",
-          "path": "scripts/task_graph.py"
-        },
-        {
-          "status": "??",
-          "path": "scripts/trace_graph.py"
-        },
-        {
-          "status": "??",
-          "path": "tests/test_trace_graph_v2.py"
-        }
+    }
+  },
+  "T-047": {
+    "display_id": "T-047",
+    "verify": [
+      "python scripts/doctor.py --target .",
+      "python .coderail/coderail.py check",
+      "python scripts/inspect_state.py --target . --no-write",
+      "npm.cmd test"
+    ],
+    "tests": [
+      "tests/test_static.py",
+      "tests/test_closeout.py",
+      "tests/test_inspect.py"
+    ],
+    "accept": [
+      "仓库内 .coderail 启动器带当前版本并把 start/check/done 转发给统一入口",
+      "check 不再在 Doctor 存在 severe 时宣称 Everything looks consistent",
+      "提交后的 CODERAIL_STATUS 不再把已结束任务的提交前 dirty/blocked 快照伪装成当前状态",
+      "done 是唯一完成事务权威，done-gate 与 closeout Skill 不再要求重复写 TASKS、TRACE、状态或二次提交",
+      "`.coderail/**` 等点目录在任务范围中保持原名，`doctor` 不再因 `doc` 子串把 bug 任务误判为 Light Rail",
+      "对冻结期新增命令形成书面审计结论：找到既有例外依据，或明确记录流程违例；不得借此继续扩展功能",
+      "root Doctor、实时 inspect、完整 122 项核心测试和 Trace Doctor 均通过"
+    ],
+    "relations": {
+      "depends_on": [
+        "T-046"
       ]
+    },
+    "baseline": {
+      "captured_at": "2026-07-28T06:20:33.208458+00:00",
+      "head": "0108c6851bfbc14ec0ec123694717ca76a1bb95f",
+      "files": []
     }
   }
 }

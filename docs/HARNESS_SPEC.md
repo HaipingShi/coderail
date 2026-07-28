@@ -236,3 +236,42 @@ TDD evidence:
 python tests/test_static.py
 python tests/test_closeout.py
 ```
+
+### T-047 self-governance decay regression
+
+The regression harness keeps CodeRail's own repository subject to the same
+contracts it installs elsewhere. It proves that dot-prefixed scope roots keep
+their names, `doctor` is not mistaken for the documentation word `doc`, and
+the checked-in `.coderail` launcher exactly matches the current stamped local
+entry shim.
+
+Health and completion assertions cover the user-facing convergence:
+
+- `coderail check` must fail and include Doctor's severe finding when Doctor is
+  unhealthy.
+- automatic `coderail done` must fold a clean post-commit Inspect projection
+  into the closeout commit rather than commit a dirty pre-commit snapshot.
+- `done` is the single completion authority; `done-gate` is diagnostic and
+  `closeout` is compatibility guidance, not a second write sequence.
+- persisted Inspect output identifies itself as a point-in-time snapshot.
+
+TDD evidence begins with failures for dot-directory normalization, stale
+post-close status, and the missing snapshot marker. The smallest production
+changes are exercised by the existing responsibility suites; the locked core
+inventory remains 122 tests.
+
+The root-repository repair also removes `closed_pending` records from T-042
+through T-046. T-047 captured an empty baseline at a later clean HEAD, which is
+repository evidence that those path-only records described already committed
+work rather than current residue. This is a one-time state repair, not a rule
+that active work may ignore real closed-task residue.
+
+```bash
+python tests/test_static.py
+python tests/test_closeout.py
+python tests/test_inspect.py
+python scripts/doctor.py --target .
+python .coderail/coderail.py check
+python scripts/trace_doctor.py --target .
+npm.cmd test
+```

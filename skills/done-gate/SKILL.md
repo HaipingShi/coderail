@@ -5,14 +5,15 @@ description: The final verification before marking a task done: evidence exists,
 
 # Done Gate
 
-Do not mark a task done until this gate passes.
+This is an advanced, read-only diagnostic gate. It answers whether completion
+is currently allowed; it does not close the task or replace `coderail done`.
 
 ## Action
 
 Run:
 
 ```bash
-python .coderail/coderail.py done --task <TASK_ID> --harness-result passed
+python .coderail/coderail.py done-gate --task <TASK_ID> --harness-result passed
 ```
 
 Tasks should declare `Rail: full` or `Rail: light` in TASKS. Use `--rail-type light --task-type docs|design` only as an intentional override for docs-only or design-only tasks that have not been updated yet. Use `--manual-acceptance` only when automatic harness is impossible and acceptance is explicit. Do not claim a skipped harness passed.
@@ -37,3 +38,5 @@ For Light Rail, TASKS plus trace, decision backlink, or explicit manual acceptan
 - Scope violation blocks done.
 - Handoff is not always required, but Handoff Trigger Check is always required.
 - Passing Done Gate is not enough to stop; final closeout must still state auto-commit action and a next executable step.
+- Do not update TASKS, TRACE, status, or Git from this diagnostic; run
+  `python .coderail/coderail.py done` for the completion transaction.

@@ -81,6 +81,10 @@ def test_done_commits_file_created_after_start_under_glob_and_inspect_is_healthy
         inspect = cr('inspect', '--no-write')
         check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
         check('Closed-task uncommitted ownership: none' in inspect.stdout, inspect.stdout)
+        persisted = (root/'docs/CODERAIL_STATUS.md').read_text(encoding='utf-8')
+        check('Status: healthy' in persisted, persisted)
+        check('- Worktree: clean' in persisted, persisted)
+        check('Closed-task uncommitted ownership: none' in persisted, persisted)
 
 def test_done_accepts_inline_code_formatted_allowed_glob():
     with tempfile.TemporaryDirectory() as td:

@@ -240,6 +240,49 @@ Notes:
 Status: accepted
 Task: T-007 through T-009
 
+### Coordinate Contract Draft
+
+G — Goal:
+- North Star: NS-001
+- Outcome served: preserve the three-command product while making closeout facts and success authority converge
+
+T — Task:
+- Task ID: T-007 through T-009
+- Exact task: characterize closeout behavior, unify repository facts, then make FINALIZED the only success state
+- What this task must not become: a new public lifecycle or an excuse to weaken inspect
+
+S — Scope:
+- Allowed:
+  - scripts/coderail.py
+  - scripts/closeout_transaction.py
+  - scripts/repository_state.py
+  - scripts/finish_task.py
+  - scripts/closeout_check.py
+  - scripts/inspect_state.py
+  - scripts/task_switch.py
+  - tests/test_closeout.py
+  - docs/CLOSEOUT_CONVERGENCE.md
+- Forbidden:
+  - new public commands or lifecycle states
+  - automatic push
+  - package or release changes
+
+V — Verify:
+- TDD mode required: preserve characterization before changing authority
+- Red: expose duplicated facts or intermediate success through the existing closeout scenarios
+- Green: repository facts are shared and only FINALIZED can render Done
+- Refactor: keep public behavior stable while deleting duplicate internal classifiers
+- Regression: `python tests/test_closeout.py`
+- CI: `npm test`
+
+X — Stop:
+- stop if compatibility requires a new public command, task schema, security policy, or push behavior
+
+P — Persist:
+- CONTRACTS, DECISIONS, HARNESS_SPEC, TASKS, and TRACE
+
+Decision: proceed
+
 - Authorized outcome: preserve the three-command product while reducing closeout to one snapshot, classifier, and success authority.
 - Specification: `docs/CLOSEOUT_CONVERGENCE.md`.
 - Migration order: characterize first, unify facts second, unify authority third.

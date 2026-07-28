@@ -4,6 +4,8 @@ from test_support import _assert_done_inspect_consistent, _lifecycle_env
 def test_scope_patterns_treat_exact_inline_code_as_presentation_only():
     sys.path.insert(0, str(ROOT/'scripts'))
     import done_gate
+    import coderail
+    import repository_state
 
     check(done_gate.split_patterns('lib/**') == ['lib/**'],
           'plain scope patterns must remain unchanged')
@@ -11,6 +13,16 @@ def test_scope_patterns_treat_exact_inline_code_as_presentation_only():
           'exact Markdown inline-code wrappers must be removed')
     check(done_gate.split_patterns('`lib/**` note') == ['`lib/**` note'],
           'only an exact inline-code wrapper may be normalized')
+    check(repository_state.normalize_pattern('./src/**') == 'src/**',
+          'an explicit relative prefix should be presentation-only')
+    check(repository_state.normalize_pattern('.coderail/**') == '.coderail/**',
+          'dot-directory scope must not lose its leading dot')
+    check(repository_state.normalize_pattern('.claude-plugin/**') == '.claude-plugin/**',
+          'plugin dot-directory scope must remain exact')
+    check(coderail.guess_rail('Repair doctor output', 'Fix a lifecycle bug', 'bug') == 'full',
+          'the doc substring inside doctor must not select Light Rail')
+    check(coderail.guess_rail('Update docs', 'Clarify the README', 'docs') == 'light',
+          'explicit documentation work should still select Light Rail')
 
 def test_manifests_exist():
     check((ROOT/'.claude-plugin/plugin.json').exists(), 'missing claude manifest')
@@ -29,6 +41,12 @@ def test_versions_consistent():
           'local_entry.py template must keep the 0.0.0-dev placeholder (stamped at install)')
     check('def effective_version' in shim,
           'local_entry.py must fall back to reading home VERSION for hand-copied shims')
+    installed = (ROOT/'.coderail/coderail.py').read_text(encoding='utf-8')
+    expected_installed = shim.replace(
+        'SHIM_VERSION = "0.0.0-dev"', f'SHIM_VERSION = "{expected}"', 1
+    )
+    check(installed == expected_installed,
+          'the repository-local launcher must be the current stamped forwarding shim')
 
 def test_entry_files_short():
     check(len((ROOT/'project-template/AGENTS.md').read_text(encoding='utf-8').splitlines()) <= 130, 'AGENTS too long')
@@ -41,6 +59,19 @@ def test_skills_have_frontmatter():
             head = txt.split('---', 2)[1]
             check(txt.startswith('---'), f'{d} no frontmatter')
             check('name:' in head and 'description:' in head, f'{d} incomplete frontmatter')
+    done = (ROOT/'skills/done/SKILL.md').read_text(encoding='utf-8')
+    done_gate = (ROOT/'skills/done-gate/SKILL.md').read_text(encoding='utf-8')
+    closeout = (ROOT/'skills/closeout/SKILL.md').read_text(encoding='utf-8')
+    check('single completion authority' in done.lower(),
+          'done skill must name the one completion authority')
+    check('/coderail:done-gate' not in done,
+          'done skill must not start a second completion sequence')
+    check('coderail.py done-gate' in done_gate,
+          'done-gate skill must invoke the diagnostic gate, not full done')
+    check('coderail.py done --task' not in done_gate,
+          'done-gate skill must not masquerade as the completion transaction')
+    check('coderail.py finish' not in closeout,
+          'closeout skill must not route users through the legacy finish adapter')
 
 def test_required_v06_files_exist():
     required = [
@@ -274,6 +305,18 @@ def test_doctor_separates_historical_debt_from_current_blockers():
         check('## Historical Debt' in result.stdout, 'doctor should expose historical debt section')
         check('historical debt: Coordinate: T-001' in result.stdout, 'closed task issue should be historical debt')
         check('must-fix blocker: T-001' not in result.stdout, 'closed task debt must not be current blocker')
+        (target/'docs/CONTRACTS.md').write_text(
+            '# Coordinate Contract Drafts\n\n'
+            '## CD-001 Broken accepted draft\n\nStatus: accepted\n\nDecision: proceed\n',
+            encoding='utf-8',
+        )
+        checked = subprocess.run([
+            sys.executable, str(ROOT/'scripts/coderail.py'), 'check', '--target', td
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+           encoding='utf-8', errors='replace')
+        check(checked.returncode == 1, checked.stdout)
+        check('project health check' in checked.stdout.lower(), checked.stdout)
+        check('CD-001: missing Coordinate Contract Draft' in checked.stdout, checked.stdout)
 
 def test_doctor_accepts_legacy_and_repo_local_inspect_markers():
     import scripts.doctor as doctor

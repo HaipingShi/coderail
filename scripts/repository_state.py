@@ -180,7 +180,10 @@ def capture(
 
 
 def normalize_pattern(pattern: str) -> str:
-    return pattern.replace("\\", "/").lstrip("./").rstrip()
+    normalized = pattern.replace("\\", "/").rstrip()
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized
 
 
 def normalize_patterns(patterns: list[str] | tuple[str, ...]) -> list[str]:

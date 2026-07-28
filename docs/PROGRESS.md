@@ -3,6 +3,23 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - 修复 CodeRail 自举治理与单一收口权威漂移 (T-047)
+
+- Done: 修复 CodeRail 自举治理与单一收口权威漂移
+- Checked by: `python scripts/doctor.py --target .` exit 0; `python .coderail/coderail.py check` exit 0; `python scripts/inspect_state.py --target . --no-write` exit 0; `npm.cmd test` exit 0
+- Next: decide with the user
+- Evidence: `python scripts/doctor.py --target .` -> exit 0
+- Evidence: `python .coderail/coderail.py check` -> exit 0
+- Evidence: `python scripts/inspect_state.py --target . --no-write` -> exit 0
+- Evidence: `npm.cmd test` -> exit 0
+- Acceptance [done]: 仓库内 .coderail 启动器带当前版本并把 start/check/done 转发给统一入口
+- Acceptance [done]: check 不再在 Doctor 存在 severe 时宣称 Everything looks consistent
+- Acceptance [done]: 提交后的 CODERAIL_STATUS 不再把已结束任务的提交前 dirty/blocked 快照伪装成当前状态
+- Acceptance [done]: done 是唯一完成事务权威，done-gate 与 closeout Skill 不再要求重复写 TASKS、TRACE、状态或二次提交
+- Acceptance [done]: `.coderail/**` 等点目录在任务范围中保持原名，`doctor` 不再因 `doc` 子串把 bug 任务误判为 Light Rail
+- Acceptance [done]: 对冻结期新增命令形成书面审计结论：找到既有例外依据，或明确记录流程违例；不得借此继续扩展功能
+- Acceptance [done]: root Doctor、实时 inspect、完整 122 项核心测试和 Trace Doctor 均通过
+
 ## 2026-07-28 - Build evidence-aware trace graph lifecycle and queries (T-046)
 
 - Done: Build evidence-aware trace graph lifecycle and queries

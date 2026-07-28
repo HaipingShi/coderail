@@ -114,6 +114,7 @@ def test_inspect_surfaces_drive_decision():
             sys.executable, str(ROOT/'scripts/inspect_state.py'), '--target', str(target), '--no-write'
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
         check(result.returncode == 0, result.stdout + result.stderr)
+        check('Point-in-time snapshot' in result.stdout, result.stdout)
         check('## Drive Decision' in result.stdout, result.stdout)
         check('- Decision: CONTINUE' in result.stdout, result.stdout)
 
