@@ -3,6 +3,23 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - 补齐 CodeRail 核心 Mermaid 图纸并在 README 增加总览 (T-051)
+
+- Done: 补齐 CodeRail 核心 Mermaid 图纸并在 README 增加总览
+- Checked by: `python tests/test_structure.py` exit 0; `python scripts/doctor.py --target .` exit 0; `python .coderail/coderail.py blueprint` exit 0; `python .coderail/coderail.py check` exit 0; `python scripts/trace_doctor.py --target .` exit 0; `git diff --check` exit 0
+- Next: 由后续维护任务在实现变化时同步更新对应图纸
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `python scripts/doctor.py --target .` -> exit 0
+- Evidence: `python .coderail/coderail.py blueprint` -> exit 0
+- Evidence: `python .coderail/coderail.py check` -> exit 0
+- Evidence: `python scripts/trace_doctor.py --target .` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: README 包含 CodeRail 总览 Mermaid 图
+- Acceptance [done]: 详细图纸包含系统架构和组件边界
+- Acceptance [done]: 详细图纸包含生命周期状态机与 done 收口时序
+- Acceptance [done]: 详细图纸包含状态权威和数据流
+- Acceptance [done]: Blueprint 索引链接到真实图纸且生产内核不变
+
 ## 2026-07-28 - 设计 CodeRail 状态账本压缩方案，不实施内核改动 (T-050)
 
 - Done: 设计 CodeRail 状态账本压缩方案，不实施内核改动

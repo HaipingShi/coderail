@@ -22,6 +22,41 @@ No server. No accounts. No new methodology to learn. Just three commands and a `
 
 **[CodeRail 是什么：给 Vibe Coder 的项目治理说明](docs/CODERAIL_FOR_VIBE_CODERS_ZH.md)**
 
+## How CodeRail fits together / CodeRail 总览
+
+```mermaid
+flowchart LR
+    User["Human or AI agent<br/>人或 AI Agent"]
+    Shim["Repo-local launcher<br/>.coderail/coderail.py"]
+    Facade["CodeRail facade<br/>scripts/coderail.py"]
+    Lifecycle["Lifecycle<br/>start / check / done / switch"]
+    Gates["Gates and state model<br/>scope / TDD / Doctor / repository state"]
+    Truth["Repository truth<br/>TASKS / PROGRESS / TRACE"]
+    Git["Verification and local Git<br/>tests / exact scoped commit"]
+    Views["Navigation and continuity<br/>Inspect / graph / HANDOFF"]
+
+    User --> Shim
+    Shim --> Facade
+    Facade --> Lifecycle
+    Lifecycle --> Gates
+    Lifecycle --> Truth
+    Gates -. reads .-> Truth
+    Lifecycle --> Git
+    Git --> Truth
+    Truth --> Views
+    Views --> User
+```
+
+The launcher connects a project to the CodeRail home. The lifecycle facade
+checks scope and evidence, updates plain-text repository truth, and commits only
+the exact safe task files. Detailed system, lifecycle, closeout, and state
+authority diagrams are in
+[`docs/CODERAIL_DIAGRAMS.md`](docs/CODERAIL_DIAGRAMS.md).
+
+仓库内启动器负责连接 CodeRail 内核；生命周期门面检查范围和证据，把事实写回
+纯文本账本，并且只提交当前任务的精确安全文件。系统架构、生命周期、收口事务和
+状态权威详图见 [`docs/CODERAIL_DIAGRAMS.md`](docs/CODERAIL_DIAGRAMS.md)。
+
 ## 60-second start / 60 秒上手
 
 ```bash

@@ -209,3 +209,23 @@ Task: T-049
   neither promotes it to product behavior nor erases its recorded evidence.
 - The exception ends when T-049 is closed. Any state-ledger compaction must be
   designed and governed as a separate task before implementation.
+
+## ADR-016 Current blueprints must point to renderable implementation maps
+
+Status: accepted
+Date: 2026-07-28
+Task: T-051
+
+- A Blueprint entry marked `current` must point to a diagram or executable flow
+  that shows the claimed relationships; a directory list or prose-only section
+  is not enough for architecture, component, sequence, state, or data-flow
+  coverage.
+- T-051 is a bounded documentation-maintenance exception during stabilization:
+  it records the existing kernel, lifecycle, closeout transaction, and state
+  authorities without changing their behavior.
+- The permitted surface is README, the repository Blueprint index, the diagram
+  document, and this decision. Production scripts, tests, templates, skills,
+  references, packages, CI, commands, hooks, and telemetry remain unchanged.
+- Diagram detail must stop at facts that can be traced to current files and
+  commands. Proposed architecture belongs in a separate design task and cannot
+  be labeled `current`.
