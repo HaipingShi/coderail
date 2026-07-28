@@ -3,6 +3,23 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-07-28 - 优化 CodeRail 生命周期图的视觉可读性 (T-052)
+
+- Done: 优化 CodeRail 生命周期图的视觉可读性
+- Checked by: `python tests/test_structure.py` exit 0; `python scripts/doctor.py --target .` exit 0; `python .coderail/coderail.py blueprint` exit 0; `python .coderail/coderail.py check` exit 0; `python scripts/trace_doctor.py --target .` exit 0; `git diff --check` exit 0
+- Next: 由后续实现变化同步维护生命周期与恢复图
+- Evidence: `python tests/test_structure.py` -> exit 0
+- Evidence: `python scripts/doctor.py --target .` -> exit 0
+- Evidence: `python .coderail/coderail.py blueprint` -> exit 0
+- Evidence: `python .coderail/coderail.py check` -> exit 0
+- Evidence: `python scripts/trace_doctor.py --target .` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: 正常生命周期使用 flowchart TB 并通过 Closeout Gate 汇流
+- Acceptance [done]: 失败与恢复路径拆成独立 Mermaid 图
+- Acceptance [done]: check 和 repair 不再使用自循环
+- Acceptance [done]: 边标签保持简短，详细解释移到图下
+- Acceptance [done]: 生产内核和测试文件不变
+
 ## 2026-07-28 - 补齐 CodeRail 核心 Mermaid 图纸并在 README 增加总览 (T-051)
 
 - Done: 补齐 CodeRail 核心 Mermaid 图纸并在 README 增加总览

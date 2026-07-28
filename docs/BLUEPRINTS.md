@@ -10,7 +10,7 @@
 | SA | System Architecture | current | docs/CODERAIL_DIAGRAMS.md | CodeRail | 2026-07-28 | Section 1 plus the README overview show target-repository and CodeRail-home boundaries. |
 | CD | Component Diagram | current | docs/CODERAIL_DIAGRAMS.md | CodeRail | 2026-07-28 | Section 1 shows facade, lifecycle services, gates, state model, graph, distribution, Git, and verification boundaries. |
 | SEQ | Sequence Diagram | current | docs/CODERAIL_DIAGRAMS.md | CodeRail | 2026-07-28 | Section 3 shows verification, ledger preparation, exact commit, commit-pending recovery, and final rescan. |
-| SM | State Machine Diagram | current | docs/CODERAIL_DIAGRAMS.md | CodeRail | 2026-07-28 | Section 2 shows task ownership across start, next, switch, check, done, and resume. |
+| SM | State Machine Diagram | current | docs/CODERAIL_DIAGRAMS.md | CodeRail | 2026-07-28 | Section 2 separates the normal lifecycle from failure and recovery, with all success paths converging through Closeout Gate. |
 | ERD | ER Diagram / Database Model | not-applicable | | | | No database layer. |
 | DFD | Data Flow Diagram | current | docs/CODERAIL_DIAGRAMS.md | CodeRail | 2026-07-28 | Section 4 shows ownership and writes across TASKS, PROGRESS, TRACE, HANDOFF, metadata, recovery, projections, and Git. |
 | DD | Deployment Diagram | not-applicable | | | | No hosted runtime. |

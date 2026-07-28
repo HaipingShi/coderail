@@ -4090,5 +4090,27 @@
       "head": "f91dd14389cec9b1c96cddf81b89fbaaa63a0b9a",
       "files": []
     }
+  },
+  "T-052": {
+    "verify": [
+      "python tests/test_structure.py",
+      "python scripts/doctor.py --target .",
+      "python .coderail/coderail.py blueprint",
+      "python .coderail/coderail.py check",
+      "python scripts/trace_doctor.py --target .",
+      "git diff --check"
+    ],
+    "accept": [
+      "正常生命周期使用 flowchart TB 并通过 Closeout Gate 汇流",
+      "失败与恢复路径拆成独立 Mermaid 图",
+      "check 和 repair 不再使用自循环",
+      "边标签保持简短，详细解释移到图下",
+      "生产内核和测试文件不变"
+    ],
+    "baseline": {
+      "captured_at": "2026-07-28T11:19:30.190675+00:00",
+      "head": "dd17d0b9432098efeeb2773e7846ed269fdc0f3c",
+      "files": []
+    }
   }
 }

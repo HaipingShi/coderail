@@ -81,48 +81,125 @@ Boundary rules:
 
 ## 2. Task Lifecycle State Machine
 
-The state machine shows ownership, not every internal check. `[~]` and `[!]`
-both count as the current owner, so `start` cannot create a second active task.
+The lifecycle is split into two views so the normal path stays readable while
+failure and recovery detail remains explicit. `[~]` and `[!]` both count as the
+current owner, so `start` cannot create a second active task.
+
+### 2.1 Normal Lifecycle
 
 ```mermaid
-stateDiagram-v2
-    direction LR
+flowchart TB
+    subgraph Intake["Enter ownership"]
+        direction LR
+        Ready["No active owner"]
+        Queued["Queued [ ]"]
+        Reopened["Reopened [r]"]
+    end
 
-    state "No active owner" as Idle
-    state "Queued [ ]" as Queued
-    state "Active [~]" as Active
-    state "Blocked owner [!]" as Blocked
-    state "Paused [p]" as Paused
-    state "Reopened [r]" as Reopened
-    state "Switch Gate" as SwitchGate
-    state "Verified commit pending" as CommitPending
-    state "Completed history" as Completed
+    subgraph Work["Single active ownership"]
+        direction LR
+        Active["Active [~]"]
+        CheckNote["check reads state<br/>and changes no status"]
+        SwitchGate["Switch Gate"]
+        Paused["Paused [p]"]
+        Resumed["Resumed as Active [~]"]
+    end
 
-    [*] --> Idle
-    Idle --> Active: start
-    Idle --> Queued: register future or deferred work
-    Queued --> Active: next --go or switch --to
-    Reopened --> Active: switch --to
+    subgraph Close["Successful closeout"]
+        direction LR
+        CloseoutGate["Closeout Gate"]
+        Completed["Completed history<br/>PROGRESS + verify TRACE"]
+        Clear["Task list clear"]
+        NextOwner["Destination becomes Active [~]"]
+    end
 
-    Active --> Active: check
-    Active --> Blocked: closeout compensation or recorded blocker
-    Blocked --> Blocked: repair inside the same Coordinate
-    Blocked --> Completed: done after repair
-    Blocked --> SwitchGate: switch resolves current ownership
+    Ready -->|start| Active
+    Ready -->|register| Queued
+    Queued -->|next| Active
+    Reopened -->|switch| Active
 
-    Active --> SwitchGate: switch
-    SwitchGate --> Paused: checkpoint or dirty-fork
-    Paused --> Active: switch --to
-    SwitchGate --> Completed: accepted source closes
-    Completed --> Active: activate destination
+    Active -.-> CheckNote
+    Active -->|done| CloseoutGate
+    Active -->|switch| SwitchGate
+    SwitchGate -->|checkpoint| Paused
+    Paused -->|resume| Resumed
+    SwitchGate -->|accepted| CloseoutGate
 
-    Active --> CommitPending: verification passed, exact commit unavailable
-    CommitPending --> Completed: done --resume after exact commit
-    CommitPending --> CommitPending: drift or incomplete commit is refused
-
-    Active --> Completed: done and exact commit succeed
-    Completed --> Idle: no ready destination
+    CloseoutGate -->|finalized| Completed
+    Completed -->|clear| Clear
+    Completed -->|destination| NextOwner
 ```
+
+`Resumed` and `NextOwner` are re-entry anchors: each becomes the next
+`Active [~]` ownership period. They are drawn as endpoints instead of long
+backward arrows so the diagram preserves meaning without routing lines across
+the full graph.
+
+Here `checkpoint` includes both an explicit checkpoint and the dirty-fork
+pause path. `accepted` means the source task passed switch closeout and joins
+the same `Closeout Gate` used by `done`.
+
+### 2.2 Failure and Recovery
+
+```mermaid
+flowchart TB
+    Owner["Current owner<br/>Active [~] or Blocked [!]"]
+
+    subgraph Gate["Closeout Gate"]
+        direction TB
+        Verify["Run registered verification"]
+        Policy["Coordinate / TDD / Done gates"]
+        Classify["Classify final repository snapshot"]
+        Commit["Stage exact paths and commit"]
+        ResumeCommit["Retry the same exact commit"]
+        Rescan["Inspect-equivalent rescan"]
+        Finalized["FINALIZED"]
+    end
+
+    subgraph Recovery["Failure and recovery exits"]
+        direction LR
+        Retry["Keeps ownership<br/>fix and rerun done"]
+        Blocked["Blocked owner [!]"]
+        RepairNote["repair stays inside<br/>the same Coordinate"]
+        Pending["Verified commit pending"]
+        Resume["done --resume"]
+        Drift["Snapshot drift<br/>new verification required"]
+    end
+
+    Completed["Completed history"]
+
+    Owner --> Verify
+    Verify -->|pass| Policy
+    Verify -->|verify failed| Retry
+    Policy -->|pass| Classify
+    Policy -->|refused| Blocked
+    Classify -->|safe| Commit
+    Classify -->|unsafe| Blocked
+
+    Commit -->|committed| Rescan
+    Commit -->|commit failed| Pending
+    Pending -->|resume| Resume
+    Pending -->|drift| Drift
+    Resume --> ResumeCommit
+    ResumeCommit -->|committed| Rescan
+
+    Rescan -->|clean| Finalized
+    Rescan -->|inconsistent| Blocked
+    Blocked -.-> RepairNote
+    Finalized --> Completed
+```
+
+Short edge labels carry only the decision. Their full meanings are:
+
+| Label | Meaning |
+|---|---|
+| `verify failed` | At least one registered command returned non-zero; the task keeps ownership. |
+| `refused` | A Coordinate, TDD, Done, or closeout preflight gate rejected the close. |
+| `unsafe` | Final classification found an outside, forbidden, sensitive, generated, or ambiguous path. |
+| `commit failed` | Verification and ledger preparation are preserved as verified commit-pending. |
+| `resume` | `done --resume` retries the unchanged exact snapshot without rerunning verification. |
+| `drift` | Verified files or HEAD changed; the snapshot is refused and new verification is required. |
+| `inconsistent` | The final rescan found residue or a blocked Inspect projection, so no Done claim is emitted. |
 
 Important invariants:
 
