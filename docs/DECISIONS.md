@@ -251,3 +251,19 @@ Task: T-054
   `verified-commit-pending`, and `finalized`. Resume is idempotent, exact-file
   staging remains mandatory, manual Drive remains the execution authority, and
   automatic push remains forbidden.
+
+## ADR-018 Verified local commit is the no-prompt completion default
+
+Status: accepted
+Date: 2026-08-05
+Task: T-056
+
+- Successful `coderail done` is authorization for one exact task-scoped local
+  commit after verification, scope, sensitive-file, and persistence gates pass.
+  An agent does not ask a non-technical user to re-decide that mechanical step.
+- `done --no-commit` is an explicit review-first exception, not the ordinary
+  default. Failed gates, unsafe or ambiguous ownership, and commit permission
+  failures remain blocking or recoverable pending states.
+- Product direction, destructive changes, push, tag, release, and any scope or
+  permission expansion remain separate human decisions. Local commit authority
+  never implies publication authority.

@@ -4140,5 +4140,23 @@
       "head": "6285884f5d6592a4c69b0144253c07462b7d5781",
       "files": []
     }
+  },
+  "T-056": {
+    "display_id": "T-056",
+    "verify": [
+      "python3 tests/test_static.py",
+      "npm test",
+      "npm run ci",
+      "python3 scripts/doctor.py --target project-template",
+      "git diff --check"
+    ],
+    "tests": [
+      "tests/test_static.py"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-05T14:01:14.549206+00:00",
+      "head": "12d2ca6c49f488ce09014a98387bc2aa12ce4f35",
+      "files": []
+    }
   }
 }

@@ -66,6 +66,8 @@ That is the whole interface. Your AI assistant reads the installed `AGENTS.md` a
 
 **`done`** — the safety net. It verifies tests/checks pass (or you explicitly recorded a manual check), confirms changes stayed inside the promised files, syncs the docs, commits only the safe task-related files, and tells you the next step. If something is off, it refuses and says exactly what to fix. An AI assistant cannot talk its way past it.
 
+No extra commit-approval question is needed after those gates pass: successful `done` is already permission for one exact local task commit. Use `--no-commit` only when you explicitly want to review the diff first. Push, tag, and release always remain separate user decisions.
+
 Task scope is fail-closed. If one path matches both an Allowed rule and a Forbidden rule, `start`, `switch`, or closeout reports `SCOPE_CONTRADICTION` with the exact path and both rules. Allowed never silently overrides Forbidden; narrow the forbidden glob before continuing.
 
 If verification passes but the exact Git commit cannot run, CodeRail preserves the complete safe-file snapshot as `verified-commit-pending`. Restore Git permission and run `coderail done --resume`, or manually commit only the exact files printed by CodeRail and then run the same resume command. Use `coderail done --no-commit` to choose this manual mode from the beginning. Resume never reruns verification or duplicates PROGRESS/TRACE entries.

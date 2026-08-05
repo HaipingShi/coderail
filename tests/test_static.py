@@ -363,6 +363,29 @@ def test_templates_include_rail_and_compact_handoff_policy():
     check('run `switch`' in agents and '--force' in agents,
           'AGENTS template should route task changes through Task Switch Gate')
 
+def test_agent_rules_default_to_verified_local_commit_without_prompt():
+    root_agents = (ROOT/'AGENTS.md').read_text(encoding='utf-8')
+    template_agents = (ROOT/'project-template/AGENTS.md').read_text(encoding='utf-8')
+    done_skill = (ROOT/'skills/done-gate/SKILL.md').read_text(encoding='utf-8')
+    readme = (ROOT/'README.md').read_text(encoding='utf-8')
+    readme_zh = (ROOT/'README.zh-CN.md').read_text(encoding='utf-8')
+    required = 'Do not ask the user for separate commit approval'
+    normalized_root = ' '.join(root_agents.split())
+    normalized_template = ' '.join(template_agents.split())
+    normalized_skill = ' '.join(done_skill.split())
+    check(required in normalized_root, 'repository AGENTS should make local commit authority explicit')
+    check(required in normalized_template, 'installed AGENTS should prevent redundant commit questions')
+    check('explicitly asks to review before committing' in normalized_template,
+          'installed AGENTS should define the review-first exception')
+    check('push, tag, or release' in normalized_template,
+          'local commit authority must not expand publication authority')
+    check(required in normalized_skill,
+          'done-gate skill should route a passing task to ordinary done without another prompt')
+    check('No extra commit-approval question' in readme,
+          'English README should explain the non-technical default')
+    check('不再要求用户额外判断是否提交' in readme_zh,
+          'Chinese README should explain the non-technical default')
+
 def test_regression_observe_scaffold_keeps_artifacts_ignored():
     gitignore = (ROOT/'.gitignore').read_text(encoding='utf-8')
     package = json.loads((ROOT/'package.json').read_text(encoding='utf-8'))

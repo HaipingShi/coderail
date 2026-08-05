@@ -66,6 +66,8 @@ python .coderail/coderail.py done                   # 安全完成
 
 **`done`** — 安全网。它验证测试通过（或你明确记录了人工检查）、确认改动没超出承诺的文件、同步文档、只提交安全的任务相关文件，然后告诉你下一步。有问题它会拒绝并明确说出要修什么——AI 助手无法用话术绕过它。
 
+这些门禁全部通过后，不再要求用户额外判断是否提交：成功运行 `done` 就已经授权一次精确的本地任务提交。只有你明确要求“提交前先看 diff”时才使用 `--no-commit`；push、tag 和 release 始终是独立的用户决策。
+
 任务范围采用 fail-closed：同一路径同时命中 Allowed 与 Forbidden 时，`start`、`switch` 或收口会输出 `SCOPE_CONTRADICTION`、精确路径以及两条冲突规则。Allowed 不会静默覆盖 Forbidden；继续前必须收窄禁止规则。
 
 如果验证已通过但精确 Git 提交因权限等原因无法执行，CodeRail 会保留完整 safe-file snapshot，并进入 `verified-commit-pending`。权限恢复后运行 `coderail done --resume`；也可以只按输出的精确文件清单人工提交，再运行同一恢复命令。若从一开始就选择人工提交，使用 `coderail done --no-commit`。恢复不会重跑验证，也不会重复写入 PROGRESS/TRACE。

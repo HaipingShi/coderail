@@ -63,10 +63,13 @@ Never declare a task finished from memory. Run:
 python .coderail/coderail.py done
 ```
 
-It runs the registered verify commands, checks scope and docs, then commits
-only the safe, task-related files. If it says the task is not finished, fix
-what it points out — do not talk your way around it. For a task change use
-`switch`; add `--checkpoint` only after a verifiable partial boundary.
+It runs verification, checks scope and docs, then commits only safe task files.
+A successful `done` already authorizes that exact local commit. Do not ask the
+user for separate commit approval after every gate passes. Use `--no-commit`
+only when the user explicitly asks to review before committing; failed gates,
+unsafe scope, or sensitive files block. A local commit never authorizes
+push, tag, or release. For task changes use `switch`; use `--checkpoint` only
+after a verifiable partial boundary.
 
 ## After "done": report in plain language (non-negotiable)
 
@@ -123,8 +126,4 @@ If you are resuming after a break, a crash, or someone else's session, read
 `docs/HANDOFF.md` and `docs/CODERAIL_STATUS.md` first, or regenerate the
 status with `python .coderail/coderail.py inspect`.
 
-## Advanced
-
-Power users and long-running autonomous sessions can use advanced commands
-(`doctor`, `drive`, `inspect`, `trace`, `finish`, ...); run
-`python .coderail/coderail.py --help` to list them. They are optional.
+Advanced commands are listed by `python .coderail/coderail.py --help`.

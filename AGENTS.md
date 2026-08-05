@@ -49,6 +49,11 @@ only safe task-related files. If it says not finished, fix what it points
 out — do not talk your way around it. Partial work: `done --result
 stage-complete`.
 
+A successful `done` already authorizes one exact task-scoped local commit.
+Do not ask the user for separate commit approval after every gate passes. Use
+`--no-commit` only when the user explicitly asks to review before committing.
+A local commit never authorizes push, tag, release, or unsafe scope expansion.
+
 ## Honesty rules (non-negotiable)
 
 - Do not claim tests passed if you did not run them.

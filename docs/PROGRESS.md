@@ -3,6 +3,17 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-05 - make verified local commit the explicit no-prompt default (T-056)
+
+- Done: make verified local commit the explicit no-prompt default
+- Checked by: `python3 tests/test_static.py` exit 0; `npm test` exit 0; `npm run ci` exit 0; `python3 scripts/doctor.py --target project-template` exit 0; `git diff --check` exit 0
+- Next: T-055 define a generic structured Persist assertion contract
+- Evidence: `python3 tests/test_static.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Evidence: `python3 scripts/doctor.py --target project-template` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+
 ## 2026-08-05 - repair continuation recommendation and structured handoff projection (T-054)
 
 - Done: repair continuation recommendation and structured handoff projection

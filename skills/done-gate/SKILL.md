@@ -38,5 +38,8 @@ For Light Rail, TASKS plus trace, decision backlink, or explicit manual acceptan
 - Scope violation blocks done.
 - Handoff is not always required, but Handoff Trigger Check is always required.
 - Passing Done Gate is not enough to stop; final closeout must still state auto-commit action and a next executable step.
+- A passing final `done` already authorizes one exact task-scoped local commit.
+  Do not ask the user for separate commit approval unless they explicitly asked
+  to review before committing; push, tag, or release remain separate decisions.
 - Do not update TASKS, TRACE, status, or Git from this diagnostic; run
   `python .coderail/coderail.py done` for the completion transaction.
