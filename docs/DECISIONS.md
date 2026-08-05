@@ -229,3 +229,25 @@ Task: T-051
 - Diagram detail must stop at facts that can be traced to current files and
   commands. Proposed architecture belongs in a separate design task and cannot
   be labeled `current`.
+
+## ADR-017 Continuation truth is a structured projection, not project prose
+
+Status: accepted
+Date: 2026-08-05
+Task: T-054
+
+- CodeRail owns one explicitly delimited continuation block in `HANDOFF.md`.
+  Inspect and closeout parse only that block; project-authored handoff prose is
+  preserved and is never interpreted through keywords such as `needs`.
+- The projection records handoff level, last closed task, closeout state,
+  recommendation status, candidate direction, human gate, and next executable
+  step. Missing legacy blocks produce a warning and migrate only on a
+  write-authorized Inspect or verified closeout.
+- A mission and slice that remain active while no open Coordinate owns the
+  available continuation produces `REQUEST_DIRECTION`, not
+  `NO_RECOMMENDATION`. Candidate directions remain evidence for the owner;
+  CodeRail does not select, activate, or execute one automatically.
+- Closeout advances the projection through `pending-closeout`,
+  `verified-commit-pending`, and `finalized`. Resume is idempotent, exact-file
+  staging remains mandatory, manual Drive remains the execution authority, and
+  automatic push remains forbidden.

@@ -3,6 +3,23 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-05 - repair continuation recommendation and structured handoff projection (T-054)
+
+- Done: repair continuation recommendation and structured handoff projection
+- Checked by: `python3 tests/test_drive.py` exit 0; `python3 tests/test_inspect.py` exit 0; `python3 tests/test_closeout.py` exit 0; `python3 tests/test_lifecycle.py` exit 0; `python3 tests/test_static.py` exit 0; `npm test` exit 0; `npm run ci` exit 0; `python3 scripts/doctor.py --target project-template` exit 0; `python3 scripts/drift_check.py --target project-template` exit 0; `python3 scripts/inspect_state.py --target project-template --no-write` exit 0; `git diff --check` exit 0
+- Next: T-055 define a generic structured Persist assertion contract
+- Evidence: `python3 tests/test_drive.py` -> exit 0
+- Evidence: `python3 tests/test_inspect.py` -> exit 0
+- Evidence: `python3 tests/test_closeout.py` -> exit 0
+- Evidence: `python3 tests/test_lifecycle.py` -> exit 0
+- Evidence: `python3 tests/test_static.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Evidence: `python3 scripts/doctor.py --target project-template` -> exit 0
+- Evidence: `python3 scripts/drift_check.py --target project-template` -> exit 0
+- Evidence: `python3 scripts/inspect_state.py --target project-template --no-write` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+
 ## 2026-07-28 - split bilingual README into English and Simplified Chinese files with top language index (T-053)
 
 - Done: split bilingual README into English and Simplified Chinese files with top language index

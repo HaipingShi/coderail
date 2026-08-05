@@ -344,6 +344,10 @@ def test_templates_include_rail_and_compact_handoff_policy():
     check('Autonomy: allowed | human-gated' in tasks, 'TASKS template should expose autonomy')
     check('Compact summary policy' in tasks, 'TASKS template should include compact summary policy')
     check('Recovery Commands' in handoff, 'HANDOFF template should include recovery commands')
+    check('<!-- coderail:continuation:start -->' in handoff,
+          'HANDOFF template should include a machine-owned continuation block')
+    check('<!-- coderail:continuation:end -->' in handoff,
+          'HANDOFF template should close the machine-owned continuation block')
     check('Archived history' in handoff, 'HANDOFF template should move long history elsewhere')
     check('## Legacy Cutoff' in north_star, 'NORTH_STAR template should include legacy cutoff')
     check('## Drive Contract' in north_star, 'NORTH_STAR template should include Drive Contract')
@@ -457,16 +461,16 @@ def test_drift_check_requires_next_candidate_for_auto_draft_continuation():
         check(result.returncode == 1, result.stdout)
         check('auto-draft continuation requires Next Candidate' in result.stdout, result.stdout)
 
-def test_drift_check_requires_active_task_for_active_slice():
+def test_drift_check_accepts_owner_direction_without_activating_a_task():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
-        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        write_drive_project(target, drive_task(status='[ ]'), mode='manual')
         add_recommendation_contract(target, current_slice='active', next_candidate='T-002')
         result = subprocess.run([
             sys.executable, str(ROOT/'scripts/drift_check.py'), '--target', str(target)
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
-        check(result.returncode == 1, result.stdout)
-        check('Current Slice active requires a non-empty Active Task' in result.stdout, result.stdout)
+        check(result.returncode == 0, result.stdout)
+        check('Status: aligned' in result.stdout, result.stdout)
 
 def test_context_growth_observer_classifies_task_bytes_and_latency():
     import observe_context_growth

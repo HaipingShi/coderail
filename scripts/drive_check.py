@@ -126,6 +126,8 @@ def recommendation_report(
             "status": "NO_RECOMMENDATION",
             "reason": "No Recommendation Contract is configured; legacy execution behavior is preserved.",
             "evidence": [],
+            "candidate_direction": "none",
+            "human_gate": "none",
             "next_action": "Continue using explicit human direction or the existing Drive Contract.",
             "requires_human_for_execution": execution_mode != "continuous",
         }
@@ -134,13 +136,34 @@ def recommendation_report(
     mission = field_value(contract, "Mission Status").lower()
     current_slice = field_value(contract, "Current Slice Status").lower()
     next_candidate = field_value(contract, "Next Candidate")
-    human_gate = field_value(contract, "Human Gate").lower()
+    human_gate_value = field_value(contract, "Human Gate")
+    human_gate = human_gate_value.lower()
+    continuation_context = {
+        "candidate_direction": next_candidate or "none",
+        "human_gate": human_gate_value or "none",
+    }
     evidence = [
         f"Recommendation Mode: {mode or '(missing)'}",
         f"Mission Status: {mission or '(missing)'}",
         f"Current Slice Status: {current_slice or '(missing)'}",
         f"Next Candidate: {next_candidate or '(missing)'}",
+        f"Human Gate: {human_gate_value or '(missing)'}",
     ]
+    configured_values = (
+        mode in {"manual", "auto-draft"}
+        and mission in {"active", "complete"}
+        and current_slice in {"active", "in_progress", "in-progress", "complete"}
+    )
+    if not configured_values:
+        return {
+            "status": "NO_RECOMMENDATION",
+            "reason": "The Recommendation Contract still contains unconfigured template values.",
+            "evidence": evidence,
+            "candidate_direction": "none",
+            "human_gate": "none",
+            "next_action": "Configure continuation facts or continue using explicit human direction.",
+            "requires_human_for_execution": True,
+        }
     requires_human = execution_mode != "continuous" or human_gate not in {"", "none"}
     open_tasks = [task for task in tasks if task["status"] in {"[~]", "[!]", "[p]", "[ ]", "[r]"}]
 
@@ -148,6 +171,7 @@ def recommendation_report(
         if open_tasks:
             task_ids = ", ".join(task["id"] for task in open_tasks)
             return {
+                **continuation_context,
                 "status": "REVIEW_DIRECTION",
                 "reason": f"Mission Status conflicts with open task evidence: {task_ids}.",
                 "evidence": evidence + [f"open tasks={task_ids}"],
@@ -156,6 +180,7 @@ def recommendation_report(
             }
         if terminal_evidence:
             return {
+                **continuation_context,
                 "status": "MISSION_COMPLETE",
                 "reason": "Mission Status is complete and terminal evidence is present.",
                 "evidence": evidence + ["terminal evidence=present"],
@@ -163,6 +188,7 @@ def recommendation_report(
                 "requires_human_for_execution": False,
             }
         return {
+            **continuation_context,
             "status": "REVIEW_DIRECTION",
             "reason": "Mission Status says complete, but terminal evidence is absent.",
             "evidence": evidence + ["terminal evidence=absent"],
@@ -174,6 +200,7 @@ def recommendation_report(
     active_draft = next((header for header, _body, status in drafts if status in ACTIVE_DRAFT_STATUSES), "")
     if active_draft:
         return {
+            **continuation_context,
             "status": "REVIEW_ACTIVE_DRAFT",
             "reason": f"{active_draft.split()[0]} is still a pending Coordinate Contract Draft.",
             "evidence": evidence + [f"active draft={active_draft.split()[0]}"],
@@ -190,6 +217,7 @@ def recommendation_report(
     )
     if gated:
         return {
+            **continuation_context,
             "status": "REQUEST_HUMAN_GATE",
             "reason": f"{gated['id']} is identified as the next task but remains human-gated.",
             "evidence": evidence + [f"task={gated['id']}", f"autonomy={gated['autonomy']}"],
@@ -197,9 +225,35 @@ def recommendation_report(
             "requires_human_for_execution": True,
         }
 
+    continuation_available = (
+        next_candidate.strip().lower() not in {"", "none"}
+        or human_gate not in {"", "none"}
+    )
+    if (
+        mission == "active"
+        and current_slice in {"active", "in_progress", "in-progress"}
+        and not open_tasks
+        and continuation_available
+    ):
+        return {
+            **continuation_context,
+            "status": "REQUEST_DIRECTION",
+            "reason": (
+                "The mission and current slice remain active, but no open Coordinate owns "
+                "the available continuation direction."
+            ),
+            "evidence": evidence + ["open tasks=none"],
+            "next_action": (
+                "Ask the owner to choose or authorize a direction; do not create, activate, "
+                "or execute a Coordinate automatically."
+            ),
+            "requires_human_for_execution": True,
+        }
+
     if mission == "active" and current_slice == "complete":
         if next_candidate.strip().lower() in {"", "none"}:
             return {
+                **continuation_context,
                 "status": "REVIEW_DIRECTION",
                 "reason": "The mission remains active, but no next candidate is identified.",
                 "evidence": evidence,
@@ -208,6 +262,7 @@ def recommendation_report(
             }
         if mode != "auto-draft":
             return {
+                **continuation_context,
                 "status": "REVIEW_DIRECTION",
                 "reason": "The mission remains active, but Recommendation Mode does not allow automatic drafting.",
                 "evidence": evidence,
@@ -215,6 +270,7 @@ def recommendation_report(
                 "requires_human_for_execution": True,
             }
         return {
+            **continuation_context,
             "status": "PROPOSE_COORDINATE",
             "reason": "The mission remains active after the current slice completed.",
             "evidence": evidence,
@@ -223,6 +279,7 @@ def recommendation_report(
         }
 
     return {
+        **continuation_context,
         "status": "NO_RECOMMENDATION",
         "reason": "The Recommendation Contract does not identify a deterministic continuation action.",
         "evidence": evidence,

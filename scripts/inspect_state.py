@@ -27,6 +27,19 @@ import drive_check  # noqa: E402
 import task_switch  # noqa: E402
 
 
+CONTINUATION_START = "<!-- coderail:continuation:start -->"
+CONTINUATION_END = "<!-- coderail:continuation:end -->"
+CONTINUATION_FIELDS = (
+    "Handoff Level",
+    "Last Closed Task",
+    "Closeout State",
+    "Recommendation Status",
+    "Next Candidate/Direction",
+    "Human Gate",
+    "Next Executable Step",
+)
+
+
 def read(path: Path) -> str:
     try:
         return path.read_text(encoding="utf-8", errors="ignore")
@@ -76,6 +89,114 @@ def verified_commit_pending(root: Path) -> dict:
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         return {}
     return pending if pending.get("state") == "verified-commit-pending" else {}
+
+
+def parse_handoff_continuation(text: str) -> tuple[dict[str, str], list[str]]:
+    """Read only CodeRail's delimited projection; project prose is opaque."""
+    starts = text.count(CONTINUATION_START)
+    ends = text.count(CONTINUATION_END)
+    if starts == 0 and ends == 0:
+        return {}, [
+            "HANDOFF continuation block is missing; run Inspect --write or a "
+            "verified closeout to migrate it"
+        ]
+    if starts != 1 or ends != 1:
+        return {}, ["HANDOFF continuation block delimiters are malformed or duplicated"]
+    start = text.find(CONTINUATION_START)
+    end = text.find(CONTINUATION_END, start + len(CONTINUATION_START))
+    if end < start:
+        return {}, ["HANDOFF continuation block end appears before its start"]
+    body = text[start + len(CONTINUATION_START):end]
+    values = {}
+    issues = []
+    for label in CONTINUATION_FIELDS:
+        matches = re.findall(
+            rf"^[ \t]*{re.escape(label)}:[ \t]*(.*)$", body, re.I | re.M
+        )
+        if len(matches) != 1 or not matches[0].strip():
+            issues.append(f"HANDOFF continuation block requires exactly one non-empty {label}")
+        else:
+            values[label] = matches[0].strip()
+    return values, issues
+
+
+def render_handoff_continuation(values: dict[str, str]) -> str:
+    lines = [CONTINUATION_START]
+    lines.extend(f"{label}: {values.get(label) or 'none'}" for label in CONTINUATION_FIELDS)
+    lines.append(CONTINUATION_END)
+    return "\n".join(lines)
+
+
+def continuation_projection(
+    root: Path,
+    *,
+    last_closed_task: str = "none",
+    closeout_state: str = "idle",
+    handoff_level: str = "H0",
+) -> dict[str, str]:
+    drive = drive_check.evaluate(root, changed_files=[])
+    recommendation = drive["recommendation"]
+    recommendation_status = recommendation.get("status") or "NO_RECOMMENDATION"
+    next_step = (
+        recommendation.get("next_action")
+        if recommendation_status != "NO_RECOMMENDATION"
+        else drive.get("next_action")
+    )
+    return {
+        "Handoff Level": handoff_level,
+        "Last Closed Task": last_closed_task or "none",
+        "Closeout State": closeout_state,
+        "Recommendation Status": recommendation_status,
+        "Next Candidate/Direction": recommendation.get("candidate_direction") or "none",
+        "Human Gate": recommendation.get("human_gate") or "none",
+        "Next Executable Step": next_step or "wait for explicit owner direction",
+    }
+
+
+def write_handoff_continuation(
+    root: Path,
+    *,
+    last_closed_task: str = "none",
+    closeout_state: str = "idle",
+    handoff_level: str = "H0",
+) -> bool:
+    """Replace only the machine block and preserve all project-authored prose."""
+    path = root / "docs" / "HANDOFF.md"
+    text = read(path)
+    block = render_handoff_continuation(continuation_projection(
+        root,
+        last_closed_task=last_closed_task,
+        closeout_state=closeout_state,
+        handoff_level=handoff_level,
+    ))
+    start = text.find(CONTINUATION_START)
+    end = text.find(CONTINUATION_END, start + len(CONTINUATION_START)) if start >= 0 else -1
+    valid_single_block = (
+        text.count(CONTINUATION_START) == 1
+        and text.count(CONTINUATION_END) == 1
+        and start >= 0
+        and end >= start
+    )
+    if valid_single_block:
+        end += len(CONTINUATION_END)
+        updated = text[:start] + block + text[end:]
+    else:
+        # Remove only explicitly machine-owned complete blocks and orphaned
+        # delimiters. Any surrounding project prose remains byte-for-byte.
+        cleaned = re.sub(
+            rf"{re.escape(CONTINUATION_START)}.*?{re.escape(CONTINUATION_END)}",
+            "",
+            text,
+            flags=re.S,
+        )
+        cleaned = cleaned.replace(CONTINUATION_START, "").replace(CONTINUATION_END, "")
+        prefix = cleaned.rstrip()
+        updated = f"{prefix}\n\n{block}\n" if prefix else f"# Handoff\n\n{block}\n"
+    if updated == text:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(updated, encoding="utf-8")
+    return True
 
 
 def progress_history(root: Path) -> dict[str, dict]:
@@ -222,9 +343,39 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
 
     trace_gaps = trace_warn + [x for x in trace_severe if x not in verification_gaps]
     handoff = read(docs / "HANDOFF.md")
-    hm = re.search(r"Handoff Level:\s*([^\n]+)", handoff)
-    handoff_level = hm.group(1).strip() if hm else "unknown"
-    handoff_needs = "yes" if "needs" in handoff.lower() else "no"
+    continuation, handoff_issues = parse_handoff_continuation(handoff)
+    handoff_level = continuation.get("Handoff Level", "unknown")
+    closeout_state = continuation.get("Closeout State", "unknown")
+    last_closed_task = continuation.get("Last Closed Task", "none")
+    closed_ids = {task["id"] for task in tasks if task["status"] in {"[x]", "[f]"}}
+    if (
+        closeout_state in {"pending-closeout", "verified-commit-pending"}
+        and not commit_pending
+        and last_closed_task in closed_ids
+    ):
+        handoff_issues.append(
+            f"{last_closed_task} is closed but HANDOFF Closeout State is {closeout_state} "
+            "without a verified pending-close snapshot"
+        )
+    if commit_pending and closeout_state != "verified-commit-pending":
+        handoff_issues.append(
+            "a verified closeout is pending but HANDOFF Closeout State is not "
+            "verified-commit-pending"
+        )
+    recommendation = drive["recommendation"]
+    projected_fields = {
+        "Recommendation Status": recommendation.get("status") or "NO_RECOMMENDATION",
+        "Next Candidate/Direction": recommendation.get("candidate_direction") or "none",
+        "Human Gate": recommendation.get("human_gate") or "none",
+    }
+    if not handoff_issues:
+        for label, expected in projected_fields.items():
+            actual = continuation.get(label, "")
+            if actual != expected:
+                handoff_issues.append(
+                    f"HANDOFF {label} is stale: recorded {actual or '(missing)'}, current {expected}"
+                )
+    handoff_needs = "yes" if handoff_issues else "no"
 
     drive_blocked = drive["mode"] == "continuous" and drive["decision"] in {"BLOCKED_DECISION", "EXHAUSTED"}
     drive_warning = drive["mode"] == "continuous" and drive["decision"] == "REVIEW_DIRECTION"
@@ -233,7 +384,7 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
         if verification_gaps or trace_severe or drive_blocked or len(active) > 1 or closed_pending
         else (
             "warning"
-            if trace_gaps or not outcome or active or paused or drive_warning or commit_pending
+            if trace_gaps or handoff_issues or not outcome or active or paused or drive_warning or commit_pending
             else "healthy"
         )
     )
@@ -365,7 +516,6 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     lines.append(f"- Reason: {drive['reason']}")
     lines.append(f"- Next action: {drive['next_action']}")
     lines.append("")
-    recommendation = drive["recommendation"]
     lines.append("## Recommendation Decision")
     lines.append("")
     lines.append(f"- Status: {recommendation['status']}")
@@ -385,11 +535,17 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     lines.append("")
     lines.append(f"- Level: {handoff_level}")
     lines.append(f"- Needs update: {handoff_needs}")
+    lines.append(f"- Last closed task: {last_closed_task}")
+    lines.append(f"- Closeout state: {closeout_state}")
+    if handoff_issues:
+        lines.extend(f"- Drift: {issue}" for issue in handoff_issues)
     lines.append("")
     lines.append("## Recommended Next Action")
     lines.append("")
     if commit_pending:
         lines.append("- Resume the verified closeout with `coderail done --resume`; do not rerun verification or use `git add .`.")
+    elif handoff_issues:
+        lines.append("- Refresh or migrate the structured HANDOFF continuation block before relying on it for continuation.")
     elif verification_gaps:
         lines.append("- Run `/coderail:done-gate` and fix verification gaps before marking done.")
     elif drive["mode"] == "continuous" and drive["decision"] in drive_check.NON_STOP_STATES:
@@ -437,8 +593,24 @@ def main(argv=None) -> int:
     ap.add_argument("--no-write", action="store_true", help="Print only; do not write")
     args = ap.parse_args(argv)
     root = Path(args.target).resolve()
+    should_write = args.write or not args.no_write
+    handoff_text = read(root / "docs" / "HANDOFF.md")
+    continuation, _continuation_issues = parse_handoff_continuation(handoff_text)
+    if should_write:
+        closed = [
+            task["id"] for task in task_statuses(root)
+            if task["status"] in {"[x]", "[f]"}
+        ]
+        write_handoff_continuation(
+            root,
+            last_closed_task=(
+                continuation.get("Last Closed Task") or (closed[-1] if closed else "none")
+            ),
+            closeout_state=continuation.get("Closeout State") or "idle",
+            handoff_level=continuation.get("Handoff Level") or "H0",
+        )
     status, text = render(root)
-    if args.write or not args.no_write:
+    if should_write:
         docs = root / "docs"
         docs.mkdir(parents=True, exist_ok=True)
         (docs / "CODERAIL_STATUS.md").write_text(text + "\n", encoding="utf-8")

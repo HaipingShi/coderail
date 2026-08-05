@@ -4119,5 +4119,26 @@
       "head": "184d33e478b5681bab1e0cd48cef98f4c13cd493",
       "files": []
     }
+  },
+  "T-054": {
+    "display_id": "T-054",
+    "verify": [
+      "python3 tests/test_drive.py",
+      "python3 tests/test_inspect.py",
+      "python3 tests/test_closeout.py",
+      "python3 tests/test_lifecycle.py",
+      "python3 tests/test_static.py",
+      "npm test",
+      "npm run ci",
+      "python3 scripts/doctor.py --target project-template",
+      "python3 scripts/drift_check.py --target project-template",
+      "python3 scripts/inspect_state.py --target project-template --no-write",
+      "git diff --check"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-05T13:30:25.711003+00:00",
+      "head": "6285884f5d6592a4c69b0144253c07462b7d5781",
+      "files": []
+    }
   }
 }

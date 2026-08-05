@@ -38,6 +38,7 @@ def recommendation_issues(north_star: str) -> list[str]:
     mission = field_value(contract, "Mission Status").lower()
     current_slice = field_value(contract, "Current Slice Status").lower()
     next_candidate = field_value(contract, "Next Candidate")
+    human_gate = field_value(contract, "Human Gate")
     active_task = field_value(section(north_star, "Current Slice"), "Active Task")
 
     required = {
@@ -45,7 +46,7 @@ def recommendation_issues(north_star: str) -> list[str]:
         "Mission Status": mission,
         "Current Slice Status": current_slice,
         "Next Candidate": next_candidate,
-        "Human Gate": field_value(contract, "Human Gate"),
+        "Human Gate": human_gate,
     }
     for label, value in required.items():
         if not value:
@@ -53,8 +54,15 @@ def recommendation_issues(north_star: str) -> list[str]:
 
     if mission == "complete" and next_candidate.lower() != "none":
         issues.append("Mission complete requires Next Candidate: none")
-    if current_slice == "active" and active_task.lower() in {"", "none"}:
-        issues.append("Current Slice active requires a non-empty Active Task")
+    if (
+        current_slice in {"active", "in_progress", "in-progress"}
+        and active_task.lower() in {"", "none"}
+        and next_candidate.lower() in {"", "none"}
+        and human_gate.lower() in {"", "none"}
+    ):
+        issues.append(
+            "Current Slice remains active without an Active Task or continuation direction"
+        )
     if mission == "active" and current_slice == "complete" and mode == "auto-draft" and not next_candidate:
         issues.append("auto-draft continuation requires Next Candidate")
     return issues
@@ -72,7 +80,7 @@ def main(argv=None):
     handoff = read(docs / "HANDOFF.md")
     if "Outcome" not in north_star or "Current Slice" not in north_star:
         issues.append("NORTH_STAR.md lacks Outcome or Current Slice")
-    if "CodeRail Coordinate" not in tasks:
+    if re.search(r"^##\s+T-\d+\b", tasks, re.M) and "CodeRail Coordinate" not in tasks:
         issues.append("TASKS.md lacks CodeRail Coordinate")
     if "Status: [x]" in tasks and "Harness result:" not in tasks:
         issues.append("done task may lack harness result")

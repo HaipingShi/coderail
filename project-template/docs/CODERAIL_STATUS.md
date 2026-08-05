@@ -41,6 +41,10 @@ P:
 - Closed-task uncommitted ownership: none
 - Automatic push: never
 
+## Closeout Pending
+
+- none
+
 ## Draft Contracts
 
 - none
@@ -85,6 +89,8 @@ P:
 
 - Level:
 - Needs update:
+- Last closed task:
+- Closeout state:
 
 ## Recommended Next Action
 

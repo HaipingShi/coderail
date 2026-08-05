@@ -85,6 +85,10 @@ def test_done_commits_file_created_after_start_under_glob_and_inspect_is_healthy
         check('Status: healthy' in persisted, persisted)
         check('- Worktree: clean' in persisted, persisted)
         check('Closed-task uncommitted ownership: none' in persisted, persisted)
+        handoff = (root/'docs/HANDOFF.md').read_text(encoding='utf-8')
+        check('<!-- coderail:continuation:start -->' in handoff, handoff)
+        check('Last Closed Task: T-001' in handoff, handoff)
+        check('Closeout State: finalized' in handoff, handoff)
 
 def test_done_accepts_inline_code_formatted_allowed_glob():
     with tempfile.TemporaryDirectory() as td:
@@ -418,6 +422,9 @@ def test_explicit_no_commit_snapshots_all_generated_closeout_files_without_post_
             check(path in pending.get('scope_classification', {}), pending)
         current = subprocess.check_output(['git', '-C', td, 'rev-parse', 'HEAD'], text=True).strip()
         check(current == head, 'explicit no-commit unexpectedly created a commit')
+        handoff = (root/'docs/HANDOFF.md').read_text(encoding='utf-8')
+        check('Closeout State: verified-commit-pending' in handoff, handoff)
+        check('docs/HANDOFF.md' in pending.get('safe_files', []), pending)
 
 def test_pending_recovery_never_stages_or_rewrites_unrelated_dirty_files():
     with tempfile.TemporaryDirectory() as td:
@@ -474,6 +481,8 @@ def test_pending_resume_is_idempotent_without_duplicate_ledger_or_commit():
         }
         check(after == before, f'repeated resume changed durable state: {before} -> {after}')
         check('already finalized' in second.stdout.lower(), second.stdout)
+        handoff = (root/'docs/HANDOFF.md').read_text(encoding='utf-8')
+        check('Closeout State: finalized' in handoff, handoff)
 
 def test_closeout_convergence_spec_and_task_sequence_are_registered():
     spec = (ROOT/'docs/CLOSEOUT_CONVERGENCE.md').read_text(encoding='utf-8')
@@ -568,7 +577,7 @@ def test_runtime_has_no_repository_state_compatibility_adapters():
         tree = ast.parse(source)
         names.extend(node.name for node in tree.body
                      if isinstance(node, ast.FunctionDef) and node.name.startswith('test_'))
-    check(len(names) == 122 and len(names) == len(set(names)),
+    check(len(names) == 128 and len(names) == len(set(names)),
           f'test inventory changed or contains duplicates: {len(names)}/{len(set(names))}')
 
 def test_closeout_transaction_is_the_only_success_authority():

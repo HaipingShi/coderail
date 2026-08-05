@@ -134,5 +134,94 @@ def test_inspect_separates_execution_and_recommendation_and_ignores_closed_draft
         check('- Status: PROPOSE_COORDINATE' in result.stdout, result.stdout)
         check('active contract draft' not in result.stdout.lower(), result.stdout)
 
+def test_inspect_detects_closed_task_pending_handoff_contradiction():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task(status='[x]'), mode='manual')
+        (target/'docs'/'HANDOFF.md').write_text('''# Handoff
+
+项目自定义正文，不由 CodeRail 解释。
+
+<!-- coderail:continuation:start -->
+Handoff Level: H1
+Last Closed Task: T-001
+Closeout State: pending-closeout
+Recommendation Status: REQUEST_DIRECTION
+Next Candidate/Direction: owner choice
+Human Gate: owner decision
+Next Executable Step: ask the owner
+<!-- coderail:continuation:end -->
+''', encoding='utf-8')
+        result = run_inspect(target)
+        check(result.returncode == 0, result.stdout + result.stderr)
+        check('Status: warning' in result.stdout, result.stdout)
+        check('- Needs update: yes' in result.stdout, result.stdout)
+        check('T-001' in result.stdout and 'pending-closeout' in result.stdout,
+              result.stdout)
+
+def test_inspect_uses_only_structured_handoff_block_not_free_text_keywords():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, '', mode='manual')
+        (target/'docs'/'HANDOFF.md').write_text('''# Handoff
+
+这里可写 needs、待收口或任何项目正文，都不应参与机器判断。
+
+<!-- coderail:continuation:start -->
+Handoff Level: H0
+Last Closed Task: none
+Closeout State: idle
+Recommendation Status: NO_RECOMMENDATION
+Next Candidate/Direction: none
+Human Gate: none
+Next Executable Step: wait for explicit direction
+<!-- coderail:continuation:end -->
+''', encoding='utf-8')
+        result = run_inspect(target)
+        check(result.returncode == 0, result.stdout + result.stderr)
+        check('- Needs update: no' in result.stdout, result.stdout)
+        check('free-text keyword' not in result.stdout, result.stdout)
+
+def test_write_inspect_migrates_legacy_handoff_without_rewriting_project_prose():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, '', mode='manual')
+        custom = '# Handoff\n\n项目自定义正文 needs 保留。\n\n## Coordinate Summary\n'
+        (target/'docs'/'HANDOFF.md').write_text(custom, encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/inspect_state.py'),
+            '--target', str(target), '--write',
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout + result.stderr)
+        migrated = (target/'docs'/'HANDOFF.md').read_text(encoding='utf-8')
+        check('项目自定义正文 needs 保留。' in migrated, migrated)
+        check(migrated.count('<!-- coderail:continuation:start -->') == 1, migrated)
+        check('Closeout State: idle' in migrated, migrated)
+        check('- Needs update: no' in result.stdout, result.stdout)
+
+def test_write_inspect_repairs_malformed_delimiters_without_parsing_project_prose():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, '', mode='manual')
+        custom = '''# Handoff
+
+项目自定义正文。
+
+<!-- coderail:continuation:start -->
+broken machine fragment
+'''
+        (target/'docs'/'HANDOFF.md').write_text(custom, encoding='utf-8')
+        result = subprocess.run([
+            sys.executable, str(ROOT/'scripts/inspect_state.py'),
+            '--target', str(target), '--write',
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
+        check(result.returncode == 0, result.stdout + result.stderr)
+        repaired = (target/'docs'/'HANDOFF.md').read_text(encoding='utf-8')
+        check('项目自定义正文。' in repaired, repaired)
+        check('broken machine fragment' in repaired, repaired)
+        check(repaired.count('<!-- coderail:continuation:start -->') == 1, repaired)
+        check(repaired.count('<!-- coderail:continuation:end -->') == 1, repaired)
+        check('- Needs update: no' in result.stdout, result.stdout)
+
 if __name__ == "__main__":
     run_module(globals())

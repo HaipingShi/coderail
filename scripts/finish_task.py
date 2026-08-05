@@ -13,6 +13,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import drive_check  # noqa: E402
+import inspect_state  # noqa: E402
 import task_switch  # noqa: E402
 
 
@@ -66,6 +67,7 @@ def update_completion(
     harness_result: str,
     decision: dict,
     auto_action: str,
+    handoff_updated: bool,
 ) -> bool:
     if not task_id:
         return False
@@ -87,7 +89,7 @@ def update_completion(
         "Task result": task_result,
         "Harness result": harness_result,
         "Handoff level": level,
-        "Handoff updated": "no",
+        "Handoff updated": "yes" if handoff_updated else "already current",
         "Inspect status": "refreshed",
         "Drive decision": decision["decision"],
         "Resume anchor": f"docs/TASKS.md#{task_id}",
@@ -236,7 +238,28 @@ def main(argv=None) -> int:
             decision["next_action"] = f"Failed to activate {next_task}; repair TASKS.md before stopping."
 
     auto_action = "disabled" if args.no_auto_commit else "requested"
-    update_completion(root, task_id, args.task_result, verification, decision, auto_action)
+    handoff_level = (
+        "H0" if args.task_result == "done"
+        else "H3" if args.task_result in {"blocked", "failed", "deferred"}
+        else "H1"
+    )
+    closeout_state = (
+        "pending-closeout"
+        if args.task_result == "done" and args.no_auto_commit
+        else "finalized"
+        if args.task_result == "done"
+        else args.task_result
+    )
+    handoff_updated = inspect_state.write_handoff_continuation(
+        root,
+        last_closed_task=task_id or "none",
+        closeout_state=closeout_state,
+        handoff_level=handoff_level,
+    )
+    update_completion(
+        root, task_id, args.task_result, verification, decision, auto_action,
+        handoff_updated,
+    )
     run("Inspect", "inspect_state.py", root, ["--write"])
 
     if args.task_result != "done" or task_marked_done:
@@ -278,12 +301,10 @@ def main(argv=None) -> int:
     print(f"Recommended task: {decision['recommended_task'] or 'none'}")
     print(f"Next executable step: {decision['next_action']}")
     print(f"Auto Commit action: {actual_auto_action}")
-    handoff_level = (
-        "H0" if args.task_result == "done"
-        else "H3" if args.task_result in {"blocked", "failed", "deferred"}
-        else "H1"
+    print(
+        f"Handoff Trigger Check: {handoff_level} "
+        f"(HANDOFF updated: {'yes' if handoff_updated else 'already current'})"
     )
-    print(f"Handoff Trigger Check: {handoff_level} (HANDOFF updated: no)")
 
     if failures:
         return 1

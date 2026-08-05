@@ -177,6 +177,44 @@ def test_legacy_project_without_recommendation_contract_stays_non_autonomous():
         check(report['decision'] == 'BLOCKED_DECISION', report)
         check(report['recommendation']['status'] == 'NO_RECOMMENDATION', report)
 
+def test_active_in_progress_slice_without_open_task_requests_owner_direction():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, '', mode='manual')
+        add_recommendation_contract(
+            target,
+            current_slice='in_progress',
+            next_candidate='PERSIST-001 or UI-004',
+            human_gate='owner decision',
+        )
+        report = run_drive(target)
+        recommendation = report['recommendation']
+        check(report['decision'] == 'BLOCKED_DECISION', report)
+        check(recommendation['status'] == 'REQUEST_DIRECTION', report)
+        check(recommendation['requires_human_for_execution'] is True, report)
+        check(recommendation['candidate_direction'] == 'PERSIST-001 or UI-004', report)
+        check(recommendation['human_gate'] == 'owner decision', report)
+
+def test_multiple_direction_candidates_are_preserved_without_activation():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, '', mode='manual')
+        candidates = 'PERSIST-001 | UI-004 | ask owner for another direction'
+        add_recommendation_contract(
+            target,
+            current_slice='active',
+            next_candidate=candidates,
+            human_gate='coordinate activation',
+        )
+        before = (target/'docs/TASKS.md').read_text(encoding='utf-8')
+        report = run_drive(target)
+        recommendation = report['recommendation']
+        check(recommendation['status'] == 'REQUEST_DIRECTION', report)
+        check(recommendation['candidate_direction'] == candidates, report)
+        check(recommendation['human_gate'] == 'coordinate activation', report)
+        check((target/'docs/TASKS.md').read_text(encoding='utf-8') == before,
+              'read-only recommendation modified task state')
+
 def test_drive_check_blocks_decision_grade_changed_files_before_repair():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)

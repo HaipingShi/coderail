@@ -62,13 +62,16 @@ authorizes automatic activation of the next dependency-ready autonomous task.
 
 - Mode: manual | auto-draft
 - Mission Status: active | complete
-- Current Slice Status: active | complete
-- Next Candidate: <task id> | ID pending | none
+- Current Slice Status: active | in_progress | complete
+- Next Candidate: <task id> | candidate A | candidate B | owner choice | none
 - Human Gate: implementation | coordinate-activation | none
 
 This optional contract enables a read-only continuation audit independently of
 execution authority. `auto-draft` may propose a Coordinate Draft, but it never
 activates a task, modifies project files, or grants implementation permission.
+When the mission and slice remain active but no Coordinate owns the next work,
+CodeRail preserves every candidate and requests an owner decision. It does not
+choose, activate, or execute a direction automatically.
 Leave the section unconfigured in legacy projects to preserve existing manual behavior.
 
 ## Coordinate Rule

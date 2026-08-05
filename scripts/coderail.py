@@ -1501,16 +1501,57 @@ def commit_staged(root: Path, message: str) -> tuple[bool, str]:
     return result.returncode == 0, result.stdout.strip()
 
 
-def prepare_committed_status(root: Path) -> str:
-    """Write the Inspect state expected after the exact closeout commit."""
+def prepare_status_projection(root: Path, *, assume_clean: bool) -> str:
+    """Write Inspect state for either a pending or committed closeout."""
     status_path = root / "docs" / "CODERAIL_STATUS.md"
-    status, text = inspect_state.render(root, assume_clean=True)
+    status, text = inspect_state.render(root, assume_clean=assume_clean)
     desired = text + "\n"
     current = status_path.read_text(encoding="utf-8") if status_path.exists() else ""
     if current != desired:
         status_path.parent.mkdir(parents=True, exist_ok=True)
         status_path.write_text(desired, encoding="utf-8")
     return status
+
+
+def prepare_committed_status(root: Path) -> str:
+    return prepare_status_projection(root, assume_clean=True)
+
+
+def refresh_commit_pending_projection(
+    root: Path,
+    pending: dict,
+    *,
+    commit_error: str = "",
+) -> dict:
+    """Make HANDOFF, status, and the resumable fingerprint agree."""
+    task_id = pending.get("task", "")
+    closed_id = pending.get("closed_id") or task_id
+    inspect_state.write_handoff_continuation(
+        root,
+        last_closed_task=closed_id or "none",
+        closeout_state="verified-commit-pending",
+        handoff_level="H0",
+    )
+    prepare_status_projection(root, assume_clean=False)
+    snapshot = repository_state.capture(root, include_ignored=True, fingerprints=True)
+    changed_state_files = {
+        row.path for row in snapshot.files if row.path in POST_CLOSE_LEDGER_FILES
+    }
+    safe_files = sorted(set(pending.get("safe_files", [])) | changed_state_files)
+    scope_classification = dict(pending.get("scope_classification", {}))
+    for path in changed_state_files:
+        scope_classification[path] = "safe"
+    return persist_commit_pending(
+        root,
+        task_id=task_id,
+        closed_id=closed_id,
+        safe_files=safe_files,
+        snapshot=snapshot,
+        commit_message=pending.get("expected_commit_message", ""),
+        closeout_mode=pending.get("closeout_mode", "auto"),
+        scope_classification=scope_classification,
+        commit_error=commit_error,
+    )
 
 
 def changed_paths_between(root: Path, before: str, after: str) -> set[str]:
@@ -1559,17 +1600,26 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
             print("PENDING_COMMIT_DRIFT: HEAD advanced while verified safe files remain dirty.")
             print("Review the intervening commit; CodeRail did not stage or commit anything.")
             return 1
+        inspect_state.write_handoff_continuation(
+            root,
+            last_closed_task=closed_id,
+            closeout_state="finalized",
+            handoff_level="H0",
+        )
+        prepare_committed_status(root)
         staged, detail = stage_exact_files(root, safe_files)
         if not staged:
-            pending["commit_error"] = detail or "git add failed"
-            write_pending_close(root, pending)
+            pending = refresh_commit_pending_projection(
+                root, pending, commit_error=detail or "git add failed"
+            )
             print_commit_pending(pending)
             return PENDING_EXIT
         transaction.advance(closeout_transaction.Phase.STAGED)
         committed, detail = commit_staged(root, expected_message)
         if not committed:
-            pending["commit_error"] = detail or "git commit failed"
-            write_pending_close(root, pending)
+            pending = refresh_commit_pending_projection(
+                root, pending, commit_error=detail or "git commit failed"
+            )
             transaction.mark_commit_pending(safe_files)
             print_commit_pending(pending)
             return PENDING_EXIT
@@ -1586,6 +1636,36 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
             for path in missing:
                 print(f"  - {path}")
             return 1
+        handoff_path = root / "docs" / "HANDOFF.md"
+        status_path = root / "docs" / "CODERAIL_STATUS.md"
+        previous_handoff = inspect_state.read(handoff_path)
+        previous_status = inspect_state.read(status_path)
+        inspect_state.write_handoff_continuation(
+            root,
+            last_closed_task=closed_id,
+            closeout_state="finalized",
+            handoff_level="H0",
+        )
+        prepare_committed_status(root)
+        finalization_files = [
+            row.path for row in repository_state.capture(root).files
+            if row.path in {"docs/HANDOFF.md", "docs/CODERAIL_STATUS.md"}
+        ]
+        if finalization_files:
+            staged, detail = stage_exact_files(root, finalization_files)
+            final_message = commit_message_with_graph_facts(
+                root, f"chore({closed_id}): finalize closeout continuation", closed_id
+            )
+            committed = False
+            if staged:
+                committed, detail = commit_staged(root, final_message)
+            if not staged or not committed:
+                handoff_path.write_text(previous_handoff, encoding="utf-8")
+                status_path.write_text(previous_status, encoding="utf-8")
+                pending["commit_error"] = detail or "closeout finalization commit failed"
+                write_pending_close(root, pending)
+                print_commit_pending(pending)
+                return PENDING_EXIT
         transaction.advance(closeout_transaction.Phase.COMMITTED)
 
     transaction.advance(closeout_transaction.Phase.PERSISTED)
@@ -1890,6 +1970,14 @@ def cmd_done(args) -> int:
             # tasks.json. Persist the clean state that this same commit will
             # produce; do not create a second amend commit.
             task_switch.clear_closed_pending(root, closed_id)
+            inspect_state.write_handoff_continuation(
+                root,
+                last_closed_task=closed_id,
+                closeout_state=(
+                    "verified-commit-pending" if args.no_commit else "finalized"
+                ),
+                handoff_level="H0",
+            )
             prepare_committed_status(root)
 
         if ledger_errors:
@@ -1938,22 +2026,25 @@ def cmd_done(args) -> int:
         )
 
         if args.no_commit:
+            pending = refresh_commit_pending_projection(root, pending)
             transaction.mark_commit_pending(safe_files)
             print_commit_pending(pending)
             return PENDING_EXIT
 
         staged, detail = stage_exact_files(root, safe_files)
         if not staged:
-            pending["commit_error"] = detail or "git add failed"
-            write_pending_close(root, pending)
+            pending = refresh_commit_pending_projection(
+                root, pending, commit_error=detail or "git add failed"
+            )
             transaction.mark_commit_pending(safe_files)
             print_commit_pending(pending)
             return PENDING_EXIT
         transaction.advance(closeout_transaction.Phase.STAGED)
         committed, detail = commit_staged(root, expected_commit_message)
         if not committed:
-            pending["commit_error"] = detail or "git commit failed"
-            write_pending_close(root, pending)
+            pending = refresh_commit_pending_projection(
+                root, pending, commit_error=detail or "git commit failed"
+            )
             transaction.mark_commit_pending(safe_files)
             print_commit_pending(pending)
             return PENDING_EXIT

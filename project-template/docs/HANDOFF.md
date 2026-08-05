@@ -1,7 +1,16 @@
 # Handoff
 
+<!-- coderail:continuation:start -->
+Handoff Level: H0
+Last Closed Task: none
+Closeout State: idle
+Recommendation Status: NO_RECOMMENDATION
+Next Candidate/Direction: none
+Human Gate: none
+Next Executable Step: wait for explicit owner direction
+<!-- coderail:continuation:end -->
+
 Updated at:
-Handoff Level: H0 | H1 | H2 | H3
 Current branch:
 Current task:
 Trace:
