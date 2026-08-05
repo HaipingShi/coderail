@@ -267,3 +267,19 @@ Task: T-056
 - Product direction, destructive changes, push, tag, release, and any scope or
   permission expansion remain separate human decisions. Local commit authority
   never implies publication authority.
+
+## ADR-019 Persist assertions are explicit JSON, exact, and read-only
+
+Status: accepted
+Date: 2026-08-05
+Task: T-055
+
+- A task may add `Persist-Assert: {JSON}` inside P to require a repository-local
+  UTF-8 file and optional exact literals before Done Gate passes. Failures use
+  the concrete `PERSIST_GAP` code and reason.
+- The first protocol version supports only `path` and `contains`. It does not
+  interpret Markdown, product language, semantic freshness, or arbitrary query
+  expressions, and it never rewrites the asserted surface.
+- The contract is optional and backward compatible. Broader schemas, adapters,
+  public CLI flags, and automatic project-document synchronization require a
+  separately authorized task.

@@ -22,6 +22,27 @@ A Full Rail task may be completed only when:
 10. `docs/TRACE_INDEX.md` is current.
 11. Handoff Trigger Check has been performed.
 
+## Structured Persist assertion contract
+
+P may optionally require a machine-owned surface using one strict JSON object
+per line:
+
+```text
+- Persist-Assert: {"path":"docs/HANDOFF.md","contains":["<!-- coderail:continuation:start -->"]}
+```
+
+Input fields:
+
+- `path` — required repository-relative UTF-8 file path; absolute paths and
+  paths resolving outside the repository are rejected.
+- `contains` — optional list of exact non-empty strings.
+
+The Done Gate checks only the declaration. It does not scan nearby prose,
+interpret language, or rewrite the target. Invalid JSON/schema, unsafe paths,
+missing files, unreadable text, and missing literals are must-fix blockers
+reported as `PERSIST_GAP` with the path and reason. Tasks without a
+`Persist-Assert` retain legacy behavior.
+
 A Light Rail task may use lighter completion evidence for docs-only or
 design-only work:
 

@@ -31,6 +31,22 @@ Tasks should declare `Rail: full` or `Rail: light` in TASKS. Use `--rail-type li
 
 For Light Rail, TASKS plus trace, decision backlink, or explicit manual acceptance is enough. Historical debt from old closed tasks should be labeled historical instead of blocking the current task.
 
+## Structured Persist assertions
+
+When P must prove a machine-owned surface exists, add a strict JSON assertion:
+
+```text
+P — Persist
+- TASKS
+- TRACE
+- Persist-Assert: {"path":"docs/HANDOFF.md","contains":["<!-- coderail:continuation:start -->"]}
+```
+
+Paths must be repository-relative. `contains` is an optional list of exact
+machine markers or serialized values; it is never a prose or semantic query.
+Missing files, missing literals, unsafe paths, or invalid JSON block completion
+as `PERSIST_GAP`. Do not add an assertion for ordinary project prose.
+
 ## Rules
 
 - Failed verification blocks done.

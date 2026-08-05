@@ -3,6 +3,7 @@ from importlib import import_module
 
 MODULES = (
     "test_static",
+    "test_persist",
     "test_drive",
     "test_inspect",
     "test_task_switch",

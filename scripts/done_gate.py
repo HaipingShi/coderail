@@ -98,6 +98,75 @@ def has_manual_signal(text: str, manual_acceptance: str | None) -> bool:
     return any(word in lowered for word in ["manual acceptance", "manually accepted", "user accepted", "review accepted"])
 
 
+def persist_assertion_gaps(root: Path, persist: str, task_id: str) -> list[str]:
+    """Validate only explicit JSON assertions; all other P text stays opaque."""
+    gaps = []
+    assertion_number = 0
+    for line in (persist or "").splitlines():
+        match = re.match(r"^Persist-Assert:\s*(.*)$", line.strip(), re.I)
+        if not match:
+            continue
+        assertion_number += 1
+        raw = match.group(1).strip()
+        try:
+            assertion = json.loads(raw)
+        except json.JSONDecodeError:
+            gaps.append(
+                f"{task_id}: PERSIST_GAP assertion={assertion_number} reason=invalid_json"
+            )
+            continue
+        if not isinstance(assertion, dict) or set(assertion) - {"path", "contains"}:
+            gaps.append(
+                f"{task_id}: PERSIST_GAP assertion={assertion_number} reason=invalid_schema"
+            )
+            continue
+        relative = assertion.get("path")
+        contains = assertion.get("contains", [])
+        if (
+            not isinstance(relative, str)
+            or not relative.strip()
+            or not isinstance(contains, list)
+            or any(not isinstance(item, str) or not item for item in contains)
+        ):
+            gaps.append(
+                f"{task_id}: PERSIST_GAP assertion={assertion_number} reason=invalid_schema"
+            )
+            continue
+        relative_path = Path(relative)
+        if relative_path.is_absolute():
+            gaps.append(
+                f"{task_id}: PERSIST_GAP path={relative} reason=unsafe_path"
+            )
+            continue
+        candidate = root / relative_path
+        try:
+            candidate.resolve().relative_to(root.resolve())
+        except (OSError, ValueError):
+            gaps.append(
+                f"{task_id}: PERSIST_GAP path={relative} reason=unsafe_path"
+            )
+            continue
+        if not candidate.is_file():
+            gaps.append(
+                f"{task_id}: PERSIST_GAP path={relative} reason=missing_file"
+            )
+            continue
+        try:
+            content = candidate.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            gaps.append(
+                f"{task_id}: PERSIST_GAP path={relative} reason=unreadable_text"
+            )
+            continue
+        for literal in contains:
+            if literal not in content:
+                gaps.append(
+                    f"{task_id}: PERSIST_GAP path={relative} reason=missing_literal "
+                    f"literal={json.dumps(literal, ensure_ascii=False)}"
+                )
+    return gaps
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Run CodeRail done gate")
     ap.add_argument("--target", default=".")
@@ -145,6 +214,7 @@ def main(argv=None) -> int:
             severe.append(f"{task_id}: light rail without TRACE requires explicit manual acceptance evidence")
         elif rail == "light" and "TRACE" not in p:
             warnings.append(f"{task_id}: light rail P has no TRACE; keep manual acceptance or decision backlink explicit")
+        severe.extend(persist_assertion_gaps(root, coord.get("p", ""), task_id))
 
         changed = []
         if args.changed_files:
