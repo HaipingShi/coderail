@@ -25,6 +25,7 @@ import repository_state  # noqa: E402
 import contract_check  # noqa: E402
 import drive_check  # noqa: E402
 import task_switch  # noqa: E402
+import delivery_contract  # noqa: E402
 
 
 CONTINUATION_START = "<!-- coderail:continuation:start -->"
@@ -348,6 +349,10 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     closeout_state = continuation.get("Closeout State", "unknown")
     last_closed_task = continuation.get("Last Closed Task", "none")
     closed_ids = {task["id"] for task in tasks if task["status"] in {"[x]", "[f]"}}
+    finalized_ids = {task["id"] for task in tasks if task["status"] in {"[x]", "[f]"}}
+    projection_gaps = delivery_contract.current_truth_projection_gaps(
+        root, finalized_ids
+    )
     if (
         closeout_state in {"pending-closeout", "verified-commit-pending"}
         and not commit_pending
@@ -381,7 +386,7 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     drive_warning = drive["mode"] == "continuous" and drive["decision"] == "REVIEW_DIRECTION"
     status = (
         "blocked"
-        if verification_gaps or trace_severe or drive_blocked or len(active) > 1 or closed_pending
+        if verification_gaps or trace_severe or projection_gaps or drive_blocked or len(active) > 1 or closed_pending
         else (
             "warning"
             if trace_gaps or handoff_issues or not outcome or active or paused or drive_warning or commit_pending
@@ -500,6 +505,10 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     lines.append("")
     lines.append("- none" if not trace_gaps else "\n".join(f"- {x}" for x in trace_gaps[:20]))
     lines.append("")
+    lines.append("## Current Truth Projection Consistency")
+    lines.append("")
+    lines.append("- pass" if not projection_gaps else "\n".join(f"- {x}" for x in projection_gaps))
+    lines.append("")
     lines.append("## Drive Decision")
     lines.append("")
     lines.append(f"- Mode: {drive['mode']}")
@@ -544,6 +553,8 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     lines.append("")
     if commit_pending:
         lines.append("- Resume the verified closeout with `coderail done --resume`; do not rerun verification or use `git add .`.")
+    elif projection_gaps:
+        lines.append("- Repair every declared current-truth projection listed above before reporting closeout finalized.")
     elif handoff_issues:
         lines.append("- Refresh or migrate the structured HANDOFF continuation block before relying on it for continuation.")
     elif verification_gaps:

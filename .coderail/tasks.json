@@ -4185,5 +4185,33 @@
       "head": "574f0b6f422fcfea35085f7abbd72195ef965cdf",
       "files": []
     }
+  },
+  "T-058": {
+    "display_id": "T-058",
+    "verify": [
+      "python3 tests/test_delivery.py",
+      "python3 tests/test_inspect.py",
+      "python3 tests/test_closeout.py",
+      "python3 tests/test_drive.py",
+      "npm test",
+      "npm run ci",
+      "python3 scripts/doctor.py --target project-template",
+      "git diff --check"
+    ],
+    "tests": [
+      "tests/test_delivery.py"
+    ],
+    "accept": [
+      "Internal technical receipt and client-facing delivery summary are separate",
+      "Finalized tasks do not imply milestone or product completion",
+      "Declared current-truth projections are synchronized or closeout remains pending with exact repairs",
+      "Recommendation states remain distinct and manual Drive never activates work",
+      "Legacy projects and tasks without Delivery Contract remain compatible and not_assessed"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-06T03:21:19.879258+00:00",
+      "head": "bbde758b3b27b7fdf62ba69bd8f07072ed04ef38",
+      "files": []
+    }
   }
 }

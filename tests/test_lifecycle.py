@@ -64,7 +64,8 @@ def test_done_output_is_summary_with_report_on_disk():
         cr('start', 'Quiet task', '--verify', 'echo deep-evidence-line && true')
         r = cr('done'); check(r.returncode == 0, r.stdout)
         check('== Done:' in r.stdout, r.stdout)
-        core = r.stdout.split('== Done:')[1].split('== Now tell')[0]
+        check('== Client Delivery ==' in r.stdout, r.stdout)
+        core = r.stdout.split('== Done:', 1)[1].split('== Client Delivery ==', 1)[0]
         check(len(core.strip().splitlines()) <= 15, f'summary too long:\n{core}')
         check('Done Gate Report' not in r.stdout, 'full gate report leaked to console')
         reports = list((root/'.coderail/reports').glob('done-*.md'))

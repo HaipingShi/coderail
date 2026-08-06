@@ -564,7 +564,7 @@ def test_runtime_has_no_repository_state_compatibility_adapters():
     check('task_switch.git_status_entries' not in closeout + coderail,
           'runtime callers still consume task_switch status compatibility rows')
     modules = [
-        'test_structure.py', 'test_static.py', 'test_persist.py', 'test_drive.py',
+        'test_structure.py', 'test_static.py', 'test_persist.py', 'test_delivery.py', 'test_drive.py',
         'test_inspect.py', 'test_task_switch.py', 'test_lifecycle.py',
         'test_closeout.py',
     ]
@@ -577,7 +577,7 @@ def test_runtime_has_no_repository_state_compatibility_adapters():
         tree = ast.parse(source)
         names.extend(node.name for node in tree.body
                      if isinstance(node, ast.FunctionDef) and node.name.startswith('test_'))
-    check(len(names) == 132 and len(names) == len(set(names)),
+    check(len(names) == 143 and len(names) == len(set(names)),
           f'test inventory changed or contains duplicates: {len(names)}/{len(set(names))}')
 
 def test_closeout_transaction_is_the_only_success_authority():

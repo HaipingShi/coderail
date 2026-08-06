@@ -3,6 +3,25 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-06 - Add a customer delivery layer and current-truth projection consistency (T-058)
+
+- Done: Add a customer delivery layer and current-truth projection consistency
+- Checked by: `python3 tests/test_delivery.py` exit 0; `python3 tests/test_inspect.py` exit 0; `python3 tests/test_closeout.py` exit 0; `python3 tests/test_drive.py` exit 0; `npm test` exit 0; `npm run ci` exit 0; `python3 scripts/doctor.py --target project-template` exit 0; `git diff --check` exit 0
+- Next: Review Delivery Contract adoption in a real downstream repository; recommendation only, do not register, activate, push, tag, or release.
+- Evidence: `python3 tests/test_delivery.py` -> exit 0
+- Evidence: `python3 tests/test_inspect.py` -> exit 0
+- Evidence: `python3 tests/test_closeout.py` -> exit 0
+- Evidence: `python3 tests/test_drive.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Evidence: `python3 scripts/doctor.py --target project-template` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: Internal technical receipt and client-facing delivery summary are separate
+- Acceptance [done]: Finalized tasks do not imply milestone or product completion
+- Acceptance [done]: Declared current-truth projections are synchronized or closeout remains pending with exact repairs
+- Acceptance [done]: Recommendation states remain distinct and manual Drive never activates work
+- Acceptance [done]: Legacy projects and tasks without Delivery Contract remain compatible and not_assessed
+
 ## 2026-08-06 - Prepare the v0.10.0 release candidate (T-057)
 
 - Done: Prepare the v0.10.0 release candidate

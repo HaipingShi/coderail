@@ -68,6 +68,8 @@ That is the whole interface. Your AI assistant reads the installed `AGENTS.md` a
 
 No extra commit-approval question is needed after those gates pass: successful `done` is already permission for one exact local task commit. Use `--no-commit` only when you explicitly want to review the diff first. Push, tag, and release always remain separate user decisions.
 
+For customer delivery, a task may add an explicit structured Delivery Contract. After a successful closeout, CodeRail renders a separate client-facing Markdown summary that leads with outcomes and capability changes; commits, verification, and exact safe files stay in the final technical appendix. Task finalization never implies milestone or product completion, and missing historical contracts remain `not_assessed`. See [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md).
+
 Task scope is fail-closed. If one path matches both an Allowed rule and a Forbidden rule, `start`, `switch`, or closeout reports `SCOPE_CONTRADICTION` with the exact path and both rules. Allowed never silently overrides Forbidden; narrow the forbidden glob before continuing.
 
 If verification passes but the exact Git commit cannot run, CodeRail preserves the complete safe-file snapshot as `verified-commit-pending`. Restore Git permission and run `coderail done --resume`, or manually commit only the exact files printed by CodeRail and then run the same resume command. Use `coderail done --no-commit` to choose this manual mode from the beginning. Resume never reruns verification or duplicates PROGRESS/TRACE entries.

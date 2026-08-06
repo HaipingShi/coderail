@@ -299,3 +299,26 @@ Task: T-057
 - T-057 changes only release metadata and documentation. The repository owner
   separately authorized the v0.10.0 tag, push, and GitHub Release; no product
   behavior, dependency, or automatic-publication policy changes are included.
+
+## ADR-021 Customer delivery is an explicit projection over closeout facts
+
+Status: accepted
+Date: 2026-08-06
+Task: T-058
+
+- Internal closeout receipts prove commits, verification, exact safe files, and
+  transaction state. They are not customer outcome claims. An optional strict
+  Delivery Contract supplies outcome, capability, gap, assessment, recommendation,
+  and decision facts; missing contracts remain `not_assessed`.
+- Finalized proves only Task Done. Milestone and Product completion require
+  explicit assessments. Planned, recommended, active, and none remain distinct;
+  recommendations are read-only and never grant registration, activation, or
+  implementation authority.
+- Current authority files are registered through `docs/ASSETS.md`. CodeRail
+  reads and rewrites only explicit `coderail:current-truth` markers, excludes
+  append-only TRACE history, and blocks Inspect health when a finalized task has
+  a stale marker.
+- Resume may finalize only the declared, verified projection set. A missing,
+  out-of-snapshot, forbidden, or unwritable projection preserves
+  `verified-commit-pending` and reports exact repair files. Exact staging,
+  single-active ownership, manual Drive, and no-automatic-push remain unchanged.

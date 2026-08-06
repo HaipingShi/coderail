@@ -34,6 +34,7 @@ import coordinate_check  # noqa: E402
 import done_gate  # noqa: E402
 import trace_graph  # noqa: E402
 import task_graph  # noqa: E402
+import delivery_contract  # noqa: E402
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
@@ -260,6 +261,15 @@ def task_contract_metadata(text: str, task_id: str | None) -> dict:
     return {}
 
 
+def task_body(text: str, task_id: str | None) -> str:
+    if not task_id:
+        return ""
+    for match in TASK_BLOCK_RE.finditer(text):
+        if match.group(1) == task_id:
+            return match.group(3)
+    return ""
+
+
 def next_todo_task(text: str):
     """Smart-but-simple recommendation: first `[ ]` task in file order.
 
@@ -468,16 +478,43 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
         path.write_text(header + entry, encoding="utf-8")
 
 
-def print_user_report_scaffold(task_id: str, title: str, verified: str) -> None:
-    # FN-020: long verify command lists overflow the prompt line; truncate
-    # here - the full text lives in the on-disk done report.
-    evidence = verified or "state plainly"
-    if len(evidence) > 70:
-        evidence = evidence[:67] + "... (full evidence in the done report)"
+def emit_client_delivery(root: Path, pending: dict, task_id: str) -> str:
+    """Render the customer layer only after the closeout transaction succeeds."""
+    current_head = repository_state.capture(root).head
+    commits = []
+    pre_commit_head = pending.get("pre_commit_head")
+    if pre_commit_head and current_head and pre_commit_head != current_head:
+        result = subprocess.run(
+            ["git", "-C", str(root), "rev-list", "--reverse", f"{pre_commit_head}..{current_head}"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        if result.returncode == 0:
+            commits = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if not commits and current_head:
+        commits = [current_head]
+    verification = [
+        f"{row.get('cmd', '(unknown)')} (exit {row.get('exit', '?')})"
+        for row in pending.get("verify_results", [])
+    ]
+    delivery = delivery_contract.finalized_delivery(
+        pending.get("delivery_contract") or delivery_contract.parse_delivery_contract("")[0],
+        commits=commits,
+        verification=verification,
+        safe_files=list(pending.get("safe_files", [])),
+    )
+    markdown = delivery_contract.render_client_markdown(delivery)
+    report = delivery_contract.write_client_report(
+        root, task_id, pending.get("stamp", ""), markdown
+    )
     print()
-    print("== Now tell the user (their language, no jargon, 3-6 sentences) ==")
-    print(f"  1. what they can do now  2. how you know it works ({evidence})")
-    print("  3. what next / any decision - phrase decisions as clear either/or.")
+    print("== Client Delivery ==")
+    print(markdown.rstrip())
+    print(f"Client delivery report: {report}")
+    return report
 
 
 POST_CLOSE_LEDGER_FILES = {
@@ -1453,6 +1490,10 @@ def print_commit_pending(pending: dict) -> None:
     print("Verification evidence and closeout ledger are preserved.")
     if pending.get("commit_error"):
         print(f"Auto commit failed: {pending['commit_error']}")
+    if pending.get("projection_errors"):
+        print("Current-truth projection repairs required:")
+        for issue in pending["projection_errors"]:
+            print(f"  - {issue}")
     print("Exact safe files:")
     for path in safe_files:
         print(f"  - {path}")
@@ -1526,6 +1567,12 @@ def refresh_commit_pending_projection(
     """Make HANDOFF, status, and the resumable fingerprint agree."""
     task_id = pending.get("task", "")
     closed_id = pending.get("closed_id") or task_id
+    _changed, projection_errors = delivery_contract.synchronize_current_truth(
+        root,
+        closed_id,
+        "pending-closeout",
+        authorized_paths=set(pending.get("projection_files", [])),
+    )
     inspect_state.write_handoff_continuation(
         root,
         last_closed_task=closed_id or "none",
@@ -1541,7 +1588,7 @@ def refresh_commit_pending_projection(
     scope_classification = dict(pending.get("scope_classification", {}))
     for path in changed_state_files:
         scope_classification[path] = "safe"
-    return persist_commit_pending(
+    refreshed = persist_commit_pending(
         root,
         task_id=task_id,
         closed_id=closed_id,
@@ -1552,6 +1599,9 @@ def refresh_commit_pending_projection(
         scope_classification=scope_classification,
         commit_error=commit_error,
     )
+    refreshed["projection_errors"] = projection_errors
+    write_pending_close(root, refreshed)
+    return refreshed
 
 
 def changed_paths_between(root: Path, before: str, after: str) -> set[str]:
@@ -1573,6 +1623,7 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
     task_id = pending.get("task", "")
     closed_id = pending.get("closed_id") or task_id
     safe_files = list(pending.get("safe_files", []))
+    projection_files = list(pending.get("projection_files", []))
     expected_message = pending.get("expected_commit_message", "")
     pre_commit_head = pending.get("pre_commit_head")
     transaction = closeout_transaction.CloseoutTransaction.from_commit_pending(
@@ -1583,6 +1634,9 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
     saved = {row.get("path"): row for row in pending.get("safe_file_states", [])}
     present = [path for path in safe_files if path in current]
     current_head = current_snapshot.head
+    previous_projection = {
+        path: inspect_state.read(root / path) for path in projection_files
+    }
 
     drifted = [
         path for path in present
@@ -1595,11 +1649,40 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
         print("Do not stage automatically; review the drift and start a new verified closeout.")
         return 1
 
-    if present:
-        if current_head != pre_commit_head and pre_commit_head:
-            print("PENDING_COMMIT_DRIFT: HEAD advanced while verified safe files remain dirty.")
-            print("Review the intervening commit; CodeRail did not stage or commit anything.")
+    if present and current_head != pre_commit_head and pre_commit_head:
+        print("PENDING_COMMIT_DRIFT: HEAD advanced while verified safe files remain dirty.")
+        print("Review the intervening commit; CodeRail did not stage or commit anything.")
+        return 1
+    if not present:
+        if not pre_commit_head or current_head == pre_commit_head:
+            print("PENDING_COMMIT_MISSING: safe files are clean but no commit advanced HEAD.")
+            print("Restore the verified files or review the snapshot before retrying.")
             return 1
+        committed_paths = changed_paths_between(root, pre_commit_head, current_head or "HEAD")
+        missing = sorted(set(safe_files) - committed_paths)
+        if missing:
+            print("PENDING_COMMIT_INCOMPLETE: the manual commit omitted verified safe files:")
+            for path in missing:
+                print(f"  - {path}")
+            return 1
+
+    _projection_changes, projection_errors = delivery_contract.synchronize_current_truth(
+        root,
+        closed_id,
+        "finalized",
+        authorized_paths=set(projection_files),
+    )
+    if projection_errors:
+        pending = refresh_commit_pending_projection(root, pending)
+        pending["projection_errors"] = projection_errors
+        write_pending_close(root, pending)
+        print("CURRENT_TRUTH_PROJECTION_PENDING: closeout remains recoverable.")
+        for issue in projection_errors:
+            print(f"  - {issue}")
+        print_commit_pending(pending)
+        return PENDING_EXIT
+
+    if present:
         inspect_state.write_handoff_continuation(
             root,
             last_closed_task=closed_id,
@@ -1625,17 +1708,6 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
             return PENDING_EXIT
         transaction.advance(closeout_transaction.Phase.COMMITTED)
     else:
-        if not pre_commit_head or current_head == pre_commit_head:
-            print("PENDING_COMMIT_MISSING: safe files are clean but no commit advanced HEAD.")
-            print("Restore the verified files or review the snapshot before retrying.")
-            return 1
-        committed_paths = changed_paths_between(root, pre_commit_head, current_head or "HEAD")
-        missing = sorted(set(safe_files) - committed_paths)
-        if missing:
-            print("PENDING_COMMIT_INCOMPLETE: the manual commit omitted verified safe files:")
-            for path in missing:
-                print(f"  - {path}")
-            return 1
         handoff_path = root / "docs" / "HANDOFF.md"
         status_path = root / "docs" / "CODERAIL_STATUS.md"
         previous_handoff = inspect_state.read(handoff_path)
@@ -1647,9 +1719,12 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
             handoff_level="H0",
         )
         prepare_committed_status(root)
+        finalization_paths = set(projection_files) | {
+            "docs/HANDOFF.md", "docs/CODERAIL_STATUS.md"
+        }
         finalization_files = [
             row.path for row in repository_state.capture(root).files
-            if row.path in {"docs/HANDOFF.md", "docs/CODERAIL_STATUS.md"}
+            if row.path in finalization_paths
         ]
         if finalization_files:
             staged, detail = stage_exact_files(root, finalization_files)
@@ -1662,6 +1737,8 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
             if not staged or not committed:
                 handoff_path.write_text(previous_handoff, encoding="utf-8")
                 status_path.write_text(previous_status, encoding="utf-8")
+                for path, text in previous_projection.items():
+                    (root / path).write_text(text, encoding="utf-8")
                 pending["commit_error"] = detail or "closeout finalization commit failed"
                 write_pending_close(root, pending)
                 print_commit_pending(pending)
@@ -1688,6 +1765,7 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
     print("  committed:   yes (exact snapshot safe files)")
     print("  inspect:     consistent")
     print("  journal:     already persisted; no duplicate entry written")
+    emit_client_delivery(root, pending, closed_id)
     return 0
 
 
@@ -1714,6 +1792,22 @@ def cmd_done(args) -> int:
         if not meta.get(key) and contract_meta.get(key):
             meta[key] = contract_meta[key]
     shown = fmt_id(task_before, meta) if task_before else ""
+    delivery_input, delivery_issues = delivery_contract.parse_delivery_contract(
+        task_body(tasks_text_before, task_before)
+    )
+    allowed, forbidden = task_scope_patterns(tasks_text_before, task_before or "")
+    projection_files, projection_scope_errors = delivery_contract.projection_scope_issues(
+        root,
+        task_before or "",
+        allowed=allowed,
+        forbidden=forbidden,
+    )
+    if delivery_issues or projection_scope_errors:
+        print(f"Cannot close {shown}: delivery/current-truth contract is invalid.")
+        for issue in delivery_issues + projection_scope_errors:
+            print(f"  - {issue}")
+        print("Repair the explicit contract or task scope; project prose was not inspected or rewritten.")
+        return 1
 
     # ---- FN-010: run registered verify commands. This is the gate itself.
     verify_cmds = meta.get("verify", [])
@@ -1809,6 +1903,8 @@ def cmd_done(args) -> int:
             "verify_results": [
                 {"cmd": r["cmd"], "exit": r["exit"]} for r in verify_results
             ],
+            "delivery_contract": delivery_input,
+            "projection_files": projection_files,
             "stamp": datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S"),
         })
     transaction.advance(closeout_transaction.Phase.SNAPSHOTTED)
@@ -1970,6 +2066,20 @@ def cmd_done(args) -> int:
             # tasks.json. Persist the clean state that this same commit will
             # produce; do not create a second amend commit.
             task_switch.clear_closed_pending(root, closed_id)
+            _projection_changes, projection_errors = delivery_contract.synchronize_current_truth(
+                root,
+                closed_id,
+                "pending-closeout" if args.no_commit else "finalized",
+                authorized_paths=set(projection_files),
+            )
+            if projection_errors:
+                reopen_after_close_failure(root, closed_id, tasks_before_compaction)
+                clear_pending_close(root)
+                print("CURRENT_TRUTH_PROJECTION_FAILED: task was reopened before commit.")
+                for issue in projection_errors:
+                    print(f"  - {issue}")
+                print("Repair the exact declared projection files and rerun done.")
+                return 1
             inspect_state.write_handoff_continuation(
                 root,
                 last_closed_task=closed_id,
@@ -2097,7 +2207,7 @@ def cmd_done(args) -> int:
         print_blueprint_notice(root)
         print_next_recommendation(root)
         if task_before:
-            print_user_report_scaffold(shown, title or shown, verified)
+            emit_client_delivery(root, pending, closed_id)
         if rc == 3:
             print("This project runs in continuous mode: keep going with the next task.")
             return 3
