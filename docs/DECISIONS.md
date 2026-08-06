@@ -283,3 +283,19 @@ Task: T-055
 - The contract is optional and backward compatible. Broader schemas, adapters,
   public CLI flags, and automatic project-document synchronization require a
   separately authorized task.
+
+## ADR-020 v0.10.0 remains explicitly pre-1.0
+
+Status: accepted
+Date: 2026-08-06
+Task: T-057
+
+- The post-v0.9.0 changes ship as v0.10.0, not v1.0.0. The release represents
+  substantial new capability while CodeRail remains in a rapid-evolution phase
+  with a deliberately weaker compatibility promise than a stable major line.
+- The everyday `start`, `check`, and `done` entry points remain compatible for
+  this release. Advanced commands, generated governance documents, and internal
+  `.coderail` state formats may still evolve before 1.0.
+- T-057 changes only release metadata and documentation. The repository owner
+  separately authorized the v0.10.0 tag, push, and GitHub Release; no product
+  behavior, dependency, or automatic-publication policy changes are included.

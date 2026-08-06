@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-![version](https://img.shields.io/badge/version-v0.9.0-2f80ed)
+![version](https://img.shields.io/badge/version-v0.10.0-2f80ed)
 ![license](https://img.shields.io/badge/license-MIT-27ae60)
 ![python](https://img.shields.io/badge/python-3.x-ffd43b)
 ![agent](https://img.shields.io/badge/agent--ready-Codex%20%7C%20Claude-8e44ad)

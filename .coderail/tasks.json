@@ -4165,5 +4165,25 @@
       "head": "c8ff2146702bfedb35abb75c563d59ae2fa5466b",
       "files": []
     }
+  },
+  "T-057": {
+    "display_id": "T-057",
+    "verify": [
+      "python3 tests/test_static.py",
+      "npm test",
+      "npm run ci",
+      "python3 scripts/doctor.py --target project-template",
+      "git diff --check"
+    ],
+    "accept": [
+      "Version metadata and README badges are consistently 0.10.0",
+      "CHANGELOG includes v0.10.0 highlights, pre-1.0 compatibility scope, upgrade notes, and verification",
+      "No product behavior or dependency changes are included"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-06T00:04:46.281006+00:00",
+      "head": "574f0b6f422fcfea35085f7abbd72195ef965cdf",
+      "files": []
+    }
   }
 }

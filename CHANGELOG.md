@@ -4,6 +4,81 @@
 
 No unreleased changes.
 
+## v0.10.0
+
+Convergent closeout and continuity: CodeRail now treats verification, exact
+task-scoped commit, persisted history, and next-session guidance as one
+recoverable flow. This remains a pre-1.0 release: the three everyday commands
+stay compatible, while advanced commands and internal state formats may still
+evolve before 1.0.
+
+### Reliable completion and recovery
+
+- Closeout uses one repository-state vocabulary and a phase-checked transaction
+  so success is reported only after verification, exact staging, commit,
+  persistence, and a clean rescan agree.
+- An interrupted or permission-blocked exact commit becomes
+  `verified-commit-pending`; `done --resume` retries the frozen safe-file set
+  without rerunning verification or duplicating ledger entries.
+- A successful `done` now authorizes its exact local task commit without asking
+  a non-technical user for another mechanical decision. `--no-commit` remains
+  available for explicit review-first work. Push, tag, and release are never
+  implied.
+
+### Structured continuity and persistence
+
+- CodeRail owns a delimited continuation projection in `HANDOFF.md`, preserving
+  project-authored prose while keeping closeout state and the next executable
+  action consistent across sessions.
+- Done Gate accepts optional, read-only `Persist-Assert` JSON declarations for
+  repository-local files and exact literals. Invalid declarations, unsafe
+  paths, missing files, and missing literals report a concrete `PERSIST_GAP`;
+  tasks without assertions retain their prior behavior.
+
+### Traceability and project understanding
+
+- Evidence-aware task relations and trace queries connect goals, tasks, files,
+  commits, and verification through `why`, `impact`, and `graph` commands.
+- Architecture, lifecycle, recovery, and state-authority diagrams now document
+  the maintained implementation, and English and Simplified Chinese READMEs
+  have independent top-level language entry points.
+- Public repository cleanup keeps the completed Workflow Lab available under
+  its archive tag while removing machine-specific and stale working surfaces
+  from `main`.
+
+### Compatibility scope
+
+- `start`, `check`, and `done` remain the stable everyday entry points for this
+  release, and existing tasks without new optional declarations continue to
+  work.
+- CodeRail remains in the `0.x` rapid-evolution phase. Advanced commands,
+  generated governance documents, and internal `.coderail` state formats are
+  not yet a 1.0 compatibility promise.
+- No dependency or mandatory project-document migration is introduced by this
+  release. Automatic publication remains forbidden.
+
+### Upgrade notes
+
+1. Update the CodeRail home checkout to `v0.10.0`.
+2. Re-run `python3 scripts/init_project.py --target /path/to/project` for each
+   managed repository to refresh the versioned `.coderail/coderail.py` shim.
+   Existing non-empty project documents and `.coderail/config.json` are
+   preserved unless the operator explicitly requests replacement.
+3. Run
+   `python3 /path/to/coderail/scripts/doctor.py --target /path/to/project` and
+   fix any reported current-state gap before closing new work.
+4. If the desired workflow is to inspect a diff before committing, use
+   `python .coderail/coderail.py done --no-commit`; ordinary successful `done`
+   now creates the exact task-scoped local commit.
+
+### Verification
+
+- `python3 tests/test_static.py`
+- `npm test`
+- `npm run ci`
+- `python3 scripts/doctor.py --target project-template`
+- `git diff --check`
+
 ## v0.9.0
 
 Task Switch Gate: CodeRail now treats switching work as an explicit lifecycle transition instead of allowing a second active task to emerge through `--force`. This minor release also hardens closeout ownership and includes the cross-platform scope-path fix from FN-029.

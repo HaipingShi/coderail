@@ -23,7 +23,7 @@ from pathlib import Path
 # Replaced with the CodeRail home version at install time (see init_project.py).
 # If this file was copied by hand (so the placeholder survives), effective_version()
 # falls back to reading VERSION from the CodeRail home - manual copies stay honest.
-SHIM_VERSION = "0.9.0"
+SHIM_VERSION = "0.10.0"
 
 
 def effective_version(home: "Path | None" = None) -> str:

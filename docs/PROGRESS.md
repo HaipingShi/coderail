@@ -3,6 +3,20 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-06 - Prepare the v0.10.0 release candidate (T-057)
+
+- Done: Prepare the v0.10.0 release candidate
+- Checked by: `python3 tests/test_static.py` exit 0; `npm test` exit 0; `npm run ci` exit 0; `python3 scripts/doctor.py --target project-template` exit 0; `git diff --check` exit 0
+- Next: Create and push annotated v0.10.0 tag, then verify the GitHub Release workflow
+- Evidence: `python3 tests/test_static.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `npm run ci` -> exit 0
+- Evidence: `python3 scripts/doctor.py --target project-template` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: Version metadata and README badges are consistently 0.10.0
+- Acceptance [done]: CHANGELOG includes v0.10.0 highlights, pre-1.0 compatibility scope, upgrade notes, and verification
+- Acceptance [done]: No product behavior or dependency changes are included
+
 ## 2026-08-05 - define a generic structured Persist assertion contract (T-055)
 
 - Done: define a generic structured Persist assertion contract
