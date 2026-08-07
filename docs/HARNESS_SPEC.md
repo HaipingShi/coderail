@@ -275,3 +275,31 @@ python .coderail/coderail.py check
 python scripts/trace_doctor.py --target .
 npm.cmd test
 ```
+
+### T-059 current-authority closeout projection consistency
+
+The delivery/Inspect harness registers canonical current-authority fixtures and
+proves that a finalized Coordinate cannot retain an explicit project-authored
+current status of `active`, `in_progress`, `pending-closeout`,
+`verified-commit-pending`, bare status/closeout `pending`, `待提交`, or `待收口`.
+
+Required matrix:
+
+- an exact Task/Coordinate context plus a stale status field blocks Inspect;
+- table/list assertions bind both internal ids and registered display ids;
+- diagnostics include canonical file, line, task, alias when used, recorded
+  state, and expected `finalized` state;
+- narrative incident prose and append-only TRACE activation history stay out of
+  current-truth consistency;
+- ordinary `done` reopens before commit and suppresses `Done`;
+- `done --no-commit` rejects stale prose before freezing its exact snapshot;
+- `done --resume` preserves `verified-commit-pending` until prose is repaired;
+- exact machine markers still synchronize to `finalized` without rewriting
+  surrounding project prose.
+
+```bash
+python3 tests/test_delivery.py
+python3 tests/test_inspect.py
+python3 tests/test_closeout.py
+python3 tests/test_structure.py
+```

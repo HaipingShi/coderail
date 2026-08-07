@@ -322,3 +322,29 @@ Task: T-058
   out-of-snapshot, forbidden, or unwritable projection preserves
   `verified-commit-pending` and reports exact repair files. Exact staging,
   single-active ownership, manual Drive, and no-automatic-push remain unchanged.
+
+## ADR-022 Canonical current authority fails closed on stale Coordinate prose
+
+Status: accepted
+Date: 2026-08-07
+Task: T-059
+
+- `docs/ASSETS.md` registration is the current-authority boundary. In canonical,
+  non-append-only files, an explicit status assertion bound to the exact internal
+  task id or its registered display id participates in current-truth consistency
+  even when the project author did not add a machine marker.
+- CodeRail recognizes only bounded assertion shapes: a status field inside an
+  exact Task/Coordinate context, or a table/list row carrying both the exact id
+  and status. Narrative mentions remain opaque. Append-only TRACE history remains
+  evidence and is never reclassified as current state.
+- The stale finalized states are `active`, `in_progress`, `pending-closeout`,
+  `verified-commit-pending`, bare `pending` in an explicit status/closeout field,
+  their plain-language pending commit/closeout forms, `待提交`, and `待收口`.
+  Inspect reports the exact canonical file, line, task, alias when applicable,
+  recorded state, and expected `finalized` state.
+- Only explicit `coderail:current-truth` markers are machine-rewritten. Project
+  prose remains human-owned: ordinary `done` reopens before its exact commit,
+  `done --no-commit` refuses to freeze stale prose into its exact snapshot, and
+  `done --resume` preserves `verified-commit-pending` when a new assertion
+  appears, until every stale current-authority assertion is repaired. No path
+  may report consistency pass or `Done` while such residue exists.

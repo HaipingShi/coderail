@@ -196,6 +196,80 @@ def test_inspect_blocks_stale_current_truth_for_finalized_task():
         check('Status: healthy' not in result.stdout, result.stdout)
 
 
+def test_inspect_blocks_stale_unmanaged_status_in_canonical_current_authority():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        _write_inspect_project(target)
+        (target/'README.md').write_text('''# Project
+
+## T-001 Current Coordinate
+
+### Closeout
+
+Status: active
+''', encoding='utf-8')
+        result = _run_inspect(target)
+        check(result.returncode == 1, result.stdout + result.stderr)
+        check(
+            'CURRENT_TRUTH_PROSE_GAP file=README.md line=7 task=T-001 '
+            'recorded=active expected=finalized' in result.stdout,
+            result.stdout,
+        )
+        check('Status: healthy' not in result.stdout, result.stdout)
+
+
+def test_current_authority_status_scan_binds_display_id_and_exact_coordinate():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        _write_inspect_project(target)
+        (target/'.coderail').mkdir()
+        (target/'.coderail/tasks.json').write_text(
+            json.dumps({'T-001': {'display_id': 'GOV-007'}}), encoding='utf-8'
+        )
+        for stale_status in (
+            'active', 'in_progress', 'pending-closeout',
+            'verified-commit-pending', 'pending', '待提交', '待收口',
+        ):
+            (target/'README.md').write_text(f'''# Project
+
+| Coordinate | Closeout status |
+|---|---|
+| GOV-007 | {stale_status} |
+| T-002 | active |
+''', encoding='utf-8')
+            gaps = delivery_contract.current_truth_projection_gaps(target, {'T-001'})
+            check(len(gaps) == 1, (stale_status, gaps))
+            check(
+                f'line=5 task=T-001 alias=GOV-007 recorded={stale_status}' in gaps[0],
+                (stale_status, gaps),
+            )
+            check('T-002' not in gaps[0], gaps)
+        (target/'README.md').write_text('''# Project
+
+| Coordinate | Review note |
+|---|---|
+| GOV-007 | Fixed the old active projection detector. |
+''', encoding='utf-8')
+        check(
+            not delivery_contract.current_truth_projection_gaps(target, {'T-001'}),
+            'narrative table cell was interpreted as a status assertion',
+        )
+        (target/'README.md').write_text('''# Project
+
+**Task:** GOV-007
+**Status:** 待提交
+''', encoding='utf-8')
+        gaps = delivery_contract.current_truth_projection_gaps(target, {'T-001'})
+        check(len(gaps) == 1 and 'recorded=待提交' in gaps[0], gaps)
+        (target/'README.md').write_text('''# Project
+
+Task: GOV-007
+收口：待收口
+''', encoding='utf-8')
+        gaps = delivery_contract.current_truth_projection_gaps(target, {'T-001'})
+        check(len(gaps) == 1 and 'recorded=待收口' in gaps[0], gaps)
+
+
 def test_historical_trace_active_event_is_not_current_truth():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
@@ -207,6 +281,19 @@ def test_historical_trace_active_event_is_not_current_truth():
         check(not gaps, gaps)
         result = _run_inspect(target)
         check('CURRENT_TRUTH_GAP' not in result.stdout, result.stdout)
+
+
+def test_canonical_prose_without_coordinate_status_assertion_is_not_interpreted():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        _write_inspect_project(target)
+        (target/'README.md').write_text('''# Project
+
+T-001 fixed the stale active projection detector.
+The historical incident said 待收口, but this paragraph declares no current status.
+''', encoding='utf-8')
+        gaps = delivery_contract.current_truth_projection_gaps(target, {'T-001'})
+        check(not gaps, gaps)
 
 
 def test_done_resume_projection_failure_stays_pending_and_unhealthy():
@@ -244,6 +331,124 @@ def test_done_resume_projection_failure_stays_pending_and_unhealthy():
         check('Closeout State: verified-commit-pending' in handoff, handoff)
         inspect = cr('inspect', '--no-write')
         check('Status: healthy' not in inspect.stdout, inspect.stdout)
+
+
+def test_done_resume_stale_canonical_prose_stays_pending_and_unhealthy():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        (root/'README.md').write_text('# Project\n', encoding='utf-8')
+        assets = root/'docs/ASSETS.md'
+        assets.write_text(
+            assets.read_text(encoding='utf-8')
+            + '| README.md | A3 | yes | current delivery view |\n',
+            encoding='utf-8',
+        )
+        subprocess.check_call(['git', '-C', td, 'add', '--', 'README.md', 'docs/ASSETS.md'])
+        subprocess.check_call(['git', '-C', td, 'commit', '-qm', 'fixture: prose registry'])
+        started = cr(
+            'start', 'Close with prose projection audit', '--files', 'lib/**',
+            '--verify', f'"{sys.executable}" -c "pass"',
+        )
+        check(started.returncode == 0, started.stdout)
+        (root/'lib').mkdir()
+        (root/'lib/owned.ts').write_text('export const owned = true;\n', encoding='utf-8')
+        pending_result = cr('done', '--no-commit')
+        check(pending_result.returncode == 2, pending_result.stdout)
+        (root/'README.md').write_text('''# Project
+
+## Current Coordinate
+
+Task: T-001
+Closeout State: verified-commit-pending
+''', encoding='utf-8')
+        resumed = cr('done', '--resume')
+        check(resumed.returncode == 2, resumed.stdout)
+        check('CURRENT_TRUTH_PROSE_GAP' in resumed.stdout, resumed.stdout)
+        check('README.md' in resumed.stdout and 'line=6' in resumed.stdout, resumed.stdout)
+        pending = json.loads((root/'.coderail/pending_close.json').read_text(encoding='utf-8'))
+        check(pending.get('state') == 'verified-commit-pending', pending)
+        handoff = (root/'docs/HANDOFF.md').read_text(encoding='utf-8')
+        check('Closeout State: verified-commit-pending' in handoff, handoff)
+        inspect = cr('inspect', '--no-write')
+        check(inspect.returncode == 1, inspect.stdout)
+        check('CURRENT_TRUTH_PROSE_GAP' in inspect.stdout, inspect.stdout)
+
+
+def test_done_reopens_before_commit_when_canonical_prose_is_stale():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        (root/'README.md').write_text('# Project\n', encoding='utf-8')
+        assets = root/'docs/ASSETS.md'
+        assets.write_text(
+            assets.read_text(encoding='utf-8')
+            + '| README.md | A3 | yes | current delivery view |\n',
+            encoding='utf-8',
+        )
+        subprocess.check_call(['git', '-C', td, 'add', '--', 'README.md', 'docs/ASSETS.md'])
+        subprocess.check_call(['git', '-C', td, 'commit', '-qm', 'fixture: done prose registry'])
+        started = cr(
+            'start', 'Reject stale prose before commit',
+            '--files', 'lib/**', '--files', 'README.md',
+            '--verify', f'"{sys.executable}" -c "pass"',
+        )
+        check(started.returncode == 0, started.stdout)
+        (root/'lib').mkdir()
+        (root/'lib/owned.ts').write_text('export const owned = true;\n', encoding='utf-8')
+        (root/'README.md').write_text('''# Project
+
+Task: T-001
+Status: in_progress
+''', encoding='utf-8')
+        before_head = subprocess.check_output(
+            ['git', '-C', td, 'rev-parse', 'HEAD'], text=True
+        ).strip()
+        result = cr('done')
+        check(result.returncode == 1, result.stdout)
+        check('CURRENT_TRUTH_PROJECTION_FAILED' in result.stdout, result.stdout)
+        check('CURRENT_TRUTH_PROSE_GAP file=README.md line=4' in result.stdout,
+              result.stdout)
+        check('== Done:' not in result.stdout, result.stdout)
+        after_head = subprocess.check_output(
+            ['git', '-C', td, 'rev-parse', 'HEAD'], text=True
+        ).strip()
+        check(after_head == before_head, (before_head, after_head, result.stdout))
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Status: [!]' in tasks, tasks)
+
+
+def test_done_no_commit_rejects_stale_prose_before_freezing_snapshot():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        (root/'README.md').write_text('# Project\n', encoding='utf-8')
+        assets = root/'docs/ASSETS.md'
+        assets.write_text(
+            assets.read_text(encoding='utf-8')
+            + '| README.md | A3 | yes | current delivery view |\n',
+            encoding='utf-8',
+        )
+        subprocess.check_call(['git', '-C', td, 'add', '--', 'README.md', 'docs/ASSETS.md'])
+        subprocess.check_call(['git', '-C', td, 'commit', '-qm', 'fixture: pending prose registry'])
+        started = cr(
+            'start', 'Reject stale prose before pending snapshot',
+            '--files', 'lib/**', '--files', 'README.md',
+            '--verify', f'"{sys.executable}" -c "pass"',
+        )
+        check(started.returncode == 0, started.stdout)
+        (root/'lib').mkdir()
+        (root/'lib/owned.ts').write_text('export const owned = true;\n', encoding='utf-8')
+        (root/'README.md').write_text('''# Project
+
+Task: T-001
+提交：待提交
+''', encoding='utf-8')
+        result = cr('done', '--no-commit')
+        check(result.returncode == 1, result.stdout)
+        check('CURRENT_TRUTH_PROJECTION_FAILED' in result.stdout, result.stdout)
+        check('CURRENT_TRUTH_PROSE_GAP file=README.md line=4' in result.stdout,
+              result.stdout)
+        check(not (root/'.coderail/pending_close.json').exists(), result.stdout)
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Status: [!]' in tasks, tasks)
 
 
 def test_done_synchronizes_declared_current_truth_marker():

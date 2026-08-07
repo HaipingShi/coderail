@@ -80,6 +80,21 @@ Supported marker states are `active`, `in_progress`, `pending-closeout`, and
 `finalized`. CodeRail rewrites only this marker, never surrounding prose. The
 file must be inside the task's Allowed scope and outside Forbidden scope.
 
+Canonical registration also makes bounded project-authored status assertions
+part of the consistency gate. CodeRail binds an assertion only when the same
+Markdown section has an exact `Task:` / `Coordinate:` id context, or when one
+table/list row contains both the exact id and status. The registered display id
+is an alias for its internal `T-nnn` Coordinate. Narrative mentions remain
+opaque; for example, prose saying that a task fixed an old `active` incident is
+not a current-state assertion.
+
+For a finalized Coordinate, the following assertion values are stale:
+`active`, `in_progress`, `pending-closeout`, `verified-commit-pending`, plain
+pending commit/closeout variants, bare `pending` in an explicit status/closeout
+field, `待提交`, and `待收口`. Inspect reports the exact file and line and blocks
+current-truth consistency. CodeRail never guesses how to rewrite project prose:
+only the marker is synchronized automatically.
+
 On a pending exact commit the marker is `pending-closeout`; resume changes every
 verified marker to `finalized` in the same exact recovery boundary. A newly
 declared, out-of-snapshot, forbidden, or unwritable view leaves closeout in
@@ -88,9 +103,21 @@ healthy status while a finalized task still has a stale marker. Historical
 TRACELOG events are append-only evidence and are never treated as current
 projection state.
 
+The same fail-closed rule applies to a bounded stale prose assertion. Ordinary
+`done` reopens the Coordinate before the exact closeout commit, and
+`done --no-commit` refuses to freeze a snapshot that would require later prose
+edits. `done --resume` keeps an already verified snapshot pending and returns
+the exact repair location if a newly declared assertion appears. A docs-only
+follow-up cannot finalize while leaving its own canonical closeout status stale,
+so governance repair tasks do not recursively manufacture another apparently
+healthy stale projection.
+
 ## Migration
 
-No migration is required for old repositories. Add a Delivery Contract only to
-new or reopened tasks that need a customer-facing assessment. Add current-truth
-markers only to canonical views that should participate in closeout sync; leave
-historical and free-text files unmarked.
+No marker migration is required for old repositories. Add a Delivery Contract
+only to new or reopened tasks that need a customer-facing assessment. Add
+current-truth markers only to canonical views that should participate in
+automatic closeout sync. Canonical files may keep human-authored prose, but any
+explicit current status bound to a finalized Coordinate must be repaired before
+Inspect can pass. Keep historical material in append-only or non-canonical
+assets when it must preserve old lifecycle wording.

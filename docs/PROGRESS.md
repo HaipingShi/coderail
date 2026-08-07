@@ -3,6 +3,16 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-07 - Fail closed on stale current-authority closeout prose (T-059)
+
+- Done: Fail closed on stale current-authority closeout prose
+- Checked by: `python3 tests/test_delivery.py` exit 0; `python3 tests/test_inspect.py` exit 0; `python3 tests/test_closeout.py` exit 0; `python3 tests/test_structure.py` exit 0
+- Next: decide with the user
+- Evidence: `python3 tests/test_delivery.py` -> exit 0
+- Evidence: `python3 tests/test_inspect.py` -> exit 0
+- Evidence: `python3 tests/test_closeout.py` -> exit 0
+- Evidence: `python3 tests/test_structure.py` -> exit 0
+
 ## 2026-08-06 - Add a customer delivery layer and current-truth projection consistency (T-058)
 
 - Done: Add a customer delivery layer and current-truth projection consistency

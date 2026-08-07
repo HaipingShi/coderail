@@ -42,6 +42,28 @@ CURRENT_TRUTH_MARKER = re.compile(
     r"status=(active|in_progress|pending-closeout|finalized)\s*-->",
     re.I,
 )
+STALE_CURRENT_STATUS = re.compile(
+    r"(?<![A-Za-z0-9_])"
+    r"(verified-commit-pending|pending-closeout|in_progress|in[ -]progress|"
+    r"active|pending[ -]closeout|closeout[ -]pending|pending[ -]commit|"
+    r"commit[ -]pending|pending|待提交|待收口)"
+    r"(?![A-Za-z0-9_])",
+    re.I,
+)
+CURRENT_STATUS_FIELD = re.compile(
+    r"^[ ]{0,3}(?:[-*][ ]+)?(?:\*\*)?"
+    r"(?:(?:(?:task|coordinate|current)[ _-]*)?(?:status|state)|"
+    r"(?:closeout|commit)(?:[ _-]*(?:status|state))?|"
+    r"(?:任务|坐标|当前|收口|提交)?状态|收口|提交)"
+    r"(?:\*\*)?[ ]*[:：](?:\*\*)?[ ]*(.*)$",
+    re.I,
+)
+CURRENT_ID_FIELD = re.compile(
+    r"^[ ]{0,3}(?:[-*][ ]+)?(?:\*\*)?"
+    r"(?:task|coordinate|任务|坐标)(?:[ _-]*id)?"
+    r"(?:\*\*)?[ ]*[:：](?:\*\*)?",
+    re.I,
+)
 
 
 def _legacy_contract() -> dict:
@@ -321,6 +343,123 @@ def _marker_files(root: Path, task_id: str | None = None) -> dict[str, list[tupl
     return found
 
 
+def _finalized_aliases(root: Path, finalized_task_ids: set[str]) -> dict[str, str]:
+    """Map exact internal/display ids to the finalized internal Coordinate."""
+    aliases = {task_id: task_id for task_id in finalized_task_ids}
+    try:
+        metadata = json.loads((root / ".coderail" / "tasks.json").read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError, OSError, UnicodeError):
+        metadata = {}
+    for task_id in finalized_task_ids:
+        display_id = (metadata.get(task_id) or {}).get("display_id")
+        if isinstance(display_id, str) and display_id.strip():
+            aliases[display_id.strip()] = task_id
+    return aliases
+
+
+def _aliases_in_line(line: str, aliases: dict[str, str]) -> list[tuple[str, str]]:
+    found = []
+    for alias, task_id in aliases.items():
+        if re.search(
+            rf"(?<![A-Za-z0-9_-]){re.escape(alias)}(?![A-Za-z0-9_-])",
+            line,
+            re.I,
+        ):
+            found.append((alias, task_id))
+    return found
+
+
+def _exact_stale_status(value: str):
+    candidate = value.strip().strip("`*_ ").rstrip(".!。；;").strip()
+    return STALE_CURRENT_STATUS.fullmatch(candidate)
+
+
+def _row_stale_status(
+    line: str, inline_aliases: list[tuple[str, str]]
+):
+    stripped = line.strip()
+    if stripped.startswith("|"):
+        for cell in stripped.strip("|").split("|"):
+            stale = _exact_stale_status(cell)
+            if stale:
+                return stale
+        return None
+    if not stripped.startswith(("-", "*")):
+        return None
+    for alias, _task_id in inline_aliases:
+        match = re.search(
+            rf"(?<![A-Za-z0-9_-]){re.escape(alias)}(?![A-Za-z0-9_-])",
+            line,
+            re.I,
+        )
+        if not match:
+            continue
+        remainder = line[match.end():].strip()
+        remainder = re.sub(r"^(?:[:：|]|—|–|->)[ ]*", "", remainder)
+        stale = _exact_stale_status(remainder)
+        if stale:
+            return stale
+    return None
+
+
+def _prose_projection_gaps(root: Path, finalized_task_ids: set[str]) -> list[str]:
+    """Find exact current-status assertions that CodeRail cannot safely rewrite.
+
+    Canonical prose stays project-owned. We therefore inspect only explicit
+    status fields, task/coordinate contexts, and table/list rows that carry the
+    exact internal or display id. Narrative mentions remain opaque.
+    """
+    aliases = _finalized_aliases(root, finalized_task_ids)
+    if not aliases:
+        return []
+    gaps = []
+    for relative in canonical_current_truth_files(root):
+        path = root / relative
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (FileNotFoundError, OSError, UnicodeError):
+            continue
+        context_stack: list[tuple[int, list[tuple[str, str]] | None]] = [(0, None)]
+        for line_number, line in enumerate(lines, 1):
+            if CURRENT_TRUTH_MARKER.search(line):
+                continue
+            inline_aliases = _aliases_in_line(line, aliases)
+            heading = re.match(r"^[ ]{0,3}(#{1,6})[ ]+", line)
+            if heading:
+                level = len(heading.group(1))
+                while context_stack and context_stack[-1][0] >= level:
+                    context_stack.pop()
+                context_stack.append((level, inline_aliases or None))
+            elif CURRENT_ID_FIELD.search(line):
+                level, _context = context_stack[-1]
+                context_stack[-1] = (level, inline_aliases)
+
+            section_context = []
+            for _level, context in reversed(context_stack):
+                if context is not None:
+                    section_context = context
+                    break
+
+            status_field = CURRENT_STATUS_FIELD.search(line)
+            row_stale = _row_stale_status(line, inline_aliases)
+            stale = (
+                _exact_stale_status(status_field.group(1))
+                if status_field else row_stale
+            )
+            if not stale:
+                continue
+            row_assertion = bool(inline_aliases and (row_stale or status_field))
+            bound = inline_aliases if row_assertion else (section_context if status_field else [])
+            for alias, task_id in bound:
+                alias_detail = f" alias={alias}" if alias.lower() != task_id.lower() else ""
+                gaps.append(
+                    f"CURRENT_TRUTH_PROSE_GAP file={relative} line={line_number} "
+                    f"task={task_id}{alias_detail} recorded={stale.group(1)} "
+                    "expected=finalized"
+                )
+    return list(dict.fromkeys(gaps))
+
+
 def current_truth_projection_gaps(root: Path, finalized_task_ids: set[str]) -> list[str]:
     gaps = []
     for relative, markers in _marker_files(root).items():
@@ -330,6 +469,7 @@ def current_truth_projection_gaps(root: Path, finalized_task_ids: set[str]) -> l
                     f"CURRENT_TRUTH_GAP file={relative} task={task_id} "
                     f"recorded={status} expected=finalized"
                 )
+    gaps.extend(_prose_projection_gaps(root, finalized_task_ids))
     return gaps
 
 
@@ -365,6 +505,9 @@ def synchronize_current_truth(
     """Update only exact markers, rolling back all files on a write failure."""
     if status not in {"pending-closeout", "finalized"}:
         return [], [f"unsupported projection status: {status}"]
+    prose_gaps = _prose_projection_gaps(root, {task_id})
+    if prose_gaps:
+        return [], prose_gaps
     marker_files = _marker_files(root, task_id)
     paths = sorted(marker_files)
     if authorized_paths is not None:
