@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -24,7 +25,7 @@ import task_switch  # noqa: E402
 
 
 NON_STOP_STATES = {"CONTINUE", "REPAIR", "ADVANCE"}
-STOP_STATES = {"REVIEW_DIRECTION", "BLOCKED_DECISION", "COMPLETE", "EXHAUSTED"}
+STOP_STATES = {"RECOMMEND", "REVIEW_DIRECTION", "BLOCKED_DECISION", "COMPLETE", "EXHAUSTED"}
 PRIORITY = {"p1": 0, "p2": 1, "p3": 2}
 ACTIVE_DRAFT_STATUSES = {"proposed", "pending", "draft", "revision-requested"}
 DECISION_PATH_PATTERNS = [
@@ -355,10 +356,13 @@ def split_files(value: str | None) -> list[str]:
 
 def git_changed_files(root: Path) -> list[str]:
     try:
+        env = os.environ.copy()
+        env["GIT_OPTIONAL_LOCKS"] = "0"
         output = subprocess.check_output(
             ["git", "-C", str(root), "status", "--short", "--untracked-files=all"],
             text=True,
             stderr=subprocess.DEVNULL,
+            env=env,
         )
     except Exception:
         return []
@@ -400,6 +404,10 @@ def _execution_report(
     recommended_task: str | None = None,
     next_task_mode: str = "recommend",
 ) -> dict:
+    execution_authorized = (
+        decision in {"CONTINUE", "REPAIR"}
+        or (decision == "ADVANCE" and next_task_mode == "activate")
+    )
     return {
         "mode": mode,
         "decision": decision,
@@ -410,6 +418,7 @@ def _execution_report(
         "evidence": evidence or [],
         "recommended_task": recommended_task,
         "next_task_mode": next_task_mode,
+        "execution_authorized": execution_authorized,
     }
 
 
@@ -452,7 +461,9 @@ def evaluate(
     harness = (harness_result or latest_harness(events, active_id)).strip().lower()
     files = git_changed_files(root) if changed_files is None else changed_files
     if active_id:
-        unchanged_baseline = task_switch.unchanged_baseline_paths(root, active_id)
+        unchanged_baseline = task_switch.unchanged_baseline_paths(
+            root, active_id, read_only=True
+        )
         files = [path for path in files if path not in unchanged_baseline]
     signals = [value for value in (decision_signals or []) if value]
 
@@ -605,10 +616,19 @@ def evaluate(
         )
     if ready:
         chosen = ready[0]
-        verb = "Activate" if configured_next_mode == "activate" else "Recommend"
+        if configured_next_mode == "recommend":
+            return report(
+                "RECOMMEND", mode,
+                f"{chosen['id']} is dependency-ready, but next-task mode grants recommendation only.",
+                f"Recommend {chosen['id']} for owner review; do not activate or execute it.",
+                chosen["id"],
+                [f"ready={chosen['id']}", f"priority={chosen['priority'].upper()}",
+                 "activation authority=absent"],
+                recommended_task=chosen["id"], next_task_mode=configured_next_mode,
+            )
         return report(
             "ADVANCE", mode, f"{chosen['id']} is the highest-priority dependency-ready autonomous task.",
-            f"{verb} {chosen['id']}; confirm its Coordinate and run its first progress checkpoint.", chosen["id"],
+            f"Activate {chosen['id']}; confirm its Coordinate and run its first progress checkpoint.", chosen["id"],
             [f"ready={chosen['id']}", f"priority={chosen['priority'].upper()}"],
             recommended_task=chosen["id"], next_task_mode=configured_next_mode,
         )
@@ -639,6 +659,7 @@ def render_human(result: dict) -> str:
     lines.append(f"Task: {result['task'] or 'none'}")
     lines.append(f"Next-task mode: {result['next_task_mode']}")
     lines.append(f"Recommended task: {result['recommended_task'] or 'none'}")
+    lines.append(f"Execution authorized: {'yes' if result['execution_authorized'] else 'no'}")
     lines.append("")
     lines.append("## Reason")
     lines.append("")

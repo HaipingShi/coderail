@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Inspect CodeRail runtime state and write docs/CODERAIL_STATUS.md.
+"""Inspect CodeRail runtime state without modifying repository state.
 
 This is a repo-local state surface. It reads CodeRail's markdown/jsonl files and
 summarizes what is active, blocked, unverified, or unsafe to continue.
+Generated projections are written only through an explicit sync operation.
 """
 from __future__ import annotations
 
@@ -57,7 +58,7 @@ def first_section_value(text: str, header: str) -> str:
 
 
 def git_status(root: Path) -> str:
-    snapshot = repository_state.capture(root)
+    snapshot = repository_state.capture(root, read_only=True)
     if not snapshot.available:
         return "git status unavailable"
     lines = []
@@ -164,6 +165,29 @@ def write_handoff_continuation(
     """Replace only the machine block and preserve all project-authored prose."""
     path = root / "docs" / "HANDOFF.md"
     text = read(path)
+    updated = projected_handoff_text(
+        root,
+        text,
+        last_closed_task=last_closed_task,
+        closeout_state=closeout_state,
+        handoff_level=handoff_level,
+    )
+    if updated == text:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(updated, encoding="utf-8")
+    return True
+
+
+def projected_handoff_text(
+    root: Path,
+    text: str,
+    *,
+    last_closed_task: str = "none",
+    closeout_state: str = "idle",
+    handoff_level: str = "H0",
+) -> str:
+    """Return the generated HANDOFF projection without writing it."""
     block = render_handoff_continuation(continuation_projection(
         root,
         last_closed_task=last_closed_task,
@@ -193,11 +217,7 @@ def write_handoff_continuation(
         cleaned = cleaned.replace(CONTINUATION_START, "").replace(CONTINUATION_END, "")
         prefix = cleaned.rstrip()
         updated = f"{prefix}\n\n{block}\n" if prefix else f"# Handoff\n\n{block}\n"
-    if updated == text:
-        return False
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(updated, encoding="utf-8")
-    return True
+    return updated
 
 
 def progress_history(root: Path) -> dict[str, dict]:
@@ -312,6 +332,78 @@ def weak_verification_gaps(tasks: list[dict]) -> list[str]:
     return gaps
 
 
+BLOCK_STAGES = ("formulation", "activation", "execution", "closeout", "delivery")
+
+
+def diagnostic(
+    *,
+    severity: str,
+    category: str,
+    blocks: str,
+    evidence: str,
+    recommended_action: str,
+) -> dict[str, str]:
+    return {
+        "severity": severity,
+        "category": category,
+        "blocks": blocks,
+        "evidence": evidence,
+        "recommended_action": recommended_action,
+    }
+
+
+def product_view(
+    tasks: list[dict], active: list[dict], recommendation: dict, north_star: str
+) -> dict[str, str]:
+    """Return explicit product facts only; lifecycle receipts never become claims."""
+    assessed = None
+    for task in tasks:
+        if task["status"] not in {"[x]", "[f]"} or "### Delivery Contract" not in task["body"]:
+            continue
+        contract, issues = delivery_contract.parse_delivery_contract(task["body"])
+        if not issues and contract:
+            assessed = delivery_contract.finalized_delivery(
+                contract, commits=[], verification=[], safe_files=[]
+            )
+            break
+    capability = "not_assessed"
+    limitation = "not_assessed"
+    next_gap = "not_assessed"
+    if assessed:
+        delta = assessed.get("capability_delta") or []
+        capability = "; ".join(delta) or assessed.get("customer_outcome") or "not_assessed"
+        gaps = assessed.get("remaining_gaps") or []
+        limitation = "; ".join(gaps) or "none declared"
+        next_item = assessed.get("recommended_next") or {}
+        if next_item.get("status") != "none":
+            next_gap = " — ".join(
+                value for value in (next_item.get("id"), next_item.get("reason")) if value
+            ) or "not_assessed"
+    current_slice = drive_check.section(north_star, "Current Slice")
+    if capability == "not_assessed":
+        capability = drive_check.field_value(current_slice, "Product capability") or capability
+    declared_gap = drive_check.field_value(current_slice, "Product gap")
+    if limitation == "not_assessed" and declared_gap:
+        limitation = declared_gap
+    if next_gap == "not_assessed" and declared_gap:
+        next_gap = declared_gap
+    recommendation_status = recommendation.get("status") or "NO_RECOMMENDATION"
+    authorization = (
+        "explicit owner approval is required before activation or execution"
+        if recommendation.get("requires_human_for_execution", True)
+        else "no additional execution approval is asserted by the recommendation channel"
+    )
+    if recommendation_status != "NO_RECOMMENDATION" and next_gap == "not_assessed":
+        next_gap = recommendation.get("candidate_direction") or recommendation.get("next_action") or next_gap
+    return {
+        "capability": capability,
+        "limitation": limitation,
+        "next_gap": next_gap,
+        "active_task": active[0]["header"] if active else "none",
+        "authorization": authorization,
+    }
+
+
 def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     docs = root / "docs"
     ns = read(docs / "NORTH_STAR.md")
@@ -327,7 +419,9 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     pending_safe = set(commit_pending.get("safe_files", []))
     pending_task = commit_pending.get("task")
     closed_pending = [] if assume_clean else [
-        (owner, path) for owner, path in task_switch.closed_pending_paths(root)
+        (owner, path) for owner, path in task_switch.closed_pending_paths(
+            root, read_only=True
+        )
         if not (owner == pending_task and path in pending_safe)
     ]
     events = load_events(root)
@@ -350,9 +444,24 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     last_closed_task = continuation.get("Last Closed Task", "none")
     closed_ids = {task["id"] for task in tasks if task["status"] in {"[x]", "[f]"}}
     finalized_ids = {task["id"] for task in tasks if task["status"] in {"[x]", "[f]"}}
-    projection_gaps = delivery_contract.current_truth_projection_gaps(
-        root, finalized_ids
+    lifecycle_statuses = {
+        task["id"]: (
+            "active" if task["status"] == "[~]" else "finalized"
+        )
+        for task in tasks
+        if task["status"] in {"[~]", "[x]", "[f]"}
+    }
+    projection_diagnostics = delivery_contract.current_truth_diagnostics(
+        root, finalized_ids, lifecycle_statuses=lifecycle_statuses
     )
+    projection_gaps = [
+        item["evidence"] for item in projection_diagnostics
+        if item["blocks"] != "none"
+    ]
+    projection_warnings = [
+        item["evidence"] for item in projection_diagnostics
+        if item["blocks"] == "none"
+    ]
     if (
         closeout_state in {"pending-closeout", "verified-commit-pending"}
         and not commit_pending
@@ -384,24 +493,106 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
 
     drive_blocked = drive["mode"] == "continuous" and drive["decision"] in {"BLOCKED_DECISION", "EXHAUSTED"}
     drive_warning = drive["mode"] == "continuous" and drive["decision"] == "REVIEW_DIRECTION"
+    diagnostics = list(projection_diagnostics)
+    diagnostics.extend(diagnostic(
+        severity="error",
+        category="verification",
+        blocks="closeout",
+        evidence=item,
+        recommended_action="Repair the current verification evidence before closeout.",
+    ) for item in verification_gaps)
+    diagnostics.extend(diagnostic(
+        severity="error",
+        category="historical_ledger_integrity",
+        blocks="closeout",
+        evidence=item,
+        recommended_action="Repair the severe TRACE integrity problem without rewriting valid history.",
+    ) for item in trace_severe)
+    diagnostics.extend(diagnostic(
+        severity="warning",
+        category="historical_ledger_quality",
+        blocks="none",
+        evidence=item,
+        recommended_action="Batch this historical ledger quality debt when convenient.",
+    ) for item in trace_gaps)
+    diagnostics.extend(diagnostic(
+        severity="warning",
+        category="projection_staleness",
+        blocks="none",
+        evidence=item,
+        recommended_action="Refresh the generated HANDOFF projection explicitly; formulation remains available.",
+    ) for item in handoff_issues)
+    if len(active) > 1:
+        diagnostics.append(diagnostic(
+            severity="error",
+            category="control_plane_conflict",
+            blocks="activation",
+            evidence="multiple active Coordinates: " + ", ".join(item["id"] for item in active),
+            recommended_action="Restore exactly one live task owner before activation or execution.",
+        ))
+    for owner, path in closed_pending:
+        diagnostics.append(diagnostic(
+            severity="error",
+            category="scope_authorization",
+            blocks="activation",
+            evidence=f"closed task {owner} still owns uncommitted path {path}",
+            recommended_action="Commit the exact authorized path or use an explicit dirty-fork decision.",
+        ))
+    if commit_pending:
+        diagnostics.append(diagnostic(
+            severity="error",
+            category="closeout_integrity",
+            blocks="activation",
+            evidence=f"{pending_task or '(unknown)'} is verified-commit-pending",
+            recommended_action="Resume the exact pending closeout before activating another task.",
+        ))
+    if drive_blocked:
+        diagnostics.append(diagnostic(
+            severity="error",
+            category="execution_decision",
+            blocks="execution",
+            evidence=drive["reason"],
+            recommended_action=drive["next_action"],
+        ))
+    elif drive_warning:
+        diagnostics.append(diagnostic(
+            severity="warning",
+            category="execution_direction",
+            blocks="none",
+            evidence=drive["reason"],
+            recommended_action=drive["next_action"],
+        ))
+    block_matrix = {
+        stage: any(item["blocks"] == stage for item in diagnostics)
+        for stage in BLOCK_STAGES
+    }
     status = (
         "blocked"
-        if verification_gaps or trace_severe or projection_gaps or drive_blocked or len(active) > 1 or closed_pending
+        if any(block_matrix.values())
         else (
             "warning"
-            if trace_gaps or handoff_issues or not outcome or active or paused or drive_warning or commit_pending
+            if diagnostics or not outcome or active or paused
             else "healthy"
         )
     )
+    owner = product_view(tasks, active, recommendation, ns)
 
     lines = []
     lines.append("# CodeRail Status")
     lines.append("")
-    lines.append("> Generated by `python .coderail/coderail.py inspect`. Prefer regenerating this file instead of editing it by hand.")
-    lines.append("> Point-in-time snapshot: rerun Inspect after any commit or worktree change.")
+    lines.append("> Generated projection. `inspect` reads live state without rewriting this file.")
+    lines.append("> Preview with `coderail sync-projections`; write only with explicit `--apply`.")
     lines.append("")
     lines.append(f"Generated at: {datetime.now(timezone.utc).isoformat(timespec='seconds')}")
     lines.append(f"Status: {status}")
+    lines.append("")
+    lines.append("## Owner Product View")
+    lines.append("")
+    lines.append(f"- Current verified capability: {owner['capability']}")
+    lines.append(f"- Current known limitation: {owner['limitation']}")
+    lines.append(f"- Next smallest product gap: {owner['next_gap']}")
+    lines.append(f"- Active task: {owner['active_task']}")
+    lines.append(f"- Human authorization required: {owner['authorization']}")
     lines.append("")
     lines.append("## Current North Star")
     lines.append("")
@@ -507,7 +698,27 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     lines.append("")
     lines.append("## Current Truth Projection Consistency")
     lines.append("")
-    lines.append("- pass" if not projection_gaps else "\n".join(f"- {x}" for x in projection_gaps))
+    if not projection_gaps and not projection_warnings:
+        lines.append("- pass")
+    else:
+        lines.extend(f"- {item}" for item in projection_gaps + projection_warnings)
+    lines.append("")
+    lines.append("## Structured Diagnostics")
+    lines.append("")
+    if diagnostics:
+        for item in diagnostics:
+            lines.append(
+                f"- severity={item['severity']} category={item['category']} "
+                f"blocks={item['blocks']} evidence={item['evidence']} "
+                f"recommended_action={item['recommended_action']}"
+            )
+    else:
+        lines.append("- none")
+    lines.append("")
+    lines.append("### Blocking Matrix")
+    lines.append("")
+    for stage in BLOCK_STAGES:
+        lines.append(f"- {stage}: {'true' if block_matrix[stage] else 'false'}")
     lines.append("")
     lines.append("## Drive Decision")
     lines.append("")
@@ -554,9 +765,7 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     if commit_pending:
         lines.append("- Resume the verified closeout with `coderail done --resume`; do not rerun verification or use `git add .`.")
     elif projection_gaps:
-        lines.append("- Repair every declared current-truth projection listed above before reporting closeout finalized.")
-    elif handoff_issues:
-        lines.append("- Refresh or migrate the structured HANDOFF continuation block before relying on it for continuation.")
+        lines.append("- Reconcile the exact machine lifecycle marker before activation; product formulation remains available.")
     elif verification_gaps:
         lines.append("- Run `/coderail:done-gate` and fix verification gaps before marking done.")
     elif drive["mode"] == "continuous" and drive["decision"] in drive_check.NON_STOP_STATES:
@@ -571,8 +780,14 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
         lines.append(f"- Resume or explicitly replace paused task {paused[0]['id']} with `coderail switch --to {paused[0]['id']}`.")
     elif active_drafts:
         lines.append("- Accept, revise, reject, or backlog the active contract draft before coding.")
+    elif handoff_issues:
+        lines.append("- Formulation may continue; refresh the structured HANDOFF projection with explicit `sync-projections --apply` when convenient.")
     else:
         lines.append("- Run `/coderail:align` or `/coderail:contract-draft` for the next request.")
+    lines.append("")
+    lines.append("## Technical Appendix")
+    lines.append("")
+    lines.append("- Lifecycle receipts, marker details, safe-file counts, and Git state follow.")
     lines.append("")
     lines.append("## Auto Commit")
     lines.append("")
@@ -597,6 +812,41 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     return status, "\n".join(lines)
 
 
+def sync_projections(root: Path, *, apply: bool) -> tuple[list[str], str, str]:
+    """Preview or explicitly write generated HANDOFF and STATUS projections."""
+    handoff_path = root / "docs" / "HANDOFF.md"
+    handoff_text = read(handoff_path)
+    continuation, _issues = parse_handoff_continuation(handoff_text)
+    closed = [
+        task["id"] for task in task_statuses(root)
+        if task["status"] in {"[x]", "[f]"}
+    ]
+    projected_handoff = projected_handoff_text(
+        root,
+        handoff_text,
+        last_closed_task=(
+            continuation.get("Last Closed Task") or (closed[-1] if closed else "none")
+        ),
+        closeout_state=continuation.get("Closeout State") or "idle",
+        handoff_level=continuation.get("Handoff Level") or "H0",
+    )
+    changed = []
+    if projected_handoff != handoff_text:
+        changed.append("docs/HANDOFF.md")
+        if apply:
+            handoff_path.parent.mkdir(parents=True, exist_ok=True)
+            handoff_path.write_text(projected_handoff, encoding="utf-8")
+
+    status, text = render(root)
+    status_path = root / "docs" / "CODERAIL_STATUS.md"
+    if read(status_path) != text + "\n":
+        changed.append("docs/CODERAIL_STATUS.md")
+        if apply:
+            status_path.parent.mkdir(parents=True, exist_ok=True)
+            status_path.write_text(text + "\n", encoding="utf-8")
+    return changed, status, text
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Inspect CodeRail runtime state")
     ap.add_argument("--target", default=".")
@@ -604,27 +854,17 @@ def main(argv=None) -> int:
     ap.add_argument("--no-write", action="store_true", help="Print only; do not write")
     args = ap.parse_args(argv)
     root = Path(args.target).resolve()
-    should_write = args.write or not args.no_write
-    handoff_text = read(root / "docs" / "HANDOFF.md")
-    continuation, _continuation_issues = parse_handoff_continuation(handoff_text)
-    if should_write:
-        closed = [
-            task["id"] for task in task_statuses(root)
-            if task["status"] in {"[x]", "[f]"}
-        ]
-        write_handoff_continuation(
-            root,
-            last_closed_task=(
-                continuation.get("Last Closed Task") or (closed[-1] if closed else "none")
-            ),
-            closeout_state=continuation.get("Closeout State") or "idle",
-            handoff_level=continuation.get("Handoff Level") or "H0",
+    if args.write and args.no_write:
+        ap.error("--write and --no-write are mutually exclusive")
+    if args.write:
+        print(
+            "DEPRECATED: inspect --write is an explicit compatibility path; "
+            "use coderail sync-projections --apply.",
+            file=sys.stderr,
         )
-    status, text = render(root)
-    if should_write:
-        docs = root / "docs"
-        docs.mkdir(parents=True, exist_ok=True)
-        (docs / "CODERAIL_STATUS.md").write_text(text + "\n", encoding="utf-8")
+        _changed, status, text = sync_projections(root, apply=True)
+    else:
+        status, text = render(root)
     print(text)
     return 1 if status == "blocked" else 0
 

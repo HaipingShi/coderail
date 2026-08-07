@@ -80,8 +80,8 @@ Supported marker states are `active`, `in_progress`, `pending-closeout`, and
 `finalized`. CodeRail rewrites only this marker, never surrounding prose. The
 file must be inside the task's Allowed scope and outside Forbidden scope.
 
-Canonical registration also makes bounded project-authored status assertions
-part of the consistency gate. CodeRail binds an assertion only when the same
+Canonical registration also lets Inspect report bounded project-authored status
+assertions as projection debt. CodeRail binds an assertion only when the same
 Markdown section has an exact `Task:` / `Coordinate:` id context, or when one
 table/list row contains both the exact id and status. The registered display id
 is an alias for its internal `T-nnn` Coordinate. Narrative mentions remain
@@ -92,32 +92,32 @@ For a finalized Coordinate, the following assertion values are stale:
 `active`, `in_progress`, `pending-closeout`, `verified-commit-pending`, plain
 pending commit/closeout variants, bare `pending` in an explicit status/closeout
 field, `待提交`, and `待收口`. Inspect reports the exact file and line and blocks
-current-truth consistency. CodeRail never guesses how to rewrite project prose:
-only the marker is synchronized automatically.
+no lifecycle stage. The diagnostic is `severity=warning`,
+`category=projection_staleness`, and `blocks=none`. CodeRail never guesses how
+to rewrite project prose; only the marker is machine-synchronized.
 
 On a pending exact commit the marker is `pending-closeout`; resume changes every
 verified marker to `finalized` in the same exact recovery boundary. A newly
 declared, out-of-snapshot, forbidden, or unwritable view leaves closeout in
 `verified-commit-pending` and prints each file requiring repair. Inspect blocks
-healthy status while a finalized task still has a stale marker. Historical
+activation while a finalized task still has a stale exact marker. Historical
 TRACELOG events are append-only evidence and are never treated as current
 projection state.
 
-The same fail-closed rule applies to a bounded stale prose assertion. Ordinary
-`done` reopens the Coordinate before the exact closeout commit, and
-`done --no-commit` refuses to freeze a snapshot that would require later prose
-edits. `done --resume` keeps an already verified snapshot pending and returns
-the exact repair location if a newly declared assertion appears. A docs-only
-follow-up cannot finalize while leaving its own canonical closeout status stale,
-so governance repair tasks do not recursively manufacture another apparently
-healthy stale projection.
+The same fail-closed rule does not apply to project-authored prose. Ordinary
+`done`, `done --no-commit`, and `done --resume` may complete their authorized
+transaction while reporting that prose as non-blocking maintenance debt. No
+path automatically creates or recommends a GOV Coordinate solely to repair a
+previous task's wording. Only a conflicting exact marker, authorization error,
+or evidence conflict that could cause incorrect execution is a control-plane
+blocker.
 
 ## Migration
 
-No marker migration is required for old repositories. Add a Delivery Contract
+No history rewrite or one-shot marker migration is required for old repositories. Add a Delivery Contract
 only to new or reopened tasks that need a customer-facing assessment. Add
 current-truth markers only to canonical views that should participate in
 automatic closeout sync. Canonical files may keep human-authored prose, but any
-explicit current status bound to a finalized Coordinate must be repaired before
-Inspect can pass. Keep historical material in append-only or non-canonical
-assets when it must preserve old lifecycle wording.
+explicit lifecycle status bound to a finalized Coordinate is reported as
+batchable projection debt. Keep historical material in append-only or
+non-canonical assets when it must preserve old lifecycle wording.

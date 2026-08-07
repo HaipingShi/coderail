@@ -348,3 +348,35 @@ Task: T-059
   `done --resume` preserves `verified-commit-pending` when a new assertion
   appears, until every stale current-authority assertion is repaired. No path
   may report consistency pass or `Done` while such residue exists.
+
+## ADR-023 Lifecycle authority is separate from prose and generated projections
+
+Status: accepted
+Date: 2026-08-07
+Task: T-060
+Supersedes: ADR-022 prose-blocking policy; preserves its exact-marker policy
+
+- One machine authority owns each lifecycle fact: hot TASKS markers own current
+  task ownership, `pending_close.json` owns interrupted verified closeout, the
+  PROGRESS plus verify-TRACE pair owns finalized history, and Git refs own
+  commit/push facts. HANDOFF, CODERAIL_STATUS, README, and task/review prose are
+  projections and cannot overrule those sources.
+- Exact `coderail:current-truth` marker conflicts remain
+  `control_plane_conflict` errors that block activation. Bounded handwritten
+  lifecycle assertions are now `projection_staleness` warnings with
+  `blocks=none`; they never block formulation, closeout, or recommendation and
+  never cause an automatic follow-up GOV Coordinate.
+- Every normalized diagnostic exposes severity, category, blocking stage,
+  evidence, and recommended action. Severity is not a proxy for a global stop;
+  the explicit blocking stage is the decision authority.
+- Ordinary `inspect`, `inspect --no-write`, `check`, Drive, and recommendation
+  are read-only, including the Git index. Generated HANDOFF/STATUS updates use
+  explicit `sync-projections` preview/apply. `inspect --write` is a deprecated
+  explicit compatibility path, not the default.
+- Recommendation-only Drive returns `RECOMMEND` with
+  `execution_authorized=false`; `ADVANCE` is reserved for an explicitly
+  configured activation mode. Formulation and recommendation never register or
+  activate a task.
+- Owner-facing status leads with explicit product capability, limitation, next
+  gap, active task, and human gates. Missing Delivery Contract evidence stays
+  `not_assessed`; technical lifecycle receipts remain in the appendix.

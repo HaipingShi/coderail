@@ -2,7 +2,7 @@
 
 ID: NS-001
 Status: current
-Last reviewed: 2026-07-27
+Last reviewed: 2026-08-07
 Owner: CodeRail maintainers
 
 ## Outcome
@@ -21,19 +21,17 @@ Owner: CodeRail maintainers
 
 ## Current Slice
 
-- Milestone: M-013 stabilization freeze
-- Execution Batch: release/governance closeout for the guided-convergence
-  feature branch
-- State: implementation and evaluation tasks are closed; no reproduced defect
-  is awaiting action
-- Release boundary: verify, push, and fast-forward the feature branch into
-  `main` without adding product behavior
+- Milestone: M-014 lifecycle truth and owner communication
+- Product capability: read-only status and planning distinguish control-plane authority, product evidence, generated projections, and historical ledgers.
+- Product gap: downstream repositories need compatible, explicit projection synchronization without rewriting historical documents.
+- Lifecycle note: this section declares no active/finalized/commit/push state;
+  use CodeRail live state and Git refs for those facts.
 
 ## Non-Goals
 
 - CodeRail is not a hosted CI service, issue tracker, scheduler, or model runtime.
-- No new command, gate, lifecycle state, integration, or convenience behavior
-  is authorized during the stabilization freeze.
+- No automatic Coordinate creation, task activation, push, tag, release,
+  historical-ledger rewrite, or broad prose rewrite.
 
 ## Known Unknowns
 
@@ -52,9 +50,10 @@ Owner: CodeRail maintainers
 
 - Mode: manual
 - Next-task mode: recommend
-- Terminal condition: admitted defects are verified and committed, or no
-  reproduced defect is awaiting action
-- Progress signal: reproduced defect count decreases without feature-freeze exceptions
+- Terminal condition: lifecycle authority, diagnostic blocking, read-only
+  inspection, and formulation safety are executable and documented.
+- Progress signal: the T-060 Red matrix passes without weakening scope,
+  verification, closeout, commit, or publication gates.
 - Retry budget: 3
 - No-progress limit: 2
 - Human gates: changes to public APIs, security, privacy, payment, persistence, or release policy

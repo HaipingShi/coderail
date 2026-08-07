@@ -66,6 +66,23 @@ python .coderail/coderail.py done                   # 安全完成
 
 **`done`** — 安全网。它验证测试通过（或你明确记录了人工检查）、确认改动没超出承诺的文件、同步文档、只提交安全的任务相关文件，然后告诉你下一步。有问题它会拒绝并明确说出要修什么——AI 助手无法用话术绕过它。
 
+`inspect` 与 `check` 都是只读命令。诊断会明确给出 severity、category、
+blocking stage、evidence 和 recommended action。手写生命周期正文陈旧属于
+`projection_staleness`：可以批量维护，但不会阻断产品任务 formulation，
+也不会因此自动创建新的治理任务。精确 machine marker 冲突、Scope 越界和
+verification 失败仍会阻断对应的生命周期阶段。
+
+生成投影必须显式同步：
+
+```bash
+python .coderail/coderail.py sync-projections          # 只预览，零写入
+python .coderail/coderail.py sync-projections --apply  # 只写列出的投影
+```
+
+状态输出先回答已验证产品能力、已知限制、下一最小产品缺口、当前 active
+ownership 和需要人工授权的动作。commit hash、marker、trace 和 safe-file
+数量只放在技术附录。
+
 这些门禁全部通过后，不再要求用户额外判断是否提交：成功运行 `done` 就已经授权一次精确的本地任务提交。只有你明确要求“提交前先看 diff”时才使用 `--no-commit`；push、tag 和 release 始终是独立的用户决策。
 
 面向客户交付时，任务可以增加显式的结构化 Delivery Contract。成功收口后，CodeRail 会另外生成客户 Markdown：先说交付结果和能力变化，commit、验证和精确 safe files 只放在最后的技术附录。任务 finalized 不会自动推导里程碑或产品 completed；缺少合同的历史任务保持 `not_assessed`。详见 [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md)。

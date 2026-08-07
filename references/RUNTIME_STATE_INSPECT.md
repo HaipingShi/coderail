@@ -3,22 +3,25 @@
 Runtime State Inspect is CodeRail's repo-local status surface.
 It answers: where is the project now, what is active, what is blocked, and what is safe to do next?
 
-It deliberately avoids MCP runtime, web preview, graph database, or background execution. The source of truth remains the repository files:
+It deliberately avoids MCP runtime, web preview, graph database, or background execution. Lifecycle facts use one machine authority per fact:
 
-- `docs/NORTH_STAR.md`
-- `docs/TASKS.md`
-- `docs/CONTRACTS.md`
-- `docs/TRACELOG.jsonl`
-- `docs/TRACE_INDEX.md`
-- `docs/HANDOFF.md`
-- `docs/DECISIONS.md`
-- `docs/LESSONS.md`
-- `docs/ASSETS.md`
+- hot `TASKS.md` markers own active, queued, paused, blocked, and reopened work;
+- `.coderail/pending_close.json` owns an interrupted verified closeout;
+- PROGRESS plus verify TRACE facts own finalized history;
+- local and remote Git refs own commit and pushed state;
+- explicit Delivery Contract evidence owns product capability and gap claims.
+
+`HANDOFF.md`, `CODERAIL_STATUS.md`, README prose, task/review prose, and
+current-truth prose are projections. They do not overrule those authorities.
+TRACELOG and PROGRESS are historical ledgers: old `active` or pending wording is
+preserved and is never reclassified as current state.
 
 ## Inspect output
 
-`inspect_state.py` writes or prints a compact status panel:
+`inspect_state.py` prints a compact status panel. It does not write by default:
 
+- Owner Product View: verified capability, limitation, next gap, active task,
+  and required human authorization
 - Current North Star
 - Legacy Cutoff
 - Active Coordinate
@@ -32,6 +35,35 @@ It deliberately avoids MCP runtime, web preview, graph database, or background e
 - Handoff State
 - Recommended Next Action
 - Auto Commit
+
+Every normalized diagnostic contains:
+
+```text
+severity: info | warning | error
+category: stable machine category
+blocks: none | formulation | activation | execution | closeout | delivery
+evidence: exact repository observation
+recommended_action: bounded recovery or maintenance action
+```
+
+The output also renders a blocking matrix. Handwritten lifecycle drift is a
+`projection_staleness` warning with `blocks=none`; a conflicting exact machine
+marker is a `control_plane_conflict` that blocks activation. Formulation remains
+available in both cases and never activates work.
+
+## Read and write commands
+
+```bash
+python .coderail/coderail.py inspect                   # read-only
+python .coderail/coderail.py inspect --no-write        # compatibility spelling, read-only
+python .coderail/coderail.py check                     # read-only gate report
+python .coderail/coderail.py sync-projections          # preview, read-only
+python .coderail/coderail.py sync-projections --apply  # explicit generated writes
+```
+
+`inspect --write` remains a deprecated explicit compatibility path during the
+migration window and points callers to `sync-projections --apply`. Ordinary
+`inspect` no longer inherits the old implicit-write behavior.
 
 ## Relationship to doctor
 

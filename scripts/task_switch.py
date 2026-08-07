@@ -69,7 +69,9 @@ def save_meta(root: Path, meta: dict) -> None:
     path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def unchanged_baseline_paths(root: Path, task_id: str | None) -> set[str]:
+def unchanged_baseline_paths(
+    root: Path, task_id: str | None, *, read_only: bool = False
+) -> set[str]:
     if not task_id:
         return set()
     entry = load_meta(root).get(task_id, {})
@@ -82,7 +84,9 @@ def unchanged_baseline_paths(root: Path, task_id: str | None) -> set[str]:
                                       [".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx"])}
     current = {
         item.path: item
-        for item in repository_state.capture(root, fingerprints=True).files
+        for item in repository_state.capture(
+            root, fingerprints=True, read_only=read_only
+        ).files
     }
     unchanged = set()
     for original in baseline:
@@ -108,9 +112,9 @@ def active_task_ids(tasks_text: str) -> list[str]:
     return ids
 
 
-def closed_pending_paths(root: Path) -> list[tuple[str, str]]:
+def closed_pending_paths(root: Path, *, read_only: bool = False) -> list[tuple[str, str]]:
     current = {
-        item.path for item in repository_state.capture(root).files
+        item.path for item in repository_state.capture(root, read_only=read_only).files
         if item.status != "!!"
     }
     pending = []

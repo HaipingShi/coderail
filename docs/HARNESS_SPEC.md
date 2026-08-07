@@ -303,3 +303,37 @@ python3 tests/test_inspect.py
 python3 tests/test_closeout.py
 python3 tests/test_structure.py
 ```
+
+### T-060 lifecycle authority and formulation safety
+
+This harness supersedes T-059 only where T-059 treated human-owned prose as a
+closeout authority. Exact machine markers remain fail-closed.
+
+Required matrix:
+
+- finalized live state plus README/HANDOFF `waiting for commit/push` produces a
+  `projection_staleness` warning, `blocks=none`, and
+  `blocks.formulation=false`;
+- the same warning leaves product recommendation/formulation available and does
+  not add a TASKS or TRACE entry, especially not a recursive GOV Coordinate;
+- a conflicting exact lifecycle marker and multiple active tasks produce
+  `control_plane_conflict` with activation blocked;
+- `inspect`, `inspect --no-write`, `check`, Drive, and recommendation preserve
+  worktree bytes, Git HEAD, task count, TRACE bytes, and Git-index bytes/mtime;
+- `sync-projections` previews with zero writes and writes only after `--apply`;
+- recommendation-only Drive returns `RECOMMEND` with no execution authority,
+  while explicit activation mode alone may return `ADVANCE`;
+- append-only TRACELOG/PROGRESS lifecycle wording never enters current truth;
+- owner output precedes governance detail and never invents product capability
+  from commits or task finalization.
+- the locked core inventory contains 162 unique tests after the T-060 Red
+  matrix; duplicate discovery remains forbidden.
+
+```bash
+python3 tests/test_delivery.py
+python3 tests/test_inspect.py
+python3 tests/test_drive.py
+python3 tests/test_static.py
+python3 tests/test_structure.py
+git diff --check
+```

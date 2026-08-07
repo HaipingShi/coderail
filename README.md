@@ -66,6 +66,24 @@ That is the whole interface. Your AI assistant reads the installed `AGENTS.md` a
 
 **`done`** — the safety net. It verifies tests/checks pass (or you explicitly recorded a manual check), confirms changes stayed inside the promised files, syncs the docs, commits only the safe task-related files, and tells you the next step. If something is off, it refuses and says exactly what to fix. An AI assistant cannot talk its way past it.
 
+`inspect` and `check` are read-only. They report structured diagnostics with a
+severity, category, blocking stage, evidence, and recommended action. Stale
+handwritten lifecycle prose is `projection_staleness`: it may be cleaned up in
+a maintenance batch, but it does not block product formulation or create a new
+governance task. Exact machine-marker conflicts, scope violations, and failed
+verification still block the relevant lifecycle stage.
+
+Generated snapshots are synchronized explicitly:
+
+```bash
+python .coderail/coderail.py sync-projections          # preview, zero writes
+python .coderail/coderail.py sync-projections --apply  # write listed projections
+```
+
+The status panel leads with verified product capability, known limitations,
+the next product gap, active ownership, and human authorization. Git hashes,
+markers, trace details, and safe-file counts remain in the technical appendix.
+
 No extra commit-approval question is needed after those gates pass: successful `done` is already permission for one exact local task commit. Use `--no-commit` only when you explicitly want to review the diff first. Push, tag, and release always remain separate user decisions.
 
 For customer delivery, a task may add an explicit structured Delivery Contract. After a successful closeout, CodeRail renders a separate client-facing Markdown summary that leads with outcomes and capability changes; commits, verification, and exact safe files stay in the final technical appendix. Task finalization never implies milestone or product completion, and missing historical contracts remain `not_assessed`. See [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md).

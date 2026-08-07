@@ -3,6 +3,25 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-07 - Separate lifecycle authority from projections and formulation (GOV-LIFECYCLE-SSOT (internal T-060))
+
+- Done: Separate lifecycle authority from projections and formulation
+- Checked by: `python3 tests/test_delivery.py` exit 0; `python3 tests/test_inspect.py` exit 0; `python3 tests/test_drive.py` exit 0; `python3 tests/test_static.py` exit 0; `python3 tests/test_structure.py` exit 0; `git diff --check` exit 0
+- Next: Owner may authorize COMPAT-MIGRATION in one downstream repository; do not activate, migrate, push, tag, or release automatically.
+- Evidence: `python3 tests/test_delivery.py` -> exit 0
+- Evidence: `python3 tests/test_inspect.py` -> exit 0
+- Evidence: `python3 tests/test_drive.py` -> exit 0
+- Evidence: `python3 tests/test_static.py` -> exit 0
+- Evidence: `python3 tests/test_structure.py` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: stale finalized or pushed prose is projection_staleness warning with blocks formulation false
+- Acceptance [done]: true live marker or multiple-active conflict blocks activation or execution
+- Acceptance [done]: inspect and check do not write on any tested branch
+- Acceptance [done]: sync-projections is explicit previewable and auditable
+- Acceptance [done]: recommendation or formulation never registers or activates a Coordinate
+- Acceptance [done]: historical TRACELOG and PROGRESS remain append-only inputs that do not pollute current truth
+- Acceptance [done]: owner-facing output leads with capability gaps and authorization before technical receipts
+
 ## 2026-08-07 - Fail closed on stale current-authority closeout prose (T-059)
 
 - Done: Fail closed on stale current-authority closeout prose

@@ -60,13 +60,17 @@ behavior as `NO_RECOMMENDATION`.
 |---|---|
 | `CONTINUE` | Execute the named next action inside the active task. |
 | `REPAIR` | Apply the known in-scope repair and rerun the harness. |
+| `RECOMMEND` | Report the dependency-ready task for owner review; do not activate it. |
 | `ADVANCE` | Activate the named ready task and start its first checkpoint. |
 | `REVIEW_DIRECTION` | Run direction review before more implementation. |
 | `BLOCKED_DECISION` | Ask only for the named decision-grade authority. |
 | `COMPLETE` | Close out because terminal evidence is present. |
 | `EXHAUSTED` | Close out with failure evidence and the consumed budget. |
 
-Only the final four states may return control in Continuous Drive. A Direction
+`RECOMMEND` is a safe return state when `Next-task mode: recommend`; it carries
+`execution_authorized: false`. `ADVANCE` is emitted only when `Next-task mode:
+activate` was explicitly configured. The final review/terminal states may also
+return control in Continuous Drive. A Direction
 Review may produce a new authorized contract; it does not silently resume under
 changed assumptions.
 
@@ -79,9 +83,10 @@ Apply the first matching rule:
 3. consumed retry/no-progress budget -> `EXHAUSTED`;
 4. failed harness with retry remaining -> `REPAIR`;
 5. active autonomous task -> `CONTINUE`;
-6. ready autonomous task -> `ADVANCE`;
-7. terminal evidence with no active/ready work -> `COMPLETE`;
-8. otherwise -> `BLOCKED_DECISION`.
+6. ready autonomous task + recommendation-only mode -> `RECOMMEND`;
+7. ready autonomous task + explicit activation mode -> `ADVANCE`;
+8. terminal evidence with no active/ready work -> `COMPLETE`;
+9. otherwise -> `BLOCKED_DECISION`.
 
 Decision-grade changes include Goal, S, dependency, public API, schema,
 persistence, migration, release, security, privacy, payment, permissions, and
@@ -111,7 +116,8 @@ Machine-readable report:
 python3 scripts/drive_check.py --target . --json
 ```
 
-The JSON keeps the existing execution fields and adds a nested
+The JSON keeps the existing execution fields, exposes
+`execution_authorized`, and adds a nested
 `recommendation` object with `status`, `reason`, `evidence`, `next_action`, and
 `requires_human_for_execution`.
 

@@ -57,7 +57,11 @@ class ScopeContradiction:
     forbidden_pattern: str
 
 
-def _git(root: Path, args: list[str], *, text: bool = True):
+def _git(root: Path, args: list[str], *, text: bool = True, read_only: bool = False):
+    env = None
+    if read_only:
+        env = os.environ.copy()
+        env["GIT_OPTIONAL_LOCKS"] = "0"
     return subprocess.run(
         ["git", "-C", str(root), *args],
         stdout=subprocess.PIPE,
@@ -65,6 +69,7 @@ def _git(root: Path, args: list[str], *, text: bool = True):
         text=text,
         encoding="utf-8" if text else None,
         errors="surrogateescape" if text else None,
+        env=env,
     )
 
 
@@ -108,15 +113,20 @@ def capture(
     *,
     include_ignored: bool = False,
     fingerprints: bool = False,
+    read_only: bool = False,
 ) -> RepositorySnapshot:
     # Refresh stat metadata before reading porcelain. Git can otherwise retain
     # a Windows line-ending rewrite as modified even when the normalized blob
     # has no content diff.
-    _git(root, ["update-index", "-q", "--refresh"])
+    if not read_only:
+        _git(root, ["update-index", "-q", "--refresh"])
     args = ["status", "--porcelain=v1", "-z", "--untracked-files=all"]
     if include_ignored:
         args.append("--ignored=matching")
-    result = _git(root, args, text=False)
+    result = (
+        _git(root, args, text=False, read_only=True)
+        if read_only else _git(root, args, text=False)
+    )
     files: list[FileState] = []
     if result.returncode == 0:
         records = (result.stdout or b"").split(b"\0")
@@ -170,7 +180,10 @@ def capture(
                     )
                 )
         files = normalized
-    head = _git(root, ["rev-parse", "HEAD"])
+    head = (
+        _git(root, ["rev-parse", "HEAD"], read_only=True)
+        if read_only else _git(root, ["rev-parse", "HEAD"])
+    )
     return RepositorySnapshot(
         datetime.now(timezone.utc).isoformat(),
         head.stdout.strip() if head.returncode == 0 else None,

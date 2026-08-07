@@ -302,6 +302,7 @@ flowchart TB
         Switch["switch"]
         Done["done / done --resume"]
         Inspect["inspect"]
+        Sync["sync-projections<br/>preview / --apply"]
         Queries["why / graph / impact"]
     end
 
@@ -359,7 +360,11 @@ flowchart TB
     Inspect -. reads .-> Progress
     Inspect -. reads .-> Trace
     Inspect -. reads .-> Handoff
-    Inspect --> Status
+    Inspect -. read-only .-> Status
+    Sync -. preview reads .-> Handoff
+    Sync -. preview reads .-> Status
+    Sync -->|"--apply only"| Handoff
+    Sync -->|"--apply only"| Status
 
     Trace --> TraceIndex
     Trace --> TaskGraph
@@ -377,11 +382,30 @@ Authority table:
 | `TASKS.md` | Active, queued, paused, blocked, or reopened ownership | no | start, next, switch, done |
 | `PROGRESS.md` | Compact completed-task journal | yes | done, progress repair |
 | `TRACELOG.jsonl` | Verify facts, lifecycle facts, explicit decision edges | yes | lifecycle and link commands |
-| `HANDOFF.md` | Cross-session continuation for non-H0 situations | no | switch and handoff workflow |
+| `HANDOFF.md` | Cross-session continuation projection for non-H0 situations | no | switch, closeout, explicit projection sync |
 | `.coderail/tasks.json` | Machine-checkable task contract and recovery detail | supplemental only | lifecycle commands |
-| `CODERAIL_STATUS.md` | Point-in-time Inspect projection | no | inspect and done |
+| `CODERAIL_STATUS.md` | Point-in-time generated projection | no | done and explicit projection sync; Inspect reads only |
 | `TRACE_INDEX.md` | Searchable TRACE projection | no | trace index regeneration |
 | `pending_close.json` | Exact interrupted-close recovery | no | done and done --resume |
 
 No derived file may overrule its source authority. No ignored recovery file may
 become the only record that a completed task or decision existed.
+
+## 5. Diagnostic Blocking by Stage
+
+Severity describes importance; `blocks` names the lifecycle stage whose action
+is refused. The two fields are independent, and formulation stays available
+unless a future explicit policy names it.
+
+| Evidence | Category | Severity | Blocks |
+|---|---|---|---|
+| stale README/HANDOFF/task prose after finalized or pushed | `projection_staleness` | warning | none |
+| stale generated snapshot | `projection_staleness` | warning | none |
+| multiple active owners or exact live-marker conflict | `control_plane_conflict` | error | activation |
+| outside/forbidden task delta or protected baseline conflict | `scope_authorization` | error | execution |
+| failed verification or closeout transaction | `closeout_integrity` | error | closeout |
+| unsupported safety-relevant product claim | `product_evidence_conflict` | error | delivery |
+
+Historical TRACELOG/PROGRESS wording is excluded before this table is applied.
+Recommendation and formulation read the diagnostic report but cannot register,
+activate, or execute a Coordinate.

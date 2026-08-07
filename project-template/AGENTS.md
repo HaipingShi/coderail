@@ -122,8 +122,7 @@ ratified from what was built — never drawn ahead of the code.
 
 ## When you come back to a project
 
-If you are resuming after a break, a crash, or someone else's session, read
-`docs/HANDOFF.md` and `docs/CODERAIL_STATUS.md` first, or regenerate the
-status with `python .coderail/coderail.py inspect`.
-
+On resume, read `docs/HANDOFF.md` and `docs/CODERAIL_STATUS.md`, then run read-only
+`coderail inspect`. Preview generated updates with `coderail sync-projections`;
+only `--apply` writes. Stale prose never blocks formulation or activates work.
 Advanced commands are listed by `python .coderail/coderail.py --help`.

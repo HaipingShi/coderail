@@ -288,3 +288,91 @@ Decision: proceed
 - Migration order: characterize first, unify facts second, unify authority third.
 - Human gate: any public command, task schema, persistence, security, or push-policy change.
 - Stop: do not add gates or weaken inspect to make migration tests pass.
+
+## CD-005 Lifecycle Truth, Projection Debt, and Formulation Safety
+
+Status: accepted
+Task: T-060 (display id `GOV-LIFECYCLE-SSOT`)
+
+### Coordinate Contract Draft
+
+G — Goal:
+- Preserve CodeRail's scope, verification, closeout, commit, and human-activation
+  gates while preventing stale lifecycle prose from blocking product formulation.
+
+T — Task:
+- Separate control-plane truth, product truth, generated projections, and the
+  append-only historical ledger.
+- Give every diagnostic an explicit severity, category, blocking stage,
+  evidence, and recommended action.
+- Make ordinary `inspect` and `check` read-only and provide an explicit,
+  previewable `sync-projections` write path.
+- Keep formulation and recommendation read-only; only explicit lifecycle
+  commands may register or activate a Coordinate.
+
+S — Scope:
+- Allowed: the T-060 task record is the exact file authority.
+- Forbidden: package/release metadata, dependencies, automatic push, historical
+  TRACE/PROGRESS rewriting, automatic Coordinate creation, and scope weakening.
+
+V — Verify:
+- TDD mode: required.
+- Red A: a finalized task plus stale README/HANDOFF commit prose reports
+  `projection_staleness` with `severity=warning`, `blocks=none`, and
+  `blocks.formulation=false`; formulation/recommendation remains available and
+  no GOV Coordinate is created.
+- Red B: multiple live owners or an explicit lifecycle marker conflicting with
+  live state reports `control_plane_conflict` and blocks activation/execution.
+- Red C: ordinary `inspect`, `inspect --no-write`, `check`, Drive, and
+  recommendation preserve a byte-for-byte target tree and do not change Git
+  HEAD or active-task count.
+- Red D: `sync-projections` previews by default and writes only after an explicit
+  apply flag; the report identifies every changed generated projection.
+- Green: focused suites and the structure suite pass, followed by `done`.
+
+X — Stop:
+- A fix would weaken forbidden scope, verification, protected-baseline, exact
+  commit, or publication authorization.
+- A migration would require rewriting old TRACELOG/PROGRESS records.
+- A read-only command would need to create a Coordinate or modify lifecycle
+  state.
+- Product capability would need to be inferred from commit metadata when no
+  Delivery Contract evidence exists.
+
+P — Persist:
+- CONTRACTS and DECISIONS record the authority and compatibility model.
+- HARNESS_SPEC records the executable Red/Green matrix.
+- README/references/diagrams describe the public behavior.
+- TASKS and TRACE retain the ordinary CodeRail task evidence.
+
+### Authority map
+
+| Fact | Machine authority | Non-authoritative surfaces |
+|---|---|---|
+| active / paused / queued ownership | hot status markers in `TASKS.md` | README, HANDOFF prose, generated status |
+| interrupted closeout | `.coderail/pending_close.json` while present | HANDOFF prose, generated status |
+| finalized history | durable PROGRESS entry plus verify TRACE fact | old task/review/handoff prose |
+| local commit | Git object and current ref | receipt prose and hashes copied into docs |
+| pushed state | compared local and remote Git refs | README/HANDOFF statements |
+| product capability and gap | explicit Delivery Contract/product evidence | commit title or lifecycle state |
+
+### Diagnostic policy
+
+| Condition | Severity | Category | Blocks |
+|---|---|---|---|
+| stale handwritten lifecycle prose | warning | projection_staleness | none |
+| stale generated snapshot | warning | projection_staleness | none |
+| multiple live owners or live/marker conflict | error | control_plane_conflict | activation |
+| forbidden/outside task delta | error | scope_authorization | execution |
+| failed verification or closeout transaction | error | closeout_integrity | closeout |
+| materially unsupported safety-relevant product claim | error | product_evidence_conflict | delivery |
+
+Decision: proceed
+
+Notes:
+- The repository owner's 2026-08-07 request explicitly accepted this design
+  boundary and required executable Red before production changes.
+- `inspect --write` may remain temporarily as an explicit deprecated compatibility
+  path, but ordinary `inspect` changes to read-only immediately.
+- Projection debt is batchable maintenance debt. It does not automatically
+  recommend or register another GOV Coordinate.

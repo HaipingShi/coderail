@@ -109,8 +109,8 @@ def scenarios() -> list[dict]:
             "kwargs": {"harness_result": "failed", "retry_count": 1, "failure_known": True},
         },
         {
-            "name": "advance_after_task_done",
-            "expected": "ADVANCE",
+            "name": "recommend_after_task_done",
+            "expected": "RECOMMEND",
             "tasks": task(status="[x]", result="done") + "\n" + task("T-002", "[ ]"),
         },
         {

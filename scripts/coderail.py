@@ -108,9 +108,11 @@ def tasks_path(root: Path) -> Path:
     return root / "docs" / "TASKS.md"
 
 
-def read_tasks(root: Path) -> str:
+def read_tasks(root: Path, *, create: bool = True) -> str:
     path = tasks_path(root)
     if not path.exists():
+        if not create:
+            return ""
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(MINIMAL_TASKS, encoding="utf-8")
     return path.read_text(encoding="utf-8")
@@ -1298,7 +1300,12 @@ P — Persist
 
 def cmd_check(args) -> int:
     root = Path(args.target).resolve()
-    text = read_tasks(root)
+    text = read_tasks(root, create=False)
+    if not text:
+        print("# CodeRail Check\n")
+        print("Read-only check cannot continue: docs/TASKS.md is missing.")
+        print("Initialize the project or use explicit `coderail start` to create task state.")
+        return 1
     active = active_task_id(text)
 
     print("# CodeRail Check\n")
@@ -1350,6 +1357,28 @@ def cmd_check(args) -> int:
         if doctor_rc:
             print("\n--- project health check ---\n" + doctor_out)
     return 1 if problems else 0
+
+
+def cmd_sync_projections(args) -> int:
+    root = Path(args.target).resolve()
+    if not (root / "docs" / "NORTH_STAR.md").exists():
+        print(f"error: {root} is not a CodeRail project")
+        return 2
+    changed, status, _text = inspect_state.sync_projections(root, apply=args.apply)
+    mode = "Applied" if args.apply else "Preview"
+    print(f"# CodeRail Projection Sync — {mode}\n")
+    print(f"Runtime status: {status}")
+    print("Changed generated projections:")
+    if changed:
+        for path in changed:
+            print(f"  - {path}")
+    else:
+        print("  - none")
+    if not args.apply:
+        print("\nNo files were written. Apply explicitly with: coderail sync-projections --apply")
+    else:
+        print("\nOnly the generated projection paths listed above were synchronized.")
+    return 1 if status == "blocked" else 0
 
 
 # ---------------------------------------------------------------- done
@@ -2814,6 +2843,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_check = sub.add_parser("check", help="Am I on track? What's missing?")
     p_check.add_argument("--target", default=".")
 
+    p_sync = sub.add_parser(
+        "sync-projections",
+        help="Preview generated projection updates; --apply writes them explicitly",
+    )
+    p_sync.add_argument(
+        "--apply", action="store_true",
+        help="Write the previewed HANDOFF and CODERAIL_STATUS projections",
+    )
+    p_sync.add_argument("--target", default=".")
+
     p_next = sub.add_parser("next", help="Recommend (or pick up) the next queued task")
     p_next.add_argument("--go", action="store_true", help="Activate the recommended task")
     p_next.add_argument("--dirty-fork", action="store_true",
@@ -2955,6 +2994,8 @@ def main(argv=None) -> int:
         return cmd_start(args)
     if args.command == "check":
         return cmd_check(args)
+    if args.command == "sync-projections":
+        return cmd_sync_projections(args)
     if args.command == "next":
         return cmd_next(args)
     if args.command == "switch":

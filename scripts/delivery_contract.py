@@ -36,6 +36,12 @@ RECEIPT_FIELDS = {"commits", "verification", "safe_files"}
 TASK_STATUSES = {"finalized", "pending"}
 ASSESSMENT_STATUSES = {"completed", "in_progress", "not_assessed"}
 NEXT_STATUSES = {"planned", "recommended", "active", "none"}
+STANDARD_PROSE_PROJECTIONS = (
+    "README.md",
+    "README.zh-CN.md",
+    "docs/HANDOFF.md",
+    "docs/NORTH_STAR.md",
+)
 CURRENT_TRUTH_MARKER = re.compile(
     r"<!--\s*coderail:current-truth\s+"
     r"task=(T-\d+)\s+"
@@ -46,7 +52,9 @@ STALE_CURRENT_STATUS = re.compile(
     r"(?<![A-Za-z0-9_])"
     r"(verified-commit-pending|pending-closeout|in_progress|in[ -]progress|"
     r"active|pending[ -]closeout|closeout[ -]pending|pending[ -]commit|"
-    r"commit[ -]pending|pending|待提交|待收口)"
+    r"commit[ -]pending|waiting[ -]for[ -](?:commit|push|commit/push)|"
+    r"awaiting[ -](?:commit|push|commit/push)|pending|"
+    r"等待[ ]*(?:commit|push|commit/push|提交|推送|提交/推送)|待提交|待推送|待收口)"
     r"(?![A-Za-z0-9_])",
     re.I,
 )
@@ -343,6 +351,15 @@ def _marker_files(root: Path, task_id: str | None = None) -> dict[str, list[tupl
     return found
 
 
+def prose_projection_files(root: Path) -> list[str]:
+    """Return current prose surfaces; historical task/review archives stay out."""
+    candidates = canonical_current_truth_files(root) + [
+        relative for relative in STANDARD_PROSE_PROJECTIONS
+        if (root / relative).is_file()
+    ]
+    return list(dict.fromkeys(candidates))
+
+
 def _finalized_aliases(root: Path, finalized_task_ids: set[str]) -> dict[str, str]:
     """Map exact internal/display ids to the finalized internal Coordinate."""
     aliases = {task_id: task_id for task_id in finalized_task_ids}
@@ -413,7 +430,7 @@ def _prose_projection_gaps(root: Path, finalized_task_ids: set[str]) -> list[str
     if not aliases:
         return []
     gaps = []
-    for relative in canonical_current_truth_files(root):
+    for relative in prose_projection_files(root):
         path = root / relative
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
@@ -460,17 +477,93 @@ def _prose_projection_gaps(root: Path, finalized_task_ids: set[str]) -> list[str
     return list(dict.fromkeys(gaps))
 
 
-def current_truth_projection_gaps(root: Path, finalized_task_ids: set[str]) -> list[str]:
-    gaps = []
+def _diagnostic(
+    *,
+    severity: str,
+    category: str,
+    blocks: str,
+    evidence: str,
+    recommended_action: str,
+) -> dict[str, str]:
+    return {
+        "severity": severity,
+        "category": category,
+        "blocks": blocks,
+        "evidence": evidence,
+        "recommended_action": recommended_action,
+    }
+
+
+def current_truth_diagnostics(
+    root: Path,
+    finalized_task_ids: set[str],
+    *,
+    lifecycle_statuses: dict[str, str] | None = None,
+) -> list[dict[str, str]]:
+    """Classify lifecycle marker conflicts separately from prose staleness.
+
+    Exact CodeRail markers participate in the live control plane. Bounded prose
+    assertions are human-owned projections: useful debt signals, but never a
+    lifecycle authority or formulation gate.
+    """
+    diagnostics = []
+    expected_statuses = {
+        task_id: "finalized" for task_id in finalized_task_ids
+    }
+    expected_statuses.update(lifecycle_statuses or {})
+    aliases = _finalized_aliases(root, set(expected_statuses))
     for relative, markers in _marker_files(root).items():
         for task_id, status in markers:
-            if task_id in finalized_task_ids and status != "finalized":
-                gaps.append(
-                    f"CURRENT_TRUTH_GAP file={relative} task={task_id} "
-                    f"recorded={status} expected=finalized"
-                )
-    gaps.extend(_prose_projection_gaps(root, finalized_task_ids))
-    return gaps
+            internal_id = aliases.get(task_id)
+            expected = expected_statuses.get(internal_id or "")
+            equivalent = (
+                status in {"active", "in_progress"}
+                if expected == "active" else status == expected
+            )
+            if not expected or equivalent:
+                continue
+            evidence = (
+                f"CURRENT_TRUTH_GAP file={relative} task={task_id} "
+                f"recorded={status} expected={expected}"
+            )
+            diagnostics.append(_diagnostic(
+                severity="error",
+                category="control_plane_conflict",
+                blocks="activation",
+                evidence=evidence,
+                recommended_action=(
+                    "Reconcile the exact machine marker with live lifecycle state "
+                    "before activation; do not infer authority from surrounding prose."
+                ),
+            ))
+    for evidence in _prose_projection_gaps(root, finalized_task_ids):
+        diagnostics.append(_diagnostic(
+            severity="warning",
+            category="projection_staleness",
+            blocks="none",
+            evidence=evidence,
+            recommended_action=(
+                "Keep formulation available and batch lifecycle-neutral prose cleanup "
+                "as maintenance debt; do not create a GOV Coordinate solely for this warning."
+            ),
+        ))
+    unique = []
+    seen = set()
+    for diagnostic in diagnostics:
+        key = tuple(diagnostic.items())
+        if key not in seen:
+            seen.add(key)
+            unique.append(diagnostic)
+    return unique
+
+
+def current_truth_projection_gaps(root: Path, finalized_task_ids: set[str]) -> list[str]:
+    """Compatibility view containing only authority conflicts that block."""
+    return [
+        diagnostic["evidence"]
+        for diagnostic in current_truth_diagnostics(root, finalized_task_ids)
+        if diagnostic["blocks"] != "none"
+    ]
 
 
 def projection_scope_issues(
@@ -505,9 +598,6 @@ def synchronize_current_truth(
     """Update only exact markers, rolling back all files on a write failure."""
     if status not in {"pending-closeout", "finalized"}:
         return [], [f"unsupported projection status: {status}"]
-    prose_gaps = _prose_projection_gaps(root, {task_id})
-    if prose_gaps:
-        return [], prose_gaps
     marker_files = _marker_files(root, task_id)
     paths = sorted(marker_files)
     if authorized_paths is not None:

@@ -4229,5 +4229,35 @@
       "head": "4fdbfc94489e5bbe4937013b08919665582e61eb",
       "files": []
     }
+  },
+  "T-060": {
+    "display_id": "GOV-LIFECYCLE-SSOT",
+    "verify": [
+      "python3 tests/test_delivery.py",
+      "python3 tests/test_inspect.py",
+      "python3 tests/test_drive.py",
+      "python3 tests/test_static.py",
+      "python3 tests/test_structure.py",
+      "git diff --check"
+    ],
+    "tests": [
+      "tests/test_delivery.py",
+      "tests/test_inspect.py",
+      "tests/test_drive.py"
+    ],
+    "accept": [
+      "stale finalized or pushed prose is projection_staleness warning with blocks formulation false",
+      "true live marker or multiple-active conflict blocks activation or execution",
+      "inspect and check do not write on any tested branch",
+      "sync-projections is explicit previewable and auditable",
+      "recommendation or formulation never registers or activates a Coordinate",
+      "historical TRACELOG and PROGRESS remain append-only inputs that do not pollute current truth",
+      "owner-facing output leads with capability gaps and authorization before technical receipts"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-07T15:13:07.770084+00:00",
+      "head": "103ddc95b1fd70c9d59308af44122a6ecaabdbce",
+      "files": []
+    }
   }
 }

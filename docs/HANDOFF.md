@@ -30,8 +30,8 @@ Reason: no paused task requires a handoff
 
 <!-- coderail:continuation:start -->
 Handoff Level: H0
-Last Closed Task: T-059
-Closeout State: finalized
+Last Closed Task: T-060
+Closeout State: verified-commit-pending
 Recommendation Status: NO_RECOMMENDATION
 Next Candidate/Direction: none
 Human Gate: none

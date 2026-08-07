@@ -97,7 +97,8 @@ selected automatically.
 |---|---|---|
 | `CONTINUE` | Current task is valid and still has an executable step. | no |
 | `REPAIR` | Harness failed with a known, in-scope recovery path. | no |
-| `ADVANCE` | Current checkpoint is complete and another task is ready. | no |
+| `RECOMMEND` | Another task is ready, but mode grants recommendation only. | yes, for owner review |
+| `ADVANCE` | Another task is ready and activation mode is explicitly authorized. | no |
 | `REVIEW_DIRECTION` | Evidence suggests repeated task, architecture, or strategy pressure. | yes, for review |
 | `BLOCKED_DECISION` | Existing authority is insufficient for a decision-grade change. | yes |
 | `COMPLETE` | The terminal condition is evidenced and no active/ready work remains. | yes |
@@ -105,8 +106,9 @@ selected automatically.
 
 `stage-complete` is a checkpoint rather than a stop. Because the task remains
 `[~]`, Drive continues that task toward acceptance and does not activate a
-second task. `ADVANCE` becomes valid only after the current task leaves active
-state.
+second task. After the current task leaves active state, recommendation mode
+returns `RECOMMEND` with `execution_authorized=false`; only explicit activation
+mode may return `ADVANCE`.
 
 ## 6. Decision Precedence
 
@@ -120,9 +122,11 @@ The deterministic evaluator applies this order:
 4. `REPAIR` when the harness failed and a retry remains.
 5. `CONTINUE` when an active autonomous task remains in progress, including a
    stage-complete task whose acceptance is not done.
-6. `ADVANCE` when no active task remains and a ready autonomous task exists.
-7. `COMPLETE` when the terminal condition is explicitly evidenced.
-8. Otherwise `BLOCKED_DECISION`, because guessing a missing task or terminal
+6. `RECOMMEND` when no active task remains, a ready task exists, and next-task
+   mode is recommendation-only.
+7. `ADVANCE` when the same evidence exists and activation mode is explicit.
+8. `COMPLETE` when the terminal condition is explicitly evidenced.
+9. Otherwise `BLOCKED_DECISION`, because guessing a missing task or terminal
    condition would create new authority.
 
 ## 7. Decision-Grade Boundary
@@ -201,8 +205,8 @@ Rail: full
 Deliver:
 - concise `skills/drive/SKILL.md`;
 - a Goal Bridge prompt in the runtime reference and README;
-- execution rule: run `drive_check`, then continue for `CONTINUE`, `REPAIR`, or
-  `ADVANCE`; stop only on terminal/review states.
+- execution rule: run `drive_check`, continue for `CONTINUE`/`REPAIR`, activate
+  on `ADVANCE`, and return `RECOMMEND` for owner review without activation;
 
 Acceptance:
 - the skill does not claim to start or control the Codex runtime;
@@ -242,10 +246,12 @@ Goal Bridge must instruct Codex to:
 2. execute only autonomous tasks inside S;
 3. run the task/progress harness at checkpoints;
 4. run `drive_check.py` after each checkpoint;
-5. continue immediately for `CONTINUE`, `REPAIR`, and `ADVANCE`;
-6. invoke direction review for `REVIEW_DIRECTION`;
-7. stop for `BLOCKED_DECISION`, `COMPLETE`, or `EXHAUSTED`;
-8. never interpret persistence of the Goal as permission expansion.
+5. continue immediately for `CONTINUE` and `REPAIR`, and activate only on an
+   explicitly authorized `ADVANCE`;
+6. return `RECOMMEND` to the owner without creating or activating a task;
+7. invoke direction review for `REVIEW_DIRECTION`;
+8. stop for `BLOCKED_DECISION`, `COMPLETE`, or `EXHAUSTED`;
+9. never interpret persistence of the Goal as permission expansion.
 
 ## 11. Verification Strategy
 

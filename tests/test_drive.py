@@ -33,14 +33,26 @@ def test_drive_check_exhausts_retry_budget():
         report = run_drive(target, '--harness-result', 'failed', '--retry-count', '3', '--failure-known')
         check(report['decision'] == 'EXHAUSTED', report)
 
-def test_drive_check_advances_to_ready_task_after_current_task_is_done():
+def test_drive_check_recommends_ready_task_without_activation_authority():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
         tasks = drive_task('T-001', '[x]', result='done') + '\n' + drive_task('T-002', '[ ]', priority='P1')
         write_drive_project(target, tasks)
         report = run_drive(target)
+        check(report['decision'] == 'RECOMMEND', report)
+        check(report['task'] == 'T-002', report)
+        check(report['execution_authorized'] is False, report)
+
+
+def test_drive_check_advances_only_when_activation_mode_is_explicit():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        tasks = drive_task('T-001', '[x]', result='done') + '\n' + drive_task('T-002', '[ ]', priority='P1')
+        write_drive_project(target, tasks)
+        report = run_drive(target, '--next-task-mode', 'activate')
         check(report['decision'] == 'ADVANCE', report)
         check(report['task'] == 'T-002', report)
+        check(report['execution_authorized'] is True, report)
 
 def test_drive_check_keeps_stage_complete_task_active_until_done():
     with tempfile.TemporaryDirectory() as td:
@@ -248,6 +260,27 @@ def test_drive_check_reads_git_status_when_changed_files_omitted():
         report = run_drive(target)
         check(report['decision'] == 'BLOCKED_DECISION', report)
         check('unrelated/file.py' in report['reason'], report)
+
+
+def test_drive_recommendation_does_not_refresh_git_index():
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, drive_task())
+        subprocess.run(['git', 'init', '-q', str(target)], check=True)
+        subprocess.run(['git', '-C', str(target), 'add', 'docs'], check=True)
+        subprocess.run([
+            'git', '-C', str(target), '-c', 'user.name=CodeRail Test',
+            '-c', 'user.email=coderail@example.invalid', 'commit', '-qm', 'fixture'
+        ], check=True)
+        tasks = target/'docs/TASKS.md'
+        stamp = tasks.stat().st_mtime_ns + 2_000_000_000
+        os.utime(tasks, ns=(stamp, stamp))
+        index = target/'.git/index'
+        before = (index.read_bytes(), index.stat().st_mtime_ns)
+        report = run_drive(target)
+        check(report['decision'] == 'CONTINUE', report)
+        after = (index.read_bytes(), index.stat().st_mtime_ns)
+        check(after == before, 'Drive/recommendation refreshed .git/index')
 
 def test_drive_check_resets_retry_budget_after_passing_checkpoint():
     with tempfile.TemporaryDirectory() as td:
