@@ -3,8 +3,8 @@
 > Generated projection. `inspect` reads live state without rewriting this file.
 > Preview with `coderail sync-projections`; write only with explicit `--apply`.
 
-Generated at: 2026-08-07T15:49:43+00:00
-Status: blocked
+Generated at: 2026-08-07T15:51:44+00:00
+Status: healthy
 
 ## Owner Product View
 
@@ -46,11 +46,7 @@ Status: blocked
 
 ## Closeout Pending
 
-- State: verified-commit-pending
-- Task: T-060
-- Safe files: 33
-- Activation blocked until finalized: yes
-- Resume: `coderail done --resume`
+- none
 
 ## Draft Contracts
 
@@ -77,12 +73,12 @@ Status: blocked
 
 ## Structured Diagnostics
 
-- severity=error category=closeout_integrity blocks=activation evidence=T-060 is verified-commit-pending recommended_action=Resume the exact pending closeout before activating another task.
+- none
 
 ### Blocking Matrix
 
 - formulation: false
-- activation: true
+- activation: false
 - execution: false
 - closeout: false
 - delivery: false
@@ -117,11 +113,11 @@ Status: blocked
 - Level: H0
 - Needs update: no
 - Last closed task: T-060
-- Closeout state: verified-commit-pending
+- Closeout state: finalized
 
 ## Recommended Next Action
 
-- Resume the verified closeout with `coderail done --resume`; do not rerun verification or use `git add .`.
+- Run `/coderail:align` or `/coderail:contract-draft` for the next request.
 
 ## Technical Appendix
 
@@ -129,45 +125,12 @@ Status: blocked
 
 ## Auto Commit
 
-- Worktree: dirty
-- Avoid `git add .` until changed files are matched to the active task S.
-- Run `python .coderail/coderail.py finish --task <ID> --task-result <result>` before stopping.
+- Worktree: clean
+- No commit boundary needed unless new work is started.
 
 ## Git Status
 
 ```text
- M .coderail/tasks.json
- M README.md
- M README.zh-CN.md
- M docs/CODERAIL_DIAGRAMS.md
- M docs/CODERAIL_STATUS.md
- M docs/CONTRACTS.md
- M docs/DECISIONS.md
- M docs/DRIVE_LOOP_DESIGN.md
- M docs/HANDOFF.md
- M docs/HARNESS_SPEC.md
- M docs/NORTH_STAR.md
- M docs/PROGRESS.md
- M docs/TRACELOG.jsonl
- M docs/TRACE_INDEX.md
- M project-template/AGENTS.md
- M project-template/docs/CODERAIL_STATUS.md
- M project-template/docs/HANDOFF.md
- M references/DELIVERY_CONTRACT.md
- M references/DRIVE_LOOP.md
- M references/RUNTIME_STATE_INSPECT.md
- M scripts/coderail.py
- M scripts/delivery_contract.py
- M scripts/doctor.py
- M scripts/drive_check.py
- M scripts/drive_observe.py
- M scripts/inspect_state.py
- M scripts/repository_state.py
- M scripts/task_switch.py
- M tests/test_closeout.py
- M tests/test_delivery.py
- M tests/test_drive.py
- M tests/test_inspect.py
- M tests/test_static.py
+clean
 ```
 
