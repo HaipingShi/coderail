@@ -253,60 +253,6 @@ def finalized_delivery(
     return delivery
 
 
-def _markdown_items(values: list[str], *, empty: str = "none") -> list[str]:
-    return [f"- {value}" for value in values] if values else [f"- {empty}"]
-
-
-def render_client_markdown(delivery: dict) -> str:
-    """Render the temporary legacy report used when no owner locale is set."""
-    recommended = delivery.get("recommended_next") or {}
-    receipt = delivery.get("technical_receipt") or {}
-    lines = [
-        "# 客户交付摘要",
-        "",
-        "## 交付结果",
-        "",
-        f"- 任务状态：{delivery.get('task_status') or 'pending'}",
-        f"- 客户结果：{delivery.get('customer_outcome') or 'not_assessed'}",
-        "",
-        "## 能力变化",
-        "",
-        *_markdown_items(delivery.get("capability_delta") or [], empty="not_assessed"),
-        "",
-        "## 项目整体状态",
-        "",
-        f"- 里程碑状态：{delivery.get('milestone_status') or 'not_assessed'}",
-        f"- 产品状态：{delivery.get('product_status') or 'not_assessed'}",
-        "",
-        "## 未完成与风险",
-        "",
-        *_markdown_items(delivery.get("remaining_gaps") or [], empty="none"),
-        "- 证据边界：",
-        *[f"  - {value}" for value in (delivery.get("evidence_boundary") or ["not_assessed"])],
-        "",
-        "## 推荐下一任务",
-        "",
-        f"- ID：{recommended.get('id') or 'none'}",
-        f"- 状态：{recommended.get('status') or 'none'}",
-        f"- 原因：{recommended.get('reason') or 'not_assessed'}",
-        "",
-        "## 需要决策",
-        "",
-        *_markdown_items(delivery.get("decisions_required") or [], empty="none"),
-        "",
-        "## 技术附录",
-        "",
-        "- Commits:",
-        *[f"  - {value}" for value in (receipt.get("commits") or ["none"])],
-        "- Verification:",
-        *[f"  - {value}" for value in (receipt.get("verification") or ["none"])],
-        "- Safe files:",
-        *[f"  - {value}" for value in (receipt.get("safe_files") or ["none"])],
-        "",
-    ]
-    return "\n".join(lines)
-
-
 def canonical_current_truth_files(root: Path) -> list[str]:
     """Read exact canonical paths from ASSETS; append-only history is excluded."""
     registry = root / "docs" / "ASSETS.md"

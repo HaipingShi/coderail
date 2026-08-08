@@ -179,7 +179,7 @@ CodeRail 会根据现场状态选择明确路径：
 ### 第四步：完成任务
 
 ```bash
-python .coderail/coderail.py done
+python .coderail/coderail.py done --owner-locale zh-CN
 ```
 
 `done` 会：
@@ -191,6 +191,9 @@ python .coderail/coderail.py done
 5. 生成精确的安全文件快照；
 6. 只提交属于该任务的文件；
 7. 给出下一步，或明确说明任务列表已经清空。
+
+`--owner-locale` 是必填项。CodeRail 不根据系统环境猜语言；缺少该参数会在
+运行验证或修改任务状态之前停止，也不会再输出旧版七段技术报告。
 
 自动提交不等于自动推送。发布到远程仍然是独立、可见的动作。
 

@@ -639,7 +639,10 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
         lines.append(f"- Task: {pending_task or '(unknown)'}")
         lines.append(f"- Safe files: {len(pending_safe)}")
         lines.append("- Activation blocked until finalized: yes")
-        lines.append("- Resume: `coderail done --resume`")
+        pending_locale = commit_pending.get("owner_locale") or "en"
+        lines.append(
+            f"- Resume: `coderail done --resume --owner-locale {pending_locale}`"
+        )
     else:
         lines.append("- none")
     lines.append("")
@@ -735,7 +738,12 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     lines.append("## Recommended Next Action")
     lines.append("")
     if commit_pending:
-        lines.append("- Resume the verified closeout with `coderail done --resume`; do not rerun verification or use `git add .`.")
+        pending_locale = commit_pending.get("owner_locale") or "en"
+        lines.append(
+            "- Resume the verified closeout with "
+            f"`coderail done --resume --owner-locale {pending_locale}`; "
+            "do not rerun verification or use `git add .`."
+        )
     elif projection_gaps:
         lines.append("- Reconcile the exact machine lifecycle marker before activation; product formulation remains available.")
     elif verification_gaps:

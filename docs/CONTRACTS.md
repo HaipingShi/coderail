@@ -480,3 +480,54 @@ Notes:
   but does not authorize downstream A/B, push, tag, or release.
 - Compatibility may remain explicit during migration, but the default owner
   surface must not indefinitely retain the old seven-section report.
+
+## CD-008 Explicit Owner Language and Legacy Output Retirement
+
+Status: accepted
+Task: T-063 (display id `OWNER-COMMS-003`)
+
+### Coordinate Contract Draft
+
+G — Goal:
+- Finish the audience-layer migration after the accepted Chinese downstream
+  A/B by making every owner-facing closeout language explicit.
+
+T — Task:
+- Reject `done` without `--owner-locale` before verification or mutation.
+- Require the locale when `switch` closes or checkpoints an active source.
+- Remove the legacy seven-section renderer while preserving the Owner Receipt,
+  Agent Blackboard, Technical Report, and durable delivery facts.
+- Publish the compatibility change as v0.11.0 in templates and documentation.
+
+S — Scope:
+- Allowed:
+  - the T-063 task record is the exact file authority
+- Forbidden:
+  - scope policy, closeout transaction, repository/Git classification, TRACE implementation
+  - automatic activation, downstream writes, push, tag, release, and history rewrite
+
+V — Verify:
+- Red proves no-locale `done` and source-closing `switch` preserve every project
+  byte, Git HEAD, and active task state.
+- Explicit Chinese and English closeout still emit three-to-six owner sentences.
+- The same closeout retains complete agent and technical facts and survives a
+  fresh clone after hot-TASKS compaction.
+- Full lifecycle, delivery, switch, static, and structure suites pass.
+
+X — Stop:
+- Do not infer language from process locale or project prose.
+- Do not change scope, closeout transaction, Git, TRACE, or activation authority.
+- Do not rewrite historical TRACELOG, PROGRESS, or prior accepted decisions.
+- Do not push, tag, release, or migrate downstream repositories automatically.
+
+P — Persist:
+- TASKS: keep the active task contract and acceptance evidence until closeout
+- DECISIONS: record the v0.11.0 audience compatibility boundary
+- TRACE: append normal task and verification evidence only
+- DELIVERIES: append the product/evidence receipt during successful closeout
+
+Decision: proceed
+
+Notes:
+- Existing repositories require only a command-line update: add `zh-CN` or `en`
+  to closeout and source-closing switch calls. Historical documents remain valid.

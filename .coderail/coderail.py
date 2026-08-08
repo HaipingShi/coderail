@@ -5,7 +5,7 @@ Forwards every command to the CodeRail home's single entry point:
 
     python .coderail/coderail.py start "what you want to do"
     python .coderail/coderail.py check
-    python .coderail/coderail.py done
+    python .coderail/coderail.py done --owner-locale en
 
 If this machine keeps CodeRail somewhere else (CI, cloud sandbox, another
 laptop), point at it without editing any file:
@@ -23,7 +23,7 @@ from pathlib import Path
 # Replaced with the CodeRail home version at install time (see init_project.py).
 # If this file was copied by hand (so the placeholder survives), effective_version()
 # falls back to reading VERSION from the CodeRail home - manual copies stay honest.
-SHIM_VERSION = "0.10.0"
+SHIM_VERSION = "0.11.0"
 
 
 def effective_version(home: "Path | None" = None) -> str:

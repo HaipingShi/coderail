@@ -5,7 +5,7 @@ Three everyday commands, in plain language:
 
     coderail start "what you want to do"   Begin a task
     coderail check                         Am I on track? What's missing?
-    coderail done                          Finish the task safely
+    coderail done --owner-locale en        Finish the task safely
 
 Everything else (gates, traces, drive loops) runs automatically behind
 these three commands. Advanced commands remain available for power users.
@@ -485,7 +485,7 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
 
 
 def emit_client_delivery(root: Path, pending: dict, task_id: str) -> str:
-    """Persist the technical projection and keep the legacy console temporarily."""
+    """Persist the full technical projection for agent-to-agent use."""
     current_head = repository_state.capture(root).head
     commits = []
     pre_commit_head = pending.get("pre_commit_head")
@@ -541,12 +541,6 @@ def emit_client_delivery(root: Path, pending: dict, task_id: str) -> str:
     report = delivery_contract.write_technical_report(
         root, task_id, pending.get("stamp", ""), markdown
     )
-    if not pending.get("owner_locale"):
-        legacy_markdown = delivery_contract.render_client_markdown(delivery)
-        print()
-        print("== Client Delivery ==")
-        print(legacy_markdown.rstrip())
-        print(f"Client delivery report: {report}")
     return report
 
 
@@ -1348,7 +1342,8 @@ P — Persist
     if accept_items:
         print(f"  Accepts:   {len(accept_items)} item(s) - done will require a status for each")
     print()
-    print("Recorded in docs/TASKS.md. When you are finished, run:  coderail done")
+    print("Recorded in docs/TASKS.md. When finished, run coderail done with")
+    print("--owner-locale zh-CN for Chinese or --owner-locale en for English.")
     return 0
 
 
@@ -1400,7 +1395,8 @@ def cmd_check(args) -> int:
     problems.extend(graph_problems)
 
     if not problems:
-        print("Everything looks consistent. You can keep working or run:  coderail done")
+        print("Everything looks consistent. You can keep working or run coderail done")
+        print("with --owner-locale zh-CN for Chinese or --owner-locale en for English.")
     else:
         print("\nBefore finishing, fix these:")
         for p in problems:
@@ -1545,6 +1541,8 @@ def persist_commit_pending(
     commit_error: str = "",
 ) -> dict:
     pending = load_pending_close(root)
+    owner_locale = pending.get("owner_locale") or "en"
+    resume_command = f"coderail done --resume --owner-locale {owner_locale}"
     pending.update({
         "state": "verified-commit-pending",
         "phase": closeout_transaction.Phase.COMMIT_PENDING.name,
@@ -1557,10 +1555,10 @@ def persist_commit_pending(
         "expected_commit_message": commit_message,
         "pre_commit_head": snapshot.head,
         "commit_error": commit_error,
-        "resume_command": "coderail done --resume",
+        "resume_command": resume_command,
         "next_step": (
-            "commit the exact safe files manually, then run coderail done --resume; "
-            "or restore Git commit permission and run coderail done --resume"
+            f"commit the exact safe files manually, then run {resume_command}; "
+            f"or restore Git commit permission and run {resume_command}"
         ),
     })
     write_pending_close(root, pending)
@@ -1587,8 +1585,12 @@ def print_commit_pending(pending: dict) -> None:
     print("Manual recovery (never use git add .):")
     print(f"  {add_command}")
     print(f"  {commit_command}")
-    print("  coderail done --resume")
-    print("Or restore Git commit permission and run:  coderail done --resume")
+    resume_command = pending.get("resume_command") or (
+        "coderail done --resume --owner-locale "
+        + (pending.get("owner_locale") or "en")
+    )
+    print(f"  {resume_command}")
+    print(f"Or restore Git commit permission and run:  {resume_command}")
 
 
 def shell_join(parts: list[str]) -> str:
@@ -1931,7 +1933,7 @@ def _cmd_done(args) -> int:
                     print(f"    {line}")
             print()
             print(f"Cannot close {shown}: {len(failed)} verify command(s) failed.")
-            print("Fix the failures, then run:  coderail done   again.")
+            print("Fix the failures, then rerun done with --owner-locale zh-CN or en.")
             if task_before:
                 bump_spin_state(root, task_before)
             text = read_tasks(root)
@@ -1970,8 +1972,8 @@ def _cmd_done(args) -> int:
             print("State each one explicitly, either positionally or by number:")
             for i, item in enumerate(accept_items, 1):
                 print(f"  {i}. {item}")
-            print('Positional:  coderail done --accept-status "done,deferred,done"')
-            print('By number:   coderail done --accept-status "1=done" --accept-status "2=deferred"')
+            print('Positional:  coderail done --owner-locale en --accept-status "done,deferred,done"')
+            print('By number:   coderail done --owner-locale en --accept-status "1=done" --accept-status "2=deferred"')
             return 1
         accept_statuses = statuses
         deferred_items = [item for item, s in zip(accept_items, statuses) if s == "deferred"]
@@ -2315,7 +2317,7 @@ def _cmd_done(args) -> int:
                         print(f"  - {path}")
                 else:
                     print("  - none; inspect reported a blocking project-state inconsistency")
-                print("Resolve these paths, verify task ownership, then run coderail done again.")
+                print("Resolve these paths, then rerun done with --owner-locale zh-CN or en.")
                 return 1
 
             # FN-018: the success word is emitted only after the final rescan.
@@ -2360,7 +2362,7 @@ def _cmd_done(args) -> int:
         )
         print("Not finished yet - one or more checks did not pass (details above).")
         if still_open or not task_before:
-            print("Fix what it points out, then run:  coderail done   again.")
+            print("Fix what it points out, then rerun done with --owner-locale zh-CN or en.")
         else:
             print(f"NOTE: {shown} is no longer open in docs/TASKS.md. Do NOT rerun")
             print("done. Audit the ledger instead:  coderail progress --repair")
@@ -2372,7 +2374,11 @@ def _cmd_done(args) -> int:
 def cmd_done(args) -> int:
     """Select the owner projection without hiding failure diagnostics."""
     locale = getattr(args, "owner_locale", None)
-    if not locale or getattr(args, "result", "done") != "done":
+    if not locale:
+        print("Closeout requires the owner's language before any verification or state change.")
+        print("Use --owner-locale zh-CN for Chinese or --owner-locale en for English.")
+        return 2
+    if getattr(args, "result", "done") != "done":
         return _cmd_done(args)
 
     internal_output = io.StringIO()
@@ -2571,7 +2577,8 @@ def cmd_next(args) -> int:
             print(f"{todo['id']} is active, but its lifecycle trace failed.")
             return 1
         print(f"Now working on {todo['id']}: {todo['title']}")
-        print("Details are in docs/TASKS.md. When finished, run:  coderail done")
+        print("Details are in docs/TASKS.md. When finished, run done with")
+        print("--owner-locale zh-CN for Chinese or --owner-locale en for English.")
         return 0
 
     print(f"Could not activate {todo['id']}. Check docs/TASKS.md formatting.")
@@ -2601,6 +2608,11 @@ def cmd_switch(args) -> int:
     if args.checkpoint and args.dirty_fork:
         print("Choose one source disposition: --checkpoint or --dirty-fork.")
         return 1
+    if active and not args.dirty_fork and not args.owner_locale:
+        print("Task Switch Gate requires the owner's language before closing the source task.")
+        print("Add: --owner-locale zh-CN  or  --owner-locale en")
+        print("No task state, project file, verification command, or Git state changed.")
+        return 2
 
     if args.title:
         destination_allowed, destination_forbidden = normalize_scope_inputs(
@@ -2646,6 +2658,7 @@ def cmd_switch(args) -> int:
                 manual_acceptance=args.manual_acceptance,
                 accept_status=args.accept_status,
                 verbose=args.verbose,
+                owner_locale=args.owner_locale,
                 next_hint=f"switch to {destination}",
                 no_commit=False,
                 resume=False,
@@ -3018,6 +3031,11 @@ def build_parser() -> argparse.ArgumentParser:
                           help="Source-task acceptance verdicts used during safe closeout")
     p_switch.add_argument("--harness-result", choices=["passed", "failed", "manual", "skipped"])
     p_switch.add_argument("--manual-acceptance", help="Source-task manual acceptance evidence")
+    p_switch.add_argument(
+        "--owner-locale",
+        choices=sorted(owner_receipt.SUPPORTED_LOCALES),
+        help="Required when the switch closes or checkpoints an active source task",
+    )
     p_switch.add_argument("--verbose", action="store_true")
     p_switch.add_argument("--target", default=".")
     p_switch.set_defaults(force=False)
@@ -3093,7 +3111,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_done.add_argument(
         "--owner-locale",
         choices=sorted(owner_receipt.SUPPORTED_LOCALES),
-        help="After success, print only the bounded owner receipt in this locale",
+        required=True,
+        help="Required owner language; success prints only the bounded owner receipt",
     )
     p_done.add_argument("--next", dest="next_hint",
                         help="The real next step, written to the journal's Next field (FN-020)")

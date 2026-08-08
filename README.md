@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-![version](https://img.shields.io/badge/version-v0.10.0-2f80ed)
+![version](https://img.shields.io/badge/version-v0.11.0-2f80ed)
 ![license](https://img.shields.io/badge/license-MIT-27ae60)
 ![python](https://img.shields.io/badge/python-3.x-ffd43b)
 ![agent](https://img.shields.io/badge/agent--ready-Codex%20%7C%20Claude-8e44ad)
@@ -53,7 +53,7 @@ python3 coderail/scripts/init_project.py --target /path/to/your/project
 # 2. In your project, work with three commands
 python .coderail/coderail.py start "add a login page"   # begin a task
 python .coderail/coderail.py check                      # am I on track?
-python .coderail/coderail.py done                       # finish safely
+python .coderail/coderail.py done --owner-locale en     # finish safely
 ```
 
 That is the whole interface. Your AI assistant reads the installed `AGENTS.md` and follows the same three commands automatically.
@@ -97,24 +97,24 @@ Receipt; necessary English must be annotated, while task IDs, paths, lifecycle
 jargon, commits, and safe-file lists remain in the Agent Blackboard and
 Technical Report. The same normalized facts are appended to tracked
 `docs/DELIVERIES.jsonl`, so product evidence survives hot-TASKS compaction and a
-fresh clone without becoming lifecycle authority. Calls without
-`--owner-locale` temporarily retain the legacy report during migration. Task
-finalization never implies milestone or product completion. See
+fresh clone without becoming lifecycle authority. The owner language is now
+required; CodeRail never guesses it and no longer has the legacy seven-section
+fallback. Task finalization never implies milestone or product completion. See
 [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md).
 
 Task scope is fail-closed. If one path matches both an Allowed rule and a Forbidden rule, `start`, `switch`, or closeout reports `SCOPE_CONTRADICTION` with the exact path and both rules. Allowed never silently overrides Forbidden; narrow the forbidden glob before continuing.
 
-If verification passes but the exact Git commit cannot run, CodeRail preserves the complete safe-file snapshot as `verified-commit-pending`. Restore Git permission and run `coderail done --resume`, or manually commit only the exact files printed by CodeRail and then run the same resume command. Use `coderail done --no-commit` to choose this manual mode from the beginning. Resume never reruns verification or duplicates PROGRESS/TRACE entries.
+If verification passes but the exact Git commit cannot run, CodeRail preserves the complete safe-file snapshot as `verified-commit-pending`. Restore Git permission and run `coderail done --resume --owner-locale en` (or `zh-CN`), or manually commit only the exact files printed by CodeRail and then run the same resume command. Use `coderail done --no-commit --owner-locale en` to choose this manual mode from the beginning. Resume never reruns verification or duplicates PROGRESS/TRACE entries.
 
 ## Switching tasks safely
 
 `start` and `next --go` refuse to create ambiguous ownership. Use the explicit switch gate when work must branch:
 
 ```bash
-python .coderail/coderail.py switch "new task"              # close and commit the accepted source first
-python .coderail/coderail.py switch "new task" --checkpoint # commit a verified checkpoint, then pause it
+python .coderail/coderail.py switch "new task" --owner-locale en              # close and commit the accepted source first
+python .coderail/coderail.py switch "new task" --checkpoint --owner-locale en # commit a verified checkpoint, then pause it
 python .coderail/coderail.py switch "new task" --dirty-fork # explicit waiver: carry a fingerprinted dirty baseline
-python .coderail/coderail.py switch --to T-012               # resume a paused or queued task
+python .coderail/coderail.py switch --to T-012 --owner-locale en # close any active source, then resume the destination
 ```
 
 If current work is not safely committable, CodeRail writes an H3 handoff and requires `switch --continue-current` or an explicit `--dirty-fork`. Pre-existing dirty files are recorded by path, Git state, and SHA-256 fingerprint so unchanged work is not attributed to the new task. Auto-commit never means auto-push.

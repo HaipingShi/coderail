@@ -1,6 +1,42 @@
 from test_support import *
 from test_support import _assert_done_inspect_consistent, _lifecycle_env
 
+
+def _worktree_bytes(root: Path) -> dict[str, bytes]:
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in root.rglob('*')
+        if path.is_file() and '.git' not in path.relative_to(root).parts
+    }
+
+
+def test_task_switch_requires_owner_locale_before_closing_source():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        started = cr('start', 'Source awaiting localized closeout', '--verify', 'true')
+        check(started.returncode == 0, started.stdout)
+        before = _worktree_bytes(root)
+        index_path = root/'.git/index'
+        index_before = (index_path.read_bytes(), index_path.stat().st_mtime_ns)
+        result = subprocess.run(
+            [
+                sys.executable, str(ROOT/'scripts/coderail.py'), 'switch',
+                'Destination must stay inactive', '--verify', 'true', '--target', td,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding='utf-8',
+        )
+        check(result.returncode == 2, result.stdout)
+        check('--owner-locale' in result.stdout, result.stdout)
+        check(_worktree_bytes(root) == before, 'switch locale rejection changed project files')
+        check((index_path.read_bytes(), index_path.stat().st_mtime_ns) == index_before,
+              'switch locale rejection changed the Git index')
+        tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
+        check('Source awaiting localized closeout' in tasks, tasks)
+        check('Destination must stay inactive' not in tasks, tasks)
+
 def test_task_switch_force_cannot_create_multiple_active_tasks():
     with tempfile.TemporaryDirectory() as td:
         root, cr = _lifecycle_env(td)
@@ -129,7 +165,12 @@ def test_task_switch_uncommittable_work_writes_h3_and_stays_current():
         check('Must not start' not in tasks, tasks)
         handoff = (root/'docs/HANDOFF.md').read_text(encoding='utf-8')
         check('Handoff Level: H3' in handoff, handoff)
-        r = cr('switch', '--continue-current')
+        r = subprocess.run(
+            [sys.executable, str(ROOT/'scripts/coderail.py'), 'switch',
+             '--continue-current', '--target', td],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, encoding='utf-8',
+        )
         check(r.returncode == 0, r.stdout)
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check(tasks.count('Status: [~]') == 1 and 'Must not start' not in tasks, tasks)
@@ -142,7 +183,12 @@ def test_task_switch_dirty_fork_pauses_source_and_preserves_resume_ownership():
         (root/'source.txt').write_text('source-owned and not committed\n', encoding='utf-8')
         source_baseline = json.loads(
             (root/'.coderail/tasks.json').read_text(encoding='utf-8'))['T-001']['baseline']
-        r = cr('switch', 'Fork destination', '--dirty-fork', '--verify', 'true')
+        r = subprocess.run(
+            [sys.executable, str(ROOT/'scripts/coderail.py'), 'switch',
+             'Fork destination', '--dirty-fork', '--verify', 'true', '--target', td],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, encoding='utf-8',
+        )
         check(r.returncode == 0, r.stdout)
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check(tasks.count('Status: [~]') == 1 and 'Status: [p]' in tasks, tasks)

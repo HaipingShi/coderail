@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-![版本](https://img.shields.io/badge/version-v0.10.0-2f80ed)
+![版本](https://img.shields.io/badge/version-v0.11.0-2f80ed)
 ![许可证](https://img.shields.io/badge/license-MIT-27ae60)
 ![Python](https://img.shields.io/badge/python-3.x-ffd43b)
 ![Agent 支持](https://img.shields.io/badge/agent--ready-Codex%20%7C%20Claude-8e44ad)
@@ -53,7 +53,7 @@ python3 coderail/scripts/init_project.py --target /path/to/your/project
 # 2. 在项目中使用三个命令
 python .coderail/coderail.py start "添加登录页面"   # 开始任务
 python .coderail/coderail.py check                  # 检查是否跑偏
-python .coderail/coderail.py done                   # 安全完成
+python .coderail/coderail.py done --owner-locale zh-CN  # 安全完成
 ```
 
 这就是全部界面。你的 AI 助手会读取安装好的 `AGENTS.md`，自动遵循同样的三个命令。
@@ -94,23 +94,24 @@ python .coderail/coderail.py owner-summary --locale zh-CN
 （Owner Receipt）；必要英文必须有中文备注，任务编号、路径、生命周期术语、
 提交信息和安全文件清单留在代理黑板与技术报告（Technical Report）。同一组
 规范化事实会追加到受 Git 跟踪的 `docs/DELIVERIES.jsonl`，因此任务清单压缩或
-全新克隆后仍可重建产品证据，但该账本绝不成为生命周期权威。迁移期内，未传
-`--owner-locale` 的旧调用暂时保留原报告。任务完成不自动推导里程碑或产品完成。
+全新克隆后仍可重建产品证据，但该账本绝不成为生命周期权威。现在必须显式
+指定所有者语言；CodeRail 不猜测语言，也不再回退到旧七段技术报告。任务完成
+不自动推导里程碑或产品完成。
 详见 [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md)。
 
 任务范围采用 fail-closed：同一路径同时命中 Allowed 与 Forbidden 时，`start`、`switch` 或收口会输出 `SCOPE_CONTRADICTION`、精确路径以及两条冲突规则。Allowed 不会静默覆盖 Forbidden；继续前必须收窄禁止规则。
 
-如果验证已通过但精确 Git 提交因权限等原因无法执行，CodeRail 会保留完整 safe-file snapshot，并进入 `verified-commit-pending`。权限恢复后运行 `coderail done --resume`；也可以只按输出的精确文件清单人工提交，再运行同一恢复命令。若从一开始就选择人工提交，使用 `coderail done --no-commit`。恢复不会重跑验证，也不会重复写入 PROGRESS/TRACE。
+如果验证已通过但精确 Git 提交因权限等原因无法执行，CodeRail 会保留完整 safe-file snapshot，并进入 `verified-commit-pending`。权限恢复后运行 `coderail done --resume --owner-locale zh-CN`；也可以只按输出的精确文件清单人工提交，再运行同一恢复命令。若从一开始就选择人工提交，使用 `coderail done --no-commit --owner-locale zh-CN`。恢复不会重跑验证，也不会重复写入 PROGRESS/TRACE。
 
 ## 安全切换任务
 
 `start` 和 `next --go` 不允许产生模糊归属。任务必须分支时，使用明确的切换门禁：
 
 ```bash
-python .coderail/coderail.py switch "新任务"              # 先关闭并提交已验收的来源任务
-python .coderail/coderail.py switch "新任务" --checkpoint # 提交已验证检查点，然后暂停
+python .coderail/coderail.py switch "新任务" --owner-locale zh-CN              # 先关闭并提交已验收的来源任务
+python .coderail/coderail.py switch "新任务" --checkpoint --owner-locale zh-CN # 提交已验证检查点，然后暂停
 python .coderail/coderail.py switch "新任务" --dirty-fork # 明确豁免：携带带指纹的脏基线
-python .coderail/coderail.py switch --to T-012            # 恢复暂停或排队的任务
+python .coderail/coderail.py switch --to T-012 --owner-locale zh-CN # 关闭现有来源任务后恢复目标任务
 ```
 
 如果当前工作不能安全提交，CodeRail 会写入 H3 handoff，并要求使用 `switch --continue-current` 或明确的 `--dirty-fork`。已有脏文件会按路径、Git 状态和 SHA-256 指纹记录，因此未变化的工作不会被归给新任务。自动提交永远不等于自动推送。

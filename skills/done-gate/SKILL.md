@@ -58,4 +58,5 @@ as `PERSIST_GAP`. Do not add an assertion for ordinary project prose.
   Do not ask the user for separate commit approval unless they explicitly asked
   to review before committing; push, tag, or release remain separate decisions.
 - Do not update TASKS, TRACE, status, or Git from this diagnostic; run
-  `python .coderail/coderail.py done` for the completion transaction.
+  `python .coderail/coderail.py done --owner-locale zh-CN` for a Chinese owner,
+  or use `--owner-locale en` for English, for the completion transaction.

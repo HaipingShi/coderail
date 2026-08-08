@@ -4,6 +4,45 @@
 
 No unreleased changes.
 
+## v0.11.0
+
+Owner-language closeout is now explicit. After the accepted Chinese downstream
+A/B, CodeRail removes the temporary seven-section technical fallback and keeps
+one owner-facing format: the bounded localized Owner Receipt.
+
+### Owner communication
+
+- `done` now requires `--owner-locale zh-CN` or `--owner-locale en` and rejects
+  an unspecified language before verification, lifecycle mutation, file writes,
+  delivery-ledger append, staging, or commit.
+- A `switch` that closes or checkpoints an active source requires the same
+  locale. No-active activation, `--continue-current`, and `--dirty-fork` remain
+  available without one because they do not close an owner-facing delivery.
+- The legacy seven-section renderer is removed. Full task, verification, path,
+  Git, and recovery facts remain available in the Agent Blackboard and Technical
+  Report; the owner console receives only the three-to-six-sentence receipt.
+- Existing TRACELOG, PROGRESS, delivery rows, and historical project prose are
+  preserved without migration or rewrite.
+
+### Upgrade notes
+
+1. Re-run `python3 scripts/init_project.py --target /path/to/project` to refresh
+   the repository-local launcher and templates.
+2. Add the explicit locale to every closeout, recovery closeout, and
+   source-closing switch command. For example:
+   `coderail done --owner-locale zh-CN` and
+   `coderail done --resume --owner-locale zh-CN`.
+3. Do not derive the flag from `LANG`; choose it from the owner's stated
+   language preference.
+
+### Verification
+
+- `python3 tests/test_owner_comms.py`
+- `python3 tests/test_task_switch.py`
+- `python3 tests/test_static.py`
+- `npm test`
+- `git diff --check`
+
 ## v0.10.0
 
 Convergent closeout and continuity: CodeRail now treats verification, exact

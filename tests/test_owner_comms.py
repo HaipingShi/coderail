@@ -60,6 +60,39 @@ def _worktree_bytes(root: Path) -> dict[str, bytes]:
     }
 
 
+def test_done_without_owner_locale_fails_before_any_mutation():
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        started = cr("start", "Require an explicit owner language", "--verify", "true")
+        check(started.returncode == 0, started.stdout)
+        before = _worktree_bytes(root)
+        index_path = root / ".git/index"
+        index_before = (index_path.read_bytes(), index_path.stat().st_mtime_ns)
+        head_before = subprocess.check_output(
+            ["git", "-C", td, "rev-parse", "HEAD"], text=True, encoding="utf-8"
+        ).strip()
+
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts/coderail.py"), "done", "--target", td],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+        )
+
+        check(result.returncode == 2, result.stdout)
+        check("--owner-locale" in result.stdout, result.stdout)
+        check(_worktree_bytes(root) == before, "locale rejection changed project files")
+        check((index_path.read_bytes(), index_path.stat().st_mtime_ns) == index_before,
+              "locale rejection changed the Git index")
+        head_after = subprocess.check_output(
+            ["git", "-C", td, "rev-parse", "HEAD"], text=True, encoding="utf-8"
+        ).strip()
+        check(head_after == head_before, (head_before, head_after))
+        check("Status: [~]" in (root / "docs/TASKS.md").read_text(encoding="utf-8"),
+              "locale rejection changed the active task")
+
+
 def test_zh_owner_receipt_is_localized_and_within_information_budget():
     closeout_facts, owner_receipt = _load_owner_modules()
     receipt = owner_receipt.render(_facts(closeout_facts), locale="zh-CN")

@@ -338,6 +338,32 @@ python3 tests/test_structure.py
 git diff --check
 ```
 
+### T-063 explicit owner language and legacy-output retirement
+
+The downstream Chinese A/B has satisfied the v0.10 migration exit condition.
+The retirement harness keeps the audience boundary strict without changing the
+closeout kernel.
+
+Required behavior:
+
+- a closeout without an explicit owner locale exits before verification,
+  lifecycle mutation, delivery-ledger append, or Git mutation;
+- source-closing `switch` requires the same locale, while no-active activation,
+  `--continue-current`, and `--dirty-fork` remain available without it;
+- the legacy seven-section renderer is absent;
+- explicit Chinese and English closeout retain the bounded Owner Receipt and
+  the complete Agent Blackboard/Technical Report facts;
+- the locked core remains 162 unique tests and the complete suite contains 171
+  unique tests exactly once.
+
+```bash
+python3 tests/test_owner_comms.py
+python3 tests/test_task_switch.py
+python3 tests/test_static.py
+python3 tests/test_structure.py
+git diff --check
+```
+
 ### T-062 owner-safe copy preflight
 
 The live T-061 self-closeout showed that a leak-free fallback can still fail the

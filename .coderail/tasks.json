@@ -4315,5 +4315,34 @@
       "head": "5daf7a290ce1c9f87e9eee4b796185862f47b8ba",
       "files": []
     }
+  },
+  "T-063": {
+    "verify": [
+      "python3 tests/test_owner_comms.py",
+      "python3 tests/test_task_switch.py",
+      "python3 tests/test_static.py",
+      "npm test",
+      "git diff --check"
+    ],
+    "tests": [
+      "tests/test_owner_comms.py",
+      "tests/test_delivery.py",
+      "tests/test_lifecycle.py",
+      "tests/test_closeout.py",
+      "tests/test_task_switch.py",
+      "tests/test_static.py"
+    ],
+    "accept": [
+      "未指定所有者语言的完成命令在验证和生命周期写入前失败，旧七段渲染器不可调用",
+      "显式中文和英文完成命令继续生成三至六句所有者回执，并保留完整代理事实",
+      "需要关闭当前任务的切换命令同样要求语言，纯恢复和脏分叉不被误阻断",
+      "模板、技能、运行提示、迁移文档和版本元数据统一到 0.11.0 新契约",
+      "完整回归通过，未自动推送或改写历史台账"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-08T02:26:44.697196+00:00",
+      "head": "c7761bec9af715cca61ca2df0bb1ecd38e0acd7b",
+      "files": []
+    }
   }
 }

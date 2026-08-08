@@ -3,6 +3,22 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-08 - OWNER-COMMS-003 require explicit owner locale and retire legacy closeout output (T-063)
+
+- Done: OWNER-COMMS-003 require explicit owner locale and retire legacy closeout output
+- Checked by: `python3 tests/test_owner_comms.py` exit 0; `python3 tests/test_task_switch.py` exit 0; `python3 tests/test_static.py` exit 0; `npm test` exit 0; `git diff --check` exit 0
+- Next: decide with the user
+- Evidence: `python3 tests/test_owner_comms.py` -> exit 0
+- Evidence: `python3 tests/test_task_switch.py` -> exit 0
+- Evidence: `python3 tests/test_static.py` -> exit 0
+- Evidence: `npm test` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: 未指定所有者语言的完成命令在验证和生命周期写入前失败，旧七段渲染器不可调用
+- Acceptance [done]: 显式中文和英文完成命令继续生成三至六句所有者回执，并保留完整代理事实
+- Acceptance [done]: 需要关闭当前任务的切换命令同样要求语言，纯恢复和脏分叉不被误阻断
+- Acceptance [done]: 模板、技能、运行提示、迁移文档和版本元数据统一到 0.11.0 新契约
+- Acceptance [done]: 完整回归通过，未自动推送或改写历史台账
+
 ## 2026-08-08 - Validate owner-safe localized product copy before closeout (OWNER-COMMS-002 (internal T-062))
 
 - Done: Validate owner-safe localized product copy before closeout

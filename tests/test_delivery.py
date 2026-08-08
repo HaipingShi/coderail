@@ -158,34 +158,24 @@ def test_finalized_task_does_not_imply_completed_product():
     check(delivery['product_status'] != 'completed', delivery)
 
 
-def test_client_markdown_keeps_technical_receipt_last():
-    markdown = delivery_contract.render_client_markdown(_final_delivery())
-    headings = [
-        '## 交付结果', '## 能力变化', '## 项目整体状态', '## 未完成与风险',
-        '## 推荐下一任务', '## 需要决策', '## 技术附录',
-    ]
-    positions = [markdown.index(heading) for heading in headings]
-    check(positions == sorted(positions), markdown)
-    client_body = markdown[markdown.index('## 交付结果'):]
-    check(not client_body.startswith(('commit', 'Commit', 'safe files', 'verification')),
-          client_body)
-    check(markdown.index('abc123') > markdown.index('## 技术附录'), markdown)
+def test_legacy_client_markdown_renderer_is_removed():
+    check(not hasattr(delivery_contract, 'render_client_markdown'),
+          'legacy seven-section client renderer still exists')
 
 
-def test_recommended_next_states_remain_distinct():
-    rendered = {}
+def test_recommended_next_states_remain_distinct_in_normalized_facts():
+    normalized = {}
     for status in ('planned', 'recommended', 'active'):
         contract = _parsed_delivery().copy()
         contract['recommended_next'] = {
             'id': 'T-002', 'status': status, 'reason': f'{status} reason',
         }
-        rendered[status] = delivery_contract.render_client_markdown(
-            delivery_contract.finalized_delivery(
-                contract, commits=[], verification=[], safe_files=[]
-            )
+        delivery = delivery_contract.finalized_delivery(
+            contract, commits=[], verification=[], safe_files=[]
         )
-        check(f'- 状态：{status}' in rendered[status], rendered[status])
-    check(len(set(rendered.values())) == 3, rendered)
+        normalized[status] = delivery['recommended_next']
+        check(delivery['recommended_next']['status'] == status, delivery)
+    check(len({row['status'] for row in normalized.values()}) == 3, normalized)
 
 
 def test_inspect_blocks_stale_current_truth_for_finalized_task():
@@ -507,7 +497,7 @@ Status: in_progress
         result = cr('done')
         check(result.returncode == 0, result.stdout)
         check('CURRENT_TRUTH_PROJECTION_FAILED' not in result.stdout, result.stdout)
-        check('== Done:' in result.stdout, result.stdout)
+        check('Completed:' in result.stdout, result.stdout)
         after_head = subprocess.check_output(
             ['git', '-C', td, 'rev-parse', 'HEAD'], text=True
         ).strip()
@@ -578,14 +568,6 @@ def test_done_synchronizes_declared_current_truth_marker():
               inspect.stdout)
 
 
-def test_no_next_candidate_renders_none_without_invention():
-    markdown = delivery_contract.render_client_markdown(_final_delivery())
-    section = markdown.split('## 推荐下一任务', 1)[1].split('## 需要决策', 1)[0]
-    check('- ID：none' in section, section)
-    check('- 状态：none' in section, section)
-    check('T-002' not in section and 'next task' not in section.lower(), section)
-
-
 def test_manual_drive_recommendation_does_not_activate_task():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
@@ -620,7 +602,7 @@ def test_legacy_task_without_delivery_contract_is_not_assessed():
     check(delivery['recommended_next']['status'] == 'none', delivery)
 
 
-def test_done_emits_client_delivery_separately_from_internal_receipt():
+def test_done_emits_bounded_owner_receipt_instead_of_legacy_report():
     with tempfile.TemporaryDirectory() as td:
         root, cr = _lifecycle_env(td)
         started = cr(
@@ -634,11 +616,12 @@ def test_done_emits_client_delivery_separately_from_internal_receipt():
         (root/'lib/delivered.ts').write_text('export const delivered = true;\n', encoding='utf-8')
         result = cr('done')
         check(result.returncode == 0, result.stdout)
-        check('== Done:' in result.stdout, result.stdout)
-        check('# 客户交付摘要' in result.stdout, result.stdout)
-        client = result.stdout.split('# 客户交付摘要', 1)[1]
-        check(client.lstrip().startswith('## 交付结果'), client)
-        check(client.index('## 技术附录') > client.index('## 需要决策'), client)
+        check('Completed:' in result.stdout, result.stdout)
+        check('== Done:' not in result.stdout, result.stdout)
+        check('# 客户交付摘要' not in result.stdout, result.stdout)
+        check('## 技术附录' not in result.stdout, result.stdout)
+        lines = [line for line in result.stdout.splitlines() if line.strip()]
+        check(3 <= len(lines) <= 6, lines)
 
 
 if __name__ == "__main__":

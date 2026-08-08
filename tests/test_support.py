@@ -217,15 +217,18 @@ def _lifecycle_env(td):
     subprocess.check_call(['git', 'commit', '-qm', 'init'], cwd=td)
 
     def cr(*args):
+        command = list(args)
+        if command and command[0] in {'done', 'switch'} and '--owner-locale' not in command:
+            command.extend(['--owner-locale', 'en'])
         return subprocess.run(
-            [sys.executable, str(ROOT/'scripts/coderail.py'), *args, '--target', td],
+            [sys.executable, str(ROOT/'scripts/coderail.py'), *command, '--target', td],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
     return root, cr
 
 def _assert_done_inspect_consistent(root, cr, expected_paths):
     result = cr('done')
     check(result.returncode == 0, result.stdout)
-    check('== Done:' in result.stdout, result.stdout)
+    check('Completed:' in result.stdout, result.stdout)
     inspect = cr('inspect', '--no-write')
     check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
     check('Closed-task uncommitted ownership: none' in inspect.stdout, inspect.stdout)
@@ -244,4 +247,3 @@ def run_module(namespace):
         test()
         print("ok", test.__name__)
     print(f"{len(tests)} tests passed")
-

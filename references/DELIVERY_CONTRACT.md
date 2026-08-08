@@ -68,16 +68,18 @@ before TASKS compaction. This makes the Delivery Contract reconstructable from
 a fresh clone without turning the ledger or CODERAIL_STATUS into lifecycle
 authority. The complete technical report stays under `.coderail/reports/`.
 
-Use an explicit locale on closeout, or read the latest receipt separately:
+An explicit owner locale is required on closeout. Read the latest receipt
+separately when no lifecycle action is intended:
 
 ```bash
 python .coderail/coderail.py done --owner-locale zh-CN
 python .coderail/coderail.py owner-summary --locale zh-CN
 ```
 
-During the bounded migration window, `done` without `--owner-locale` keeps the
-legacy seven-section console report. Retire that path only after downstream A/B
-acceptance; do not maintain two Owner Receipt formats indefinitely.
+CodeRail does not infer language from the environment. A closeout without
+`--owner-locale` exits before registered verification or lifecycle mutation.
+The legacy seven-section renderer was removed after Chinese downstream A/B
+acceptance; only the bounded Owner Receipt remains as the owner-facing format.
 
 ## Current-truth projections
 
@@ -136,3 +138,9 @@ automatic closeout sync. Canonical files may keep human-authored prose, but any
 explicit lifecycle status bound to a finalized Coordinate is reported as
 batchable projection debt. Keep historical material in append-only or
 non-canonical assets when it must preserve old lifecycle wording.
+
+When upgrading from v0.10.x or earlier, add `--owner-locale zh-CN` or
+`--owner-locale en` to every `done`, `done --resume`, and source-closing
+`switch` invocation. A switch that has no active source, `--continue-current`,
+or an explicit `--dirty-fork` does not need a locale because it performs no
+owner-facing source closeout.

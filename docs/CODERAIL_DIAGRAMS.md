@@ -254,7 +254,7 @@ success only after the post-commit Inspect-equivalent rescan.
 sequenceDiagram
     autonumber
     actor Owner as Human or AI agent
-    participant Facade as coderail done + CloseoutTransaction
+    participant Facade as coderail done --owner-locale + CloseoutTransaction
     participant Verify as Registered verify commands
     participant Recovery as pending_close.json
     participant Gate as finish_task + gates
@@ -263,7 +263,7 @@ sequenceDiagram
     participant Git as Local Git
     participant Inspect as Inspect-equivalent rescan
 
-    Owner->>Facade: coderail done
+    Owner->>Facade: coderail done --owner-locale zh-CN or en
     Facade->>Verify: run every registered command
 
     alt Any verification command fails

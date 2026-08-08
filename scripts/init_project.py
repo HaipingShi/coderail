@@ -159,7 +159,8 @@ def main(argv=None) -> int:
     print()
     print('  python .coderail/coderail.py start "what you want to do"   # begin a task')
     print("  python .coderail/coderail.py check                         # am I on track?")
-    print("  python .coderail/coderail.py done                          # finish safely")
+    print("  python .coderail/coderail.py done --owner-locale en        # finish safely")
+    print("  # Use --owner-locale zh-CN for a Chinese owner.")
     print()
     print("First step: write one paragraph about what you are building in docs/NORTH_STAR.md.")
     return 0

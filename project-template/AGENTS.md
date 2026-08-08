@@ -20,7 +20,7 @@ There is one entry point with three everyday commands:
 ```bash
 python .coderail/coderail.py start "what you want to do"   # begin a task
 python .coderail/coderail.py check                         # am I on track?
-python .coderail/coderail.py done                          # finish safely
+python .coderail/coderail.py done --owner-locale en        # finish safely
 ```
 
 Everything else (verification gates, history tracing, safe commits, handoff
@@ -62,6 +62,7 @@ Never declare a task finished from memory. Run:
 ```bash
 python .coderail/coderail.py done --owner-locale zh-CN  # Chinese conversation
 ```
+Use `--owner-locale en` for English; CodeRail never guesses the owner language or falls back to the retired report.
 
 It runs verification, checks scope and docs, then commits only safe task files.
 A successful `done` already authorizes that exact local commit. Do not ask the

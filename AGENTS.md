@@ -8,7 +8,7 @@ The rules are in plain language; no special terminology is required.
 ```bash
 python3 scripts/coderail.py start "what you want to do"   # begin a task
 python3 scripts/coderail.py check                         # am I on track?
-python3 scripts/coderail.py done                          # finish safely
+python3 scripts/coderail.py done --owner-locale en        # finish safely
 ```
 
 Verification gates, history tracing, safe commits, and handoff notes all run
@@ -43,11 +43,13 @@ automatically behind these three commands.
 
 ## Before you say "done"
 
-Run `python3 scripts/coderail.py done`. It verifies tests pass (or a manual
+Run `python3 scripts/coderail.py done --owner-locale zh-CN` for a Chinese owner,
+or use `--owner-locale en` for English. It verifies tests pass (or a manual
 check was recorded), changes stayed in scope, docs are synced, then commits
 only safe task-related files. If it says not finished, fix what it points
 out — do not talk your way around it. Partial work: `done --result
-stage-complete`.
+stage-complete --owner-locale zh-CN` (or `en`). A closeout without an explicit
+owner language is rejected before verification or lifecycle writes.
 
 A successful `done` already authorizes one exact task-scoped local commit.
 Do not ask the user for separate commit approval after every gate passes. Use

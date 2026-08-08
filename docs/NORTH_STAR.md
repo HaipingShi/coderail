@@ -25,8 +25,11 @@ Owner: CodeRail maintainers
 - Product capability: localized Owner Receipt, pre-closeout owner-copy validation,
   Agent Blackboard, Technical Report, and durable Delivery Contract product facts
   are verified repository-local capabilities.
-- Product gap: a separately authorized Chinese downstream A/B acceptance is
-  still required before retiring the temporary legacy closeout output.
+- Product capability: Chinese downstream A/B acceptance is complete, and an
+  unspecified-language closeout now stops before verification or lifecycle
+  mutation instead of emitting the retired technical report.
+- Product gap: validate adoption across additional existing repositories before
+  considering the owner communication surface stable enough for 1.0.
 - Lifecycle note: this section declares no active/finalized/commit/push state;
   use CodeRail live state and Git refs for those facts.
 

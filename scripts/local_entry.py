@@ -5,7 +5,7 @@ Forwards every command to the CodeRail home's single entry point:
 
     python .coderail/coderail.py start "what you want to do"
     python .coderail/coderail.py check
-    python .coderail/coderail.py done
+    python .coderail/coderail.py done --owner-locale en
 
 If this machine keeps CodeRail somewhere else (CI, cloud sandbox, another
 laptop), point at it without editing any file:

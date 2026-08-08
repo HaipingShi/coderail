@@ -423,3 +423,25 @@ Task: T-062 / OWNER-COMMS-002
   Historical DELIVERIES rows remain append-only.
 - This is an audience-input gate above the existing closeout kernel. Scope,
   transaction, Git, TRACE, and activation authority remain unchanged.
+
+## ADR-026 Explicit owner language replaces the legacy closeout fallback
+
+Status: accepted
+Date: 2026-08-08
+Task: T-063 / OWNER-COMMS-003
+Supersedes: ADR-024 temporary no-locale compatibility clause
+
+- The accepted Chinese downstream A/B completed the retirement condition. From
+  v0.11.0 onward, every `done` requires `--owner-locale zh-CN` or
+  `--owner-locale en`; CodeRail never guesses from environment or prose.
+- The requirement is enforced by argument parsing and a defensive facade guard
+  before registered verification, lifecycle records, project files, or Git can
+  change. A source-closing or checkpointing `switch` enforces the same boundary.
+- Switch activation with no active source, `--continue-current`, and
+  `--dirty-fork` remain language-independent because they do not create an
+  owner-facing source closeout.
+- The seven-section renderer is deleted. Owner Receipt is the only owner-facing
+  success projection; Agent Blackboard and Technical Report keep the complete
+  governance and recovery record without gaining lifecycle authority.
+- Historical TRACELOG, PROGRESS, decisions, and old downstream prose remain
+  append-only evidence and require no rewrite.

@@ -9,7 +9,7 @@ from scripts import repository_state
 def _assert_done_inspect_consistent(root, cr, expected_paths):
     result = cr('done')
     check(result.returncode == 0, result.stdout)
-    check('== Done:' in result.stdout, result.stdout)
+    check('Completed:' in result.stdout, result.stdout)
     inspect = cr('inspect', '--no-write')
     check(inspect.returncode == 0 and 'Status: healthy' in inspect.stdout, inspect.stdout)
     check('Closed-task uncommitted ownership: none' in inspect.stdout, inspect.stdout)
@@ -152,7 +152,10 @@ def test_unborn_repository_baseline_adoption_is_audited_and_safe():
         (root/'dist/app.js').write_text('built\n', encoding='utf-8')
 
         def cr(*args):
-            return subprocess.run([sys.executable, str(ROOT/'scripts/coderail.py'), *args,
+            command = list(args)
+            if command and command[0] == 'done' and '--owner-locale' not in command:
+                command.extend(['--owner-locale', 'en'])
+            return subprocess.run([sys.executable, str(ROOT/'scripts/coderail.py'), *command,
                                    '--target', td], capture_output=True, text=True,
                                   encoding='utf-8', errors='replace')
 
@@ -364,7 +367,7 @@ def test_manual_exact_commit_then_resume_finalizes_without_coderail_residue():
         hook.unlink()
         _commit_pending_files(root, pending)
         result = cr('done', '--resume')
-        check(result.returncode == 0 and '== Done:' in result.stdout, result.stdout)
+        check(result.returncode == 0 and 'Completed:' in result.stdout, result.stdout)
         check(not (root/'.coderail/pending_close.json').exists(),
               'finalize must consume the pending snapshot')
         snapshot = repository_state.capture(root)
@@ -386,7 +389,7 @@ def test_permission_recovery_resume_retries_only_exact_pending_files():
         pending = _pending_close(root)
         hook.unlink()
         result = cr('done', '--resume')
-        check(result.returncode == 0 and '== Done:' in result.stdout, result.stdout)
+        check(result.returncode == 0 and 'Completed:' in result.stdout, result.stdout)
         committed = set(subprocess.check_output(
             ['git', '-C', td, 'show', '--pretty=', '--name-only', 'HEAD'],
             text=True, encoding='utf-8').splitlines())
@@ -480,7 +483,7 @@ def test_pending_resume_is_idempotent_without_duplicate_ledger_or_commit():
             'trace': (root/'docs/TRACELOG.jsonl').read_text(encoding='utf-8'),
         }
         check(after == before, f'repeated resume changed durable state: {before} -> {after}')
-        check('already finalized' in second.stdout.lower(), second.stdout)
+        check('Completed:' in second.stdout, second.stdout)
         handoff = (root/'docs/HANDOFF.md').read_text(encoding='utf-8')
         check('Closeout State: finalized' in handoff, handoff)
 

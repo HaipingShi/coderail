@@ -29,6 +29,9 @@ Lifecycle state, exact verification, paths, and Git receipts stay in
 (Technical Report). `docs/DELIVERIES.jsonl` stores append-only product delivery
 facts but never becomes lifecycle authority.
 
+The owner language is mandatory. Never infer it from the environment, omit the
+flag, or reproduce the retired seven-section technical closeout report.
+
 ## Rules
 
 - Do not hide failed verification.

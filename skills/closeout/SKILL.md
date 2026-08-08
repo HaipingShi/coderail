@@ -17,7 +17,7 @@ python .coderail/coderail.py done --owner-locale zh-CN
 For a verified partial boundary, use:
 
 ```bash
-python .coderail/coderail.py done --result stage-complete
+python .coderail/coderail.py done --result stage-complete --owner-locale zh-CN
 ```
 
 ## Owner channel
@@ -26,6 +26,9 @@ On success, return only the generated 3-6 sentence Owner Receipt. Match the
 user's language. In Chinese, necessary English terms require a Chinese note;
 task IDs, paths, lifecycle labels, commit receipts, and internal gate names do
 not belong in this channel unless the owner asks.
+
+Always choose `zh-CN` or `en` from the user's language preference. Never omit
+the locale or recreate the retired fallback report.
 
 ## Agent channel
 

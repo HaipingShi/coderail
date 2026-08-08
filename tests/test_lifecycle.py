@@ -57,16 +57,15 @@ def test_progress_lists_acceptance_and_defers_queue():
         check('## T-002 item two' in tasks, f'deferred item not queued: {tasks[-400:]}')
 
 def test_done_output_is_summary_with_report_on_disk():
-    # FN-018: default done output stays compact; full gate report is on disk
+    # FN-018: localized done output stays compact; full gate report is on disk
     # with verify output tails.
     with tempfile.TemporaryDirectory() as td:
         root, cr = _lifecycle_env(td)
         cr('start', 'Quiet task', '--verify', 'echo deep-evidence-line && true')
         r = cr('done'); check(r.returncode == 0, r.stdout)
-        check('== Done:' in r.stdout, r.stdout)
-        check('== Client Delivery ==' in r.stdout, r.stdout)
-        core = r.stdout.split('== Done:', 1)[1].split('== Client Delivery ==', 1)[0]
-        check(len(core.strip().splitlines()) <= 15, f'summary too long:\n{core}')
+        check('Completed:' in r.stdout, r.stdout)
+        check('== Done:' not in r.stdout and '== Client Delivery ==' not in r.stdout, r.stdout)
+        check(3 <= len(r.stdout.strip().splitlines()) <= 6, r.stdout)
         check('Done Gate Report' not in r.stdout, 'full gate report leaked to console')
         reports = list((root/'.coderail/reports').glob('done-*.md'))
         check(len(reports) == 1, f'expected 1 report, got {reports}')
@@ -89,12 +88,15 @@ def test_done_with_warnings_still_writes_ledger():
         check(r.returncode == 0, r.stdout)
         r = cr('done')
         check(r.returncode == 0, r.stdout)
-        check('WARNING' in r.stdout, f'expected TDD warning in output: {r.stdout}')
+        check('WARNING' not in r.stdout, f'owner receipt leaked an internal warning: {r.stdout}')
         progress = (root/'docs/PROGRESS.md').read_text(encoding='utf-8')
         check('Fix parser validation logic' in progress,
               f'PROGRESS entry missing despite warnings (FN-023): {progress}')
         reports = list((root/'.coderail/reports').glob('done-*.md'))
         check(len(reports) == 1, f'report missing despite warnings (FN-023): {reports}')
+        report = reports[0].read_text(encoding='utf-8')
+        check('Promised test file was never touched' in report,
+              f'agent report lost the TDD warning: {report}')
 
 def test_done_ledger_failure_is_loud_and_repairable():
     # FN-023: if a ledger step fails, done must say so explicitly (not report
@@ -214,7 +216,7 @@ def test_exact_production_forbidden_rule_allows_declared_test_scope():
         target.write_text('test\n', encoding='utf-8')
         result = cr('done')
         check(result.returncode == 0, result.stdout)
-        check('== Done:' in result.stdout, result.stdout)
+        check('Completed:' in result.stdout, result.stdout)
         tracked = subprocess.check_output(
             ['git', '-C', td, 'ls-files', allowed], text=True).strip()
         check(tracked == allowed, tracked)
@@ -395,7 +397,7 @@ def test_single_snapshot_commit_eliminates_post_source_ledger_failure_window():
             ['git', '-C', td, 'config', 'core.hooksPath', str(root/'.git/hooks')]
         )
         r = cr('done')
-        check(r.returncode == 0 and '== Done:' in r.stdout, r.stdout)
+        check(r.returncode == 0 and 'Completed:' in r.stdout, r.stdout)
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check('Rejected ledger commit' not in tasks and 'Status: [x]' not in tasks,
               'single snapshot commit must persist and compact the completed body')
@@ -416,7 +418,7 @@ def test_failed_done_on_open_task_still_says_rerun():
         cr('start', 'Failing verify task', '--verify', 'false')
         r = cr('done')
         check(r.returncode == 1, r.stdout)
-        check('coderail done' in r.stdout and 'again' in r.stdout,
+        check('rerun done' in r.stdout and '--owner-locale' in r.stdout,
               f'open-task failure should still suggest rerun: {r.stdout}')
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check('Status: [~]' in tasks, 'task must remain open after failed verify')
