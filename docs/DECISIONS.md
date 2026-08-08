@@ -380,3 +380,28 @@ Supersedes: ADR-022 prose-blocking policy; preserves its exact-marker policy
 - Owner-facing status leads with explicit product capability, limitation, next
   gap, active task, and human gates. Missing Delivery Contract evidence stays
   `not_assessed`; technical lifecycle receipts remain in the appendix.
+
+## ADR-024 Owner communication is a separate audience layer
+
+Status: accepted
+Date: 2026-08-08
+Task: T-061 / OWNER-COMMS-001
+Supersedes: ADR-023 owner-facing status bullet; preserves all lifecycle authority rules
+
+- One normalized `CloseoutFacts` value feeds two projections. The Owner Receipt
+  is localized, limited to three-to-six sentences, and excludes task IDs, paths,
+  and governance vocabulary. The Agent Blackboard and Technical Report retain
+  lifecycle references, verification commands, exact paths, Git facts, and
+  recovery detail.
+- `inspect` and `docs/CODERAIL_STATUS.md` are agent-only. They may reference the
+  latest durable delivery fact but never render owner copy or infer a verified
+  product capability from NORTH_STAR, recommendation text, commits, or task
+  finalization. `owner-summary` is a separate read-only projection.
+- `docs/DELIVERIES.jsonl` is tracked append-only product/evidence history. Done
+  appends it before hot TASKS compaction, so a fresh clone keeps the Delivery
+  Contract's product facts. It stores no mutable lifecycle status and cannot
+  overrule TASKS, pending closeout, TRACE/PROGRESS, or Git refs.
+- The first phase does not change `closeout_transaction.py`, repository scope
+  classification, task switching, Git staging, or TRACE implementation. Existing
+  calls without an owner locale keep the legacy console temporarily; it may be
+  removed only after an authorized Chinese downstream A/B acceptance.

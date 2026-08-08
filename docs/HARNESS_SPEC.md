@@ -337,3 +337,39 @@ python3 tests/test_static.py
 python3 tests/test_structure.py
 git diff --check
 ```
+
+### T-061 owner communication and durable delivery facts
+
+The owner communication harness is presentation-layer Red/Green. It must not
+alter scope classification, the closeout transaction, Git staging, task switch,
+or TRACE authority.
+
+Required matrix:
+
+- `done --owner-locale zh-CN` success emits three-to-six Chinese sentences and
+  no unannotated English, task/product ID, path, or governance jargon;
+- necessary bilingual terms remain allowed only as an annotated parenthetical;
+- unlocalized Delivery Contract text fails safe to a bounded Chinese notice
+  instead of leaking English claims;
+- the same `CloseoutFacts` renders a Technical Report containing task reference,
+  exact verification, paths, commits, and safe files;
+- Inspect identifies itself as the Agent Blackboard, references the durable
+  delivery fact, and never renders NORTH_STAR as verified product capability;
+- `owner-summary` preserves every project byte and lifecycle record;
+- `DELIVERIES.jsonl` retains product facts after TASKS compaction and a fresh
+  Git clone;
+- legacy closeout output remains compatible only for calls without an explicit
+  owner locale during the downstream A/B window.
+- the locked complete-suite inventory contains 169 unique tests, including the
+  seven owner communication tests exactly once.
+
+```bash
+python3 tests/test_owner_comms.py
+python3 tests/test_delivery.py
+python3 tests/test_inspect.py
+python3 tests/test_closeout.py
+python3 tests/test_static.py
+python3 tests/test_lifecycle.py
+python3 tests/test_structure.py
+git diff --check
+```

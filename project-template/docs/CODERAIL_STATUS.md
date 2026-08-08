@@ -1,22 +1,19 @@
-# CodeRail Status
+# CodeRail Agent Blackboard
 
+> Agent-only generated projection. It is not the owner-facing delivery receipt.
 > Generated projection. `inspect` reads live state without rewriting this file.
 > Preview with `coderail sync-projections`; write only with explicit `--apply`.
 
 Status: unknown
 
-## Owner Product View
-
-- Current verified capability: not_assessed
-- Current known limitation: not_assessed
-- Next smallest product gap: not_assessed
-- Active task: none
-- Human authorization required: explicit owner approval before activation or execution
-
 ## Current North Star
 
 - Outcome:
 - Current Slice:
+
+## Latest Delivery Fact
+
+- none
 
 ## Legacy Cutoff
 

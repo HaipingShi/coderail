@@ -13,6 +13,8 @@ these three commands. Advanced commands remain available for power users.
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import json
 import os
 import re
@@ -35,6 +37,8 @@ import done_gate  # noqa: E402
 import trace_graph  # noqa: E402
 import task_graph  # noqa: E402
 import delivery_contract  # noqa: E402
+import closeout_facts  # noqa: E402
+import owner_receipt  # noqa: E402
 
 # Advanced/legacy commands, kept for compatibility and power users.
 ADVANCED = {
@@ -481,7 +485,7 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
 
 
 def emit_client_delivery(root: Path, pending: dict, task_id: str) -> str:
-    """Render the customer layer only after the closeout transaction succeeds."""
+    """Persist the technical projection and keep the legacy console temporarily."""
     current_head = repository_state.capture(root).head
     commits = []
     pre_commit_head = pending.get("pre_commit_head")
@@ -508,15 +512,66 @@ def emit_client_delivery(root: Path, pending: dict, task_id: str) -> str:
         verification=verification,
         safe_files=list(pending.get("safe_files", [])),
     )
-    markdown = delivery_contract.render_client_markdown(delivery)
-    report = delivery_contract.write_client_report(
+    facts = {}
+    delivery_id = pending.get("delivery_id")
+    try:
+        for row in closeout_facts.load(root):
+            if row.get("delivery_id") == delivery_id:
+                facts = row
+                break
+    except ValueError:
+        facts = {}
+    if not facts:
+        facts = closeout_facts.build(
+            task_id=task_id,
+            stamp=pending.get("stamp", ""),
+            owner_locale=pending.get("owner_locale") or "en",
+            delivery=delivery,
+            verify_results=pending.get("verify_results", []),
+            technical_report=(
+                f".coderail/reports/delivery-{pending.get('stamp') or 'latest'}-{task_id}.md"
+            ),
+        )
+    technical_facts = closeout_facts.with_repository_receipt(
+        facts,
+        commits=commits,
+        safe_files=list(pending.get("safe_files", [])),
+    )
+    markdown = closeout_facts.render_technical_report(technical_facts)
+    report = delivery_contract.write_technical_report(
         root, task_id, pending.get("stamp", ""), markdown
     )
-    print()
-    print("== Client Delivery ==")
-    print(markdown.rstrip())
-    print(f"Client delivery report: {report}")
+    if not pending.get("owner_locale"):
+        legacy_markdown = delivery_contract.render_client_markdown(delivery)
+        print()
+        print("== Client Delivery ==")
+        print(legacy_markdown.rstrip())
+        print(f"Client delivery report: {report}")
     return report
+
+
+def cmd_owner_summary(args) -> int:
+    """Render durable product delivery facts without touching project state."""
+    root = Path(args.target).resolve()
+    try:
+        facts = closeout_facts.latest(root)
+    except ValueError as exc:
+        print(f"Cannot render owner summary: {exc}")
+        return 1
+    if not facts:
+        message = (
+            "当前还没有可供所有者查阅的产品交付事实。"
+            if args.locale == "zh-CN"
+            else "No durable product delivery facts are available yet."
+        )
+        print(message)
+        return 0
+    try:
+        print(owner_receipt.render(facts, locale=args.locale))
+        return 0
+    except ValueError as exc:
+        print(f"Cannot render owner summary: {exc}")
+        return 1
 
 
 POST_CLOSE_LEDGER_FILES = {
@@ -527,6 +582,7 @@ POST_CLOSE_LEDGER_FILES = {
     "docs/TRACELOG.jsonl",
     "docs/TRACE_INDEX.md",
     "docs/CODERAIL_STATUS.md",
+    "docs/DELIVERIES.jsonl",
 }
 
 
@@ -1798,7 +1854,7 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
     return 0
 
 
-def cmd_done(args) -> int:
+def _cmd_done(args) -> int:
     root = Path(args.target).resolve()
 
     existing_pending = load_pending_close(root)
@@ -1933,6 +1989,7 @@ def cmd_done(args) -> int:
                 {"cmd": r["cmd"], "exit": r["exit"]} for r in verify_results
             ],
             "delivery_contract": delivery_input,
+            "owner_locale": getattr(args, "owner_locale", None) or "",
             "projection_files": projection_files,
             "stamp": datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S"),
         })
@@ -2053,6 +2110,32 @@ def cmd_done(args) -> int:
                 )
             except Exception as e:  # noqa: BLE001
                 ledger_errors.append(f"progress journal (docs/PROGRESS.md): {e}")
+
+            # Product delivery facts must become durable before TASKS may drop
+            # the Delivery Contract body. This ledger is a product/evidence
+            # record only; it never owns lifecycle state.
+            if args.result == "done":
+                try:
+                    close_snapshot = load_pending_close(root)
+                    stamp = close_snapshot.get("stamp", "")
+                    safe_id = re.sub(r"[^A-Za-z0-9_-]", "_", closed_id or "unknown")
+                    technical_report = (
+                        f".coderail/reports/delivery-{stamp or 'latest'}-{safe_id}.md"
+                    )
+                    facts = closeout_facts.build(
+                        task_id=closed_id,
+                        stamp=stamp,
+                        owner_locale=close_snapshot.get("owner_locale") or "en",
+                        delivery=delivery_input,
+                        verify_results=verify_results,
+                        technical_report=technical_report,
+                    )
+                    closeout_facts.append(root, facts)
+                    close_snapshot["delivery_id"] = facts["delivery_id"]
+                    close_snapshot["technical_report"] = technical_report
+                    write_pending_close(root, close_snapshot)
+                except Exception as e:  # noqa: BLE001 - durable facts are required
+                    ledger_errors.append(f"product delivery ledger (docs/DELIVERIES.jsonl): {e}")
 
         # Ledger step 3 (FN-012): deferred acceptance items become queued tasks.
         if deferred_items:
@@ -2261,6 +2344,32 @@ def cmd_done(args) -> int:
             print("done. Audit the ledger instead:  coderail progress --repair")
         text = read_tasks(root)
         print_spin_report(root, active_task_id(text), list_tasks(text))
+    return rc
+
+
+def cmd_done(args) -> int:
+    """Select the owner projection without hiding failure diagnostics."""
+    locale = getattr(args, "owner_locale", None)
+    if not locale or getattr(args, "result", "done") != "done":
+        return _cmd_done(args)
+
+    internal_output = io.StringIO()
+    with contextlib.redirect_stdout(internal_output):
+        rc = _cmd_done(args)
+    if rc not in (0, 3):
+        print(internal_output.getvalue(), end="")
+        return rc
+
+    root = Path(args.target).resolve()
+    try:
+        facts = closeout_facts.latest(root)
+        if not facts:
+            raise ValueError("the successful closeout did not persist product delivery facts")
+        print(owner_receipt.render(facts, locale=locale))
+    except (OSError, ValueError) as exc:
+        print(internal_output.getvalue(), end="")
+        print(f"OWNER_RECEIPT_ERROR: {exc}")
+        return 1
     return rc
 
 
@@ -2959,6 +3068,11 @@ def build_parser() -> argparse.ArgumentParser:
                              'or "1=done" "2=deferred" (numbered, repeatable)')
     p_done.add_argument("--verbose", action="store_true",
                         help="Print the full gate reports (always saved to .coderail/reports/)")
+    p_done.add_argument(
+        "--owner-locale",
+        choices=sorted(owner_receipt.SUPPORTED_LOCALES),
+        help="After success, print only the bounded owner receipt in this locale",
+    )
     p_done.add_argument("--next", dest="next_hint",
                         help="The real next step, written to the journal's Next field (FN-020)")
     p_done.add_argument("--no-commit", action="store_true", help="Do not auto-commit")
@@ -2967,6 +3081,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Resume an exact verified-commit-pending closeout without rerunning verification",
     )
     p_done.add_argument("--target", default=".")
+
+    p_owner = sub.add_parser(
+        "owner-summary", help="Read the latest low-noise product delivery summary"
+    )
+    p_owner.add_argument(
+        "--locale", choices=sorted(owner_receipt.SUPPORTED_LOCALES),
+        help="Override the locale stored with the latest delivery facts",
+    )
+    p_owner.add_argument("--target", default=".")
 
     p_prog = sub.add_parser("progress", help="Audit or repair the progress journal")
     p_prog.add_argument("--repair", action="store_true",
@@ -3014,6 +3137,8 @@ def main(argv=None) -> int:
         return cmd_blueprint(args)
     if args.command == "done":
         return cmd_done(args)
+    if args.command == "owner-summary":
+        return cmd_owner_summary(args)
     if args.command == "progress":
         return cmd_progress(args)
 

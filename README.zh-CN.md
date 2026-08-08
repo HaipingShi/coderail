@@ -79,13 +79,24 @@ python .coderail/coderail.py sync-projections          # 只预览，零写入
 python .coderail/coderail.py sync-projections --apply  # 只写列出的投影
 ```
 
-状态输出先回答已验证产品能力、已知限制、下一最小产品缺口、当前 active
-ownership 和需要人工授权的动作。commit hash、marker、trace 和 safe-file
-数量只放在技术附录。
+`inspect` 是代理黑板（Agent Blackboard）：优先展示控制面状态、结构化诊断、
+精确证据引用和恢复动作，绝不把 NORTH_STAR 的目标文字当成已验证产品能力。
+所有者视图使用独立的零写入命令：
+
+```bash
+python .coderail/coderail.py owner-summary --locale zh-CN
+```
 
 这些门禁全部通过后，不再要求用户额外判断是否提交：成功运行 `done` 就已经授权一次精确的本地任务提交。只有你明确要求“提交前先看 diff”时才使用 `--no-commit`；push、tag 和 release 始终是独立的用户决策。
 
-面向客户交付时，任务可以增加显式的结构化 Delivery Contract。成功收口后，CodeRail 会另外生成客户 Markdown：先说交付结果和能力变化，commit、验证和精确 safe files 只放在最后的技术附录。任务 finalized 不会自动推导里程碑或产品 completed；缺少合同的历史任务保持 `not_assessed`。详见 [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md)。
+面向所有者交付时，任务可以增加显式的交付合同（Delivery Contract）。
+`done --owner-locale zh-CN` 成功后只输出三至六句中文所有者回执
+（Owner Receipt）；必要英文必须有中文备注，任务编号、路径、生命周期术语、
+提交信息和安全文件清单留在代理黑板与技术报告（Technical Report）。同一组
+规范化事实会追加到受 Git 跟踪的 `docs/DELIVERIES.jsonl`，因此任务清单压缩或
+全新克隆后仍可重建产品证据，但该账本绝不成为生命周期权威。迁移期内，未传
+`--owner-locale` 的旧调用暂时保留原报告。任务完成不自动推导里程碑或产品完成。
+详见 [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md)。
 
 任务范围采用 fail-closed：同一路径同时命中 Allowed 与 Forbidden 时，`start`、`switch` 或收口会输出 `SCOPE_CONTRADICTION`、精确路径以及两条冲突规则。Allowed 不会静默覆盖 Forbidden；继续前必须收窄禁止规则。
 

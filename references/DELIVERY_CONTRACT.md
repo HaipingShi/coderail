@@ -34,8 +34,9 @@ delivery:
 ```
 
 The parser reads only this section and this fixed schema. Nearby project prose
-is opaque. `technical_receipt` is populated from the successful closeout; input
-values are placeholders and are never accepted as proof.
+is opaque. `task_status` and `technical_receipt` are compatibility fields, not
+lifecycle authority and not proof. The live task marker, pending snapshot,
+TRACE/PROGRESS history, and Git refs keep their existing authority boundaries.
 
 ## Status rules
 
@@ -50,21 +51,33 @@ values are placeholders and are never accepted as proof.
 - Missing Delivery Contracts remain compatible. Customer outcome, milestone,
   and product status render as `not_assessed`; the tool does not invent them.
 
-## Client Markdown
+## CloseoutFacts and audience projections
 
-After a successful `done` or `done --resume`, CodeRail prints and stores a
-customer report under `.coderail/reports/`. Its sections are stable and ordered:
+After a successful `done` or `done --resume`, CodeRail normalizes the declared
+product facts and observed verification into one `CloseoutFacts` record. That
+record deliberately omits mutable lifecycle status and produces two views:
 
-1. 交付结果
-2. 能力变化
-3. 项目整体状态
-4. 未完成与风险
-5. 推荐下一任务
-6. 需要决策
-7. 技术附录
+- **Owner Receipt** — 3-6 localized sentences covering capability, evidence
+  boundary, remaining gap, next step, and owner decision. A Chinese receipt
+  rejects unannotated English, task IDs, paths, and governance jargon.
+- **Agent Blackboard / Technical Report** — lifecycle references, exact
+  verification commands, report paths, commits, safe files, and recovery facts.
 
-Commits, verification, and exact safe files appear only in the final technical
-appendix. The internal `== Done ==` receipt remains separate.
+The product/evidence subset is appended to tracked `docs/DELIVERIES.jsonl`
+before TASKS compaction. This makes the Delivery Contract reconstructable from
+a fresh clone without turning the ledger or CODERAIL_STATUS into lifecycle
+authority. The complete technical report stays under `.coderail/reports/`.
+
+Use an explicit locale on closeout, or read the latest receipt separately:
+
+```bash
+python .coderail/coderail.py done --owner-locale zh-CN
+python .coderail/coderail.py owner-summary --locale zh-CN
+```
+
+During the bounded migration window, `done` without `--owner-locale` keeps the
+legacy seven-section console report. Retire that path only after downstream A/B
+acceptance; do not maintain two Owner Receipt formats indefinitely.
 
 ## Current-truth projections
 
@@ -114,8 +127,10 @@ blocker.
 
 ## Migration
 
-No history rewrite or one-shot marker migration is required for old repositories. Add a Delivery Contract
-only to new or reopened tasks that need a customer-facing assessment. Add
+No history rewrite or one-shot marker migration is required for old repositories.
+Initialization adds an empty `docs/DELIVERIES.jsonl`; an existing repository may
+let the next successful closeout create it. Add a Delivery Contract only to new
+or reopened tasks that need an owner-facing assessment. Add
 current-truth markers only to canonical views that should participate in
 automatic closeout sync. Canonical files may keep human-authored prose, but any
 explicit lifecycle status bound to a finalized Coordinate is reported as

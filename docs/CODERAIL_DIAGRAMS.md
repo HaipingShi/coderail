@@ -2,8 +2,8 @@
 
 Status: current  
 Owner: CodeRail  
-Updated: 2026-07-28  
-Task: T-051
+Updated: 2026-08-08
+Task: T-061
 
 These diagrams describe the repository as implemented. They are maintenance
 maps, not a proposal for a future architecture. File ownership follows
@@ -25,7 +25,7 @@ flowchart TB
     subgraph Project["Target project repository"]
         Rules["Agent instructions<br/>AGENTS.md / CLAUDE.md"]
         Shim["Repo-local launcher<br/>.coderail/coderail.py"]
-        Truth["Repository-tracked project truth<br/>NORTH_STAR / TASKS / PROGRESS / TRACE"]
+        Truth["Repository-tracked project truth<br/>NORTH_STAR / TASKS / PROGRESS / TRACE / DELIVERIES"]
         Supplemental["Supplemental task metadata<br/>.coderail/tasks.json"]
         Recovery["Ignored recovery artifacts<br/>pending_close.json / reports"]
         Projection["Derived views<br/>CODERAIL_STATUS / TRACE_INDEX / TASK_GRAPH"]
@@ -36,6 +36,7 @@ flowchart TB
         Lifecycle["Lifecycle services<br/>task_switch / finish_task / closeout_transaction"]
         Gates["Policy and evidence gates<br/>coordinate / TDD / done / doctor / blueprint"]
         State["Repository state model<br/>repository_state / inspect_state"]
+        Audience["Audience projections<br/>closeout_facts / owner_receipt"]
         Graph["Evidence graph<br/>trace_graph / task_graph"]
         Distribution["Distribution assets<br/>project-template / skills / references"]
         Installer["Project installer<br/>init_project.py"]
@@ -47,6 +48,7 @@ flowchart TB
     Facade --> Lifecycle
     Facade --> Gates
     Facade --> State
+    Facade --> Audience
     Facade --> Graph
     Lifecycle --> Truth
     Lifecycle --> Supplemental
@@ -62,11 +64,41 @@ flowchart TB
     Git --> Truth
     Git --> Supplemental
     State --> Projection
+    Audience --> Truth
+    Audience --> Recovery
     Distribution --> Installer
     Installer --> Rules
     Installer --> Shim
     Installer --> Truth
 ```
+
+### Audience Projection Boundary
+
+```mermaid
+flowchart LR
+    Contract["Explicit Delivery Contract<br/>product facts"]
+    Verify["Observed closeout evidence<br/>verification results"]
+    Facts["CloseoutFacts<br/>normalized value"]
+    Deliveries["DELIVERIES.jsonl<br/>append-only product evidence"]
+    Owner["Owner Receipt<br/>localized, 3-6 sentences"]
+    Blackboard["Agent Blackboard<br/>control plane and references"]
+    Technical["Technical Report<br/>commands, paths, Git facts"]
+    Lifecycle["Lifecycle authority<br/>TASKS / pending / TRACE+PROGRESS / Git"]
+
+    Contract --> Facts
+    Verify --> Facts
+    Facts --> Deliveries
+    Facts --> Owner
+    Facts --> Technical
+    Deliveries -. latest reference .-> Blackboard
+    Lifecycle --> Blackboard
+    Lifecycle -. not owned by .-> Facts
+```
+
+Owner Receipt is the only default human-facing success surface when a locale is
+selected. Blackboard and Technical Report are agent surfaces. DELIVERIES keeps
+product/evidence history across TASKS compaction but cannot activate, finalize,
+commit, or push work.
 
 Boundary rules:
 
@@ -302,6 +334,7 @@ flowchart TB
         Switch["switch"]
         Done["done / done --resume"]
         Inspect["inspect"]
+        OwnerSummary["owner-summary"]
         Sync["sync-projections<br/>preview / --apply"]
         Queries["why / graph / impact"]
     end
@@ -311,6 +344,7 @@ flowchart TB
         Tasks["TASKS.md<br/>hot ownership and Coordinate"]
         Progress["PROGRESS.md<br/>completed human-readable history"]
         Trace["TRACELOG.jsonl<br/>append-only facts and decisions"]
+        Deliveries["DELIVERIES.jsonl<br/>append-only product evidence"]
         Handoff["HANDOFF.md<br/>paused or blocked continuation"]
     end
 
@@ -345,12 +379,14 @@ flowchart TB
     Done --> Tasks
     Done --> Progress
     Done --> Trace
+    Done --> Deliveries
     Done --> Meta
     Done --> Status
     Done --> Git
     Git --> Tasks
     Git --> Progress
     Git --> Trace
+    Git --> Deliveries
     Git --> Meta
     Git --> Status
 
@@ -359,6 +395,7 @@ flowchart TB
     Inspect -. reads .-> Meta
     Inspect -. reads .-> Progress
     Inspect -. reads .-> Trace
+    Inspect -. latest reference .-> Deliveries
     Inspect -. reads .-> Handoff
     Inspect -. read-only .-> Status
     Sync -. preview reads .-> Handoff
@@ -372,6 +409,7 @@ flowchart TB
     Queries -. reads .-> Trace
     Queries -. reads .-> Meta
     Queries --> TaskGraph
+    OwnerSummary -. read-only .-> Deliveries
 ```
 
 Authority table:
@@ -382,6 +420,7 @@ Authority table:
 | `TASKS.md` | Active, queued, paused, blocked, or reopened ownership | no | start, next, switch, done |
 | `PROGRESS.md` | Compact completed-task journal | yes | done, progress repair |
 | `TRACELOG.jsonl` | Verify facts, lifecycle facts, explicit decision edges | yes | lifecycle and link commands |
+| `DELIVERIES.jsonl` | Explicit product delivery and evidence facts | yes, product only | successful done |
 | `HANDOFF.md` | Cross-session continuation projection for non-H0 situations | no | switch, closeout, explicit projection sync |
 | `.coderail/tasks.json` | Machine-checkable task contract and recovery detail | supplemental only | lifecycle commands |
 | `CODERAIL_STATUS.md` | Point-in-time generated projection | no | done and explicit projection sync; Inspect reads only |

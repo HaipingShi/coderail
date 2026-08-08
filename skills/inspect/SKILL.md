@@ -22,10 +22,11 @@ Use this skill to show the current project state, not to write business code.
 Run:
 
 ```bash
-python .coderail/coderail.py inspect --write
+python .coderail/coderail.py inspect --no-write
 ```
 
-or, if scripts are not available, manually produce the same sections:
+This is the Agent Blackboard. If scripts are unavailable, reconstruct the same
+agent-only sections:
 
 - Current North Star
 - Active Coordinate
@@ -37,9 +38,17 @@ or, if scripts are not available, manually produce the same sections:
 - Recommended Next Action
 - Auto Commit
 
+For an owner-facing product summary, run the separate read-only command:
+
+```bash
+python .coderail/coderail.py owner-summary --locale zh-CN
+```
+
 ## Rules
 
-- `docs/CODERAIL_STATUS.md` is a generated status surface.
+- `docs/CODERAIL_STATUS.md` is the generated Agent Blackboard.
 - Do not treat inspect output as a new source of truth; it summarizes existing project files.
+- Do not infer verified product capability from NORTH_STAR or render Inspect as an Owner Receipt.
+- Preview projection changes with `sync-projections`; only explicit `--apply` writes them.
 - If inspect finds verification gaps, run `/coderail:done-gate` before marking done.
 - If inspect finds orphan tasks or trace gaps, run `/coderail:link` or `/coderail:trace`.

@@ -19,6 +19,7 @@ LITE = [
     "docs/HARNESS_SPEC.md",
     "docs/HANDOFF.md",
     "docs/CODERAIL_STATUS.md",
+    "docs/DELIVERIES.jsonl",
 ]
 
 STANDARD = LITE + [

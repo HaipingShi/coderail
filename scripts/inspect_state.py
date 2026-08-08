@@ -27,6 +27,7 @@ import contract_check  # noqa: E402
 import drive_check  # noqa: E402
 import task_switch  # noqa: E402
 import delivery_contract  # noqa: E402
+import closeout_facts  # noqa: E402
 
 
 CONTINUATION_START = "<!-- coderail:continuation:start -->"
@@ -352,58 +353,6 @@ def diagnostic(
     }
 
 
-def product_view(
-    tasks: list[dict], active: list[dict], recommendation: dict, north_star: str
-) -> dict[str, str]:
-    """Return explicit product facts only; lifecycle receipts never become claims."""
-    assessed = None
-    for task in tasks:
-        if task["status"] not in {"[x]", "[f]"} or "### Delivery Contract" not in task["body"]:
-            continue
-        contract, issues = delivery_contract.parse_delivery_contract(task["body"])
-        if not issues and contract:
-            assessed = delivery_contract.finalized_delivery(
-                contract, commits=[], verification=[], safe_files=[]
-            )
-            break
-    capability = "not_assessed"
-    limitation = "not_assessed"
-    next_gap = "not_assessed"
-    if assessed:
-        delta = assessed.get("capability_delta") or []
-        capability = "; ".join(delta) or assessed.get("customer_outcome") or "not_assessed"
-        gaps = assessed.get("remaining_gaps") or []
-        limitation = "; ".join(gaps) or "none declared"
-        next_item = assessed.get("recommended_next") or {}
-        if next_item.get("status") != "none":
-            next_gap = " — ".join(
-                value for value in (next_item.get("id"), next_item.get("reason")) if value
-            ) or "not_assessed"
-    current_slice = drive_check.section(north_star, "Current Slice")
-    if capability == "not_assessed":
-        capability = drive_check.field_value(current_slice, "Product capability") or capability
-    declared_gap = drive_check.field_value(current_slice, "Product gap")
-    if limitation == "not_assessed" and declared_gap:
-        limitation = declared_gap
-    if next_gap == "not_assessed" and declared_gap:
-        next_gap = declared_gap
-    recommendation_status = recommendation.get("status") or "NO_RECOMMENDATION"
-    authorization = (
-        "explicit owner approval is required before activation or execution"
-        if recommendation.get("requires_human_for_execution", True)
-        else "no additional execution approval is asserted by the recommendation channel"
-    )
-    if recommendation_status != "NO_RECOMMENDATION" and next_gap == "not_assessed":
-        next_gap = recommendation.get("candidate_direction") or recommendation.get("next_action") or next_gap
-    return {
-        "capability": capability,
-        "limitation": limitation,
-        "next_gap": next_gap,
-        "active_task": active[0]["header"] if active else "none",
-        "authorization": authorization,
-    }
-
-
 def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     docs = root / "docs"
     ns = read(docs / "NORTH_STAR.md")
@@ -415,6 +364,12 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
     active_drafts = [d for d in drafts if d["status"] in drive_check.ACTIVE_DRAFT_STATUSES]
     active = [t for t in tasks if t["status"] in {"[~]", "[!]"}]
     paused = [t for t in tasks if t["status"] == "[p]"]
+    delivery_ledger_error = ""
+    try:
+        latest_delivery = closeout_facts.latest(root)
+    except ValueError as exc:
+        latest_delivery = {}
+        delivery_ledger_error = str(exc)
     commit_pending = {} if assume_clean else verified_commit_pending(root)
     pending_safe = set(commit_pending.get("safe_files", []))
     pending_task = commit_pending.get("task")
@@ -522,6 +477,14 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
         evidence=item,
         recommended_action="Refresh the generated HANDOFF projection explicitly; formulation remains available.",
     ) for item in handoff_issues)
+    if delivery_ledger_error:
+        diagnostics.append(diagnostic(
+            severity="error",
+            category="product_delivery_ledger",
+            blocks="delivery",
+            evidence=delivery_ledger_error,
+            recommended_action="Repair the append-only delivery ledger from the matching technical report.",
+        ))
     if len(active) > 1:
         diagnostics.append(diagnostic(
             severity="error",
@@ -575,29 +538,38 @@ def render(root: Path, assume_clean: bool = False) -> tuple[str, str]:
             else "healthy"
         )
     )
-    owner = product_view(tasks, active, recommendation, ns)
-
     lines = []
-    lines.append("# CodeRail Status")
+    lines.append("# CodeRail Agent Blackboard")
     lines.append("")
+    lines.append("> Agent-only generated projection. It is not the owner-facing delivery receipt.")
     lines.append("> Generated projection. `inspect` reads live state without rewriting this file.")
     lines.append("> Preview with `coderail sync-projections`; write only with explicit `--apply`.")
     lines.append("")
     lines.append(f"Generated at: {datetime.now(timezone.utc).isoformat(timespec='seconds')}")
     lines.append(f"Status: {status}")
     lines.append("")
-    lines.append("## Owner Product View")
-    lines.append("")
-    lines.append(f"- Current verified capability: {owner['capability']}")
-    lines.append(f"- Current known limitation: {owner['limitation']}")
-    lines.append(f"- Next smallest product gap: {owner['next_gap']}")
-    lines.append(f"- Active task: {owner['active_task']}")
-    lines.append(f"- Human authorization required: {owner['authorization']}")
-    lines.append("")
     lines.append("## Current North Star")
     lines.append("")
     lines.append(f"- Outcome: {outcome}")
     lines.append(f"- Current Slice: {current_slice}")
+    lines.append("")
+    lines.append("## Latest Delivery Fact")
+    lines.append("")
+    if latest_delivery:
+        latest_receipt = latest_delivery.get("agent_receipt") or {}
+        lines.append(f"- Delivery fact: {latest_delivery.get('delivery_id') or '(missing)'}")
+        lines.append(f"- Source task: {latest_receipt.get('source_task') or '(missing)'}")
+        lines.append(
+            f"- Verification records: {len(latest_receipt.get('verification') or [])}"
+        )
+        lines.append(
+            f"- Technical report: {latest_receipt.get('technical_report') or '(not recorded)'}"
+        )
+        lines.append("- Product wording: use `coderail owner-summary`; do not infer it from NORTH_STAR")
+    elif delivery_ledger_error:
+        lines.append(f"- invalid: {delivery_ledger_error}")
+    else:
+        lines.append("- none")
     lines.append("")
     lines.append("## Legacy Cutoff")
     lines.append("")

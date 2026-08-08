@@ -9,7 +9,7 @@ It deliberately avoids MCP runtime, web preview, graph database, or background e
 - `.coderail/pending_close.json` owns an interrupted verified closeout;
 - PROGRESS plus verify TRACE facts own finalized history;
 - local and remote Git refs own commit and pushed state;
-- explicit Delivery Contract evidence owns product capability and gap claims.
+- tracked DELIVERIES facts preserve verified product delivery claims.
 
 `HANDOFF.md`, `CODERAIL_STATUS.md`, README prose, task/review prose, and
 current-truth prose are projections. They do not overrule those authorities.
@@ -18,11 +18,11 @@ preserved and is never reclassified as current state.
 
 ## Inspect output
 
-`inspect_state.py` prints a compact status panel. It does not write by default:
+`inspect_state.py` prints the Agent Blackboard. It does not write by default and
+is not intended as owner-facing product copy:
 
-- Owner Product View: verified capability, limitation, next gap, active task,
-  and required human authorization
 - Current North Star
+- Latest Delivery Fact reference (never the product wording)
 - Legacy Cutoff
 - Active Coordinate
 - Active Tasks
@@ -35,6 +35,17 @@ preserved and is never reclassified as current state.
 - Handoff State
 - Recommended Next Action
 - Auto Commit
+
+The separate owner surface reads the latest durable Delivery fact and performs
+no writes:
+
+```bash
+python .coderail/coderail.py owner-summary --locale zh-CN
+```
+
+It does not include active task state, report paths, task IDs, exact commands,
+commits, or safe-file lists. Inspect does not infer product capability from
+NORTH_STAR goals, recommendations, Git history, or task finalization.
 
 Every normalized diagnostic contains:
 
@@ -71,7 +82,7 @@ migration window and points callers to `sync-projections --apply`. Ordinary
 `inspect_state.py` shows the current runtime state.
 
 Doctor is for installation and compliance gaps.
-Inspect is for daily continuation.
+Inspect is for agent continuation. `owner-summary` is for owner communication.
 
 Inspect keeps execution permission separate from recommendation autonomy. A
 manual or human-gated execution result may therefore coexist with a read-only

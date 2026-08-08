@@ -258,7 +258,7 @@ def _markdown_items(values: list[str], *, empty: str = "none") -> list[str]:
 
 
 def render_client_markdown(delivery: dict) -> str:
-    """Render the stable client-facing order; technical facts are last."""
+    """Render the temporary legacy report used when no owner locale is set."""
     recommended = delivery.get("recommended_next") or {}
     receipt = delivery.get("technical_receipt") or {}
     lines = [
@@ -642,10 +642,15 @@ def synchronize_current_truth(
     return written, []
 
 
-def write_client_report(root: Path, task_id: str, stamp: str, markdown: str) -> str:
+def write_technical_report(root: Path, task_id: str, stamp: str, markdown: str) -> str:
     reports = root / ".coderail" / "reports"
     reports.mkdir(parents=True, exist_ok=True)
     safe_id = re.sub(r"[^A-Za-z0-9_-]", "_", task_id or "unknown")
     path = reports / f"delivery-{stamp or 'latest'}-{safe_id}.md"
     path.write_text(markdown.rstrip() + "\n", encoding="utf-8")
     return path.relative_to(root).as_posix()
+
+
+def write_client_report(root: Path, task_id: str, stamp: str, markdown: str) -> str:
+    """Compatibility alias; new code should name this the Technical Report."""
+    return write_technical_report(root, task_id, stamp, markdown)

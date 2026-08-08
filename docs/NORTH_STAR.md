@@ -2,7 +2,7 @@
 
 ID: NS-001
 Status: current
-Last reviewed: 2026-08-07
+Last reviewed: 2026-08-08
 Owner: CodeRail maintainers
 
 ## Outcome
@@ -21,9 +21,11 @@ Owner: CodeRail maintainers
 
 ## Current Slice
 
-- Milestone: M-014 lifecycle truth and owner communication
-- Product capability: read-only status and planning distinguish control-plane authority, product evidence, generated projections, and historical ledgers.
-- Product gap: downstream repositories need compatible, explicit projection synchronization without rewriting historical documents.
+- Milestone: M-015 owner communication and agent blackboard
+- Product capability: localized Owner Receipt, Agent Blackboard, Technical Report,
+  and durable Delivery Contract product facts are verified repository-local capabilities.
+- Product gap: a separately authorized Chinese downstream A/B acceptance is
+  still required before retiring the temporary legacy closeout output.
 - Lifecycle note: this section declares no active/finalized/commit/push state;
   use CodeRail live state and Git refs for those facts.
 
@@ -50,10 +52,10 @@ Owner: CodeRail maintainers
 
 - Mode: manual
 - Next-task mode: recommend
-- Terminal condition: lifecycle authority, diagnostic blocking, read-only
-  inspection, and formulation safety are executable and documented.
-- Progress signal: the T-060 Red matrix passes without weakening scope,
-  verification, closeout, commit, or publication gates.
+- Terminal condition: owner receipts are localized and bounded, product delivery
+  facts survive compaction, and Agent Blackboard retains exact governance refs.
+- Progress signal: the T-061 Red matrix passes without modifying scope,
+  closeout-transaction, Git, TRACE, or publication authority.
 - Retry budget: 3
 - No-progress limit: 2
 - Human gates: changes to public APIs, security, privacy, payment, persistence, or release policy

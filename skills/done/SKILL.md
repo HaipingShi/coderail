@@ -12,19 +12,27 @@ and the exact task-scoped commit.
 ## Required order
 
 1. Confirm the implementation and its declared verification are ready.
-2. Run `python .coderail/coderail.py done`.
+2. Run `python .coderail/coderail.py done --owner-locale zh-CN` for a Chinese
+   user; use `--owner-locale en` for English.
 3. If it fails, repair the named issue and rerun only when the task remains open.
 4. If it succeeds, report its result without manually repeating TASKS, TRACE,
    Inspect, staging, or commit steps.
 
-## Closeout packet
+## Two projections
 
-Translate the command result into plain language: what changed, how it was
-verified, whether it committed, and the one next step or decision.
+The successful localized command prints the Owner Receipt: 3-6 sentences about
+new capability, evidence boundary, remaining gap, next step, and owner decision.
+Do not add task IDs, paths, governance jargon, or unannotated English to it.
+
+Lifecycle state, exact verification, paths, and Git receipts stay in
+`docs/CODERAIL_STATUS.md` (Agent Blackboard) and `.coderail/reports/`
+(Technical Report). `docs/DELIVERIES.jsonl` stores append-only product delivery
+facts but never becomes lifecycle authority.
 
 ## Rules
 
 - Do not hide failed verification.
 - Do not turn a failed gate into a narrative success.
 - Do not create a second completion sequence after `coderail done` succeeds.
+- Do not paste the Agent Blackboard or Technical Report into the Owner Receipt.
 - Do not edit generated closeout state merely to make the report look cleaner.

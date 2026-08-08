@@ -1,23 +1,24 @@
-# CodeRail Status
+# CodeRail Agent Blackboard
 
+> Agent-only generated projection. It is not the owner-facing delivery receipt.
 > Generated projection. `inspect` reads live state without rewriting this file.
 > Preview with `coderail sync-projections`; write only with explicit `--apply`.
 
-Generated at: 2026-08-07T15:51:44+00:00
+Generated at: 2026-08-08T01:51:52+00:00
 Status: healthy
-
-## Owner Product View
-
-- Current verified capability: read-only status and planning distinguish control-plane authority, product evidence, generated projections, and historical ledgers.
-- Current known limitation: downstream repositories need compatible, explicit projection synchronization without rewriting historical documents.
-- Next smallest product gap: downstream repositories need compatible, explicit projection synchronization without rewriting historical documents.
-- Active task: none
-- Human authorization required: explicit owner approval is required before activation or execution
 
 ## Current North Star
 
 - Outcome: Make CodeRail a reliable repo-local governance rail that agents can execute, verify, close out, and resume without dangling state.
-- Current Slice: Milestone: M-014 lifecycle truth and owner communication
+- Current Slice: Milestone: M-015 owner communication and agent blackboard
+
+## Latest Delivery Fact
+
+- Delivery fact: delivery-20260808-015011-T-061
+- Source task: T-061
+- Verification records: 8
+- Technical report: .coderail/reports/delivery-20260808-015011-T-061.md
+- Product wording: use `coderail owner-summary`; do not infer it from NORTH_STAR
 
 ## Legacy Cutoff
 
@@ -54,6 +55,7 @@ Status: healthy
 - CD-003 Task Switch Gate — accepted
 - CD-004 Closeout Convergence — accepted
 - CD-005 Lifecycle Truth, Projection Debt, and Formulation Safety — accepted
+- CD-006 Owner Communication and Agent Blackboard — accepted
 
 ## Verification Gaps
 
@@ -112,7 +114,7 @@ Status: healthy
 
 - Level: H0
 - Needs update: no
-- Last closed task: T-060
+- Last closed task: T-061
 - Closeout state: finalized
 
 ## Recommended Next Action

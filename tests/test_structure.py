@@ -4,6 +4,7 @@ from importlib import import_module
 MODULES = (
     "test_static",
     "test_persist",
+    "test_owner_comms",
     "test_delivery",
     "test_drive",
     "test_inspect",

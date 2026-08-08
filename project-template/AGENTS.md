@@ -60,7 +60,7 @@ progress journal. Register real checks.
 Never declare a task finished from memory. Run:
 
 ```bash
-python .coderail/coderail.py done
+python .coderail/coderail.py done --owner-locale zh-CN  # Chinese conversation
 ```
 
 It runs verification, checks scope and docs, then commits only safe task files.
@@ -81,12 +81,13 @@ user's own language, in 3-6 sentences total:
 2. **How do I know it works?** (what was actually checked, said plainly)
 3. **What's next — and do you need to decide anything?**
 
-Rules: no file paths, tool names, jargon, or task IDs unless asked; decisions
+Rules: no file paths, tool names, governance jargon, or task IDs unless asked;
+in Chinese, annotate any necessary English term in Chinese parentheses; decisions
 must be clear either/or questions; never paste raw command output at the user.
 
-`done` also appends a plain-language entry to `docs/PROGRESS.md` — the ONE
-file a non-technical owner reads. Never let it rot: if you close work without
-`done`, add the entry yourself, newest first.
+The localized `done` output is the Owner Receipt. Full lifecycle, verification,
+path, and Git facts stay in the Agent Blackboard and Technical Report. The
+append-only `docs/DELIVERIES.jsonl` preserves product evidence, not lifecycle.
 
 ## When the tool says "Step back"
 
@@ -122,7 +123,7 @@ ratified from what was built — never drawn ahead of the code.
 
 ## When you come back to a project
 
-On resume, read `docs/HANDOFF.md` and `docs/CODERAIL_STATUS.md`, then run read-only
-`coderail inspect`. Preview generated updates with `coderail sync-projections`;
+On resume, read `docs/HANDOFF.md` and the Agent Blackboard in
+`docs/CODERAIL_STATUS.md`, then run read-only `coderail inspect`. Preview updates with `coderail sync-projections`;
 only `--apply` writes. Stale prose never blocks formulation or activates work.
 Advanced commands are listed by `python .coderail/coderail.py --help`.

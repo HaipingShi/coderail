@@ -132,63 +132,54 @@ def test_inspect_surfaces_drive_decision():
         check('- Decision: CONTINUE' in result.stdout, result.stdout)
 
 
-def test_inspect_leads_with_owner_product_truth_before_governance_receipts():
+def test_inspect_is_agent_blackboard_without_owner_product_projection():
     with tempfile.TemporaryDirectory() as td:
         target = Path(td)
         write_drive_project(target, '', mode='manual')
         result = run_inspect(target)
         check(result.returncode == 0, result.stdout + result.stderr)
-        headings = ['## Owner Product View', '## Current North Star',
+        headings = ['## Current North Star', '## Latest Delivery Fact',
                     '## Structured Diagnostics', '## Technical Appendix']
         positions = [result.stdout.index(heading) for heading in headings]
         check(positions == sorted(positions), result.stdout)
-        owner = result.stdout.split('## Owner Product View', 1)[1].split(
-            '## Current North Star', 1)[0]
-        for label in ('Current verified capability', 'Current known limitation',
-                      'Next smallest product gap', 'Active task',
-                      'Human authorization required'):
-            check(label in owner, owner)
-        check('commit' not in owner.lower() and 'safe file' not in owner.lower(), owner)
+        check('# CodeRail Agent Blackboard' in result.stdout, result.stdout)
+        check('## Owner Product View' not in result.stdout, result.stdout)
+        check('Current verified capability' not in result.stdout, result.stdout)
 
 
-def test_owner_product_view_uses_newest_finalized_delivery_contract():
+def test_agent_blackboard_references_latest_durable_delivery_fact_without_rendering_product_copy():
     scripts = str(ROOT/'scripts')
     if scripts not in sys.path:
         sys.path.insert(0, scripts)
-    import inspect_state
+    import closeout_facts
 
-    def delivery_body(capability: str) -> str:
-        return f'''### Delivery Contract
-
-delivery:
-  task_status: finalized
-  milestone_status: in_progress
-  product_status: not_assessed
-  customer_outcome: Owner sees {capability}.
-  capability_delta:
-    - {capability}
-  remaining_gaps:
-    - one remaining gap
-  evidence_boundary:
-    - local verification only
-  recommended_next:
-    id: null
-    status: none
-    reason: none
-  decisions_required:
-    - none
-  technical_receipt:
-    commits: []
-    verification: []
-    safe_files: []
-'''
-
-    tasks = [
-        {'id': 'T-002', 'status': '[x]', 'body': delivery_body('new capability')},
-        {'id': 'T-001', 'status': '[x]', 'body': delivery_body('old capability')},
-    ]
-    view = inspect_state.product_view(tasks, [], {}, '')
-    check(view['capability'] == 'new capability', view)
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        write_drive_project(target, '', mode='manual')
+        facts = closeout_facts.build(
+            task_id='T-002',
+            stamp='2026-08-08T10-00-00Z',
+            owner_locale='en',
+            delivery={
+                'customer_outcome': 'new capability must stay off the agent surface',
+                'capability_delta': ['new capability'],
+                'remaining_gaps': ['one gap'],
+                'evidence_boundary': ['local only'],
+                'recommended_next': {'reason': 'next product gap'},
+                'decisions_required': [],
+            },
+            verify_results=[{'cmd': 'pytest', 'exit': 0}],
+            technical_report='.coderail/reports/delivery-T-002.md',
+        )
+        closeout_facts.append(target, facts)
+        result = run_inspect(target)
+        check(result.returncode == 0, result.stdout + result.stderr)
+        delivery_section = result.stdout.split('## Latest Delivery Fact', 1)[1].split(
+            '## Legacy Cutoff', 1
+        )[0]
+        check(facts['delivery_id'] in delivery_section, delivery_section)
+        check('T-002' in delivery_section, delivery_section)
+        check('new capability' not in delivery_section, delivery_section)
 
 
 def test_inspect_blocks_active_coordinate_with_finalized_marker():

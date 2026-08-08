@@ -80,13 +80,27 @@ python .coderail/coderail.py sync-projections          # preview, zero writes
 python .coderail/coderail.py sync-projections --apply  # write listed projections
 ```
 
-The status panel leads with verified product capability, known limitations,
-the next product gap, active ownership, and human authorization. Git hashes,
-markers, trace details, and safe-file counts remain in the technical appendix.
+`inspect` is the Agent Blackboard: it leads with control-plane state,
+diagnostics, exact evidence references, and recovery actions. It never presents
+NORTH_STAR goals as verified product capability. Read the separate owner view
+without changing repository state:
+
+```bash
+python .coderail/coderail.py owner-summary --locale zh-CN
+```
 
 No extra commit-approval question is needed after those gates pass: successful `done` is already permission for one exact local task commit. Use `--no-commit` only when you explicitly want to review the diff first. Push, tag, and release always remain separate user decisions.
 
-For customer delivery, a task may add an explicit structured Delivery Contract. After a successful closeout, CodeRail renders a separate client-facing Markdown summary that leads with outcomes and capability changes; commits, verification, and exact safe files stay in the final technical appendix. Task finalization never implies milestone or product completion, and missing historical contracts remain `not_assessed`. See [`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md).
+For owner delivery, a task may add an explicit structured Delivery Contract.
+`done --owner-locale zh-CN` emits only a localized three-to-six-sentence Owner
+Receipt; necessary English must be annotated, while task IDs, paths, lifecycle
+jargon, commits, and safe-file lists remain in the Agent Blackboard and
+Technical Report. The same normalized facts are appended to tracked
+`docs/DELIVERIES.jsonl`, so product evidence survives hot-TASKS compaction and a
+fresh clone without becoming lifecycle authority. Calls without
+`--owner-locale` temporarily retain the legacy report during migration. Task
+finalization never implies milestone or product completion. See
+[`references/DELIVERY_CONTRACT.md`](references/DELIVERY_CONTRACT.md).
 
 Task scope is fail-closed. If one path matches both an Allowed rule and a Forbidden rule, `start`, `switch`, or closeout reports `SCOPE_CONTRADICTION` with the exact path and both rules. Allowed never silently overrides Forbidden; narrow the forbidden glob before continuing.
 

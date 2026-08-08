@@ -28,3 +28,5 @@ Keep it short:
 - Auto-commit action
 
 Move long history to TRACE_INDEX, RUNLOG, DECISIONS, or archive. Do not paste full logs, full diffs, or TRACELOG contents.
+Handoff is agent-to-agent continuity, not the Owner Receipt. Keep product
+delivery facts in `docs/DELIVERIES.jsonl` and owner wording in `owner-summary`.

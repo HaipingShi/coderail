@@ -4259,5 +4259,39 @@
       "head": "103ddc95b1fd70c9d59308af44122a6ecaabdbce",
       "files": []
     }
+  },
+  "T-061": {
+    "display_id": "OWNER-COMMS-001",
+    "verify": [
+      "python3 tests/test_owner_comms.py",
+      "python3 tests/test_delivery.py",
+      "python3 tests/test_inspect.py",
+      "python3 tests/test_closeout.py",
+      "python3 tests/test_static.py",
+      "python3 tests/test_lifecycle.py",
+      "python3 tests/test_structure.py",
+      "git diff --check"
+    ],
+    "tests": [
+      "tests/test_owner_comms.py",
+      "tests/test_inspect.py",
+      "tests/test_static.py",
+      "tests/test_structure.py"
+    ],
+    "accept": [
+      "zh-CN Owner Receipt contains no unannotated English, task ids, paths, or governance jargon",
+      "Owner Receipt stays within the agreed three-to-six-sentence information budget",
+      "the same closeout retains complete governance references in Agent Blackboard and Technical Report",
+      "Delivery Contract product facts survive TASKS compaction and a fresh clone",
+      "Inspect and CODERAIL_STATUS are agent-facing and do not infer verified product capability from NORTH_STAR",
+      "owner-summary renders separately from agent status without creating or activating work",
+      "templates skills and public docs describe the dual-audience contract",
+      "scope closeout Git and TRACE authority implementations remain unchanged"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-08T01:24:49.458469+00:00",
+      "head": "35813ad7c025fdd9f94213baa0f9c3cc0289887f",
+      "files": []
+    }
   }
 }

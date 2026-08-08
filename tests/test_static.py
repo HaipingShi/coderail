@@ -157,7 +157,7 @@ def test_init_contract_inspect_done_gate_flow():
             sys.executable, str(ROOT/'scripts/coderail.py'), 'sync-projections',
             '--target', td, '--apply',
         ])
-        check('CodeRail Status' in (target/'docs/CODERAIL_STATUS.md').read_text(encoding='utf-8'),
+        check('CodeRail Agent Blackboard' in (target/'docs/CODERAIL_STATUS.md').read_text(encoding='utf-8'),
               'explicit projection sync did not write status')
         # Add a real task by unescaping the template enough for the parser.
         tasks = target/'docs/TASKS.md'
@@ -362,6 +362,8 @@ def test_templates_include_rail_and_compact_handoff_policy():
     check('## Drive Decision' in status, 'status template should include Drive Decision')
     check('## Execution Decision' in status, 'status template should name the execution channel')
     check('## Recommendation Decision' in status, 'status template should name the recommendation channel')
+    check('# CodeRail Agent Blackboard' in status, 'status template should be agent-facing')
+    check('## Owner Product View' not in status, 'status template must not mix the owner projection')
     check('`[p]` paused' in tasks, 'TASKS template should expose formal paused state')
     check('## Paused Tasks' in status, 'status template should surface paused tasks')
     check('## Task Switch Gate' in status, 'status template should expose switch ownership health')

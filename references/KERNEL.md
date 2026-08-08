@@ -67,7 +67,20 @@ surface may supply scheduling, but it never expands CodeRail authority.
 v0.6 adds three runtime surfaces:
 
 1. Coordinate Contract Draft — formal pre-implementation gate.
-2. Runtime State Inspect — inspectable status from repo-local files.
+2. Runtime State Inspect — agent-only inspectable status from repo-local files.
 3. Done Gate — verification-before-complete.
+
+## Audience layer above the kernel
+
+The audience layer consumes successful closeout evidence but does not change K0-K11:
+
+- `CloseoutFacts` normalizes explicit product facts and observed technical facts;
+- `owner-summary` and localized `done` render the bounded Owner Receipt;
+- Inspect/CODERAIL_STATUS is the Agent Blackboard;
+- `DELIVERIES.jsonl` is append-only product evidence, never lifecycle authority.
+
+Scope, closeout transaction, Git staging, TRACE, and task switching remain in
+the kernel. A presentation failure cannot grant execution authority or rewrite
+historical evidence.
 
 v0.7 adds Blueprint Gate. v0.7.1 adds Closeout Gate for deterministic resume state. v0.7.2 makes safe task-scoped commits automatic and adds CI Gate. v0.7.3 adds TDD Gate. v0.8.0 adds the Convergent Coding positioning, the single-entry coderail command (start/check/done/next), spin detection, the plain-language progress journal, and blueprint scaffolding. Drive Loop is the next execution-policy layer above this kernel.

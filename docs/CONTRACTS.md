@@ -376,3 +376,65 @@ Notes:
   path, but ordinary `inspect` changes to read-only immediately.
 - Projection debt is batchable maintenance debt. It does not automatically
   recommend or register another GOV Coordinate.
+
+## CD-006 Owner Communication and Agent Blackboard
+
+Status: accepted
+Task: T-061 (display id `OWNER-COMMS-001`)
+
+### Coordinate Contract Draft
+
+G — Goal:
+- Make successful closeout directly decodable by the project owner without
+  discarding the exact governance evidence required by agents.
+
+T — Task:
+- Introduce one normalized `CloseoutFacts` value after verification.
+- Persist product delivery facts in an append-only tracked ledger before hot
+  TASKS bodies are compacted.
+- Render a localized, bounded Owner Receipt separately from the Agent
+  Blackboard and the detailed Technical Report.
+- Define Inspect and `CODERAIL_STATUS.md` as agent-facing projections; they must
+  not infer verified capability from NORTH_STAR goal prose.
+
+S — Scope:
+- Allowed: the T-061 task record is the exact file authority.
+- Forbidden: scope policy, `closeout_transaction`, repository/Git classification,
+  task switching, TRACE authority, dependencies, release metadata, automatic
+  activation, push, tag, release, and downstream A/B execution.
+
+V — Verify:
+- Red A: a `zh-CN` Owner Receipt rejects or omits unannotated English, task ids,
+  paths, and governance vocabulary.
+- Red B: Owner Receipt contains three to six owner-facing sentences.
+- Red C: the same closeout keeps exact governance references available in the
+  Agent Blackboard and Technical Report while hiding them from the owner view.
+- Red D: product delivery facts survive TASKS compaction and a fresh clone.
+- Red E: Inspect is explicitly agent-facing and never labels NORTH_STAR-only
+  prose as verified product capability.
+- Green: focused delivery/inspect/closeout/lifecycle/static suites and the full
+  structure suite pass without changes to forbidden kernel files.
+
+X — Stop:
+- Localization would require inventing or machine-translating unauthored product
+  claims.
+- Blackboard would become lifecycle authority rather than a projection.
+- Durable delivery facts would require rewriting valid TRACE/PROGRESS history.
+- The implementation would change scope, Git, closeout-transaction, task-switch,
+  or publication authority.
+
+P — Persist:
+- `docs/DELIVERIES.jsonl` stores append-only product delivery facts and technical
+  receipt snapshots; it does not own task lifecycle.
+- `docs/CODERAIL_STATUS.md` is the generated Agent Blackboard.
+- `.coderail/reports/` keeps detailed local evidence.
+- Owner Receipt is a localized projection over the same `CloseoutFacts`.
+
+Decision: proceed
+
+Notes:
+- This is a product communication capability, not a recursive governance repair.
+- The owner's 2026-08-08 direction authorizes Red/Green in the source repository
+  but does not authorize downstream A/B, push, tag, or release.
+- Compatibility may remain explicit during migration, but the default owner
+  surface must not indefinitely retain the old seven-section report.
