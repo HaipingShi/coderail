@@ -62,6 +62,48 @@ Notes:
 -
 ```
 
+## CD-007 Owner-safe copy preflight
+
+Status: accepted
+Created at: 2026-08-08
+Source: live T-061 closeout acceptance
+Trace: T-062 executable Red
+
+### Coordinate Contract Draft
+
+G — Goal:
+- A successful localized completion must communicate real product capability,
+  not replace the entire result with a safe but uninformative fallback.
+
+T — Task:
+- Validate owner-facing product copy before verification or lifecycle mutation.
+- Keep historical DELIVERIES rows append-only; do not rewrite T-061 evidence.
+
+S — Scope:
+- Allowed:
+  - owner receipt validator, done preflight, executable Red, decision and harness docs
+- Forbidden:
+  - scope classifier, closeout transaction, Git, TRACE, task switch, downstream repositories
+
+V — Verify:
+- TDD mode: required
+- Red check: unsafe localized copy completed and emitted the uninformative fallback.
+- Green check: unsafe localized copy returns non-zero before verification or mutation.
+- Unsafe English, identifiers, paths, or governance wording returns non-zero,
+  leaves the task active, leaves Git HEAD unchanged, and appends no delivery fact.
+- Valid Chinese product copy completes and renders a useful bounded receipt.
+
+X — Stop:
+- stop if preflight requires changing lifecycle, scope, Git, TRACE, or downstream files
+
+P — Persist:
+- TASKS: record T-062 Red/Green and completion
+- DECISIONS: record the pre-closeout audience-input boundary
+- TRACE: append normal task evidence only
+
+Decision:
+- proceed
+
 ## CD-002 Doctor marker compatibility
 
 Status: accepted

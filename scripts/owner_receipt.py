@@ -36,6 +36,17 @@ def _next_reason(product: dict) -> str:
     return _plain((product.get("recommended_next") or {}).get("reason"))
 
 
+def _product_copy(product: dict) -> str:
+    return "\n".join([
+        str(product.get("customer_outcome") or ""),
+        *(product.get("capability_delta") or []),
+        *(product.get("remaining_gaps") or []),
+        *(product.get("evidence_boundary") or []),
+        _next_reason(product),
+        *(product.get("decisions_required") or []),
+    ])
+
+
 def sentence_count(text: str) -> int:
     return len(re.findall(r"[^。！？.!?\n]+[。！？.!?]", text))
 
@@ -63,6 +74,23 @@ def surface_violations(text: str, *, locale: str) -> list[str]:
     return issues
 
 
+def product_copy_violations(facts: dict, *, locale: str) -> list[str]:
+    """Validate authored owner copy before any closeout state transition."""
+    text = _product_copy(facts.get("product") or {})
+    issues = []
+    if not text.strip():
+        issues.append("owner product copy is empty")
+    if TASK_ID.search(text):
+        issues.append("task or product id appears in owner product copy")
+    if PATH.search(text):
+        issues.append("file path appears in owner product copy")
+    if GOVERNANCE_JARGON.search(text):
+        issues.append("governance jargon appears in owner product copy")
+    if locale == "zh-CN" and _unannotated_english(text):
+        issues.append("unannotated English appears in Chinese owner product copy")
+    return issues
+
+
 def _zh_fallback() -> str:
     return "\n".join([
         "本次工作已通过已登记的检查。",
@@ -72,14 +100,7 @@ def _zh_fallback() -> str:
 
 
 def _render_zh(product: dict, verification_count: int) -> str:
-    source_text = "\n".join([
-        str(product.get("customer_outcome") or ""),
-        *(product.get("capability_delta") or []),
-        *(product.get("remaining_gaps") or []),
-        *(product.get("evidence_boundary") or []),
-        _next_reason(product),
-        *(product.get("decisions_required") or []),
-    ])
+    source_text = _product_copy(product)
     if _unannotated_english(source_text):
         return _zh_fallback()
 

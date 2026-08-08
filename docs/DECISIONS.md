@@ -405,3 +405,21 @@ Supersedes: ADR-023 owner-facing status bullet; preserves all lifecycle authorit
   classification, task switching, Git staging, or TRACE implementation. Existing
   calls without an owner locale keep the legacy console temporarily; it may be
   removed only after an authorized Chinese downstream A/B acceptance.
+
+## ADR-025 Localized owner copy is a pre-closeout input gate
+
+Status: accepted
+Date: 2026-08-08
+Task: T-062 / OWNER-COMMS-002
+
+- The safe fallback prevents language and governance leakage in historical
+  delivery rows, but it is not sufficient acceptance for a new localized
+  closeout because it can hide the actual product result.
+- When `--owner-locale` is present, CodeRail validates only the explicit product
+  copy before registered verification or any lifecycle mutation. Invalid copy
+  leaves work active, preserves Git HEAD, and appends no delivery fact.
+- Validation never translates or rewrites an authored claim. The agent must
+  provide owner-safe capability, evidence, gap, next-step, and decision text.
+  Historical DELIVERIES rows remain append-only.
+- This is an audience-input gate above the existing closeout kernel. Scope,
+  transaction, Git, TRACE, and activation authority remain unchanged.

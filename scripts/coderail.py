@@ -1894,6 +1894,28 @@ def _cmd_done(args) -> int:
         print("Repair the explicit contract or task scope; project prose was not inspected or rewritten.")
         return 1
 
+    owner_locale = getattr(args, "owner_locale", None)
+    if owner_locale:
+        preview_facts = closeout_facts.build(
+            task_id=task_before or "preview",
+            stamp="preview",
+            owner_locale=owner_locale,
+            delivery=delivery_input,
+        )
+        copy_issues = owner_receipt.product_copy_violations(
+            preview_facts, locale=owner_locale
+        )
+        if copy_issues:
+            if owner_locale == "zh-CN":
+                print("面向所有者的中文产品说明不符合要求，本次工作尚未完成。")
+                print("请只写实际新增能力、验证范围、未覆盖项、下一步和需要所有者决定的事项，必要英文需附中文说明。")
+                print("当前产品状态和代码文件均未修改。")
+            else:
+                print("The owner-facing product copy is not ready, so this work remains open.")
+                print("Describe product capability, evidence limits, remaining gaps, next step, and owner decisions without internal identifiers or governance jargon.")
+                print("No lifecycle or product files were changed by this closeout attempt.")
+            return 1
+
     # ---- FN-010: run registered verify commands. This is the gate itself.
     verify_cmds = meta.get("verify", [])
     verify_results: list[dict] = []

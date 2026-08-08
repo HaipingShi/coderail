@@ -4293,5 +4293,27 @@
       "head": "35813ad7c025fdd9f94213baa0f9c3cc0289887f",
       "files": []
     }
+  },
+  "T-062": {
+    "display_id": "OWNER-COMMS-002",
+    "verify": [
+      "python3 tests/test_owner_comms.py",
+      "python3 tests/test_lifecycle.py",
+      "python3 tests/test_structure.py",
+      "git diff --check"
+    ],
+    "tests": [
+      "tests/test_owner_comms.py"
+    ],
+    "accept": [
+      "localized closeout rejects owner-unsafe product copy before lifecycle mutation",
+      "valid Chinese product copy produces a useful bounded Owner Receipt",
+      "historical delivery rows and governance kernel remain unchanged"
+    ],
+    "baseline": {
+      "captured_at": "2026-08-08T01:53:00.149617+00:00",
+      "head": "5daf7a290ce1c9f87e9eee4b796185862f47b8ba",
+      "files": []
+    }
   }
 }

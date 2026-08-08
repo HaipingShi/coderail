@@ -338,6 +338,27 @@ python3 tests/test_structure.py
 git diff --check
 ```
 
+### T-062 owner-safe copy preflight
+
+The live T-061 self-closeout showed that a leak-free fallback can still fail the
+owner communication outcome by hiding real capability. The regression fixture
+uses otherwise valid Delivery Contract structure with owner-unsafe product copy.
+
+Required behavior:
+
+- localized `done` returns non-zero before verification or lifecycle mutation;
+- console text stays bounded and does not expose task IDs or paths;
+- the active marker, Git HEAD, and DELIVERIES ledger remain unchanged;
+- the existing valid Chinese fixture still produces a useful Owner Receipt;
+- the complete-suite inventory contains 170 unique tests exactly once.
+
+```bash
+python3 tests/test_owner_comms.py
+python3 tests/test_lifecycle.py
+python3 tests/test_structure.py
+git diff --check
+```
+
 ### T-061 owner communication and durable delivery facts
 
 The owner communication harness is presentation-layer Red/Green. It must not

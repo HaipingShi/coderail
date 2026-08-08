@@ -3,6 +3,19 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-08 - Validate owner-safe localized product copy before closeout (OWNER-COMMS-002 (internal T-062))
+
+- Done: Validate owner-safe localized product copy before closeout
+- Checked by: `python3 tests/test_owner_comms.py` exit 0; `python3 tests/test_lifecycle.py` exit 0; `python3 tests/test_structure.py` exit 0; `git diff --check` exit 0
+- Next: 获得授权后在一个中文下游项目进行对照验收，再决定旧输出退场
+- Evidence: `python3 tests/test_owner_comms.py` -> exit 0
+- Evidence: `python3 tests/test_lifecycle.py` -> exit 0
+- Evidence: `python3 tests/test_structure.py` -> exit 0
+- Evidence: `git diff --check` -> exit 0
+- Acceptance [done]: localized closeout rejects owner-unsafe product copy before lifecycle mutation
+- Acceptance [done]: valid Chinese product copy produces a useful bounded Owner Receipt
+- Acceptance [done]: historical delivery rows and governance kernel remain unchanged
+
 ## 2026-08-08 - Separate owner receipts from the agent blackboard (OWNER-COMMS-001 (internal T-061))
 
 - Done: Separate owner receipts from the agent blackboard

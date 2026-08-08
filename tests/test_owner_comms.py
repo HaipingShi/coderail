@@ -259,5 +259,55 @@ delivery:
         ).strip(), "closeout left tracked residue")
 
 
+def test_done_zh_rejects_owner_unsafe_copy_before_lifecycle_mutation():
+    closeout_facts, _ = _load_owner_modules()
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        started = cr("start", "Unsafe owner copy", "--verify", "true")
+        check(started.returncode == 0, started.stdout)
+        tasks = root / "docs/TASKS.md"
+        tasks.write_text(
+            tasks.read_text(encoding="utf-8")
+            + '''\n### Delivery Contract
+
+delivery:
+  task_status: pending
+  milestone_status: in_progress
+  product_status: not_assessed
+  customer_outcome: Production CLI closeout 已完成
+  capability_delta:
+    - 可以查看完整治理事实
+  remaining_gaps:
+    - none
+  evidence_boundary:
+    - 本地检查通过
+  recommended_next:
+    id: null
+    status: none
+    reason: 由所有者决定
+  decisions_required: []
+  technical_receipt:
+    commits: []
+    verification: []
+    safe_files: []
+''',
+            encoding="utf-8",
+        )
+        head_before = subprocess.check_output(
+            ["git", "-C", str(root), "rev-parse", "HEAD"], text=True
+        ).strip()
+
+        result = cr("done", "--owner-locale", "zh-CN")
+        check(result.returncode == 1, result.stdout)
+        check("面向所有者的中文产品说明不符合要求" in result.stdout, result.stdout)
+        check("T-001" not in result.stdout and ".coderail/" not in result.stdout, result.stdout)
+        check("Status: [~]" in tasks.read_text(encoding="utf-8"), tasks.read_text())
+        check(closeout_facts.latest(root) == {}, closeout_facts.latest(root))
+        head_after = subprocess.check_output(
+            ["git", "-C", str(root), "rev-parse", "HEAD"], text=True
+        ).strip()
+        check(head_after == head_before, (head_before, head_after))
+
+
 if __name__ == "__main__":
     run_module(globals())

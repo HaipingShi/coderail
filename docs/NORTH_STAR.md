@@ -22,8 +22,9 @@ Owner: CodeRail maintainers
 ## Current Slice
 
 - Milestone: M-015 owner communication and agent blackboard
-- Product capability: localized Owner Receipt, Agent Blackboard, Technical Report,
-  and durable Delivery Contract product facts are verified repository-local capabilities.
+- Product capability: localized Owner Receipt, pre-closeout owner-copy validation,
+  Agent Blackboard, Technical Report, and durable Delivery Contract product facts
+  are verified repository-local capabilities.
 - Product gap: a separately authorized Chinese downstream A/B acceptance is
   still required before retiring the temporary legacy closeout output.
 - Lifecycle note: this section declares no active/finalized/commit/push state;
