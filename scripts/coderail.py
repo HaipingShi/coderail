@@ -28,6 +28,7 @@ SCRIPTS = Path(__file__).resolve().parent
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
+import textio  # noqa: E402
 import task_switch  # noqa: E402
 import inspect_state  # noqa: E402
 import closeout_transaction  # noqa: E402
@@ -118,7 +119,7 @@ def read_tasks(root: Path, *, create: bool = True) -> str:
         if not create:
             return ""
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(MINIMAL_TASKS, encoding="utf-8")
+        textio.write_text_lf(path, MINIMAL_TASKS)
     return path.read_text(encoding="utf-8")
 
 
@@ -215,12 +216,12 @@ def compact_persisted_closed_tasks(root: Path) -> tuple[str, list[str]]:
 
     compacted = TASK_BLOCK_RE.sub(keep_or_remove, text).rstrip() + "\n"
     if removed:
-        tasks_path(root).write_text(compacted, encoding="utf-8")
+        textio.write_text_lf(tasks_path(root), compacted)
     return text, removed
 
 
 def restore_tasks_after_failed_ledger(root: Path, text: str) -> tuple[bool, str]:
-    tasks_path(root).write_text(text, encoding="utf-8")
+    textio.write_text_lf(tasks_path(root), text)
     result = subprocess.run(
         ["git", "-C", str(root), "add", "--", "docs/TASKS.md"],
         stdout=subprocess.PIPE,
@@ -297,7 +298,7 @@ def activate_task(root: Path, task_id: str) -> bool:
     )
     new, n = block.subn(r"\g<1>[~]", text)
     if n:
-        path.write_text(new, encoding="utf-8")
+        textio.write_text_lf(path, new)
     return bool(n)
 
 
@@ -332,7 +333,7 @@ def save_meta(root: Path, meta: dict) -> None:
     import json
     path = meta_path(root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    textio.write_text_lf(path, json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
 
 
 def task_meta(root: Path, task_id: str) -> dict:
@@ -478,10 +479,10 @@ def append_progress(root: Path, task_id: str, title: str, verified: str, next_hi
             text = text.rstrip() + "\n" + entry
         else:
             text = text[:first_entry] + entry + text[first_entry:]
-        path.write_text(text, encoding="utf-8")
+        textio.write_text_lf(path, text)
     else:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(header + entry, encoding="utf-8")
+        textio.write_text_lf(path, header + entry)
 
 
 def emit_client_delivery(root: Path, pending: dict, task_id: str) -> str:
@@ -630,7 +631,7 @@ def reopen_after_close_failure(root: Path, task_id: str, source_text: str = "") 
             updated = text.rstrip() + "\n\n" + reopened.strip() + "\n"
             count = 1
     if count:
-        path.write_text(updated, encoding="utf-8")
+        textio.write_text_lf(path, updated)
     task_switch.clear_closed_pending(root, task_id)
 
 
@@ -747,7 +748,7 @@ def write_done_report(root: Path, shown: str, title: str,
         lines.append("## Warnings")
         lines += [f"- {w}" for w in tdd_warnings] + [""]
     lines += ["## Full gate output", "", "```", gate_output.rstrip(), "```", ""]
-    path.write_text("\n".join(lines), encoding="utf-8")
+    textio.write_text_lf(path, "\n".join(lines))
     return path.relative_to(root).as_posix()  # FN-029: portable path in TASKS/PROGRESS
 
 
@@ -877,14 +878,13 @@ def cmd_blueprint(args) -> int:
         title, mermaid = MERMAID_STUBS[did]
         stub_path = bp_dir / f"{did.lower()}.md"
         if not stub_path.exists():
-            stub_path.write_text(
+            textio.write_text_lf(stub_path,
                 f"# {title} ({did})\n\n"
                 f"Status: draft scaffold - replace the placeholder shapes with this\n"
                 f"project's real structure, then set the index row to `current`.\n"
                 f"{anchor}\n"
                 f"What this diagram answers: see docs/BLUEPRINTS.md notes for {did}.\n\n"
                 f"```mermaid\n{mermaid}\n```\n",
-                encoding="utf-8",
             )
         created.append(did)
         # Update the index row: status -> planned, path -> stub, updated -> today.
@@ -897,7 +897,7 @@ def cmd_blueprint(args) -> int:
             replacement = rf"\g<1> planned \g<2> docs/blueprints/{did.lower()}.md \g<3> {today} \g<4>"
             text, n = row_re.subn(replacement, text, count=1)
             if n:
-                index_path.write_text(text, encoding="utf-8")
+                textio.write_text_lf(index_path, text)
 
     print(f"Scaffolded {len(created)} diagram stub(s): {', '.join(created)}")
     print(f"  Stubs: docs/blueprints/  (Mermaid, edit in place)")
@@ -979,7 +979,7 @@ def bump_spin_state(root: Path, task_id: str, *, reset: bool = False) -> None:
     path = spin_state_path(root)
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+        textio.write_text_lf(path, json.dumps(state, indent=2))
     except OSError:
         pass
 
@@ -1298,7 +1298,7 @@ P — Persist
 {relation_section}
     """
     path = tasks_path(root)
-    path.write_text(text.rstrip() + "\n\n" + block.strip() + "\n", encoding="utf-8")
+    textio.write_text_lf(path, text.rstrip() + "\n\n" + block.strip() + "\n")
     start_events = [
         trace_graph.task_event(
             root,
@@ -1322,7 +1322,7 @@ P — Persist
         )
     trace_ok, trace_detail = append_trace_events(root, start_events)
     if not trace_ok:
-        path.write_text(text, encoding="utf-8")
+        textio.write_text_lf(path, text)
         save_meta(root, old_meta)
         print(f"Could not register lifecycle graph; start was rolled back: {trace_detail}")
         return 1
@@ -1449,7 +1449,7 @@ def pending_close_path(root: Path) -> Path:
 def write_pending_close(root: Path, snapshot: dict) -> None:
     path = pending_close_path(root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
+    textio.write_text_lf(path, json.dumps(snapshot, ensure_ascii=False, indent=2))
 
 
 def load_pending_close(root: Path) -> dict:
@@ -1637,7 +1637,7 @@ def prepare_status_projection(root: Path, *, assume_clean: bool) -> str:
     current = status_path.read_text(encoding="utf-8") if status_path.exists() else ""
     if current != desired:
         status_path.parent.mkdir(parents=True, exist_ok=True)
-        status_path.write_text(desired, encoding="utf-8")
+        textio.write_text_lf(status_path, desired)
     return status
 
 
@@ -1822,10 +1822,10 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
             if staged:
                 committed, detail = commit_staged(root, final_message)
             if not staged or not committed:
-                handoff_path.write_text(previous_handoff, encoding="utf-8")
-                status_path.write_text(previous_status, encoding="utf-8")
+                textio.write_text_lf(handoff_path, previous_handoff)
+                textio.write_text_lf(status_path, previous_status)
                 for path, text in previous_projection.items():
-                    (root / path).write_text(text, encoding="utf-8")
+                    textio.write_text_lf(root / path, text)
                 pending["commit_error"] = detail or "closeout finalization commit failed"
                 write_pending_close(root, pending)
                 print_commit_pending(pending)
@@ -2176,7 +2176,7 @@ def _cmd_done(args) -> int:
                         f"X — Stop\n- Stop and ask if changes are needed outside the allowed files.\n\n"
                         f"P — Persist\n- TASKS, TRACE\n"
                     )
-                tasks_path(root).write_text(text_now.rstrip() + "\n" + blocks, encoding="utf-8")
+                textio.write_text_lf(tasks_path(root), text_now.rstrip() + "\n" + blocks)
                 print(f"  deferred:    {len(deferred_items)} item(s) registered as queued tasks")
             except Exception as e:  # noqa: BLE001
                 ledger_errors.append(f"deferred task queueing (docs/TASKS.md): {e}")

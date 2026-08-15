@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import repository_state
+import textio  # noqa: E402
 
 
 ACTIVE_STATUSES = {"[~]", "[!]"}
@@ -66,7 +67,7 @@ def load_meta(root: Path) -> dict:
 def save_meta(root: Path, meta: dict) -> None:
     path = _meta_path(root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    textio.write_text_lf(path, json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
 
 
 def unchanged_baseline_paths(
@@ -207,7 +208,7 @@ def pause_task(root: Path, task_id: str, reason: str) -> bool:
             f"Resume command: coderail switch --to {task_id}\n\n"
         )
         updated = updated[:match.start()] + block + updated[match.end():]
-    path.write_text(updated, encoding="utf-8")
+    textio.write_text_lf(path, updated)
     meta = load_meta(root)
     entry = meta.setdefault(task_id, {})
     entry["pause"] = {
@@ -228,7 +229,7 @@ def resume_task(root: Path, task_id: str) -> bool:
     )
     updated, count = pattern.subn(r"\g<1>[~]", text, count=1)
     if count:
-        path.write_text(updated, encoding="utf-8")
+        textio.write_text_lf(path, updated)
     return bool(count)
 
 
@@ -267,4 +268,4 @@ Reason: {reason}
 """
     path = root / "docs" / "HANDOFF.md"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+    textio.write_text_lf(path, text)

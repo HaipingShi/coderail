@@ -8,6 +8,12 @@ import shutil
 import sys
 from pathlib import Path
 
+SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+import textio  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "project-template"
 
@@ -79,11 +85,11 @@ def install_local_entry(target: Path, force: bool = False) -> None:
     # entry" mixes can no longer happen.
     version = home_version()
     if not entry.exists():
-        entry.write_text(render_shim(), encoding="utf-8")
+        textio.write_text_lf(entry, render_shim())
         print(f"wrote .coderail/coderail.py (shim v{version})")
     elif shim_version_of(entry) != version:
         old = shim_version_of(entry)
-        entry.write_text(render_shim(), encoding="utf-8")
+        textio.write_text_lf(entry, render_shim())
         print(f"updated .coderail/coderail.py (shim {old} -> v{version})")
     else:
         print("shim .coderail/coderail.py is current")
@@ -92,7 +98,7 @@ def install_local_entry(target: Path, force: bool = False) -> None:
     # overwritten - not even by --force. Delete it by hand to reset.
     if not config_path.exists():
         config = {"coderail_home": str(ROOT)}
-        config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+        textio.write_text_lf(config_path, json.dumps(config, indent=2) + "\n")
         print("wrote .coderail/config.json")
     else:
         print("kept existing .coderail/config.json (never overwritten; edit or delete by hand)")
@@ -104,11 +110,25 @@ def install_local_entry(target: Path, force: bool = False) -> None:
     existing = gitignore.read_text(encoding="utf-8", errors="ignore") if gitignore.exists() else ""
     missing = [l for l in ignore_lines if l not in existing]
     if missing:
-        with gitignore.open("a", encoding="utf-8") as fh:
+        with gitignore.open("a", encoding="utf-8", newline="\n") as fh:
             if existing and not existing.endswith("\n"):
                 fh.write("\n")
             fh.write("\n".join(missing) + "\n")
         print(f"updated .gitignore ({', '.join(missing)})")
+
+    # WIN-RESIDUE-01: EOL normalization. Without .gitattributes, lifecycle
+    # writes land as CRLF on Windows while committed content is LF, and every
+    # closeout leaves phantom "modified" residue in git status.
+    gitattributes = target / ".gitattributes"
+    attr_lines = ["* text=auto eol=lf", "*.jsonl text eol=lf"]
+    existing_attr = gitattributes.read_text(encoding="utf-8", errors="ignore") if gitattributes.exists() else ""
+    missing_attr = [l for l in attr_lines if l not in existing_attr]
+    if missing_attr:
+        with gitattributes.open("a", encoding="utf-8", newline="\n") as fh:
+            if existing_attr and not existing_attr.endswith("\n"):
+                fh.write("\n")
+            fh.write("\n".join(missing_attr) + "\n")
+        print(f"updated .gitattributes ({', '.join(missing_attr)})")
 
 
 def prefill_blueprints(target: Path) -> None:
@@ -137,7 +157,7 @@ def prefill_blueprints(target: Path) -> None:
         text, n = row_re.subn(rf"\g<1> planned \g<2>", text, count=1)
         changed += n
     if changed:
-        index.write_text(text, encoding="utf-8")
+        textio.write_text_lf(index, text)
         print(f"prefilled docs/BLUEPRINTS.md from code signals: {', '.join(sorted(needed))} -> planned")
 
 

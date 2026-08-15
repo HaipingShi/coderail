@@ -166,6 +166,22 @@ def test_init_contract_inspect_done_gate_flow():
         run([sys.executable, str(ROOT/'scripts/trace_index.py'), '--target', td])
         run([sys.executable, str(ROOT/'scripts/done_gate.py'), '--target', td, '--task', 'T-001', '--harness-result', 'passed'])
 
+def test_init_project_installs_gitattributes_eol_lf():
+    """WIN-RESIDUE-01: without EOL normalization, CRLF writes on Windows leave
+    phantom 'modified' residue after closeout commits."""
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td, '--mode', 'standard'])
+        attrs = target/'.gitattributes'
+        check(attrs.exists(), 'init must install .gitattributes for EOL normalization')
+        text = attrs.read_text(encoding='utf-8')
+        check('* text=auto eol=lf' in text, 'missing LF normalization rule')
+        check('*.jsonl text eol=lf' in text, 'missing jsonl LF rule')
+        # Re-running init must not duplicate the rules.
+        run([sys.executable, str(ROOT/'scripts/init_project.py'), '--target', td, '--mode', 'standard'])
+        again = attrs.read_text(encoding='utf-8')
+        check(again.count('* text=auto eol=lf') == 1, 'repeated init duplicated gitattributes rules')
+
 def test_done_gate_scope_prefix_is_segment_aware():
     import scripts.done_gate as done_gate
 

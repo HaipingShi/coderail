@@ -1,6 +1,6 @@
 ---
 name: closeout
-description: End a work session cleanly: report what happened, commit safe files, and leave one clear next step for whoever resumes.
+description: End a work session cleanly: report what happened, commit safe files, and leave one clear next step for whoever resumes. Use when running `coderail done` or writing the Owner Receipt.
 ---
 
 # closeout

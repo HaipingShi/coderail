@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import trace_graph
+import textio  # noqa: E402
 
 def load_events(log_path: Path):
     events=[]
@@ -92,7 +93,7 @@ def main(argv=None):
     events=trace_graph.load_graph_events(root)
     candidates=trace_graph.formal_candidates(root)
     text=render(events, candidates)
-    (docs/'TRACE_INDEX.md').write_text(text, encoding='utf-8')
+    textio.write_text_lf(docs/'TRACE_INDEX.md', text)
     print(f"wrote {docs/'TRACE_INDEX.md'} ({len(events)} events)")
     return 0
 if __name__=='__main__': raise SystemExit(main())

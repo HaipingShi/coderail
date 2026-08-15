@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Write a short snapshot so the next session (or another person/agent) can resume without re-discovering everything.
+description: Write or update the handoff file so the next session (or another person/agent) can resume without re-discovering everything. Use when pausing or ending work, or when asked to produce a handoff.
 ---
 
 # handoff

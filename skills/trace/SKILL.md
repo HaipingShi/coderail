@@ -1,6 +1,6 @@
 ---
 name: trace
-description: Record a meaningful action (change, decision, verification) in the project history so it can be found later.
+description: Record a meaningful action (change, decision, verification) in the project history so it can be found later. Use when logging a completed change or appending to TRACE_INDEX, RUNLOG, or DECISIONS.
 ---
 
 # trace

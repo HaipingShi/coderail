@@ -144,7 +144,7 @@ def append(root: Path, facts: dict) -> None:
         return
     path = ledger_path(root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as stream:
+    with path.open("a", encoding="utf-8", newline="\n") as stream:
         stream.write(json.dumps(facts, ensure_ascii=False, sort_keys=True) + "\n")
 
 

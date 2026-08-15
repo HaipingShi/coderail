@@ -334,7 +334,7 @@ delivery:
         check(result.returncode == 1, result.stdout)
         check("面向所有者的中文产品说明不符合要求" in result.stdout, result.stdout)
         check("T-001" not in result.stdout and ".coderail/" not in result.stdout, result.stdout)
-        check("Status: [~]" in tasks.read_text(encoding="utf-8"), tasks.read_text())
+        check("Status: [~]" in tasks.read_text(encoding="utf-8"), tasks.read_text(encoding="utf-8"))
         check(closeout_facts.latest(root) == {}, closeout_facts.latest(root))
         head_after = subprocess.check_output(
             ["git", "-C", str(root), "rev-parse", "HEAD"], text=True

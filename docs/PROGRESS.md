@@ -3,6 +3,13 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-15 - Skill descriptions name their artifacts; add domain-modeling skill; fix closeout residue (WIN-RESIDUE-01) (T-064)
+
+- Done: Skill descriptions name their artifacts; add domain-modeling skill; fix closeout residue (WIN-RESIDUE-01)
+- Checked by: `node scripts/run_python.js tests/test_static.py` exit 0
+- Next: 在真实项目中试用领域建模技能（DOGFOOD-01）
+- Evidence: `node scripts/run_python.js tests/test_static.py` -> exit 0
+
 ## 2026-08-08 - OWNER-COMMS-003 require explicit owner locale and retire legacy closeout output (T-063)
 
 - Done: OWNER-COMMS-003 require explicit owner locale and retire legacy closeout output

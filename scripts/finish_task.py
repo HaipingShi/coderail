@@ -14,6 +14,7 @@ if str(SCRIPTS) not in sys.path:
 
 import drive_check  # noqa: E402
 import inspect_state  # noqa: E402
+import textio  # noqa: E402
 import task_switch  # noqa: E402
 
 
@@ -56,7 +57,7 @@ def set_task_status(root: Path, task_id: str, status: str) -> bool:
     )
     updated, count = pattern.subn(rf"\g<1>{status}", text, count=1)
     if count:
-        path.write_text(updated, encoding="utf-8")
+        textio.write_text_lf(path, updated)
     return bool(count)
 
 
@@ -101,7 +102,7 @@ def update_completion(
         block, count = field.subn(rf"\1 {value}", block, count=1)
         if not count:
             block += f"\n{label}: {value}\n"
-    path.write_text(text[:match.start()] + block + text[match.end():], encoding="utf-8")
+    textio.write_text_lf(path, text[:match.start()] + block + text[match.end():])
     return True
 
 

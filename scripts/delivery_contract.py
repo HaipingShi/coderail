@@ -12,6 +12,11 @@ import re
 from copy import deepcopy
 from pathlib import Path
 
+try:
+    import textio
+except ModuleNotFoundError:  # imported as scripts.delivery_contract in tests
+    from scripts import textio
+
 
 DELIVERY_FIELDS = {
     "task_status",
@@ -574,12 +579,12 @@ def synchronize_current_truth(
     written = []
     try:
         for relative, updated in updates.items():
-            (root / relative).write_text(updated, encoding="utf-8")
+            textio.write_text_lf(root / relative, updated)
             written.append(relative)
     except OSError as exc:
         for relative in written:
             try:
-                (root / relative).write_text(originals[relative], encoding="utf-8")
+                textio.write_text_lf(root / relative, originals[relative])
             except OSError:
                 pass
         return [], [
@@ -593,7 +598,7 @@ def write_technical_report(root: Path, task_id: str, stamp: str, markdown: str) 
     reports.mkdir(parents=True, exist_ok=True)
     safe_id = re.sub(r"[^A-Za-z0-9_-]", "_", task_id or "unknown")
     path = reports / f"delivery-{stamp or 'latest'}-{safe_id}.md"
-    path.write_text(markdown.rstrip() + "\n", encoding="utf-8")
+    textio.write_text_lf(path, markdown.rstrip() + "\n")
     return path.relative_to(root).as_posix()
 
 

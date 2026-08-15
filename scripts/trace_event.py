@@ -103,7 +103,7 @@ def parse(argv=None):
 def append_event(target: Path, ev: dict) -> Path:
     docs=target/'docs'; docs.mkdir(parents=True, exist_ok=True)
     log=docs/'TRACELOG.jsonl'
-    with log.open('a', encoding='utf-8') as fh:
+    with log.open('a', encoding='utf-8', newline='\n') as fh:
         fh.write(json.dumps(ev, ensure_ascii=False)+'\n')
     return log
 

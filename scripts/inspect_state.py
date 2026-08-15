@@ -23,6 +23,7 @@ if str(SCRIPTS) not in sys.path:
 import coordinate_check  # noqa: E402
 import trace_doctor  # noqa: E402
 import repository_state  # noqa: E402
+import textio  # noqa: E402
 import contract_check  # noqa: E402
 import drive_check  # noqa: E402
 import task_switch  # noqa: E402
@@ -176,7 +177,7 @@ def write_handoff_continuation(
     if updated == text:
         return False
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(updated, encoding="utf-8")
+    textio.write_text_lf(path, updated)
     return True
 
 
@@ -815,7 +816,7 @@ def sync_projections(root: Path, *, apply: bool) -> tuple[list[str], str, str]:
         changed.append("docs/HANDOFF.md")
         if apply:
             handoff_path.parent.mkdir(parents=True, exist_ok=True)
-            handoff_path.write_text(projected_handoff, encoding="utf-8")
+            textio.write_text_lf(handoff_path, projected_handoff)
 
     status, text = render(root)
     status_path = root / "docs" / "CODERAIL_STATUS.md"
@@ -823,7 +824,7 @@ def sync_projections(root: Path, *, apply: bool) -> tuple[list[str], str, str]:
         changed.append("docs/CODERAIL_STATUS.md")
         if apply:
             status_path.parent.mkdir(parents=True, exist_ok=True)
-            status_path.write_text(text + "\n", encoding="utf-8")
+            textio.write_text_lf(status_path, text + "\n")
     return changed, status, text
 
 

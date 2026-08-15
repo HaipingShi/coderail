@@ -61,7 +61,7 @@ def load_jsonl(path: Path) -> list[dict]:
 
 def append_jsonl(path: Path, row: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
+    with path.open("a", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 

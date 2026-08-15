@@ -2,7 +2,19 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Skills `handoff`, `trace`, and `closeout` descriptions now name their
+  artifacts (handoff file; TRACE_INDEX / RUNLOG / DECISIONS; `coderail done`
+  and the Owner Receipt) so the skills also trigger on direct file-operation
+  requests, not only on conversational framing.
+- New skill `domain-modeling`: actively builds the project's domain language
+  in a lazily created root `CONTEXT.md` glossary and records ADRs in the
+  existing `docs/DECISIONS.md`, offered only when a decision is hard to
+  reverse, surprising without context, and the result of a real trade-off.
+- Fixed WIN-RESIDUE-01: lifecycle text writes now go through
+  `scripts/textio.py` (LF-only, skip-if-identical) and `init_project.py`
+  installs `.gitattributes` (`* text=auto eol=lf`). On Windows, CRLF rewrites
+  after the closeout `git add` previously left phantom "modified" residue that
+  blocked the CI Gate.
 
 ## v0.11.0
 

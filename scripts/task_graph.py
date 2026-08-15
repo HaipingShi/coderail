@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+import textio  # noqa: E402
 
 
 RELATIONS = ("depends_on", "blocks", "supersedes")
@@ -39,7 +40,7 @@ def load_meta(root: Path) -> dict:
 def save_meta(root: Path, meta: dict) -> None:
     path = root / ".coderail" / "tasks.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    textio.write_text_lf(path, json.dumps(meta, indent=2, ensure_ascii=False) + "\n")
 
 
 def known_task_ids(root: Path, meta: dict | None = None) -> set[str]:
@@ -188,4 +189,4 @@ def sync_task_block(root: Path, task_id: str, row: dict[str, list[str]]) -> None
         block = block[:existing.start()] + section + "\n" + block[existing.end():].lstrip()
     else:
         block = block.rstrip() + "\n\n" + section
-    path.write_text(text[:match.start()] + block + text[match.end():], encoding="utf-8")
+    textio.write_text_lf(path, text[:match.start()] + block + text[match.end():])
