@@ -15,6 +15,10 @@
   installs `.gitattributes` (`* text=auto eol=lf`). On Windows, CRLF rewrites
   after the closeout `git add` previously left phantom "modified" residue that
   blocked the CI Gate.
+- Owner Receipt is now an intent-driven account to a human: the narrative
+  (what was done, what was not done and why, what next) has a relaxed 3-10
+  sentence budget, and the decisions block is enumerated one item per line
+  outside that budget, so choices are never compressed away or truncated.
 
 ## v0.11.0
 

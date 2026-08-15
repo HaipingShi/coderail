@@ -51,6 +51,35 @@ def sentence_count(text: str) -> int:
     return len(re.findall(r"[^。！？.!?\n]+[。！？.!?]", text))
 
 
+DECISIONS_HEADERS = ("需要你决定：", "Your decision:")
+
+
+def _narrative(text: str) -> str:
+    """The part of the receipt subject to the information budget. The
+    decisions block is enumerated choice, not narrative, and is exempt so
+    options are never compressed away to fit a sentence budget."""
+    for header in DECISIONS_HEADERS:
+        marker = f"\n{header}"
+        if marker in text:
+            return text.split(marker, 1)[0]
+    return text
+
+
+def _decision_items(product: dict) -> list[str]:
+    return [
+        _plain(item)
+        for item in (product.get("decisions_required") or [])
+        if _plain(item) and _plain(item) not in {"none", "无"}
+    ]
+
+
+def _with_decisions(text: str, product: dict, header: str) -> str:
+    items = _decision_items(product)
+    if not items:
+        return text
+    return text + f"\n{header}\n" + "\n".join(f"- {item}" for item in items)
+
+
 def _unannotated_english(text: str) -> list[str]:
     outside_notes = ANNOTATED_ENGLISH.sub("", text)
     return sorted(set(ENGLISH_WORD.findall(outside_notes)), key=str.lower)
@@ -58,9 +87,10 @@ def _unannotated_english(text: str) -> list[str]:
 
 def surface_violations(text: str, *, locale: str) -> list[str]:
     issues = []
-    count = sentence_count(text)
-    if not 3 <= count <= 6:
-        issues.append(f"information budget requires 3-6 sentences; found {count}")
+    narrative = _narrative(text)
+    count = sentence_count(narrative)
+    if not 3 <= count <= 10:
+        issues.append(f"information budget requires 3-10 narrative sentences; found {count}")
     if TASK_ID.search(text):
         issues.append("task or product id is visible")
     if PATH.search(text):
@@ -119,10 +149,7 @@ def _render_zh(product: dict, verification_count: int) -> str:
         lines.append(f"尚未覆盖：{gaps}。")
     next_reason = _next_reason(product)
     lines.append(f"下一步：{next_reason or '由你决定是否开始新的产品工作'}。")
-    decisions = _join(product.get("decisions_required") or [])
-    if decisions and decisions not in {"none", "无"}:
-        lines.append(f"需要你决定：{decisions}。")
-    return "\n".join(lines[:6])
+    return _with_decisions("\n".join(lines), product, "需要你决定：")
 
 
 def _render_en(product: dict, verification_count: int) -> str:
@@ -138,10 +165,7 @@ def _render_en(product: dict, verification_count: int) -> str:
     if gaps:
         lines.append(f"Not yet covered: {gaps}.")
     lines.append(f"Next: {next_reason}.")
-    decisions = "; ".join(product.get("decisions_required") or [])
-    if decisions and decisions.lower() != "none":
-        lines.append(f"Your decision: {decisions}.")
-    return "\n".join(lines[:6])
+    return _with_decisions("\n".join(lines), product, "Your decision:")
 
 
 def render(facts: dict, *, locale: str | None = None) -> str:

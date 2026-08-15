@@ -4,7 +4,7 @@
 > Generated projection. `inspect` reads live state without rewriting this file.
 > Preview with `coderail sync-projections`; write only with explicit `--apply`.
 
-Generated at: 2026-08-15T09:23:20+00:00
+Generated at: 2026-08-15T10:58:24+00:00
 Status: healthy
 
 ## Current North Star
@@ -14,10 +14,10 @@ Status: healthy
 
 ## Latest Delivery Fact
 
-- Delivery fact: delivery-20260815-091958-T-064
-- Source task: T-064
+- Delivery fact: delivery-20260815-105504-T-065
+- Source task: T-065
 - Verification records: 1
-- Technical report: .coderail/reports/delivery-20260815-091958-T-064.md
+- Technical report: .coderail/reports/delivery-20260815-105504-T-065.md
 - Product wording: use `coderail owner-summary`; do not infer it from NORTH_STAR
 
 ## Legacy Cutoff
@@ -116,7 +116,7 @@ Status: healthy
 
 - Level: H0
 - Needs update: no
-- Last closed task: T-064
+- Last closed task: T-065
 - Closeout state: finalized
 
 ## Recommended Next Action

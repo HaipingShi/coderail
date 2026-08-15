@@ -3,6 +3,13 @@
 If you only read one file in this project, read this one.
 Each entry: what got done, how it was checked, what comes next.
 
+## 2026-08-15 - Owner Receipt: intent-driven narrative, relaxed budget, decisions block exempt (T-065)
+
+- Done: Owner Receipt: intent-driven narrative, relaxed budget, decisions block exempt
+- Checked by: `node scripts/run_python.js tests/test_static.py` exit 0
+- Next: decide with the user
+- Evidence: `node scripts/run_python.js tests/test_static.py` -> exit 0
+
 ## 2026-08-15 - Skill descriptions name their artifacts; add domain-modeling skill; fix closeout residue (WIN-RESIDUE-01) (T-064)
 
 - Done: Skill descriptions name their artifacts; add domain-modeling skill; fix closeout residue (WIN-RESIDUE-01)

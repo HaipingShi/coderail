@@ -97,7 +97,8 @@ def test_zh_owner_receipt_is_localized_and_within_information_budget():
     closeout_facts, owner_receipt = _load_owner_modules()
     receipt = owner_receipt.render(_facts(closeout_facts), locale="zh-CN")
 
-    check(3 <= owner_receipt.sentence_count(receipt) <= 6, receipt)
+    narrative = owner_receipt._narrative(receipt)
+    check(3 <= owner_receipt.sentence_count(narrative) <= 10, receipt)
     check(owner_receipt.surface_violations(receipt, locale="zh-CN") == [], receipt)
     check("素材包（Source Bundle）" in receipt, receipt)
     for forbidden in (
@@ -105,6 +106,22 @@ def test_zh_owner_receipt_is_localized_and_within_information_budget():
         "commit", "push", "Coordinate", "Drive", "Green", "Red", "marker",
     ):
         check(forbidden not in receipt, receipt)
+
+
+def test_decisions_block_is_enumerated_outside_information_budget():
+    closeout_facts, owner_receipt = _load_owner_modules()
+    delivery = _zh_delivery()
+    delivery["decisions_required"] = [
+        "是否开始真实歌曲实跑",
+        "渲染队列放在哪里：本地快｜云端稳｜先本地后云端",
+    ]
+    receipt = owner_receipt.render(_facts(closeout_facts, delivery), locale="zh-CN")
+
+    check(owner_receipt.surface_violations(receipt, locale="zh-CN") == [], receipt)
+    check("\n需要你决定：\n- 是否开始真实歌曲实跑\n- 渲染队列放在哪里" in receipt, receipt)
+    narrative = owner_receipt._narrative(receipt)
+    check("- 是否开始真实歌曲实跑" not in narrative, receipt)
+    check(3 <= owner_receipt.sentence_count(narrative) <= 10, receipt)
 
 
 def test_unlocalized_english_does_not_leak_into_zh_owner_receipt():
