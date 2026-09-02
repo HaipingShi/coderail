@@ -624,5 +624,27 @@ def test_done_emits_bounded_owner_receipt_instead_of_legacy_report():
         check(3 <= len(lines) <= 6, lines)
 
 
+def test_delivery_contract_parser_self_heals_finish_task_residue():
+    # BUG-1 regression: an interrupted closeout appended its nine lifecycle
+    # receipt lines after the contract; the next done then failed with
+    # "unsupported Delivery Contract syntax" on every retry. The parser must
+    # ignore CodeRail's own residue lines so a poisoned file self-heals.
+    residue = "\n".join(f"{label}: x" for label in [
+        "Task result", "Harness result", "Handoff level", "Handoff updated",
+        "Inspect status", "Drive decision", "Resume anchor",
+        "Next executable step", "Auto commit"])
+    bodies = [DELIVERY_SECTION + residue + "\n"]
+    bodies.append(
+        DELIVERY_SECTION.replace(
+            "### Delivery Contract\n", "### Delivery Contract\n\n```yaml\n", 1
+        ).rstrip("\n") + "\n```\n" + residue + "\n"
+    )
+    for body in bodies:
+        contract, issues = delivery_contract.parse_delivery_contract(body)
+        check(not issues, issues)
+    contract, _ = delivery_contract.parse_delivery_contract(bodies[0])
+    check(contract["customer_outcome"] == "Customer can use the delivered capability.", contract)
+
+
 if __name__ == "__main__":
     run_module(globals())

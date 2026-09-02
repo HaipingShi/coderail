@@ -77,6 +77,14 @@ CURRENT_ID_FIELD = re.compile(
     r"(?:\*\*)?[ ]*[:：](?:\*\*)?",
     re.I,
 )
+# Lifecycle receipt lines written by finish_task next to a task block. They are
+# never contract YAML, and an interrupted closeout used to leave them appended
+# after the contract fence, which made every later parse fail.
+LIFECYCLE_RESIDUE_FIELD = re.compile(
+    r"^(?:Task result|Harness result|Handoff level|Handoff updated|Inspect status|"
+    r"Drive decision|Resume anchor|Next executable step|Auto commit):",
+    re.I,
+)
 
 
 def _legacy_contract() -> dict:
@@ -110,7 +118,11 @@ def _delivery_section(text: str) -> str:
     )
     if not match:
         return ""
-    body = match.group(1).strip()
+    body = "\n".join(
+        line for line in match.group(1).splitlines()
+        if not LIFECYCLE_RESIDUE_FIELD.match(line)
+    )
+    body = body.strip()
     fence = re.fullmatch(r"```(?:ya?ml)?\s*\n(.*?)\n```", body, re.I | re.S)
     return fence.group(1).strip() if fence else body
 

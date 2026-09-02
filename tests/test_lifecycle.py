@@ -422,6 +422,89 @@ def test_failed_done_on_open_task_still_says_rerun():
               f'open-task failure should still suggest rerun: {r.stdout}')
         tasks = (root/'docs/TASKS.md').read_text(encoding='utf-8')
         check('Status: [~]' in tasks, 'task must remain open after failed verify')
+        check('Task result:' not in tasks,
+              'a failed done must not write its intended result into the task block')
+
+def test_done_prefers_current_tasks_md_verify_over_start_snapshot():
+    # UX-3 regression: verify commands were snapshotted into
+    # .coderail/tasks.json at start; editing the task's V section in
+    # docs/TASKS.md then had no effect. The living coordinate must win.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        r = cr('start', 'Editable verify', '--verify', 'python --version')
+        check(r.returncode == 0, r.stdout)
+        tasks = root/'docs/TASKS.md'
+        edited = tasks.read_text(encoding='utf-8').replace(
+            '- Run: `python --version` (must exit 0)',
+            '- Run: `false` (must exit 0)',
+        )
+        check('- Run: `false`' in edited, 'fixture edit missed the V section')
+        tasks.write_text(edited, encoding='utf-8')
+        r = cr('done')
+        check(r.returncode == 1, r.stdout)
+        check('VERIFY FAILED' in r.stdout and 'running: false' in r.stdout,
+              f'done must run the current TASKS.md verify command: {r.stdout}')
+
+def test_activation_warns_when_no_verify_is_registered():
+    # UX-2 regression: next --go and switch --to activated tasks silently;
+    # only start mentioned that done will close the task as unverified.
+    def scenario(activate):
+        with tempfile.TemporaryDirectory() as td:
+            root, cr = _lifecycle_env(td)
+            queued = cr('start', 'Queued seed task', '--verify', 'true')
+            check(queued.returncode == 0, queued.stdout)
+            cr('done')
+            (root/'docs/TASKS.md').write_text(
+                (root/'docs/TASKS.md').read_text(encoding='utf-8')
+                + '\n## T-002 Manual follow-up\n\nStatus: [ ]\nType: feature\nRail: light\n\n'
+                '### CodeRail Coordinate\n\nG — Goal\n- follow up\n\nT — Task\n- follow up\n\n'
+                'S — Scope\nAllowed:\n  - docs/**\nForbidden:\n  - none\n\nV — Verify\n- manual\n\n'
+                'X — Stop\n- outside scope\n\nP — Persist\n- TASKS, TRACE\n',
+                encoding='utf-8',
+            )
+            result = activate(cr)
+            check(result.returncode == 0, result.stdout)
+            check('close it as unverified' in result.stdout, result.stdout)
+    scenario(lambda cr: cr('next', '--go'))
+    scenario(lambda cr: cr('switch', '--to', 'T-002'))
+
+def test_completion_fields_are_written_before_the_delivery_contract_section():
+    # BUG-1 regression: finish_task used to append missing lifecycle fields at
+    # the end of the task block, which landed inside a trailing Delivery
+    # Contract section and poisoned its parser on the next done.
+    sys.path.insert(0, str(ROOT/'scripts'))
+    import finish_task
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root/'docs').mkdir(parents=True, exist_ok=True)
+        tasks = root/'docs/TASKS.md'
+        tasks.write_text(
+            "# Tasks\n\n## T-001 Contracted task\n\nStatus: [~]\nType: feature\nRail: full\n\n"
+            "### CodeRail Coordinate\n\nG — Goal\n- keep the contract parseable\n\n"
+            "T — Task\n- close safely\n\nS — Scope\nAllowed:\n  - docs/**\nForbidden:\n  - none\n\n"
+            "V — Verify\n- manual check\n\nX — Stop\n- outside scope\n\nP — Persist\n- TASKS, TRACE\n\n"
+            "### Delivery Contract\n\ndelivery:\n  task_status: pending\n"
+            "  milestone_status: not_assessed\n  product_status: not_assessed\n"
+            "  customer_outcome: A usable capability.\n  capability_delta: []\n"
+            "  remaining_gaps: []\n  evidence_boundary: []\n  recommended_next:\n"
+            "    id: null\n    status: none\n    reason: not_assessed\n"
+            "  decisions_required: []\n  technical_receipt:\n    commits: []\n"
+            "    verification: []\n    safe_files: []\n",
+            encoding='utf-8',
+        )
+        decision = {"decision": "STOP", "next_action": "review the checkpoint"}
+        ok = finish_task.update_completion(
+            root, "T-001", "stage-complete", "skipped", decision, "disabled", True
+        )
+        check(ok, 'update_completion reported failure')
+        text = tasks.read_text(encoding='utf-8')
+        check("Task result: stage-complete" in text, text)
+        check(text.index("Task result: stage-complete") < text.index("### Delivery Contract"),
+              'completion fields must stay out of the Delivery Contract section')
+        sys.path.insert(0, str(ROOT))
+        from scripts import delivery_contract
+        _contract, issues = delivery_contract.parse_delivery_contract(text)
+        check(not issues, issues)
 
 if __name__ == "__main__":
     run_module(globals())

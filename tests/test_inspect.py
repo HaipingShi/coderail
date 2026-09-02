@@ -446,5 +446,33 @@ def test_sync_projections_previews_then_applies_explicitly():
         check('Legacy project prose.' in handoff, handoff)
         check('<!-- coderail:continuation:start -->' in handoff, handoff)
 
+def test_status_projection_never_adds_blank_line_at_eof():
+    # BUG-2 regression: the generator appended a newline onto render() output
+    # that already ends with one; docs/CODERAIL_STATUS.md then carried a blank
+    # line at EOF, which the toolchain's own CI whitespace gate
+    # (git diff --check) rejected on every closeout - generator versus gate
+    # deadlock.
+    with tempfile.TemporaryDirectory() as td:
+        target = Path(td)
+        subprocess.check_call(['git', 'init', '-q'], cwd=td)
+        subprocess.check_call(['git', 'config', 'user.email', 't@t.io'], cwd=td)
+        subprocess.check_call(['git', 'config', 'user.name', 't'], cwd=td)
+        write_inspect_project(target, inspect_task('T-001', '[~]', 'pytest'), None)
+        subprocess.check_call(['git', 'add', '-A'], cwd=td)
+        subprocess.check_call(['git', 'commit', '-qm', 'init'], cwd=td)
+        sys.path.insert(0, str(ROOT/'scripts'))
+        import inspect_state
+        inspect_state.sync_projections(target, apply=True)
+        status = (target/'docs/CODERAIL_STATUS.md').read_text(encoding='utf-8')
+        check(status.endswith('```\n') and not status.endswith('\n\n'), repr(status[-8:]))
+        gate = subprocess.run(
+            ['git', 'diff', '--check'], cwd=td,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8',
+        )
+        # The gate fails on whitespace errors; EOL conversion warnings on a
+        # bare fixture (no .gitattributes) are environment noise.
+        check(gate.returncode == 0 and 'new blank line at EOF' not in gate.stdout,
+              f'whitespace gate rejected the generated projection: {gate.stdout}')
+
 if __name__ == "__main__":
     run_module(globals())

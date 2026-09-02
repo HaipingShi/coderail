@@ -359,5 +359,48 @@ delivery:
         check(head_after == head_before, (head_before, head_after))
 
 
+def test_done_owner_copy_failure_lists_specific_issues():
+    # UX regression: the rejection used to print generic guidance only; the
+    # concrete product_copy_violations issues must be listed so the fix does
+    # not require reading the source.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        started = cr("start", "Unlocalized owner copy")
+        check(started.returncode == 0, started.stdout)
+        zh = cr("done", "--owner-locale", "zh-CN")
+        check(zh.returncode == 1, zh.stdout)
+        check("具体问题" in zh.stdout, zh.stdout)
+        check("unannotated English appears in Chinese owner product copy" in zh.stdout, zh.stdout)
+        tasks = root / "docs/TASKS.md"
+        tasks.write_text(
+            tasks.read_text(encoding="utf-8")
+            + '''\n### Delivery Contract
+
+delivery:
+  task_status: pending
+  milestone_status: not_assessed
+  product_status: not_assessed
+  customer_outcome: Shipped the T-001 updater
+  capability_delta: []
+  remaining_gaps: []
+  evidence_boundary: []
+  recommended_next:
+    id: null
+    status: none
+    reason: not_assessed
+  decisions_required: []
+  technical_receipt:
+    commits: []
+    verification: []
+    safe_files: []
+''',
+            encoding="utf-8",
+        )
+        en = cr("done", "--owner-locale", "en")
+        check(en.returncode == 1, en.stdout)
+        check("Specific issues" in en.stdout, en.stdout)
+        check("task or product id appears in owner product copy" in en.stdout, en.stdout)
+
+
 if __name__ == "__main__":
     run_module(globals())

@@ -97,11 +97,22 @@ def update_completion(
         "Next executable step": decision["next_action"],
         "Auto commit": auto_action,
     }
+    missing: list[str] = []
     for label, value in values.items():
         field = re.compile(rf"^({re.escape(label)}:)\s*.*$", re.I | re.M)
         block, count = field.subn(rf"\1 {value}", block, count=1)
         if not count:
-            block += f"\n{label}: {value}\n"
+            missing.append(f"{label}: {value}")
+    if missing:
+        # Lifecycle fields belong to the task header, never inside a `###`
+        # subsection: appending at the block end used to drop them into a
+        # trailing Delivery Contract body and poison its parser.
+        addition = "".join(f"{line}\n" for line in missing)
+        section = re.search(r"^###\s", block, re.M)
+        if section:
+            block = block[:section.start()] + addition + "\n" + block[section.start():]
+        else:
+            block = block.rstrip("\n") + "\n\n" + addition
     textio.write_text_lf(path, text[:match.start()] + block + text[match.end():])
     return True
 
@@ -257,10 +268,14 @@ def main(argv=None) -> int:
         closeout_state=closeout_state,
         handoff_level=handoff_level,
     )
-    update_completion(
-        root, task_id, args.task_result, verification, decision, auto_action,
-        handoff_updated,
-    )
+    # A failed `done` must never write its intended result into the task
+    # block: "Task result: done" on an open task is false, and the appended
+    # residue used to poison the Delivery Contract parser on the next attempt.
+    if args.task_result != "done" or task_marked_done:
+        update_completion(
+            root, task_id, args.task_result, verification, decision, auto_action,
+            handoff_updated,
+        )
     run("Inspect", "inspect_state.py", root, ["--write"])
 
     if args.task_result != "done" or task_marked_done:

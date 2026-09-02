@@ -580,7 +580,7 @@ def test_runtime_has_no_repository_state_compatibility_adapters():
         tree = ast.parse(source)
         names.extend(node.name for node in tree.body
                      if isinstance(node, ast.FunctionDef) and node.name.startswith('test_'))
-    check(len(names) == 163 and len(names) == len(set(names)),
+    check(len(names) == 169 and len(names) == len(set(names)),
           f'test inventory changed or contains duplicates: {len(names)}/{len(set(names))}')
 
 def test_closeout_transaction_is_the_only_success_authority():
@@ -612,6 +612,32 @@ def test_verified_commit_pending_is_non_success_and_resumes_to_finalized():
     resumed.finalize(inspect_status='healthy', residual_paths=[])
     check(resumed.success and resumed.phase is closeout_transaction.Phase.FINALIZED,
           resumed.result())
+
+def test_resume_with_stale_pre_close_snapshot_reports_recovery_not_finalized():
+    # BUG-3 regression: a snapshot written before the verified commit step has
+    # no ``state`` key; --resume used to claim "already finalized" and then
+    # fail with OWNER_RECEIPT_ERROR while nothing had happened at all.
+    with tempfile.TemporaryDirectory() as td:
+        root, cr = _lifecycle_env(td)
+        started = cr('start', 'Interrupted closeout', '--verify', 'true')
+        check(started.returncode == 0, started.stdout)
+        (root/'.coderail/pending_close.json').write_text(json.dumps({
+            'task': 'T-001', 'title': 'Interrupted closeout',
+            'owner_locale': 'en', 'stamp': '20260902-000000',
+        }), encoding='utf-8')
+        head = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+        result = cr('done', '--resume')
+        check(result.returncode == 1, result.stdout)
+        check('Nothing to resume' in result.stdout, result.stdout)
+        check('stale pre-close' in result.stdout, result.stdout)
+        check('coderail done --owner-locale en' in result.stdout, result.stdout)
+        check('already finalized' not in result.stdout, result.stdout)
+        check('OWNER_RECEIPT_ERROR' not in result.stdout, result.stdout)
+        current = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+        check(current == head, 'a stale-snapshot resume must not commit anything')
+        # A fresh done still works with the stale snapshot present.
+        done = cr('done')
+        check(done.returncode == 0 and 'Completed:' in done.stdout, done.stdout)
 
 if __name__ == "__main__":
     run_module(globals())

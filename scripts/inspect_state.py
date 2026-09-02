@@ -820,11 +820,14 @@ def sync_projections(root: Path, *, apply: bool) -> tuple[list[str], str, str]:
 
     status, text = render(root)
     status_path = root / "docs" / "CODERAIL_STATUS.md"
-    if read(status_path) != text + "\n":
+    # Normalize the EOF: render() already ends with one newline, and an extra
+    # blank line at EOF fails the CI whitespace gate ("new blank line at EOF").
+    desired_status = text.rstrip("\n") + "\n"
+    if read(status_path) != desired_status:
         changed.append("docs/CODERAIL_STATUS.md")
         if apply:
             status_path.parent.mkdir(parents=True, exist_ok=True)
-            textio.write_text_lf(status_path, text + "\n")
+            textio.write_text_lf(status_path, desired_status)
     return changed, status, text
 
 

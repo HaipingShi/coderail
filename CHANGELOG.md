@@ -1,5 +1,44 @@
 # Changelog
 
+## Unreleased
+
+Convergent-closeout deadlock fixes reported from a standard-mode spin-up whose
+first closeout looped seven times. Each fix ships with a regression test.
+
+### Bug fixes
+
+- Fixed TASKS-POISON-01: a failed `done` no longer writes its intended result
+  into the task block, and `finish_task` now records lifecycle receipt fields
+  before the task's `###` subsections instead of appending them at the block
+  end, where they landed inside a trailing Delivery Contract and made every
+  later parse fail with "unsupported Delivery Contract syntax". The contract
+  parser also ignores these known residue lines, so already-poisoned TASKS.md
+  files self-heal without hand cleaning.
+- Fixed EOF-BLANK-01: the CODERAIL_STATUS.md projection generator no longer
+  appends a newline onto `render()` output that already ends with one, so the
+  generated projection can no longer fail the toolchain's own CI whitespace
+  gate (`git diff --check`: "new blank line at EOF").
+- Fixed RESUME-LIE-01: `done --resume` without a verified-commit-pending
+  snapshot no longer claims "already finalized". A stale pre-close snapshot
+  (a run that stopped before the verified commit step) now returns failure with
+  an explicit recovery path, a resumed finalize persists missing product
+  delivery facts instead of failing the owner receipt afterwards, and
+  OWNER_RECEIPT_ERROR names the recovery paths.
+
+### Owner communication
+
+- Owner-copy rejections list every concrete `product_copy_violations` issue
+  (e.g. which required copy is missing) instead of generic guidance, so the fix
+  no longer requires reading the source.
+- `next --go` and `switch --to` now warn at activation when no verify command
+  is registered, stating that done will close the task as unverified; `start`
+  already did.
+- `done` treats docs/TASKS.md as the living coordinate: current V-section
+  verify commands (including path-prefixed interpreters such as
+  `.venv/Scripts/python`) and A-section acceptance items override the
+  start-time snapshot in `.coderail/tasks.json`, which now only fills sections
+  TASKS.md no longer declares.
+
 ## v0.12.0
 
 Skills `handoff`, `trace`, and `closeout` now trigger on direct file-operation requests, not only on conversational framing. New `domain-modeling` skill builds project glossary and ADRs. Fixed WIN-RESIDUE-01: lifecycle text writes go through `scripts/textio.py` (LF-only, skip-if-identical) and `init_project.py` installs `.gitattributes`. Owner Receipt is now an intent-driven account with relaxed 3-10 sentence budget.

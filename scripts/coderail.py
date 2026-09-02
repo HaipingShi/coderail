@@ -256,7 +256,8 @@ def task_contract_metadata(text: str, task_id: str | None) -> dict:
             }
             for candidate in re.findall(r"`([^`]+)`", verify_section.group(1)):
                 first = candidate.strip().split(maxsplit=1)[0].lower() if candidate.strip() else ""
-                if first in executables:
+                base = first.replace("\\", "/").rsplit("/", 1)[-1]
+                if base in executables:
                     verify.append(candidate.strip())
         acceptance_section = re.search(
             r"^A\s+[^\n]*\n(.*?)(?=^X\s+[^\n]*\n|\Z)", body, re.M | re.S,
@@ -275,6 +276,17 @@ def task_body(text: str, task_id: str | None) -> str:
         if match.group(1) == task_id:
             return match.group(3)
     return ""
+
+
+def warn_if_unverified(root: Path, text: str, task_id: str) -> None:
+    """State the consequence at activation time, not only at done time."""
+    if task_contract_metadata(text, task_id).get("verify"):
+        return
+    if task_meta(root, task_id).get("verify"):
+        return
+    print("  NOTE: no verify command is registered for this task, so done will")
+    print("  close it as unverified. Add one in the task's V section or at start")
+    print('  with --verify "cmd".')
 
 
 def next_todo_task(text: str):
@@ -1633,7 +1645,10 @@ def prepare_status_projection(root: Path, *, assume_clean: bool) -> str:
     """Write Inspect state for either a pending or committed closeout."""
     status_path = root / "docs" / "CODERAIL_STATUS.md"
     status, text = inspect_state.render(root, assume_clean=assume_clean)
-    desired = text + "\n"
+    # render() text already ends with exactly one newline; appending another
+    # used to leave a blank line at EOF that the CI whitespace gate then
+    # rejected as "new blank line at EOF" - a gate versus generator deadlock.
+    desired = text.rstrip("\n") + "\n"
     current = status_path.read_text(encoding="utf-8") if status_path.exists() else ""
     if current != desired:
         status_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1845,6 +1860,15 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
             print(f"  - {path}")
         return 1
 
+    pending, facts_error = ensure_delivery_facts(root, pending, closed_id)
+    if facts_error:
+        print("The closeout committed, but persisting product delivery facts failed:")
+        print(f"  - {facts_error}")
+        print("The owner receipt cannot be rendered. Repair docs/DELIVERIES.jsonl from")
+        print("the technical report in .coderail/reports/, then run owner-summary.")
+        emit_client_delivery(root, pending, closed_id)
+        return 1
+
     title = pending.get("title") or task_id
     verify_results = pending.get("verify_results", [])
     print(f"== Done: {fmt_id(task_id, task_meta(root, task_id))} - {title} ==")
@@ -1854,6 +1878,61 @@ def finalize_resumed_closeout(root: Path, pending: dict) -> int:
     print("  journal:     already persisted; no duplicate entry written")
     emit_client_delivery(root, pending, closed_id)
     return 0
+
+
+def report_nothing_to_resume(root: Path) -> int:
+    """Honest --resume diagnosis when no verified-commit-pending snapshot exists.
+
+    A leftover pre-close snapshot (no ``state`` key) means the previous run
+    stopped BEFORE the verified commit step: nothing was finalized. Claiming
+    "already finalized" here sent users in circles with a bogus
+    OWNER_RECEIPT_ERROR and no recovery path.
+    """
+    pending = load_pending_close(root)
+    if pending:
+        locale = pending.get("owner_locale") or "en"
+        print("Nothing to resume: .coderail/pending_close.json holds a stale pre-close")
+        print("snapshot from a run that stopped before the verified commit step.")
+        print("That run finalized and committed nothing.")
+        print(f"Recovery: rerun the closeout fresh with  coderail done --owner-locale {locale}")
+        print("(a fresh done replaces the snapshot; deleting .coderail/pending_close.json")
+        print("first is also safe - it is machine-local state and gitignored)")
+        return 1
+    print("Nothing to resume: no verified-commit-pending snapshot remains.")
+    print("If the previous done already finalized, this is expected. Otherwise run")
+    print("done with --owner-locale zh-CN or en.")
+    return 0
+
+
+def ensure_delivery_facts(root: Path, pending: dict, closed_id: str) -> tuple[dict, str]:
+    """Persist product delivery facts when an interrupted closeout never
+    recorded them, so a resumed finalize can still render the owner receipt."""
+    if pending.get("delivery_id"):
+        return pending, ""
+    stamp = pending.get("stamp", "")
+    safe_id = re.sub(r"[^A-Za-z0-9_-]", "_", closed_id or "unknown")
+    try:
+        facts = closeout_facts.build(
+            task_id=closed_id,
+            stamp=stamp,
+            owner_locale=pending.get("owner_locale") or "en",
+            delivery=(
+                pending.get("delivery_contract")
+                or delivery_contract.parse_delivery_contract("")[0]
+            ),
+            verify_results=pending.get("verify_results", []),
+            technical_report=(
+                f".coderail/reports/delivery-{stamp or 'latest'}-{safe_id}.md"
+            ),
+        )
+        closeout_facts.append(root, facts)
+    except (ValueError, OSError) as exc:
+        return pending, str(exc)
+    pending["delivery_id"] = facts["delivery_id"]
+    pending["technical_report"] = (
+        f".coderail/reports/delivery-{stamp or 'latest'}-{safe_id}.md"
+    )
+    return pending, ""
 
 
 def _cmd_done(args) -> int:
@@ -1867,16 +1946,19 @@ def _cmd_done(args) -> int:
         print_commit_pending(existing_pending)
         return PENDING_EXIT
     if getattr(args, "resume", False):
-        print("Closeout already finalized; no verified-commit-pending snapshot remains.")
-        return 0
+        return report_nothing_to_resume(root)
 
     tasks_text_before = read_tasks(root)
     task_before = args.task or active_task_id(tasks_text_before)
     transaction = closeout_transaction.CloseoutTransaction(task_before or "(unknown)")
     meta = task_meta(root, task_before) if task_before else {}
     contract_meta = task_contract_metadata(tasks_text_before, task_before)
+    # docs/TASKS.md is the living coordinate: if it currently declares verify
+    # commands or acceptance items, they win. The start-time snapshot in
+    # .coderail/tasks.json only fills sections that TASKS.md no longer parses,
+    # so hand edits to the V/A sections take effect without touching state.
     for key in ("verify", "accept"):
-        if not meta.get(key) and contract_meta.get(key):
+        if contract_meta.get(key):
             meta[key] = contract_meta[key]
     shown = fmt_id(task_before, meta) if task_before else ""
     delivery_input, delivery_issues = delivery_contract.parse_delivery_contract(
@@ -1912,10 +1994,14 @@ def _cmd_done(args) -> int:
                 print("面向所有者的中文产品说明不符合要求，本次工作尚未完成。")
                 print("请只写实际新增能力、验证范围、未覆盖项、下一步和需要所有者决定的事项，必要英文需附中文说明。")
                 print("当前产品状态和代码文件均未修改。")
+                print("具体问题（owner product copy violations）:")
             else:
                 print("The owner-facing product copy is not ready, so this work remains open.")
                 print("Describe product capability, evidence limits, remaining gaps, next step, and owner decisions without internal identifiers or governance jargon.")
                 print("No lifecycle or product files were changed by this closeout attempt.")
+                print("Specific issues (owner product copy violations):")
+            for issue in copy_issues:
+                print(f"  - {issue}")
             return 1
 
     # ---- FN-010: run registered verify commands. This is the gate itself.
@@ -2392,7 +2478,13 @@ def cmd_done(args) -> int:
     try:
         facts = closeout_facts.latest(root)
         if not facts:
-            raise ValueError("the successful closeout did not persist product delivery facts")
+            raise ValueError(
+                "no product delivery facts were persisted by this closeout, so there "
+                "is nothing to render. Recovery: check .coderail/pending_close.json - "
+                "a verified-commit-pending snapshot resumes with done --resume; a stale "
+                "pre-close snapshot can be deleted (machine-local, gitignored) before "
+                "rerunning done"
+            )
         print(owner_receipt.render(facts, locale=locale))
     except (OSError, ValueError) as exc:
         print(internal_output.getvalue(), end="")
@@ -2577,6 +2669,7 @@ def cmd_next(args) -> int:
             print(f"{todo['id']} is active, but its lifecycle trace failed.")
             return 1
         print(f"Now working on {todo['id']}: {todo['title']}")
+        warn_if_unverified(root, text, todo["id"])
         print("Details are in docs/TASKS.md. When finished, run done with")
         print("--owner-locale zh-CN for Chinese or --owner-locale en for English.")
         return 0
@@ -2722,6 +2815,7 @@ def cmd_switch(args) -> int:
             print(f"{args.to} is active, but its switch trace failed. Repair TRACE before coding.")
             return 1
         print(f"Task Switch Gate activated {args.to}; exactly one task now owns new changes.")
+        warn_if_unverified(root, text, args.to)
         return 0
 
     args.follows = active or ""
