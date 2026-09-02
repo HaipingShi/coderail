@@ -1,24 +1,30 @@
 # Changelog
 
-## Unreleased
+## v0.12.0
 
-- Skills `handoff`, `trace`, and `closeout` descriptions now name their
-  artifacts (handoff file; TRACE_INDEX / RUNLOG / DECISIONS; `coderail done`
-  and the Owner Receipt) so the skills also trigger on direct file-operation
-  requests, not only on conversational framing.
-- New skill `domain-modeling`: actively builds the project's domain language
-  in a lazily created root `CONTEXT.md` glossary and records ADRs in the
-  existing `docs/DECISIONS.md`, offered only when a decision is hard to
-  reverse, surprising without context, and the result of a real trade-off.
-- Fixed WIN-RESIDUE-01: lifecycle text writes now go through
-  `scripts/textio.py` (LF-only, skip-if-identical) and `init_project.py`
-  installs `.gitattributes` (`* text=auto eol=lf`). On Windows, CRLF rewrites
-  after the closeout `git add` previously left phantom "modified" residue that
-  blocked the CI Gate.
-- Owner Receipt is now an intent-driven account to a human: the narrative
-  (what was done, what was not done and why, what next) has a relaxed 3-10
-  sentence budget, and the decisions block is enumerated one item per line
-  outside that budget, so choices are never compressed away or truncated.
+Skills `handoff`, `trace`, and `closeout` now trigger on direct file-operation requests, not only on conversational framing. New `domain-modeling` skill builds project glossary and ADRs. Fixed WIN-RESIDUE-01: lifecycle text writes go through `scripts/textio.py` (LF-only, skip-if-identical) and `init_project.py` installs `.gitattributes`. Owner Receipt is now an intent-driven account with relaxed 3-10 sentence budget.
+
+### Skills
+
+- Skills `handoff`, `trace`, and `closeout` descriptions now name their artifacts (handoff file; TRACE_INDEX / RUNLOG / DECISIONS; `coderail done` and the Owner Receipt) so the skills also trigger on direct file-operation requests, not only on conversational framing.
+- New skill `domain-modeling`: actively builds the project's domain language in a lazily created root `CONTEXT.md` glossary and records ADRs in the existing `docs/DECISIONS.md`, offered only when a decision is hard to reverse, surprising without context, and the result of a real trade-off.
+
+### Bug fixes
+
+- Fixed WIN-RESIDUE-01: lifecycle text writes now go through `scripts/textio.py` (LF-only, skip-if-identical) and `init_project.py` installs `.gitattributes` (`* text=auto eol=lf`). On Windows, CRLF rewrites after the closeout `git add` previously left phantom "modified" residue that blocked the CI Gate.
+
+### Owner communication
+
+- Owner Receipt is now an intent-driven account to a human: the narrative (what was done, what was not done and why, what next) has a relaxed 3-10 sentence budget, and the decisions block is enumerated one item per line outside that budget, so choices are never compressed away or truncated.
+
+### Verification
+
+- `python3 tests/test_static.py`
+- `npm test`
+- `npm run ci`
+- `git diff --check`
+
+## Unreleased
 
 ## v0.11.0
 
